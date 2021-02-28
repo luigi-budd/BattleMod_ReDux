@@ -1,0 +1,7 @@
+Krabs:
+	Scripting
+	Map updates
+Inazuma:
+	Stun Break vfx sprites
+Lianvee:
+	Lua port of SRB2 shield abilities

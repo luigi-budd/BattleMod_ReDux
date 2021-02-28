@@ -1,0 +1,1329 @@
+2020/11/15
+Version 8.6
+
+Maintenance
+	Fixed an issue with team balance not allowing new joiners
+	Fixed an issue with attack moves not deflecting love hearts and popgun corks
+#
+
+2020/11/15
+Version 8.5
+
+Maintenance
+	Fixed non-Battle characters erroneously attempting to use the Fang air popgun script
+	Fixed certain cp_ console commands failing to execute
+	Fixed Diamond gametypes desynchronizing for new joiners
+	Fixed Diamond awarding points during "Game Set!"
+	Fixed players being able to take force shields into sudden death
+	Closed window of opportunity where players could take items into sudden death
+	Fixed characters with 0 max shield reserves being able to carry infinite shield reserves
+	Exhaustion meter will not refill if player is currently performing a special move
+	Fixed an exploit which allowed Metal Sonic to bypass the low rings cooldown on special moves
+	Updated priority core script to improve compatibility with custom characters
+
+Gametypes
+	Removed Egg Robo Tag and related code
+	Game over accumulative penalty reduced (+5s -> +2s)
+	Disallowed joining red/blue team in instances where doing so would lead to team imbalance
+
+Maps
+	Grass Court Zone
+		Messed with vertices to make the map look smoother
+		Changed water textures
+		Adjusted some slopes to remove a hiding spot
+		Lowered the outer wall a bit to make the skybox more visible
+		Moved some water ambience sfx
+	Aquarium Zone
+		Added new death pit with a bubble shield spawner, adjusted item spawns in general
+		Changed skybox a bit
+	Lost Bridge Zone
+		Made the bridge bigger
+		Made the side platforms closer to the bridge, and convex instead of concave
+
+Amy
+	Piko Tornado
+		Tornado duration reduced in 2D mode (3s -> 1.29s)
+#
+
+2020/8/30
+Version 8.4
+
+Maintenance
+	Fixed errors and cfails when players joined a server loaded with custom characters 
+	Fixed Tails being unable to throw or carry allies under certain conditions
+	Fixed the wrong priority being applied to Tails when using certain shield abilities
+	Fixed Fang remaining in popgun fire state indefinitely on certain conveyor floor types
+	Players will receive credit for throwing opponents into hazards using projectiles
+	Fixed players being able to stand on the spire in Pumpkin Peak
+
+Gametypes
+	Added TOL_MATCH to Arena and Team Arena's supported TypeOfLevels
+#
+
+2020/8/19
+Version 8.3
+
+Maintenance
+	Fixed the "suicide" command not dropping the player's collected items
+	Made several adjustments to the strength of battle collision knockback
+	Significantly reduced the likelihood of collision feedback loops between bashable objects
+	
+
+Console
+	Added netvar "battle_launchfactor"
+		Adjusts the strength of battle collision knockback (note: projectile collisions are unaffected)
+#
+
+2020/8/17
+Version 8.2
+
+Maintenance
+	Fixed scores not being properly reset when changing maps (and end-of-round bugs associated with it)
+	
+#
+
+2020/8/17
+Version 8.1
+
+Maintenance
+	Fixed certain characters being stuck in special frames when grabbing the flag/diamond
+	Applied the "Game set" HUD to most other battle gametypes besides Survival
+	Disallowed the "suicide" command while in pain state or while in the air
+	Removed custom properties and behaviors from Fang's bombs
+
+Gameplay
+	Guarding
+		Disallowed guarding while flashing invulnerable
+	Survival
+		Win conditions
+			Game will automatically decide the victor if one player/team has more lives than the others at the end of the match
+		Sudden Death
+			Bombs no longer rain down from the sky; instead, players will gradually increase in size until one player is left standing.
+	Egg Robo Tag
+		Reduced cost of mines (10 -> 5)
+		Reduced start-up time of laser fire (20 -> 10)
+
+Tails
+	Reduced speed values to special moves while underwater and in 2D areas
+
+Fang
+	Popgun
+		Allowed jumping out of popgun animation
+		Allowed popgun to be fired once in the air after a jump
+			Added sprites for aerial popgun
+		Increased size of projectile sprite
+	Special
+		Replaced "Bomb Throw / Bomb Drop"
+		Dodge Roll
+			Execute in the air or on the ground to perform a dodge roll. Fang will not take damage while in this state
+		Spring Drop
+			Execute will tailbouncing to thrust into the ground
+#
+
+2020/8/13
+Version 8.0
+
+Maintenance
+	Fixed a script break in the 2D camera script
+	Fixed spectator auto camera not being interrupted by most button inputs
+	Added z distance check when attempting to keep player target in view of spectator auto camera
+	Fixed allied projectiles being able to destroy RC missiles
+	Addressed performance issues related to Fang's popgun target reticle
+	Fixed Knuckles being able to guard while digging
+	Fixed Fang being affected by bomb recoil while in pain or death states
+	Fixed Diamond getting caught on terrain
+	Enabled spikes and other objects to respawn
+
+Gameplay
+	Survival
+		Improved the accuracy of scorekeeping
+		Reduced the respawn penalty on successive game overs (+10s -> +5s)
+	Updated maps B0 through B5
+		Map designs have been edited to include more death pits to streamline Survival gameplay
+	Bashable objects can now be gated by linedefs with the "Block Enemies" flag
+	Added respawn penalty on successive deaths for non-Survival gametypes (+2s, max of 10)
+	Diamond
+		Players can now swipe the diamond from other players by touching the player
+	Egg Robo Tag
+		Specified Eggrobo's bomb sphere / mine as a "floating mine" in the hitfeed
+Console
+	Renamed cvar "battle_respawntime" to "battle_maxrespawntime"
+		Now controls the maximum respawn time of players in non-survival gametypes
+
+Modding
+	Skinvars
+		Added "sprites" namespace
+	Added function CBW_Battle.DrawSVSprite(player,sprites_num)
+
+Sonic
+	Reduced thok speed (60 -> 40)
+	Super Spin Jump
+		Reduced cooldown (1.5s -> 1s)
+	Ground Pound
+		Reduced upward swing
+	
+Tails
+	Made it easier for players to latch onto a flying Tails
+	Raised flight limit (4s -> 5.5s)
+	Replaced RC Missile with Tail Swipe
+		Use on the ground or in the air to launch a close-to-midrange projectile
+		Use while flying to thrust forward and exit flying state
+		Use while carrying an ally to throw them!
+
+Knuckles
+	Drill Dive
+		Added drilling animation while diving
+	Dig
+		Added team-colored tells for when Knuckles is burrowed.
+	Rock blast
+		Reduced the lifetime of rocks launched alongside the ground (47 -> 35)
+		Added drilling animation while rising from a grounded rock blast
+		Knuckles will go into falling sprites when no longer rising
+Amy
+	Renamed "love hearts" in the hitfeed to "piko splash"
+	Twinspin
+		Allowed activation via spin while pity shield is equipped
+		Allowed activation via spin/jump while carrying the flag
+	
+Fang
+	Popgun
+		Cork travel speed reduced (60 -> 48)
+	Bomb Throw
+		Added sprites for throwing animation
+		Disallowed movement while throwing
+		Changed HUD text to "Drop Bomb" when Fang is tail bouncing
+
+Metal Sonic
+	Energy Charge
+		Tweaked the charging animation
+		Raised friction
+		Lowered specials cooldowns (3.5s -> 3)
+#
+
+2020/8/3
+Version 7.9
+	
+Maintenance
+	Fixed Tails' RC missiles colliding with teammates
+	Fixed Fang being able to shoot without stopping by strafing
+	Fixed Fang being able to target team monitors on the other team
+	Fixed Fang being able to "skid" in the air while firing popgun
+	Fixed Fang's bombs being able to destroy team monitors on the other team
+	Reduced particle frequency of the player spawn animation
+	Reduced particle frequency and increased particle opacity of item spawn animations
+	Added visual effect when a parried player's invulnerability time is removed
+	Adjusted the knockback properties of the homing attack
+	
+Gameplay
+	Players whose projectiles are parried will lose their invulnerability time
+
+Tails
+	RC Missile
+		Missiles disperse when touching one another
+		Missiles are destroyed on collision with enemy projectiles
+
+Fang
+	Popgun
+		Reduced firing rate based on the speed Fang is moving
+		Reduced flinch time on uncurled opponents by 50%
+		Increased popgun endlag when Fang is moving at high speeds
+	Bomb
+		Raised cooldown (0.5s -> 1s)
+
+Metal Sonic
+	Energy Blast
+		Raised projectile speed (40 -> 48)
+#
+
+2020/7/31
+Version 7.8
+
+Maintenance 
+	Fixed Fang being able to shoot without stopping when autobrake is enabled
+#
+
+2020/7/31
+Version 7.7
+
+Maintenance
+	Fixed Fang being glued to the ground when he bomb-jumps while landing in tailbounce
+	Fixed lua script error in Piko Tornado object's collision script
+	Fixed Piko Tornado height collision check not being applied properly
+	Fixed a broken sync check for joining players (Caused "Game Set!" to stay on player's screens)
+	Fixed super colors being completely overridden by the exhaust meter color flashing script
+	Fixed bombs colliding with their owners if the source is an enemy/boss
+
+Gameplay
+	Added the spectator "auto-camera"
+		Idling for 15 seconds causes the camera to automatically shift viewpoints
+
+Console
+	Added "battleconfig_autospectator"
+		Toggles the spectator auto-camera feature.
+
+Tails
+	RC Robo Missile
+		Increased max speed (20 -> 28)
+		Increased z acceleration of air/water missiles (0.01 -> 0.02)
+	
+Knuckles
+	Dig
+		Reduced burrowed state max duration while on ground (8s -> 6s)
+	Rock Blast
+		Modified cooldown to always be: # seconds submerged + 3 seconds
+
+Metal Sonic
+	Energy Attacks
+		Raised move cooldown (3s -> 3.5s)
+#
+
+2020/7/26
+Version 7.6
+
+Maintenance
+	Fixed sprite display error when Amy attempts to use a special out of hammer thrust
+	Fixed Amy's Piko Tornado cooldown being applied too early
+	Guarding while performing a special move now correctly resets actionstate
+	Reviving from revenge jettysyn state correctly resets actionstate
+	Collecting the diamond correctly resets all characters' abilities
+	Characters cannot collect diamond while "toss flag" command is on cooldown
+	Doubled the height of diamond object (16 -> 32)
+	Fixed Tails being able to control RC missiles in situations where specials are not allowed (e.g. holding flag/diamond)
+	Disabled excess/nonfunctional RC missile hooks
+	Fixed bug that allows Fang to jump and use popgun at same time
+	Fixed popgun targeting teammates in Battle gametypes
+	Fixed a lua error when a player attempts to join teams before variables have initialized
+	Fixed Metal Sonic being unable to maintain dashmode in 2D
+	Fixed Metal Sonic being unable to maintain dashmode after being revived from revenge state
+	Disallowed guarding as Sonic triggers super spin jump
+	Various mechanical adjustments to Amy's tornado hitbox scaling
+	
+Game Modes
+	2D
+		Restricted spindash max speeds to half of normal maximum
+	Survival
+		Respawn time becomes longer for each successive game over during a match
+		Fixed "Game Over" text appearing late when cvar "survival_revenge" is set to 0
+
+Characters
+	Tails
+		RC Missiles
+			Raised missile spawns (2 -> 3)
+				Missile spawn number in 2D mode remains (2 -> 2)
+			Improved the spacing of missile spawns in 2D mode
+	Amy
+		Piko Tornado
+			Reduced tornado lifetime in 2D mode (5s -> 3s)
+	
+	Fang
+		Popgun
+			Can be used at any speed and on steep inclines
+				Fang has increased friction while firing popgun
+			Reduced horizontal targeting range in 2D mode (RINGDIST*2 -> RINGDIST)
+			Reduced vertical targeting range in 2D mode (30 degrees -> 20 degrees)
+			Added cork trail to improve visibility
+	Metal Sonic
+		Reduced weight (125 -> 115)
+		Dash Slicer
+			Improved consistency of ending strike by raising the frequency of claw projectiles (1/2tics -> 1/tic)
+			Applied cooldown later in the animation (longer effective cooldown)
+	
+Modding
+	SkinVars
+		Added "flags" variable (Set to '1' by default)
+			1 SKINVARS_GUARD - Allows guarding.
+			2 SKINVARS_GUNSLINGER - Uses the custom gunslinger mod (intended for use with Fang's popgun).
+		Removed the "canguard" variable (deprecated by SKINVARS_GUARD)
+#
+
+
+
+2020/7/22
+Version 7.5
+
+Maintenance
+	Set hard v-speed limits to characters grabbing the flag while using specials
+
+Characters
+	Sonic
+		Adjusted speed scaling of Sonic's ground pound while underwater
+		
+#
+
+
+
+2020/7/22
+Version 7.4
+
+Maintenance
+	Optimized lua hooks which were causing performance issues
+	Respawn time can no longer be bypassed by changing teams
+	Reset player "revenge" state for all gametypes
+	Applied drop shadows to various items
+	Modified chess piece sprite offsets to be closer to the ground
+	Fixed certain characters' specials not being interrupted by enemy parry
+	Fixed RC missiles knocking colliding players into the wrong direction
+	Removed startrings from GFZ3 header
+	Prevented pinch/overtime from triggering during "game set!"
+	Prevented level bgm from triggering twice on map change
+	Spectator controls HUD will disappear after 10 seconds of spectating
+	Fixed players being taken out of revenge state if they score a hit while dead
+	
+General
+	Reinstated Tails Doll as the training dummy (sprites by FlyingNosaj and Phanthonas)
+	Battle respawn time reduced (7s -> 6s)
+	Battle CTF respawn time reduced (10s -> 6s)
+	Increased respawn time for survival fighters who have received a game over (3s -> 10s)
+	Parrying
+		Players can guard while in skid recoil state
+	Projectiles launch all bashable objects at a fixed thrust amount on hit (4 fracunits / bashable weight)
+	Shield abilities
+		Unset homing state on attraction shield after 10 tics
+
+Console
+	Added "battle_respawntime"
+		Modifies the respawn time for non-survival battle gametypes
+
+Characters
+	Sonic
+		Reduced weight (95 -> 90)
+		Super Spin Jump
+			Increased the vertical speed of super spin jump, allowing it to reach its max height faster
+		Ground Pound
+			Added a stage to the attack in which Sonic initially rises before accelerating downward
+				Rising stage has 1 atk, 2 def
+	Tails
+		RC Missiles
+			Missiles carrying an ally will slowly fall after 16 seconds of flight time
+			Direction is now controlled with the movement keys
+			Reduced speed (30 -> 20)
+			Adjusted speed scaling in 2D areas
+	Knuckles
+		Player is resistant to knockback while climbing
+	Amy
+		Piko Tornado
+			Increased tornado speed (5 -> 10)
+			Adjusted speed scaling in underwater and 2D areas
+	Metal Sonic
+		Dash Slicer
+			Adjusted speed scaling in underwater and 2D areas
+#
+
+
+
+2020/7/18
+Version 7.3
+
+Maintenance
+	Fixed script error which prevented training dummy from de-spawning
+	Reduced the number of linedefs in Tunnel Road Zone 
+	Created emerald props for Chaos Shrine, allowing the pedestal emeralds to be made visible in Battle gametypes
+	Set the player revive sound to max priority
+	Forced "thokked" state onto Sonic during Super Spin Jump
+	Fixed Metal Sonic's dash slicer having increased ranged when spin/jump are pressed simultaneously
+	Fixed Metal Sonic not being able to turn in 2D mode while charging energy
+	Fixed Metal Sonic maintaining dash mode speed out of a projectile blast or dash slicer
+	Fixed Metal Sonic's energy charge aura remaining visible when Metal Sonic is killed
+	Egg robos will no longer lose rings or reward points when damaged by enemy player projectiles
+	Fixed armageddon blast being activated when a player collects another armageddon shield from an item bubble
+
+Game Modes
+	Overtime assigned to all Battle gametypes
+	Survival
+		Survival will no longer end until a single or player or team is standing
+		Survival timelimit reduced (5 -> 4)
+		Team Survival timelimit reduced (5 -> 4)
+		Sudden death
+			Sudden Death will now activate during level overtime, rather than during level "pinch"
+			Players will no longer start with shields and rings during sudden death
+			Doubled the frequency of bomb drops
+			WaitJoinHUD will no longer mention that you can "respawn as a jettysyn" during sudden death.
+			WaitJoinHUD vertical offsets adjusted to prevent overlap with lives counter
+
+General
+	Parry
+		Move and guard keys no longer interrupt parry animation (Other actions still take effect)
+		Reduced parry animation time (12 -> 9)
+		Increased invulnerability after parry (0.5s -> 0.75s)
+	Special Moves
+		Reduced minimum cooldown for ring debt penalties (5s -> 2s)
+	Shield Abilities
+		Flattened the knockback scaling of attraction's homing special
+	Flag/Diamond runners speed penalty raised (10% -> 20%)
+	Removed enforcement of respawn time during pre-round waiting period
+	Increased respawn time in non-survival battle gametypes (3s -> 7s)
+	Increased respawn time in Battle CTF (3s -> 10s)
+	Bashables
+		Lowered default* weight (100 -> 80)
+		Lowered default* friction (4 -> 2)
+		Bash boulder weight reduced (90 -> 70)
+		Lowered Chess Knight weight (100 -> 80)
+		Lowered Chess Pawn weight (100 -> 60)
+		* Affected objects: Training dummy, snowman, snowman with top hat
+
+Characters
+	Sonic
+		Reduced weight (100 -> 95)
+		Raised cooldown on specials (0.5s -> 1.5s)
+	Tails
+		RC Missile
+			Crawlas will jump regardless of whether the special move command is held
+			BASH and Jet Jaw will avoid ceilings and floors when possible
+	Knuckles
+		Modified the shape of rock blast to improve ground and anti-air coverage
+#
+
+
+
+2020-7-15
+Version 7.2
+
+Maintenance
+	Fixed flag/diamondrunners having increased air control when spinning
+	Fixed simple control users being unable to control the aim of Fang's bombs
+	Fixed simple control users being unable to aim Metal Sonic's special moves
+	Fixed simple control users being able to redirect the dash slicer
+
+General
+	Tails Doll and associated assets replaced with Battle Crawla Commander
+	console variable "battle_tailsdoll" renamed to "battle_training"
+
+#
+
+
+
+2020-7-14
+Version 7.1
+
+Maintenance
+	Fixed a couple of script breaks (one of which caused mass cfails in dedicated servers)
+	Reduced max flinch time from collisions (4s -> 2s)
+	Changed the properties of the 2D camera to center more around the player in view
+	Fixed Ground Pound splash being executed multiple times per use
+	Fixed issues in CBW_Battle.ControlThrust that caused certain objects like Tails' RC to use the wrong speeds at non-standard object scales.
+
+Game Modes
+	Diamond in the Rough
+		Tossed and flung diamonds will disappear after 16 seconds
+		Diamond is larger when unclaimed
+		Diamond now has a dropshadow
+		Colorized and increased the visibility of diamond sparkle trail
+		Diamond-holding player is drawn on HUD in Team CP
+	
+Character balance
+	Amy
+		Midair Piko Spin
+			Cooldown is applied when the move ends, rather than when it starts.
+		Piko Tornado
+			Reduced forward thrust while preparing tornado
+			Adjusted graphics and animation
+			Reduced radius (32 -> 16)
+			Reduced height (64 -> 48)
+			Reduced horizontal knockback strength (28 -> 6)
+			Increased vertical knockback strength (10 -> 16)
+			Tornado will only knockback players who are currently in pain state
+			Cooldown is applied at the beginning of end lag state.
+	Fang
+		Increased weight (100 -> 110)
+		Bomb throw
+			Reduced startup time (9 -> 6)
+			Reduced cooldown (2s -> 0.5s)
+		Bomb self-recoil
+			Reduced horizontal knockback strength (16 -> 8)
+			Increased vertical knockback strength (12 -> 16)
+	Metal Sonic
+		Charge Energy
+			Reduced startup time (10 -> 6)
+		Energy Blast
+			Reduced spread between blasts
+			Re-adjusted blast angles to resemble "+" shape
+		Fully Charged Energy Blast
+			Reduced spread between blasts
+			Raised horizontal projectile sets (3 -> 5)
+		Dash Slicer
+			Now provides much more vertical lift at the end of move
+#
+
+
+
+2020-7-13
+Version 7.0
+
+Music
+	Added three new oggs and midis
+		BPNCH1
+		BPNCH2
+		CNZ1PR
+
+Gametypes
+	Added Arena and Diamond battle mode types
+	Added Arena gametypes: Arena, Team Arena, Survival, Team Survival
+	Added Arena Maps:
+		Grass Court Zone
+		Oasis Zone
+		King's Board Zone
+		Snow Globe Zone
+		Greenflower Zone, Act 3
+		Mushroom Pit Zone
+		Sideshow Zone
+		Tunnel Road Zone
+		Aquarium Zone
+		Lost Bridge Zone
+		Pumpkin Peak Zone
+		Chaos Shrine Zone
+	Removed gametypes: Battle, Team Battle
+	Added Diamond gametypes: Diamond in the Rough, Team Diamond in the Rough
+	Egg-Robo Tag
+		Re-enabled spectators
+		Laser now fires a thicker stream of laser projectiles, with a somewhat Eggmobile-like attack style and an outward spread
+		Bomb specials have been replaced with "Place Mine"
+			Mines stay on the field indefinitely
+			Will only be removed when an untagged player or a projectile touches them
+		Refined general Egg Robo movement
+		Egg Robo weight increased (100% -> 200%)
+		Various Egg Robo Tag fixes
+		Removed an eggrobotag skin failsafe for custom characters. Check player.iseggrobo for proper compatibility!
+	Battle CTF
+		Time limit (10 -> 8)
+		Increased flag respawn grace period (5 -> 6)
+		Increased top speed penalty for flagrunners (5% -> 10%)
+		Increased acceleration penalty for flagrunners (10% -> 20%)
+	CP
+		Time limit (10 -> 8)
+		Point limit (5000 -> 4000)
+		Capture bonus (1000 -> 500)
+		Capture speed increased 20%
+	Team CP
+		Time limit (10 -> 8)
+		Point limit (3 -> 4)
+		Capture speed increased 20%
+
+General
+	2D mode
+		Air movement modified to be more responsible in the air (thrust factor increased +100%)
+		Added acceleration curve (acceleration more gradual at high speeds)
+		Gravity and thrust values raised (+50%)
+			Spring object scale increased (+50%) to maintain vertical launch height
+		Projectile speed reduced (-50%)
+	Added player spawning animations for battle gametypes
+	Added guarding
+		With good timing, players can guard against enemy attacks (uses firenormal key)
+	Added battleconfig.cfg
+		Allows players to:
+			bind one or multiple keys to the special and guard actions
+			toggle on/off the aim cursor display for certain characters
+	Added weight
+		Players and objects with more weight will be less resistant to knockback forces and will deal more knockback to others
+	Added bashable object types (mo.battleobject)
+		Players can launch certain pushables by attacking them.
+		Launched bashables will deal damage to enemies and opponent players
+	Added bashable objects:
+		Bash Boulder
+		Chess Knight
+		Chess King
+		Chess Queen
+		Chess Pawn
+		Snowman
+		Snowman w/ Top Hat
+		Tails Doll
+	Added "PreRound"
+		Start time waiting period applies to all battle modes. Players can change skins during this period via the jump/spin keys.
+	Expanded scope and functionality of "battledebug"
+		More HUD items
+		Ability to flag/unflag certain debug info types
+
+Console
+	Added variables and commands
+		battle_guard
+		battle_preround
+		battle_tailsdoll
+		battle_startrings
+		survival_lives
+		survival_suddendeath
+		survival_revenge
+		item_rate
+		item_global
+		item_local
+		battleconfig_special
+		battleconfig_guard
+		battleconfig_aimsight
+		test
+	Modified naming conventions for existing variables and commands (see 7.0 Player & Server Manual for more info)
+	Removed "autoaim"
+
+Characters & Abilities
+	Sonic
+		Super Spin Jump
+			Raised offensive priority (1 -> 2)
+		Ground Pound
+			Raised offensive priority (1 -> 2)
+			Rebound height off of enemies can be reduced by releasing the jump key
+	Tails
+		Buzz Sentry replaced with the RC Robo Missile
+			Player will launch three badnik themed missiles
+				Badnik type varies based on environment (Crawla = land, BASH = air, Jetjaw = water)
+			Missiles respond to player direction and z position so long as the special button is held
+				Crawlas will jump when the player presses the jump button
+			Carried players can be launched onto a BASH or Jetjaw Missile
+				Carried players control the direction of the missile in flight
+
+	Knuckles
+		Increased weight (100 -> 115%)
+		Increased reserve shields (2 -> 3)
+		Removed passive frontal "defense" trait
+		Knuckles will be forced to detatch from walls after 6 seconds of climbing
+			Rapidly latching/detatching from walls will reduce the climb timer
+		Dig
+			Added explicit priority to downward drill (Atk 2, Def 2)
+			Ring cost increased (8 -> 10)
+			Resurface cost removed (6 -> 0)
+			Ambush cooldown is now 5 seconds or the length of time the player spends burrowed (whichever is higher)
+			Cancel cooldown is now 1 second or the length of time the player spends burrowed (whichever is higher)
+			Uses exhaust timer
+				Exhaust timer runs more slowly on walls
+			Cannot re-glide after using dig
+
+	Amy
+		Charm Beam replaced with the Tornado Spin
+			Priority (Atk 2, Def 3)
+			Ground Special
+				Amy will wind up a tornado spin, unleashing a dustdevil that can launch foes and shield allies
+					Only one dustdevil can be out at a time
+			Air Special
+				Amy will perform a midair jump, dealing damage to opponents who make contact
+					Midair jump can be extended by holding the jump key
+					Using the Air Special inside of a dustdevil will launch Amy upwards
+
+	Fang
+		Throw Bomb
+			Being in contact with one's own bomb as it explodes causes Fang to perform a bomb-jump
+			Added telegraph animation to throw
+			Using the special move while pogoing will drop the bomb instead of throwing it
+
+	Metal Sonic
+		Increased weight (100% -> 125%)
+		Metal Sonic will be forced to slow down and lose height after 6 seconds of hovering
+		Special move renamed to "Energy Attack"
+		Energy Attack
+			Ring cost increased (8 -> 10)
+			Ring cost is effective on initiation
+			Energy Attack uses exhaust meter instead of draining rings per second
+			Dash activated via jump key
+			Cancel activated via guard key
+			Players can no longer hover after attacking
+			Forced wait period before blast can be fired
+			Energy blast now has two levels instead of three
+				Level 1 fires 5 projectiles vertically
+				Level 2 fires 3 sets of 5 vertical projectiles
+			Player can perform the "Dash Slicer" by using the spin key
+
+
+
+Maintenance
+	Added a smoother spectator with proper 2D controls
+	Removed deprecated "player.truemo" variable (replaced all instances with "player.realmo")
+	HUD CP radar now points in the correct direction in 2D mode
+	Homing attack collisions send the user at a fixed knockback angle/strength
+	Using the Flame Shield's ability will send no-spinjump characters into spin frames
+	Enforced a 10 tic limit on the homing chase of the Homing Thok ability
+	Disallowed action usage while the player is inside a zoomtube
+	Cleaned up NetVars
+	Added respawn delay penalty to all battle modes
+	Removed outdated damage hook for common projectiles
+	Fixed a 2.2.4 glitch which causes friendly projectiles to continuously give rings to teammates
+	Restructured tag damage code
+	Restructured HUD code
+	Fixed a netsynch issue within CBW_Battle.SearchObject()
+	Removed "tossflag" functionality from actionscripts
+	Switching between team and non-team game modes will restore player skincolor
+	Added internal debug print function
+	Debug HUD scales with resolution
+
+Modding
+	Added function CBW_Battle.DoPlayerFlinch(player,flinchtime,knockback_angle,skid_thrust)
+		Sets player flinch/skidding properties
+#
+
+
+
+2020-4-7
+Version 6.1
+
+Maintenance
+	Disabled MF2_FRET for simple lockon controls (suspected to be causing cfails)
+
+Shields
+	Players will always respawn in pity shields (for gametypes that allow it)
+	Reserve shield is used when player loses their current shield to water (or by using Armageddon's active)
+
+Sonic
+	Reduced reserve shield count (2 -> 1)
+
+Amy
+	Reduced reserve shield count (2 -> 1)
+	Charm Beam
+		No longer rewards 10 rings to allies
+		Shield stock cannot be used for the duration of Charm Beam's "disable"
+
+Metal Sonic
+	Increased reserve shield count (2 -> 3)
+	Removed color changing functions from Metal Sonic's energy attacks
+	Reduced charge time required to perform powered-up energy attacks (35 -> 25, 70 -> 50)
+	Dash Burst
+		Reduced ring cost (12 -> 8)
+#
+
+
+
+2020-4-6
+Version 6.0
+
+Maintenance
+	Fixed Tails sentries not awarding points
+	Fixed player targeting in splitscreen mode
+	Internal reorganization of function library
+
+Visual
+	Pity shields will be colored according to player skincolor
+	Force shields will be colored in team gametypes
+
+Battle
+	Added Shield Stock mechanic
+		If the player has a shield and obtains a new one, player will store a pity shield in reserve
+		Up to two pity shields can be stored in reserve
+			Modding: Custom reserve maximums can be defined via CBW_Battle.CharShieldMax[skin]
+Tails
+	Sentry spawning now respects action cooldown
+	Action cooldown reduced (1s -> 0.5s)
+	Lowered action cost (12r -> 10r)
+#
+	
+	
+
+2020-3-30
+Version 5.7
+
+Maintenance
+	Disallowed Simple lock-on targeting for players who are out of line of sight
+	Angled collision checks for Knuckles and Amy rely on sprite angle instead of camera angle
+	Fixed Amy's charm beam not disabling ring-cost actions
+
+Tails
+	Buzz Sentries
+		Sentries and colliding players will be knocked back and stunned by each other if both parties are in attack frames
+		If no target is found when the attack key is pressed, sentries will fire in the direction the player is facing
+		"Always manual" sentry aiming is now available by toggling off autoaim
+
+Amy
+	Ground Hammer
+		Reduced priority when attacked from the sides or back (1 at / 1 df -> 1 at / 0 df)
+
+Fang
+	Popgun / Cork
+		Reinstated a .33s firing delay after taking damage
+		Re-upped vertical thrust amount on airborne players (+8 fu -> +10 fu)
+		Reduced vertical knockback by 50% while underwater
+		Grounded players will have a strictly horizontal knockback angle (12 fu)
+		Removed lift from cork knockback on invuln players
+		Cork horizontal knockback on invuln players now applies relatively
+#
+
+
+
+2020-3-28
+Version 5.6
+
+Maintenance
+	Moved the code handling Sonic's increased defense priority during actionstates into the "abilities" priority script.
+	Fixed an issue with Fang's corks occasionally turning Metal Sonic into a tomato while Metal is charging energy blast
+
+Modding
+	Added function CBW_Battle.AddCharPriority(skin,func,extfunc)
+		Allows modders to more reliably specify the battle_func and battle_extfunc functions used to determine a skin's attack/defense priority.
+
+Fang
+	Popgun / Cork
+		Removed popgun firing delay after taking damage
+		Colliding player's vertical speed is reduced by 50% before applying additional vertical thrust
+		Adjusted relative vertical thrust amount applied to colliding players (+10fu -> +8)
+		Added a small amount of lift to invulnerable players hit by the cork (0fu -> 3fu)
+	Bombs
+		Lowered explode-on-contact threshold for bombs against floors (16fu -> 12fu)
+		Reduced the upward thrust amount of dropped bombs (8fu -> 4fu)
+
+Metal Sonic
+	Melee attacks can disrupt Metal Sonic while charging energy blast
+	Added 1 second of cooldown when Metal Sonic is disrupted while charging energy blast
+
+#
+
+
+
+2020-3-26
+Version 5.5
+
+Maintenance
+	Fixed an issue where all projectiles ended up using the popgun cork damage script
+
+#
+
+
+
+2020-3-26
+Version 5.4
+
+Maintenance
+	Z-targetting correctly follows players who are currently invulnerable
+	Made it easier to manually override player.actiontextflags
+
+General
+	Players can be reticle-targeted by the popgun and homing attack while invulnerable
+	Projectiles will have reduced speed and increased lifetime while submerged underwater (Fang's bomb's lifetime remains constant)
+	Flame shield and bubble shield will send no-spin characters into a rolling state while the shield ability is active.
+	Players will receive 50 points for knocking another player into a deathpit or crusher (-50 death penalty still applies for the victim)
+
+Sonic
+	"Super Jump" action text now reads "Super Spin Jump"
+	Raised defense priority to 2 while performing Super Spin Jump or Ground Pound
+
+Knuckles
+	Raised dig time limit (2s -> 2.2s)
+	Raised rock blast projectile lifetime (40tic -> 47tic)
+	"Rock Blast" indicator text is red if player does not have enough rings
+	Knuckles goes into "fall" animation when resurfacing w/o using rock blast
+
+Amy
+	Using twinspin against another player will refresh Amy's ability to use twinspin again
+	Love hearts now check to see if colliding player's base defense priority is 1
+
+Fang
+	Fang's popgun now uncurls players who are in a state with defensive melee priority, instead of always dealing damage
+	Fang's popgun will push away players who are still invulnerable
+	Bomb fuse lowered (10s -> 5s)
+	Bomb cooldown lowered (1s -> 0.5s)
+	Bomb explosion on contact against walls: threshold lowered (10fu -> 8fu)
+	Bomb explosion on contact against floors: threshold raised (10fu -> 16fu)
+
+Metal Sonic
+	Added ability: Dash Burst
+		Cost: 12
+		Press TossFlag while charging the energy blast to perform a dash in midair
+	"Cancel" action has been moved to the spin key
+	Reduced cost of Energy Blast (10 -> 8)
+	Raised energy blast recoil (4fu -> 6fu)
+
+EggRobo
+	Bomb fuse raised (10s -> 15s)
+
+CP / Team CP
+	Removed "aimable" property from the control point object
+	Added a default time limit of 10 minutes
+
+CTF
+	Raised grace period on dropped flags (1s -> 2s)
+	Lowered grace period on respawning flags (8s -> 5s)
+	Added a default time limit of 10 minutes
+
+#
+
+
+
+2020-3-19
+Version 5.3
+
+Maintenance
+	Fixed an issue with the HUD streaming lua errors when the leading cap player or player object is removed from the game
+#
+
+
+
+2020-3-19
+Version 5.2
+
+Battle
+	Added melee conditions for stomp damage on jump attacks.
+	Added matchfeed text for non-spinning jump attacks
+	Added default matchfeed text for any non-projectile attacks that haven't already had specified hit messages -- no more "tagging hand" nonsense
+
+CP
+	HUD: Added skin icons next to each percentage meter, improving readability and making it clearer which player is in the lead.
+#
+
+
+
+2020-3-17
+Version 5.1
+
+Maintenance
+	Fixed an issue with CPs not registering all players inside the capture area.
+#
+
+
+
+2020-3-17
+Version 5
+
+Maintenance
+	Updated version info and tweaked syntax
+
+Console
+	Added server variable "ctf_flagdrop_graceperiod"
+		Adjusts the length of intangibility (in seconds) for dropped flags in CTF
+	Added server variable "ctf_flagrespawn_graceperiod"
+		Adjusts the length of intangibility (in seconds) for CTF flags respawning at the base
+	Modified the syntax for command "autoaim", now requires argument "1"/"on"/"yes" to enable, "0"/"off"/"no" to disable 
+	Modified server variables "cp_radius", "cp_height", and "cp_meter" to make it easier to test CP parameter settings for map thing spawns.
+		A value of 0 will default to the parameters specified by the object's thing placement, if applicable.
+	Added server command "cp_shuffle"
+		Shuffles the order in which the map's CP current objects are queued to activate.
+	Added server command "cp_create"
+		Creates a CP object at the console player's object location with parameters 'radius', 'height', 'meter', and 'flip' (value of 0 will use default parameters). Object is inserted at the end of the current queue.
+	Added server command "cp_next"
+		Moves onto the next CP object in the current queue and activates it.		
+
+Modding
+	Assigned MT_CONTROLPOINT to MapThingNum 3640, allowing it to be placed directly inside of levels.
+
+Maps
+	Added MAPB0, "Indigo Park Zone", for Battle and CP gametypes.
+
+CTF
+	Reduced default flag respawn intangibility time (10 -> 8)
+	Imposed a small acceleration and top speed debuff to flag carriers (-5% normalspeed, -10% acceleration)
+
+Capture Point
+	Flattened the capture rate; no longer inversely scales with players on the point
+
+Tails
+	Swapped the key commands for spawning and firing a sentry
+	Spawning a sentry can be executed with the "fire sentry" command if no sentry is currently out
+#
+
+
+
+2020-3-12
+Version 4.1
+	Removed a debug-related print message in the collision script
+#
+
+
+
+2020-3-12
+Version 4
+
+Modding
+	The standard ShouldDamage hook for custom projectiles can be overridden by setting the projectile's mass to a non-zero value
+
+Maintenance
+	Fixed Knuckles' temporal anxiety when in reverse gravity
+	Fixed Battle CTF and CP having the wrong gametype descriptions
+	player.charability is 0 if player is charmed
+
+HUD
+	Action cooldown now displays in centiseconds
+	Added "GOT FLAG!" indicator to CTF gametypes
+
+Match
+	Collisions and non-ring projectiles correctly apply damage to enemy players
+
+Tag
+	"IT" indicator displays in standard Tag gametypes
+	Disabled spectators in EggRoboTag
+	Egg Robos will be reverted to skin "sonic" if player is using a custom skin while "IT"
+
+
+CTF
+	Flag is intangible for 10 seconds when respawning at the base
+	Flag is intangible for 1 second after dropping or tossing
+	Added a 1-second cooldown to using actions after tossing the flag
+
+CP
+	Pointlimit reduced (7000 -> 5000)
+	Timelimit disabled (8 -> 0)
+
+Team CP
+	Pointlimit reduced (4 -> 3)
+
+Tails
+	Buzz Sentry
+		Lowered attack startup (25 -> 20)
+		Sentries are more selective about using noclip; will teleport if player is out of view
+		Sentries are now evenly spaced behind player and will reposition according to player angle
+		Sentries look straight forward instead of at the player
+		Target blockmap search range increased (512 -> 640)
+
+Knuckles
+	Dig
+		Pressing spin now causes Emerge to be used instead of Rock Blast
+		Delay before moving underground, rock blasting, or emerging is available (35 -> 22)
+		Removed ring drain while underground - after 2 seconds of digging, Emerge is used automatically
+		Movement speed (33% -> 37.5%)
+	Rock Blast
+		Cost raised (6 -> 8)
+		Pressing "jump" instead of "fire ring" gives knuckles extra height
+		Fixed bug where rock blast didn't need any rings to use if you pressed "jump"
+		Rock despawn time increased (35 -> 40)
+		Floor rock blast
+			Increased vertical launch angle of rocks
+			Added an inner layer of 4 rocks with even higher vertical launch angle
+			Reduced amount of rocks
+			
+Amy
+	Hammer
+		Melee base priority raised (1/0 -> 1/1)
+		Twinspin base priority raised (1/0 -> 1/2)
+		Twinspin sweetspot priority raised (1/3 -> 2/3)
+		Removed a z-angle check for the twinspin sweetspot, sweetspot triggers exlusively when facing the opponent
+	Charm Beam
+		Cost reduced (12 -> 10)
+		Charmed players are slowed (75% normalspeed, thrustfactor - 1)
+		Charmed players will have their shields and sneakers removed
+		Charmed time reduced (8s -> 6s)
+		Flashing teammates can be shielded by the charm beam
+		
+Fang
+	Bombs are correctly colored in Battle gametypes
+#
+
+
+
+2020-3-1
+Version 3.4
+
+Maintenance
+- Fixed elemental shields deflecting all projectiles
+
+#
+
+
+
+2020-3-1
+Version 3.3
+
+Maintenance
+- Fixed CPs not being captured at 100% if the CP is currently contested
+- Fixed uncurled players still being in "spinning" state on the ground
+
+Balance
+- Reduced the scaling of no-control skid time during a collision
+- Tweaked the application of no-control skid time to both parties in a collision
+
+#
+
+
+
+2020-2-29
+Version 3.2
+
+Features
+- Added server console variable "battledebug", displays action and battle debug info for the currently viewed player.
+
+Maintenance
+- Fixed player.battle_sdef not being properly refreshed by the basic priority function
+- Fixed no-jump-damage characters having spinjump priority
+- Fixed Amy's hammer priority always being active
+- Fixed players being able to spin around freely on the ground after getting "charmed"
+- Fixed Knuckles having temporal anxiety while in reverse gravity
+- Fixed Tag Egg Robo being nonfunctional if "battleactions" is off
+- Fixed Tag Egg Robo being damaged by projectiles from non-tagged players
+
+#
+
+
+
+2020-2-29
+Version 3.1
+
+Maintenance
+- Fixed CP compass not working correctly in Simple controls
+- Fixed a typo in the hit message feed
+- Fixed a print message flood in the HUD script
+- Fixed Tails sentry not awarding points in Battle gametypes
+
+#
+
+
+
+2020-2-28
+Version 3
+
+Features
+- Added console net variables which enable/disable Control Point spawn positions
+	cp_spawnbounce
+	cp_spawnauto
+	cp_spawnbomb
+	cp_spawngrenade
+	cp_spawnscatter
+	cp_spawnrail
+	cp_spawninfinity
+	
+Modding
+- Added table CBW_Battle.Gametypes.TeamScoreType[gametype]
+	Set value to "1" to calculate team score in "Team Battle" type modes
+- Added table CBW_Battle.Gametypes.Battle[gametype]
+	Set value to "true" to enable Battle rules and mechanics for gametype
+- Added table CBW_Battle.Gametypes.CP[gametype]
+	Set to "true" to enable CP rules and mechanics for gametype
+- Added function CBW_Battle.AddPriorityFunction(string,function)
+	Indexes the specified function as a string (for use with player.battle_func, player.battle_extfunc, and player.battle_sfunc)
+- Added variable player.battle_func
+	String index for core priority function for characters. If nil, defaults to "basic" (index for CBW_Battle.Priority_Core)
+- Added variable player.battle_extfunc
+	String index for an additional priority function. If nil, defaults to "abilities" (index for CBW_Battle.Priority_Ability).
+- Added variable player.battle_sfunc
+	String index for a conditional function, which should return a boolean value. Function can read up to two arguments (player.mo, othermo). If set to nil, does nothing.
+- Added variable player.battle_atk
+	Current attack priority. (If higher than enemy defense priority, deals damage. If equal, can send enemy into disadvantage state)
+- Added variable player.battle_def
+	Current defense priority. (Resists knockback and damage if equal or higher to enemy attack)
+- Added variable player.battle_satk
+	Sweet/sourspot attack priority. (Overrides atk if sfunc returns true)
+- Added variable player.battle_sdef
+	Sweet/sourspot defense priority. (Overrides def if sfunc returns true)
+
+Maintenance
+- Reorganized lua contents and changed lua lump naming conventions
+- Moved gametype rules from OBJCTCFG to Init_Gametype.lua
+- Fixed Battle CTF being set to run on "TOL_BATTLE" maps instead of "TOL_BATTLECTF" maps
+- Removed "TOL_TEAMBATTLE", "TOL_TEAMDIAMOND", and "TOL_TEAMCP" from freeslots
+- Removed deprecated KingPanel variables
+- Improved accuracy of collision angle detection for PvP interactions
+- Restructured collision priority code to be less confusing and ambiguous
+- Added backup CP spawn functionality for when no valid map spawns are available
+- Fixed hits via Tails' sentry not awarding points to the player
+- Corrected a script break in Exec_HUD.lua
+- HUD compass will now point in the correct direction in splitscreen and while spectating
+- Disallowed Knuckles from being able to burrow while in goowater or quicksand
+- Fixed armaggeddon shields not dealing damage to enemy players
+- Fixed elemental powers not protecting against elemental damage from enemy player projectiles
+- Fixed Amy's heart projectiles dealing damage in spite of spinning state
+
+Game Balance
+- Disabled Rail/Infinity spawn positions for CP by default (set cp_spawnrail and cp_spawninfinity to 1 as server/admin to re-enable)
+- Readjusted PvP recoil and disadvantage state to more consistently favor the player with the higher offensive/defensive priority
+
+Control Panel
+- Reduced fluctuation of min/max capture speed
+
+Team Control Panel
+- Two teams must have an equal number of players on the point in order for it to be fully blocked
+- The team with the highest number of players on the point will increase capture meter, but the rate of capture decreases based on the number of enemy players on the point
+
+Priorities that remain unchanged
+- spinjump/spinning priority (1 atk / 1 def)
+- Tails propellor attack (2/2)
+- Knuckles "fighter stance" sweetspot (0/1)
+- Knuckles, Amy ability (no sweetspot) (1/0)
+
+Priorities that have been altered
+- Knuckles' glide sweetspot (3/4 -> 2/1)
+- Amy's Twin Spin hammer sweetspot (4/4 -> 1/3)
+- Amy's Melee hammer sweetspot (4/4 -> 1/3)
+- Fang's tail bounce sweetspot (4/3 -> 2/3)
+- Metal's dashmode while moving (3/4 -> 3/1)
+- Metal's dashmode while charging spindash (1/1 -> 1/3)
+
+Knuckles
+- Added vertical angle limit to "fighter stance" sweetspot
+- Reduced lifetime of rock blast projectiles (45 -> 35)
+
+#
+
+
+
+2020-2-23
+Version 2.0 release
+
+Features
+- Battle, Team Battle, Egg Robo Tag, and Battle CTF are now recognized as unique gametypes in the multiplayer level select
+- Added Control Point, Team Control Point to the gametype options
+- Removed King of the Panel mode
+
+Control Point / Team Control Point
+- Weapon panels and the infinity ring are valid spawn points for CP objects
+
+Maintenance
+- player.disableringslinger is now "off" by default
+- The player character's sprite angle will now reflect the player's movements in Battle gametypes
+- Fixed compass direction for Simple controls
+- Camera reposition/lock-on now works in Battle mode for Simple controls
+- Improvements to Battle-related HUD
+- Modified action scripts to accommodate secondary action commands
+- Fixed Fang's bomb not consuming rings if it immediately explodes
+- Fixed Egg Robo death animation not displaying the limb/gun sprites (for real this time)
+
+Console
+- Removed "battlehelp"
+- Added "battleversioninfo" (replaces "battlehelp versioninfo")
+- Added console variable "collision" (toggles collision for non-battle gametypes)
+- Added console variable "slipstream" (toggles the backdraft/slipstream mechanic)
+- Added console variable "battleactions" (toggles battle actions in all non-ringslinger gametypes)
+- Collision damage can now be toggled universally with the "friendlyfire" variable (in tandem with the "collision" variable)
+- Added console variables for Control Point: "cpmeter","cpwait","cpradius","cpheight","cpbonus"
+- Removed console variables related to King of the Panel
+
+Game Balance
+- Enforced a hard cap on the amount of time a player will skid on the ground from a PvP bump-collision (-> 1s)
+- Limited vertical aim amount while auto-aiming (-> +- 60deg)
+
+Sonic
+- Increased the radius of Sonic's ground pound attack by roughly 50%
+- Added a cooldown after using groundpound (-> 0.5s)
+
+Tails
+- Tails can now spawn up to three buzz sentries at a time
+- Spawn cost raised by 50% (10 -> 12)
+- Sentry attack command moved to the TossFlag key
+
+Knuckles
+- Reduced dig cost (10 -> 8)
+- Burrowing: added a 1 second delay before rings begin to drain
+- Ring drain rate doubled while stationary (1rps -> 2rps)
+- Ring drain rate no longer increases while moving (2rps -> 2rps)
+- Increased movespeed while burrowing (25% -> 33% normalspeed)
+- Increased dig cooldown after resurfacing (1s -> 2.5s)
+- "Resurface" relabeled "Rock Blast"
+- Added a ring cost to using the rock blast attack (-> 6)
+- Knuckles can now Resurface with the ringtoss key, without using rock blast or spending rings
+
+Amy
+- Increased action ring cost (10 -> 12)
+- Raised charm beam speed (16 -> 20)
+- Reworked "charmed" mechanic; instead of being shrunk and invulnerable, players simply act as if they had picked up a CTF flag (i.e. cannot use abilities)
+- Enemy players will now bounce off of love hearts without taking damage if they are in spin/spinjump state
+
+Fang
+- Removed certain firing hacks in Fang's action script
+- Enforced a firing delay after taking damage (-> 0.5)
+- Forward bomb throws and dropped bombs are now mapped to the ringtoss and tossflag keys respectively
+- Reduced bomb autoaim (60 -> 45)
+- Slightly lowered z-angle floor of auto-aimed bomb throws
+- Bombs will automatically explode on contact with enemies, bosses, and monitors
+- Bombs will automatically explode against walls and ceilings/floors respectively if their horizontal or vertical momentum is higher than 10 fracunits
+
+Metal
+- Charging an energy blast out of a dash will automatically store one level of charge
+- Scaled down the dimensions of energy blast projectiles by 50%, making it less likely to clip against surfaces when firing
+- Reduced autoaim (60 -> 45)
+- Increased the autoaim search range for non-player objects (128 -> 256)
+- Reduced recoil after firing (12 -> 4)
+- Reduced the spread of charged blasts (5 -> 3)
+- Player can hover after firing blast
+- Player can cancel an energy blast by pressing tossflag while charging
+#
+
+
+
+2020-2-13
+Version 1.1 released
+- Added team-colored bombs and elemental fire, to improve game readability
+- Fixed Egg Robo death animation not displaying the limb/gun sprites
+- Fixed Fang being unable to throw a bomb at exactly 10 rings
+- Fixed HUD error when an unlocked Score Panel is made invalid
+
+
+
+#
+
+2020-2-11
+Version 1 released

@@ -1,0 +1,7 @@
+Version CE-v1
+
+Maps
+	Grass Court, Oasis, King's Board, Snow Globe, Mushroom Pit, Sideshow, Aquarium, and Chaos Shrine
+		More spacious layouts
+		Rebalanced item spawns
+		Bug fixes

@@ -1,0 +1,173 @@
+Level B0
+LevelName = Grass Court
+Music = GFZ1
+SkyNum = 4
+TypeOfLevel = Arena,Survival
+NextLevel = B1
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 60
+Lua.BattleItems_GlobalRate = 60
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_Whirlwind = 2
+Lua.BattleItems_Force = 1
+
+Level B1
+LevelName = Oasis
+Music = MP_GLZ
+SkyNum = 14
+TypeOfLevel = Arena,Survival
+NextLevel = B2
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 90
+Lua.BattleItems_GlobalRate = 60
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_Pity = 0
+Lua.BattleItems_Whirlwind = 4
+Lua.BattleItems_Force = 0
+Lua.BattleItems_Elemental = 2
+Lua.BattleItems_Attraction = 2
+Lua.BattleItems_Armageddon = 0
+Lua.BattleItems_Roulette = 0
+Lua.BattleItems_S3Bubble = 1
+Lua.BattleItems_S3Flame = 4
+Lua.BattleItems_S3Lightning = 2
+Lua.BattleItems_S3Roulette = 0
+Lua.BattleItems_HyperRoulette = 0
+
+
+Level B2
+LevelName = King's Board
+Music = SPEC4
+SkyNum = 10
+TypeOfLevel = Arena,Survival
+NextLevel = B3
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 30
+Lua.BattleItems_GlobalRate = 40
+Lua.BattleItems_SuperRing = 1
+
+
+Level B3
+LevelName = Snow Globe
+Music = FHZ
+Weather = PRECIP_SNOW
+SkyNum = 127
+TypeOfLevel = Oldbrak,Arena,Survival
+NextLevel = B4
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 75
+Lua.BattleItems_GlobalRate = 60
+Lua.BattleItems_SuperRing = 5
+Lua.BattleItems_Attraction = 2
+Lua.BattleItems_S3Lightning = 2
+
+Level B4
+Levelname = Greenflower
+Act = 3
+Music = VSBOSS
+TypeOfLevel = Arena,Survival
+SkyNum = 1
+SkyboxScale = 64
+NextLevel = B5
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 60
+Lua.BattleItems_GlobalRate = 60
+Lua.BattleItems_SuperRing = 5
+Lua.BattleItems_S3Roulette = 2
+Lua.BattleItems_HyperRoulette = 1
+
+Level B5
+LevelName = Mushroom Pit
+SkyNum = 6
+Music = MP_FOR
+TypeOfLevel = Arena,Survival,OldBrak
+NextLevel = B6
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 60
+Lua.BattleItems_GlobalRate = 60
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_S3Roulette = 3
+Lua.BattleItems_HyperRoulette = 1
+
+Level B6
+LevelName = Sideshow
+SkyNum = 500
+Music = CNZ1PR
+TypeOfLevel = Arena,Survival,2D
+NextLevel = B7
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 20
+Lua.BattleItems_GlobalRate = 40
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_Roulette = 2
+Lua.BattleItems_S3Roulette = 2
+Lua.BattleItems_HyperRoulette = 1
+
+Level B7
+LevelName = Tunnel Road
+SkyNum = 6
+Music = THZ2
+TypeOfLevel = Arena,Survival
+NextLevel = B8
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 60
+Lua.BattleItems_GlobalRate = 30
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_Roulette = 2
+Lua.BattleItems_S3Roulette = 2
+
+Level B8
+LevelName = Aquarium
+SkyNum = 15
+Music = MP_WT2
+TypeOfLevel = Arena,Survival
+NextLevel = B9
+SelectHeading = Arena
+Lua.BattleItems_GlobalRate = 22
+Lua.BattleItems_LocalRate = 40
+Lua.BattleItems_Ring = 10
+Lua.BattleItems_SuperRing = 1
+Lua.BattleItems_S3Bubble = 2
+
+Level B9
+LevelName = Lost Bridge
+Music = VSAGZ
+Skynum = 10
+Weather = PRECIP_STORM
+TypeOfLevel = Arena,Survival
+NextLevel = BA
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 30
+Lua.BattleItems_GlobalRate = 30
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_Roulette = 2
+Lua.BattleItems_S3Roulette = 2
+Lua.BattleItems_HyperRoulette = 1
+
+Level BA
+LevelName = Pumpkin Peak
+Music = HAUNTD
+SkyNum = 11
+TypeOfLevel = Arena,Survival
+NextLevel = BB
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 30
+Lua.BattleItems_GlobalRate = 30
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_Roulette = 2
+Lua.BattleItems_S3Roulette = 2
+Lua.BattleItems_HyperRoulette = 1
+
+Level BB
+LevelName = Chaos Shrine
+Music = AGZALT
+Skynum = 9
+TypeOfLevel = Arena,Survival
+NextLevel = B0
+SelectHeading = Arena
+Lua.BattleItems_LocalRate = 30
+Lua.BattleItems_GlobalRate = 30
+Lua.BattleItems_SuperRing = 10
+Lua.BattleItems_Roulette = 2
+Lua.BattleItems_S3Roulette = 2
+Lua.BattleItems_HyperRoulette = 1

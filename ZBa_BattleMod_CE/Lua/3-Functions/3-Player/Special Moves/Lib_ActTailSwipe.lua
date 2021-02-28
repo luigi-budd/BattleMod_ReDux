@@ -1,0 +1,259 @@
+local B = CBW_Battle
+local state_swipe = 1
+local state_thrust = 2
+local cooldown = TICRATE*5/4
+local sideangle = ANG30
+local throw_strength = 30
+local throw_lift = 10
+local thrustpower = 16
+
+B.Action.TailSwipe_Priority = function(player)
+	if player.actionstate == state_swipe and player.actiontime < 16 then
+		B.SetPriority(player,1,1,nil,1,1,"tail swipe")
+	elseif player.actionstate == state_thrust then
+		B.SetPriority(player,1,2,nil,1,2,"aerial dash")
+	end
+end
+
+local function domissile(mo,thrustfactor)
+	//Projectile
+	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle+sideangle,0)
+	if m and m.valid then
+		m.fuse = 35
+		m.momx = $/2+mo.momx/2
+		m.momy = $/2+mo.momy/2
+	end
+	//Do Side Projectiles
+	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle-sideangle,0)
+	if m and m.valid then
+		m.fuse = 35
+		m.momx = $/2+mo.momx/2
+		m.momy = $/2+mo.momy/2
+	end
+	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
+	if m and m.valid then
+		m.fuse = 35
+		m.momx = $+mo.momx/2
+		m.momy = $+mo.momy/2
+		S_StartSound(m,sfx_s3kb8)
+	end
+	//Thrust
+	if not(P_IsObjectOnGround(mo))
+		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*5)
+	else
+		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*10)
+	end
+end
+
+local function dodust(mo)
+	if P_IsObjectOnGround(mo)
+		local player = mo.player
+		local dust = P_SpawnMobjFromMobj(mo,0,0,0,MT_DUST)
+		P_InstaThrust(dust,player.drawangle,mo.scale*12)
+	end
+end
+			
+B.Action.TailSwipe = function(mo,doaction)
+	local player = mo.player
+	if not(B.CanDoAction(player)) 
+		if mo.state == B.GetSVSprite(player,1)
+			B.ResetPlayerProperties(player,false,true)
+		end
+	return end
+	
+	local flying = player.panim == PA_ABILITY
+	local carrying = false
+	for otherplayer in players.iterate
+		if otherplayer.mo and otherplayer.mo.valid
+		and otherplayer.mo.tracer == mo
+		and otherplayer.powers[pw_carry] == CR_PLAYER
+			carrying = true
+			break
+		end
+	end
+	
+	local swipetrigger = (player.actionstate == 0 and doaction == 1 and not(flying or carrying))
+	local thrusttrigger = (player.actionstate == 0 and doaction == 1 and flying and not(carrying))
+	local throwtrigger = (player.actionstate == 0 and doaction == 1 and carrying)
+	//Get thrust speed multiplier
+	local thrustfactor = mo.scale
+	if mo.eflags&MFE_UNDERWATER
+		thrustfactor = $>>1
+	end
+	if mo.flags2&MF2_TWOD or twodlevel
+		thrustfactor = $>>1
+	end
+	
+	player.actionrings = 10
+	if not(flying) then
+		player.actiontext = "Tail Swipe"
+	elseif not(carrying)
+		player.actiontext = "Flight Dash"
+	else
+		player.actiontext = "Throw Partner"
+	end
+	
+	if player.actionstate != 0 then
+		player.exhaustmeter = FRACUNIT
+	end
+	
+	//Activate swipe
+	if swipetrigger 
+		B.PayRings(player)
+		B.ApplyCooldown(player,cooldown)
+		//Set state
+		player.actionstate = state_swipe
+		player.actiontime = 0
+		player.pflags = $&~(PF_SPINNING|PF_JUMPED)
+		//Missile attack
+		domissile(mo,thrustfactor)
+		
+		//Physics
+		if not(P_IsObjectOnGround(mo))
+			P_SetObjectMomZ(mo,FRACUNIT*5,false)
+		end
+		//Effects
+		P_SpawnParaloop(mo.x,mo.y,mo.z,mo.scale*64,12,MT_DUST,ANGLE_90,nil,true)
+		S_StartSound(mo,sfx_spdpad)
+	end
+
+	//Activate thrust
+	if thrusttrigger 
+		B.PayRings(player)
+		B.ApplyCooldown(player,cooldown)
+		//Set state
+		player.powers[pw_tailsfly] = 0
+		player.pflags = ($|PF_JUMPED|PF_THOKKED)
+		player.actionstate = state_thrust
+		player.actiontime = 0
+		mo.state = S_PLAY_ROLL
+		//Physics
+		P_Thrust(mo,mo.angle,thrustfactor*thrustpower)
+		P_SetObjectMomZ(mo,FRACUNIT*3,false)
+		//Effects
+		local radius = mo.radius/FRACUNIT
+		local height = mo.height/FRACUNIT
+		local r1 = do
+			return P_RandomRange(-radius,radius)*FRACUNIT
+		end
+		local r2 = do
+			return P_RandomRange(0,height)*FRACUNIT
+		end
+		for n = 1,16
+			P_SpawnMobjFromMobj(mo,r1(),r1(),r2(),MT_DUST)
+		end
+		S_StartSound(mo,sfx_zoom)
+	end
+	
+	//Activate throw
+	if throwtrigger 
+		B.PayRings(player)
+		B.ApplyCooldown(player,cooldown)
+		//Set state
+		player.powers[pw_tailsfly] = 0
+		player.pflags = ($|PF_JUMPED|PF_THOKKED)
+		player.actionstate = state_thrust
+		player.actiontime = 0
+		mo.state = S_PLAY_ROLL
+	
+		//Throw Partner
+		for otherplayer in players.iterate
+-- 			print(otherplayer.mo.tracer)
+-- 			print(otherplayer.powers[pw_carry])
+			if not(
+				otherplayer.mo and otherplayer.mo.valid
+				and otherplayer.mo.tracer == mo
+				and otherplayer.powers[pw_carry] == CR_PLAYER
+			)
+				continue
+			end
+			local partner = otherplayer.mo
+			partner.tracer = nil
+			otherplayer.powers[pw_carry] = 0
+			partner.state = S_PLAY_ROLL
+			otherplayer.pflags = $|PF_SPINNING|PF_THOKKED
+			P_InstaThrust(partner,mo.angle,thrustfactor*throw_strength)
+			partner.momx = $ + mo.momx/2
+			partner.momy = $ + mo.momy/2
+			partner.momz = throw_lift*mo.scale*P_MobjFlip(mo) + mo.momz/2
+		end
+-- 		//Free carry ID
+-- 		player.carry_id = nil
+		
+		//Physics
+		if not(P_IsObjectOnGround(mo))
+			P_SetObjectMomZ(mo,FRACUNIT*5,false)
+		end
+		//Effects
+		P_SpawnParaloop(mo.x,mo.y,mo.z,mo.scale*64,12,MT_DUST,ANGLE_90,nil,true)
+		S_StartSound(mo,sfx_spdpad)
+	end
+	
+	//Swipe state
+	if player.actionstate == state_swipe
+		player.actiontime = $+1
+		if P_IsObjectOnGround(mo)
+			player.lockaim = true
+		end
+		player.lockmove = true
+-- 		player.powers[pw_nocontrol] = $|2
+		//Anim states
+		if player.actiontime < 8
+			//Fast Spin anim
+			player.drawangle = mo.angle-ANGLE_90*player.actiontime
+			B.DrawSVSprite(player,1)
+			P_SetMobjStateNF(player.followmobj,S_NULL)
+			dodust(mo)
+		elseif player.actiontime < 16
+			//Medium Spin anim
+			player.drawangle = mo.angle-ANGLE_45*player.actiontime
+			B.DrawSVSprite(player,1)
+			P_SetMobjStateNF(player.followmobj,S_NULL)
+			dodust(mo)
+		else
+			//Teeter anim
+			player.drawangle = mo.angle-ANGLE_45/2*player.actiontime
+			mo.state = S_PLAY_EDGE
+			mo.frame = 0
+			mo.tics = 0
+		end
+		//Reset to neutral
+		if player.actiontime >= 32
+			player.actionstate = 0
+			player.drawangle = mo.angle
+			mo.state = S_PLAY_WALK
+			mo.frame = 0
+		end
+	end
+	//Thrust state
+	if player.actionstate == state_thrust
+		P_SetMobjStateNF(player.followmobj,S_NULL)
+		B.DrawSVSprite(player,1)
+		player.actiontime = $+1
+		player.drawangle = mo.angle-ANG60*player.actiontime
+-- 		P_SpawnGhostMobj(mo)
+		local radius = mo.radius/FRACUNIT
+		local height = mo.height/FRACUNIT
+		local r1 = do
+			return P_RandomRange(-radius,radius)*FRACUNIT
+		end
+		local r2 = do
+			return P_RandomRange(0,height)*FRACUNIT
+		end
+		local s = P_SpawnMobjFromMobj(mo,r1(),r1(),r2(),MT_SPARK)
+		s.colorized = true
+		s.color = SKINCOLOR_WHITE
+		s.scale = $/3
+		s.momx = mo.momx/2
+		s.momy = mo.momy/2
+		s.momz = mo.momz/2
+		s.flags2 = $|MF2_SHADOW
+		//Reset to neutral
+		if P_IsObjectOnGround(mo) then
+			player.actionstate = 0
+			player.drawangle = mo.angle
+			mo.state = S_PLAY_WALK
+			mo.frame = 0
+		end
+	end
+end

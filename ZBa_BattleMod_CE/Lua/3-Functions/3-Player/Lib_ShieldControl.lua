@@ -1,0 +1,162 @@
+local B = CBW_Battle
+local CV = B.Console
+local A = B.Arena
+local S = B.SkinVars
+
+B.ShieldAbility = function(player)
+	local mo = player.mo
+	local shieldability = (player.pflags&PF_SHIELDABILITY)
+	local shield = player.powers[pw_shield]&SH_NOSTACK
+	local jumpstate = player.pflags&PF_JUMPED and not(player.pflags&PF_NOJUMPDAMAGE)
+	if shieldability and (shield == SH_FLAMEAURA) and not jumpstate then
+		player.pflags = ($|PF_JUMPED)&~PF_NOJUMPDAMAGE
+		mo.state = S_PLAY_ROLL
+	end
+end
+
+//Shield Spawn
+
+function A_GiveShield(actor,var1,var2)
+	if not(actor.target and actor.target.player) then return end
+	local player = actor.target.player
+	if CV.ShieldStock.value and (gametyperules&GTR_PITYSHIELD)
+		B.UpdateShieldStock(player,2)
+	end
+	if player.powers[pw_shield]&SH_ARMAGEDDON then
+		player.powers[pw_shield] = $&~SH_ARMAGEDDON
+	end
+	P_SwitchShield(player, var1)
+	S_StartSound(player.mo, actor.info.seesound)
+end
+
+B.UpdateShieldStock = function(player,addshield)
+	local power = player.powers[pw_shield]&SH_NOSTACK
+	local pity = (player.powers[pw_shield]&SH_STACK)|SH_PITY
+	local fill = (addshield == 2)
+	local subtract = (addshield == -1)
+	
+	//No shield stock allowed for this character
+	if not(player.shieldmax)
+		if #player.shieldstock
+			player.shieldstock = {} //replace all shields with blank table
+		end
+		return //Cannot perform any other shield stock related actions
+	end
+	
+	//Using a shield; move shield stock positions inward
+	if subtract
+		for n = 1,player.shieldmax
+			player.shieldstock[n] = player.shieldstock[n+1]
+		end
+	end
+
+	//Fill shield stock
+	if fill then
+		if not(power) then
+			player.powers[pw_shield] = pity //Give us a shield to add to reserve
+		end
+		for n = 1, player.shieldmax
+			if not(player.shieldstock[n]) then
+				player.shieldstock[n] = SH_PITY
+			end
+		end
+	end
+	//Add one shield
+	if power and addshield
+		local n = player.shieldmax
+		while n > 1 
+			player.shieldstock[n] = player.shieldstock[n-1]
+			n = $-1
+		end
+		player.shieldstock[1] = player.powers[pw_shield]&SH_NOSTACK 
+	end
+end
+
+B.ShieldMax = function(player)
+	if not(CV.ShieldStock.value) then return end	
+	local mo
+	if player.realmo and player.realmo.valid then mo = player.realmo
+	elseif player.mo and player.mo.valid then mo = player.mo
+	else return end //Can't continue if we can't find the player's skin!
+	
+		//Get shield max
+		local skinmax = S[player.skinvars].shields
+		local oldshieldmax = player.shieldmax
+		if skinmax == nil then
+			player.shieldmax = S[-1].shields
+		else
+			player.shieldmax = skinmax
+		end
+		//Force limit shield stock max
+		if oldshieldmax and oldshieldmax > player.shieldmax then
+			for n = player.shieldmax+1, oldshieldmax
+				player.shieldstock[n] = nil
+			end
+		end
+end
+
+B.ShieldStock = function(player)
+	if not(CV.ShieldStock.value) then return end	
+	//Go no further if we're not in the game
+	if (player.spectator) then return end
+	player.pity = 0 //Disable the "pity" mechanic from ringslinger.
+	
+	local currentshield = player.powers[pw_shield]&SH_NOSTACK
+
+	//Are we not shielded? Use our next reserve
+	if not(P_PlayerInPain(player)) and not(currentshield) and player.shieldstock[1] and not(player.charmed) then
+		local power = player.shieldstock[1]
+		B.UpdateShieldStock(player,-1)
+		P_SwitchShield(player, power)
+		S_StartSound(player.mo,sfx_shield)
+	end
+	
+end
+
+B.ShieldColor = function(mo,owner)
+	if not(owner and owner.valid and owner.player and owner.player.valid) then return nil end
+	mo.color = owner.player.skincolor
+	mo.colorized = true
+end
+
+B.SpawnWithShield = function(player)
+	if B.SuddenDeath then return end
+	if gametyperules&GTR_PITYSHIELD and not(player.spectator) then
+		B.ShieldMax(player)
+		//Revenge gate
+		if A.CheckRevenge(player) then
+			P_SwitchShield(player, 0)
+			player.pity = 0
+		return end
+		//Normal start behavior
+		P_SwitchShield(player, 1)
+		player.pity = 0
+		//Players start with max shields in Arena gametypes and pre-round setup
+		if B.ArenaGametype() or B.PreRoundWait() and CV.ShieldStock.value then
+			for n = 1, player.shieldmax
+				player.shieldstock[n] = SH_PITY
+			end
+		end
+	end
+end
+
+B.AddPinkShield = function(player,sourceplayer)
+	if (player.charability2 == CA2_MELEE) then return end //Non-Amy players only
+	if not(player.powers[pw_shield])
+		P_AddPlayerScore(sourceplayer,25)
+		P_SwitchShield(player,4)
+		S_StartSound(player.mo,sfx_shield)
+	elseif(CV.ShieldStock.value and gametyperules&GTR_PITYSHIELD and #player.shieldstock < player.shieldmax) then
+		S_StartSound(player.mo,sfx_monton)
+		player.shieldstock[#player.shieldstock+1] = SH_PINK
+		P_AddPlayerScore(sourceplayer,25)
+	end
+end
+
+B.OverlayHide = function(mo,owner)
+	if not(owner and owner.valid) then return nil end
+	if owner.flags&MF_NOCLIPTHING or owner.flags2&MF2_DONTDRAW then mo.flags2 = $|MF2_DONTDRAW return true
+	else mo.flags2 = $&~MF2_DONTDRAW return false
+	end
+end
+
