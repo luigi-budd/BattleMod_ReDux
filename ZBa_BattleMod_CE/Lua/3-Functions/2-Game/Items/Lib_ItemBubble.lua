@@ -66,10 +66,34 @@ end
 
 I.ItemReward = function(mo,player)
 	if player.isjettysyn or B.PreRoundWait() then return end
+	
+	//"Monitor bounce" but weaker
+	local ab = abs(player.mo.momz)
+	local threshold = 14 * player.mo.scale
+	local mom
+	if ab > threshold
+		local excess = (abs(player.mo.momz) - threshold) / 4
+		mom = threshold + excess
+	else
+		mom = ab
+	end
+	if (player.mo.flags2 & MF2_OBJECTFLIP)
+		player.mo.momz = min(-mom, $)
+	else
+		player.mo.momz = max(mom, $)
+	end
+	if ((player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP) and (player.pflags & PF_SHIELDABILITY)
+		player.pflags = ($|PF_THOKKED) & ~(PF_STARTJUMP)
+		player.secondjump = UINT8_MAX
+	end
+ 	S_StartSoundAtVolume(player.mo,sfx_cdfm16,150)
+ 	S_StartSoundAtVolume(player.mo,sfx_pop,160)
+	
+	//Visual effects
 	local i = mo.item
--- 	S_StartSound(player.mo,sfx_s3k77)
 	I.BubbleBurst(mo)
 	P_SpawnMobj(mo.x,mo.y,mo.z,MT_SPARK)
+	
 	//Ring
 	if i == 0 then
 		player.rings = $+1
@@ -79,6 +103,7 @@ I.ItemReward = function(mo,player)
 	if i == 1 then
 		player.rings = $+10
 		S_StartSound(player.mo,sfx_itemup)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_RING_ICON)
 	return end
 	//Add to shield reserves
 	if player.powers[pw_shield] and player.shieldmax then
@@ -88,40 +113,49 @@ I.ItemReward = function(mo,player)
 	if i == 2 then
 		P_SwitchShield(player, SH_PITY)
 		S_StartSound(player.mo,sfx_shield)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_PITY_ICON)
 	return end
 	if i == 3 then
 		P_SwitchShield(player, SH_WHIRLWIND)
 		S_StartSound(player.mo,sfx_wirlsg)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_WHIRLWIND_ICON)
 	return end
 	if i == 4 then
 		P_SwitchShield(player, SH_FORCE|1)
 		S_StartSound(player.mo,sfx_forcsg)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_FORCE_ICON)
 	return end
 	if i == 5 then
 		P_SwitchShield(player, SH_ELEMENTAL)
 		S_StartSound(player.mo,sfx_elemsg)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_ELEMENTAL_ICON)
 	return end
 	if i == 6 then
 		P_SwitchShield(player, SH_ATTRACT)
 		S_StartSound(player.mo,sfx_attrsg)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_ATTRACT_ICON)
 	return end
 	if i == 7 then
 		if not(player.powers[pw_shield]&SH_NOSTACK == SH_ARMAGEDDON) then
 			P_SwitchShield(player, SH_ARMAGEDDON)
 		end
 		S_StartSound(player.mo,sfx_armasg)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_ARMAGEDDON_ICON)
 	return end
 	if i == 9 then
 		P_SwitchShield(player, SH_BUBBLEWRAP)
 		S_StartSound(player.mo,sfx_s3k3f)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_THUNDERCOIN_ICON)
 	return end
 	if i == 10 then
 		P_SwitchShield(player, SH_FLAMEAURA)
 		S_StartSound(player.mo,sfx_s3k3e)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_FLAMEAURA_ICON)
 	return end
 	if i == 11 then
 		P_SwitchShield(player, SH_THUNDERCOIN)
 		S_StartSound(player.mo,sfx_s3k41)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_THUNDERCOIN_ICON)
 	return end
 end
 

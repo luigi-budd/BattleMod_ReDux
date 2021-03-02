@@ -1,5 +1,9 @@
 local B = CBW_Battle
 local D = B.Diamond
+local CV = B.Console
+
+local captime = CV.DiamondCaptureTime.value * TICRATE
+
 D.HUD = function(v, player, cam)
 	local id = D.ID
 	if not(id and id.valid) then return end
@@ -11,27 +15,55 @@ D.HUD = function(v, player, cam)
 	local angle
 	local compass
 	local color
-	if player.realmo and player.realmo.valid then
-		if id.target == player.mo then
-			compass = v.cachePatch("DIAMOND")
-		else
-			if twodlevel then
-				angle = R_PointToAngle2(player.realmo.x, player.realmo.z, id.x, id.z) - ANGLE_90
-			else
-				angle = R_PointToAngle2(player.realmo.x,player.realmo.y,id.x,id.y) - player.cmd.angleturn<<16 //R_PointToAngle(player.realmo.x,player.realmo.y)
-			end
-			local cmpangle = ((-angle)/ANG1)/(360/9)+5
-			compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
-		end
-		local pcol = id.color
-		color = v.getColormap(TC_DEFAULT,pcol)
-		local cflags = flags
-		if id.target == player.realmo then
-			cflags = V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER
-		end
-		//Draw
-		v.draw(xoffset,yoffset,compass,cflags,color)
+	
+	local xx = cam.x
+	local yy = cam.y
+	local zz = cam.z
+	local lookang = cam.angle
+	if (player.spectator or not cam.chase) and (player.realmo and player.realmo.valid)//Use the realmo coordinates when not using chasecam
+		xx = player.realmo.x
+		yy = player.realmo.y
+		zz = player.realmo.z
+		lookang = player.cmd.angleturn<<16
 	end
+	
+	if id.target == player.mo then
+		compass = v.cachePatch("DIAMOND")
+	else
+		if twodlevel then
+			angle = R_PointToAngle2(xx, zz, id.x, id.z) - ANGLE_90 + ANGLE_22h
+		else
+			angle = R_PointToAngle2(xx, yy, id.x, id.y) - lookang + ANGLE_22h
+		end
+		
+		local cmpangle = 8
+		if (angle >= 0) and (angle < ANGLE_45)
+			cmpangle = 1
+		elseif (angle >= ANGLE_45) and (angle < ANGLE_90)
+			cmpangle = 2
+		elseif (angle >= ANGLE_90) and (angle < ANGLE_135)
+			cmpangle = 3
+		elseif (angle >= ANGLE_135)// and (angle < ANGLE_180)
+			cmpangle = 4
+		elseif (angle >= ANGLE_180) and (angle < ANGLE_225)
+			cmpangle = 5
+		elseif (angle >= ANGLE_225) and (angle < ANGLE_270)
+			cmpangle = 6
+		elseif (angle >= ANGLE_270) and (angle < ANGLE_315)
+			cmpangle = 7
+		end
+		
+		compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
+	end
+	local pcol = id.color
+	color = v.getColormap(TC_DEFAULT,pcol)
+	local cflags = flags
+	if id.target == player.realmo then
+		cflags = V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER
+	end
+	//Draw
+	v.draw(xoffset,yoffset,compass,cflags,color)
+	
 	local text = ""
 	local center = 8
 	local left = -2
@@ -50,13 +82,16 @@ D.HUD = function(v, player, cam)
 	//Get item holder
 	if id.target and id.target.valid and id.target.player then
 		if not(G_GametypeHasTeams())
-		v.draw(xoffset+right+(center*2), yoffset+bottom, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-			flags|V_FLIP, v.getColormap(nil, id.target.player.skincolor))
+			v.draw(xoffset+right+(center*2), yoffset+bottom, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
+				flags|V_FLIP, v.getColormap(nil, id.target.player.skincolor))
 		else
-		v.draw(xoffset+right*4+(center*2), yoffset+bottom/2, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-			flags|V_FLIP, v.getColormap(nil, id.target.player.skincolor))
--- 		v.draw(xoffset+center, yoffset+bottom+8, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
--- 			flags|V_FLIP, v.getColormap(nil, id.target.player.skincolor))
+			v.draw(xoffset+right*4+(center*2), yoffset+bottom/2, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
+				flags|V_FLIP, v.getColormap(nil, id.target.player.skincolor))
+		end
+		if id.target.player.gotcrystal and id.target.player.gotcrystal_time
+			local percent_amt = id.target.player.gotcrystal_time * 100 / captime
+			local percent_text = percent_amt.."%"
+			v.drawString(xoffset+center,yoffset+bottom,percent_text,flags,centeralign)
 		end
 	end		
 end

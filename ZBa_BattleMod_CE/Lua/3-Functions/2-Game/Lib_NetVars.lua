@@ -3,6 +3,7 @@ local CP = B.ControlPoint
 local A = B.Arena
 local I = B.Item
 local D = B.Diamond
+local F = B.CTF
 
 function B.NetVars.Sync(network)
 	//Training Dummy / Tails Doll
@@ -39,6 +40,9 @@ function B.NetVars.Sync(network)
 	//Diamond
 	D.ID 			= network($)
 	D.Spawns 		= network($)
+	//CTF
+	F.RedFlag 		= network($)
+	F.BlueFlag		= network($)
 	//Game state
 	B.RedScore		= network($)
 	B.BlueScore		= network($)

@@ -139,13 +139,26 @@ B.DoPlayerCollisionDamage = function(smo,tmo)
 	local tsrc = tmo
 	if not(smo.player) then ssrc = smo.target end
 	if not(tmo.player) then tsrc = tmo.target end
-	if power[s] and not(power[t] or invuln[t]) then P_DamageMobj(tmo,smo,ssrc,0) return 3
-	elseif power[t] and not(power[s] or invuln[s]) then P_DamageMobj(smo,tmo,tsrc,0) return -3
+	if power[s] and not(power[t] or invuln[t]) then
+		P_DamageMobj(tmo,smo,ssrc,0)
+		return 1
+	elseif power[t] and not(power[s] or invuln[s]) then
+		P_DamageMobj(smo,tmo,tsrc,0)
+		return -1
 	else
-		if bias[s] < 0 and not(invuln[s] or power[s]) then P_DamageMobj(smo,tmo,tsrc,0) end
-		if bias[t] < 0 and not(invuln[t] or power[t]) then P_DamageMobj(tmo,smo,ssrc,0) end
+		if bias[s] < 0 and not(invuln[s] or power[s]) then
+			P_DamageMobj(smo,tmo,tsrc,0)
+			return -1
+		end
+		if bias[t] < 0 and not(invuln[t] or power[t]) then
+			P_DamageMobj(tmo,smo,ssrc,0)
+			return 1
+		end
 	end
-	return bias[s]-bias[t] //Used for recoil and knockback distribution
+	return 0
+	// 0: nobody was hurt
+	// 1: t was hurt by s
+	//-1: s was hurt by t
 end
 
 B.UpdateRecoilState = function(mo)

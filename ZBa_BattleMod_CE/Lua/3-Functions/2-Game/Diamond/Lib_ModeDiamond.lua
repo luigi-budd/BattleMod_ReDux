@@ -144,8 +144,10 @@ D.Thinker = function(mo)
 		if player.mo == mo.target then
 			if player.cmd.buttons&BT_TOSSFLAG and not(player.tossdelay) then
 				free(mo)
+				mo.target = nil
 				player.actioncooldown = TICRATE
 				player.gotcrystal = false
+				player.gotcrystal_time = 0
 				P_TeleportMove(mo,player.mo.x,player.mo.y,player.mo.z)
 				P_InstaThrust(mo,player.mo.angle,FRACUNIT*5)
 				P_SetObjectMomZ(mo,FRACUNIT*10)
@@ -153,9 +155,11 @@ D.Thinker = function(mo)
 			else
 				points(player)
 				player.gotcrystal = true
+				player.gotcrystal_time = $ + 1
 			end
 		else
 			player.gotcrystal = false
+			player.gotcrystal_time = 0
 		end
 	end
 	//Owner has been pushed by another player
@@ -183,10 +187,12 @@ D.Thinker = function(mo)
 	//Unclaimed behavior
 	if not(mo.target and mo.target.player) then
 		mo.flags = ($|MF_BOUNCE)&~(MF_SLIDEME|MF_NOGRAVITY)
-		if mo.z < mo.floorz+mo.scale*32 then
+		if mo.z < mo.floorz+mo.scale*12 then
 			mo.momz = $+mo.scale
 		end
-	return end
+		return
+	end
+	
 	//Claimed behavior
 	mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 	local t = mo.target
@@ -205,5 +211,32 @@ D.Thinker = function(mo)
 -- 	P_TryMove(mo,x,y,true)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) //Do z pos while respecting level geometry
+	
+	//Diamond capturing
+	local player = t.player
+	local captime = CV.DiamondCaptureTime.value * TICRATE
+	if (player.gotcrystal_time == captime - 1 * TICRATE)
+	or (player.gotcrystal_time == captime - 2 * TICRATE)
+	or (player.gotcrystal_time == captime - 3 * TICRATE)
+		S_StartSound(nil, sfx_s227) //Countdown sound effect
+	end
+	if player.gotcrystal_time >= captime
+		player.gotcrystal_time = 0
+		P_AddPlayerScore(player,CV.DiamondCaptureBonus.value)
+		S_StartSound(nil, sfx_prloop)
+		for p in players.iterate()
+			if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
+				S_StartSound(nil, sfx_s3k68, p)
+				continue
+			end
+			if G_GametypeHasTeams()
+				S_StartSound(nil, sfx_lose, p)
+				continue
+			end
+			S_StartSound(nil, sfx_s243, p)
+		end
+		P_RemoveMobj(mo)
+		COM_BufInsertText(server, "csay "..player.name.."\\captured the "..diamondtext.."!\\\\")//Not sure how to color this text...
+	end
 end
 

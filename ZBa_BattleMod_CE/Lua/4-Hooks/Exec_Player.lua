@@ -30,21 +30,24 @@ addHook("TouchSpecial", B.PlayerTouch,MT_PLAYER)
 //Control ability usage
 addHook("AbilitySpecial",function(player)
 	if not(B.MidAirAbilityAllowed(player)) then return true end
-end)
-addHook("ShieldSpecial",function(player)
-	if not(B.MidAirAbilityAllowed(player) and B.ShieldActiveAllowed(player)) then return true end
--- 	if player.powers[pw_shield]&~SH_NOSTACK == SH_ARMAGEDDON
--- 		player.battle_hurttxt = "armageddon blast"
--- 	end
+	//Fix metal sonic shield stuff
+	if player.charability == CA_FLOAT
+		and ((player.mo and player.mo.valid and (player.mo.state == S_PLAY_ROLL)) or player.secondjump == UINT8_MAX)
+		return true
+	end
 end)
 
+addHook("ShieldSpecial", do	return true end)
+
 addHook("JumpSpecial",function(player)
+	if (player.powers[pw_carry]) return end
 	if not(player.buttonhistory&BT_JUMP)
 		if B.TwinSpin(player) return true end
 	end
 end)
 
 addHook("SpinSpecial",function(player)
+	if (player.powers[pw_carry]) return end
 	if not(player.buttonhistory&BT_USE)
 		if B.TwinSpin(player) return true end
 	end
@@ -93,11 +96,21 @@ end,MT_PLAYER)
 
 //Player death
 addHook("MobjDeath",function(target,inflictor,source,damagetype)
+	local killer
 	local player = target.player
+	
+	//Standard kill
+	if inflictor and inflictor.player
+		killer = inflictor.player
+	elseif source and source.player
+		killer = source.player
+	end
+	
 	//Player was pushed into a death hazard
 	if player and (damagetype == DMG_DEATHPIT or damagetype == DMG_CRUSHED)
 		and player.pushed_creditplr and player.pushed_creditplr.valid and not(B.MyTeam(player,player.pushed_creditplr))
 		then
+		killer = player.pushed_creditplr
 		P_AddPlayerScore(player.pushed_creditplr,50)
 		B.DebugPrint(player.pushed_creditplr.name.." received 50 points for sending "..player.name.." to their demise")
 	end
@@ -120,6 +133,8 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 			player.deadtimer = TICRATE*3
 		end
 	end
+	A.KillReward(killer)
+	
 	player.spectatortime = player.deadtimer -TICRATE*3
 end, MT_PLAYER)
 

@@ -3,17 +3,6 @@ local CV = B.Console
 local A = B.Arena
 local S = B.SkinVars
 
-B.ShieldAbility = function(player)
-	local mo = player.mo
-	local shieldability = (player.pflags&PF_SHIELDABILITY)
-	local shield = player.powers[pw_shield]&SH_NOSTACK
-	local jumpstate = player.pflags&PF_JUMPED and not(player.pflags&PF_NOJUMPDAMAGE)
-	if shieldability and (shield == SH_FLAMEAURA) and not jumpstate then
-		player.pflags = ($|PF_JUMPED)&~PF_NOJUMPDAMAGE
-		mo.state = S_PLAY_ROLL
-	end
-end
-
 //Shield Spawn
 
 function A_GiveShield(actor,var1,var2)
@@ -106,9 +95,31 @@ B.ShieldStock = function(player)
 	//Are we not shielded? Use our next reserve
 	if not(P_PlayerInPain(player)) and not(currentshield) and player.shieldstock[1] and not(player.charmed) then
 		local power = player.shieldstock[1]
+		
+		if power == SH_PITY
+			S_StartSound(player.mo,sfx_shield)
+		elseif power == SH_WHIRLWIND
+			S_StartSound(player.mo,sfx_wirlsg)
+		elseif power == SH_FORCE|1
+			S_StartSound(player.mo,sfx_forcsg)//Full force shield
+		elseif power == SH_FORCE
+			S_StartSound(player.mo,sfx_frcssg)//Half force shield
+		elseif power == SH_ELEMENTAL
+			S_StartSound(player.mo,sfx_elemsg)
+		elseif power == SH_ATTRACT
+			S_StartSound(player.mo,sfx_attrsg)
+		elseif power == SH_ARMAGEDDON
+			S_StartSound(player.mo,sfx_armasg)
+		elseif power == SH_BUBBLEWRAP
+			S_StartSound(player.mo,sfx_s3k3f)
+		elseif power == SH_FLAMEAURA
+			S_StartSound(player.mo,sfx_s3k3e)
+		elseif power == SH_THUNDERCOIN
+			S_StartSound(player.mo,sfx_s3k41)
+		end
+		
 		B.UpdateShieldStock(player,-1)
 		P_SwitchShield(player, power)
-		S_StartSound(player.mo,sfx_shield)
 	end
 	
 end

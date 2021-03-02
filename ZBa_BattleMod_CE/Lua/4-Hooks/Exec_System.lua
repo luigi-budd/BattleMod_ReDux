@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local A = B.Arena
 local D = B.Diamond
+local F = B.CTF
 local CV = B.Console
 local CP = B.ControlPoint
 local I = B.Item
@@ -22,6 +23,8 @@ addHook("MapChange",function(map)
 	A.ResetLives()
 	I.GameReset()
 	B.ResetSparring()
+	F.RedFlag = nil
+	F.BlueFlag = nil
 end)
 
 addHook("MapLoad",function(map)

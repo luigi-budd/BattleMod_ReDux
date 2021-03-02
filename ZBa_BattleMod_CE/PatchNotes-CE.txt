@@ -1,7 +1,74 @@
 Version CE-v1
 
+New ability: Stun Break (costs 30 rings)
+	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
+	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
+
+Gamemodes
+	Arena, Team Arena
+		Players are now forced to respawn, like in Survival modes
+	Control Point
+		Reduced time limit (8:00 -> 5:00)
+	Team Control Point
+		Reduced point limit: (4 -> 3)
+		Reduced time limit: (8:00 -> 5:00)
+	Diamond, Team Diamond
+		After holding the diamond for 30 seconds, it's captured, awarding the player/team with a score bonus and spawning a new diamond somewhere else
+		Added console variable diamond_capture_time (default: 30, range: 10-60)
+		Added console variable diamond_capture_bonus (default: 1000, range: 0-100000)
+	CTF
+		Added HUD flag compasses
+
 Maps
 	Grass Court, Oasis, King's Board, Snow Globe, Mushroom Pit, Sideshow, Aquarium, and Chaos Shrine
 		More spacious layouts
 		Rebalanced item spawns
 		Bug fixes
+
+Collision / bumping
+	Changed the sound effects of collision interactions, adding more unique sounds for successful and defended attacks at different priority levels
+	Added screenshake to collisions increasing based on the attack / defense priority
+	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
+
+Item Bubbles
+	Item bubbles can be used to bounce, but it's weaker than monitor bounces
+	Item bubbles now play a sound effect when popped
+	Item bubbles now create an icon when popped, like a monitor
+
+Misc.
+	When a reserve shield is used, it plays a different sound effect depending on the type of shield
+	Parrying a player will remove their invincibility powerup
+	Increased exhaustion rate for riding CEZ swings
+
+Tails
+	Tails exhausts more quickly
+	When Tails is exhausted, his acceleration is halved
+	Flight Dash's cooldown is increased depending on Tails's exhaustion level, up to 4x longer
+	Tail Swipe's animation is shorter
+	Tail Swipe's projectiles last longer: (35tics -> 45tics)
+	Tail Swipe's projectiles have increased launch speed, can bounce off walls, can bounce off players, and decelerate while traveling
+	All 3 of Tail Swipe's projectiles produce a sound effect instead of just the center one, although the sound is quieter for each
+	Increased Tail Swipe cooldown: (1.25s -> 1.5s)
+
+Knuckles
+	Knuckles now exhausts while gliding, instead of only when climbing
+	Knuckles now falls more quickly when gliding at very low speed
+	While gliding, Knuckles behaves as if Legacy mode is disabled
+    Slightly increased the recoil Knuckles recieves after hitting with Gliding Fists
+	Jumpfactor increased from 85% to 90%
+
+Metal Sonic
+	When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
+
+Modding functionality
+	Added lua scripting features: func_collide, func_exhaust
+	These can be set using CBW_Battle.SkinVars["skin"].func_collide and CBW_Battle.SkinVars["skin"].func_exhaust
+	func_collide is run when the player collides with another player - it's useful for making certain moves behave uniquely on player contact!
+	If func_collide returns true, collision physics will be overridden
+	func_exhaust is run during battlemod's exhaust code, and can return true in order to prevent exhaustion from resetting on floor touch - use it to give your custom abilities battlemod-specific exhaust limitations!
+
+Maintenance
+	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
+	Fixed an issue where using the bubble shield bounce would exhaust Metal Sonic
+	Fixed an issue where elemental fire trails would drain rings from teammates on touch
+	Fixed the accuracy of the HUD objective compass in all objective-based modes

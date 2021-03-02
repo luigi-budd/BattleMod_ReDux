@@ -1,9 +1,19 @@
 local B = CBW_Battle
 local CV = B.Console
+local F = B.CTF
 local grace1 = CV.CTFdropgrace
 local grace2 = CV.CTFrespawngrace
+F.RedFlag = nil
+F.BlueFlag = nil
 
-B.FlagIntangible = function(mo)
+F.TrackRed = function(mo)
+	F.RedFlag = mo
+end
+F.TrackBlue = function(mo)
+	F.BlueFlag = mo
+end
+
+F.FlagIntangible = function(mo)
 	if B.CPGametype() then
 		mo.flags2 = $&~MF2_DONTDRAW
 		mo.flags = $&~MF_SPECIAL
@@ -20,7 +30,6 @@ B.FlagIntangible = function(mo)
 			mo.intangibletime = TICRATE*grace2.value
 		end
 	end
-	
 	
 	//Countdown
 	mo.intangibletime = max(0,$-1)
@@ -45,5 +54,4 @@ B.FlagIntangible = function(mo)
 	else
 		mo.flags = $|MF_SPECIAL
 	end
-	
 end

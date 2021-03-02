@@ -19,6 +19,7 @@ B.Exiting = false
 B.PinchTics = 0
 B.Arena = {}
 B.Diamond = {}
+B.CTF = {}
 B.GuardFunc = {}
 B.SkinVars = {}
 B.MessageText = {}

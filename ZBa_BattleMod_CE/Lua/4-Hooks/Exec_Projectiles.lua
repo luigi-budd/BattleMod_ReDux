@@ -7,6 +7,7 @@ addHook("ShouldDamage", function(target,inflictor,source,something,idk)
 	//Fix for erroneous ring adding
 	if inflictor.flags&MF_MISSILE
 		and source and source.valid and source.player and B.MyTeam(target.player,source.player)
+		and not (inflictor.flags & MF_FIRE)
 		then target.player.rings = $-1
 	return end
 	//Fire trail fix
@@ -42,6 +43,7 @@ addHook("MobjThinker",function(mo)
 		s.colorized = true
 		s.color = SKINCOLOR_SKY
 	end
+	P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
 end,MT_SONICBOOM)
 
 //Amy Projectiles

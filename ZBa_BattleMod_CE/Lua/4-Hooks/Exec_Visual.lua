@@ -3,6 +3,7 @@ local B = CBW_Battle
 addHook("MobjThinker", B.BattleShieldThinker, MT_BATTLESHIELD)
 addHook("MobjThinker", B.NegaShieldThinker, MT_NEGASHIELD)
 addHook("MobjThinker", B.InstaFlip, MT_INSTASHIELD)
+addHook("MobjThinker", B.StunBreakVFXThinker, MT_STUNBREAK)
 
 addHook("MobjThinker",function(mo) B.EnergyGather(mo,mo.target,mo.extravalue1,mo.extravalue2) end,MT_ENERGYGATHER)
 addHook("MobjThinker", B.TargetDummyThinker, MT_TARGETDUMMY)

@@ -12,6 +12,8 @@ S[-1] = {
 	func_guard_trigger = G.Parry,
 	func_priority = B.Priority_FullCommon,
 	func_priority_ext = nil,
+	func_collide = nil,
+	func_exhaust = nil,
 	sprites = {}
 }
 S["sonic"] = {
@@ -38,6 +40,7 @@ S["knuckles"] = {
 	special = Act.Dig,
 	guard_frame = 2,
 	func_priority_ext = Act.Dig_Priority,
+	func_collide = B.Knuckles_Collide,
 	sprites = {
 		S_KNUCKLES_DRILLDIVE1,
 		S_KNUCKLES_DRILLDIVE2,

@@ -1,41 +1,37 @@
 local B = CBW_Battle
 local state_swipe = 1
 local state_thrust = 2
-local cooldown = TICRATE*5/4
-local sideangle = ANG30
+local cooldown_swipe = TICRATE*3/2
+local cooldown_dash = TICRATE*5/4
+local cooldown_throw = cooldown_dash
+local sideangle = ANG30 + ANG10
 local throw_strength = 30
 local throw_lift = 10
 local thrustpower = 16
-
-B.Action.TailSwipe_Priority = function(player)
-	if player.actionstate == state_swipe and player.actiontime < 16 then
-		B.SetPriority(player,1,1,nil,1,1,"tail swipe")
-	elseif player.actionstate == state_thrust then
-		B.SetPriority(player,1,2,nil,1,2,"aerial dash")
-	end
-end
 
 local function domissile(mo,thrustfactor)
 	//Projectile
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle+sideangle,0)
 	if m and m.valid then
-		m.fuse = 35
+		m.fuse = 45
 		m.momx = $/2+mo.momx/2
 		m.momy = $/2+mo.momy/2
+		S_StartSoundAtVolume(m,sfx_s3kb8,190)
 	end
 	//Do Side Projectiles
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle-sideangle,0)
 	if m and m.valid then
-		m.fuse = 35
+		m.fuse = 45
 		m.momx = $/2+mo.momx/2
 		m.momy = $/2+mo.momy/2
+		S_StartSoundAtVolume(m,sfx_s3kb8,190)
 	end
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
 	if m and m.valid then
-		m.fuse = 35
+		m.fuse = 45
 		m.momx = $+mo.momx/2
 		m.momy = $+mo.momy/2
-		S_StartSound(m,sfx_s3kb8)
+		S_StartSoundAtVolume(m,sfx_s3kb8,190)
 	end
 	//Thrust
 	if not(P_IsObjectOnGround(mo))
@@ -52,7 +48,7 @@ local function dodust(mo)
 		P_InstaThrust(dust,player.drawangle,mo.scale*12)
 	end
 end
-			
+
 B.Action.TailSwipe = function(mo,doaction)
 	local player = mo.player
 	if not(B.CanDoAction(player)) 
@@ -100,7 +96,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Activate swipe
 	if swipetrigger 
 		B.PayRings(player)
-		B.ApplyCooldown(player,cooldown)
+		B.ApplyCooldown(player,cooldown_swipe)
 		//Set state
 		player.actionstate = state_swipe
 		player.actiontime = 0
@@ -120,7 +116,12 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Activate thrust
 	if thrusttrigger 
 		B.PayRings(player)
-		B.ApplyCooldown(player,cooldown)
+		//Tails can get as much as 4x cooldown for using flight dash after flying for a while
+		if mo.state == S_PLAY_FLY_TIRED
+			B.ApplyCooldown(player, cooldown_dash * 4)
+		else
+			B.ApplyCooldown(player, min(cooldown_dash * 4, max(cooldown_dash, (cooldown_dash * 5) - (player.exhaustmeter * 300/FRACUNIT))))
+		end
 		//Set state
 		player.powers[pw_tailsfly] = 0
 		player.pflags = ($|PF_JUMPED|PF_THOKKED)
@@ -148,7 +149,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Activate throw
 	if throwtrigger 
 		B.PayRings(player)
-		B.ApplyCooldown(player,cooldown)
+		B.ApplyCooldown(player,cooldown_throw)
 		//Set state
 		player.powers[pw_tailsfly] = 0
 		player.pflags = ($|PF_JUMPED|PF_THOKKED)
@@ -198,27 +199,27 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.lockmove = true
 -- 		player.powers[pw_nocontrol] = $|2
 		//Anim states
-		if player.actiontime < 8
+		if player.actiontime < 4
 			//Fast Spin anim
-			player.drawangle = mo.angle-ANGLE_90*player.actiontime
+			player.drawangle = mo.angle-ANGLE_90*(player.actiontime-4)
 			B.DrawSVSprite(player,1)
 			P_SetMobjStateNF(player.followmobj,S_NULL)
 			dodust(mo)
-		elseif player.actiontime < 16
+		elseif player.actiontime < 12
 			//Medium Spin anim
-			player.drawangle = mo.angle-ANGLE_45*player.actiontime
+			player.drawangle = mo.angle-ANGLE_45*(player.actiontime-4)
 			B.DrawSVSprite(player,1)
 			P_SetMobjStateNF(player.followmobj,S_NULL)
 			dodust(mo)
 		else
 			//Teeter anim
-			player.drawangle = mo.angle-ANGLE_45/2*player.actiontime
+			player.drawangle = mo.angle-ANGLE_45/2*(player.actiontime-4)
 			mo.state = S_PLAY_EDGE
 			mo.frame = 0
 			mo.tics = 0
 		end
 		//Reset to neutral
-		if player.actiontime >= 32
+		if player.actiontime >= 22
 			player.actionstate = 0
 			player.drawangle = mo.angle
 			mo.state = S_PLAY_WALK

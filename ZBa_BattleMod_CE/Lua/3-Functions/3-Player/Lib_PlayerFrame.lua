@@ -120,12 +120,14 @@ B.PlayerThinkFrame = function(player)
 	local doaction = buttoncheck(player,player.battleconfig_special)
 	B.MasterActionScript(player,doaction)
 
-	//Guard
+	//Guard, Stun Break
 	local doguard = buttoncheck(player,player.battleconfig_guard)
 	B.Guard(player,doguard)	
+	B.StunBreak(player,doguard)
 
 	//Shield control
 	B.ShieldStock(player)
+	B.ShieldActives(player)
 end
 
 B.PlayerPostThinkFrame = function(player)

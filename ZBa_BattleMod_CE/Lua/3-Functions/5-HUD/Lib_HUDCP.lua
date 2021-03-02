@@ -13,15 +13,44 @@ CP.HUD = function(v, player, cam)
 	local compass
 	local color
 	local pid = CP.ID[CP.Num]
+	
+	local xx = cam.x
+	local yy = cam.y
+	local zz = cam.z
+	local lookang = cam.angle
+	if (player.spectator or not cam.chase) and (player.realmo and player.realmo.valid)//Use the realmo coordinates when not using chasecam
+		xx = player.realmo.x
+		yy = player.realmo.y
+		zz = player.realmo.z
+		lookang = player.cmd.angleturn<<16
+	end
+	
 	if (CP.Active or (time <= 10*TICRATE and time&1))
-		and player.realmo and player.realmo.valid and pid and pid.valid then
+		and pid and pid.valid then
 				-- Use the angle based off x and z rather than x and y
 		if twodlevel then
-			angle = R_PointToAngle2(player.realmo.x, player.realmo.z, pid.x, pid.z) - ANGLE_90
+			angle = R_PointToAngle2(xx, zz, pid.x, pid.z) - ANGLE_90 + ANGLE_22h
 		else
-			angle = R_PointToAngle2(player.realmo.x,player.realmo.y,pid.x,pid.y) - player.cmd.angleturn<<16
+			angle = R_PointToAngle2(xx, yy, pid.x, pid.y) - lookang + ANGLE_22h
 		end
-		cmpangle = ((-angle)/ANG1)/(360/9)+5
+		
+		local cmpangle = 8
+		if (angle >= 0) and (angle < ANGLE_45)
+			cmpangle = 1
+		elseif (angle >= ANGLE_45) and (angle < ANGLE_90)
+			cmpangle = 2
+		elseif (angle >= ANGLE_90) and (angle < ANGLE_135)
+			cmpangle = 3
+		elseif (angle >= ANGLE_135)// and (angle < ANGLE_180)
+			cmpangle = 4
+		elseif (angle >= ANGLE_180) and (angle < ANGLE_225)
+			cmpangle = 5
+		elseif (angle >= ANGLE_225) and (angle < ANGLE_270)
+			cmpangle = 6
+		elseif (angle >= ANGLE_270) and (angle < ANGLE_315)
+			cmpangle = 7
+		end
+		
 		compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
 		local pcol = pid.color
 		if (G_GametypeHasTeams() and not(CP.Capturing or CP.Blocked)) or pcol == SKINCOLOR_JET then

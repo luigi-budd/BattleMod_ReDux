@@ -57,6 +57,39 @@ B.TwinSpin = function(player)
 	return true end
 end
 
+local fly = function(player)
+	if not (player and player.mo and player.mo.valid and player.mo.state == S_PLAY_FLY_TIRED)
+		return
+	end
+	player.cmd.forwardmove = $ / 2
+	player.cmd.sidemove = $ / 2
+end
+
+local glide = function(player)
+	if not (player and player.mo and player.mo.valid)
+		return
+	end
+	local mo = player.mo
+	if (mo.state == S_PLAY_GLIDE or mo.state == S_PLAY_SWIM) and player.glidetime and not P_IsObjectOnGround(mo)
+		if not (player.pflags & PF_DIRECTIONCHAR)//Begin directionchar gliding
+			player.waslegacy = true
+			player.pflags = $ | PF_DIRECTIONCHAR
+		end
+		
+		if player.glidetime > 16 //Downward force when gliding very slowly
+			if (player.speed < 12 * FRACUNIT)
+				P_SetObjectMomZ(mo, FRACUNIT * -1, true)
+			elseif (player.speed < 24 * FRACUNIT)
+				P_SetObjectMomZ(mo, FRACUNIT * -2/3, true)
+			end
+		end
+		
+	elseif player.waslegacy//End directionchar gliding
+		player.waslegacy = nil
+		player.pflags = $ & ~PF_DIRECTIONCHAR
+	end
+end
+
 local homingthok = function(p)
 -- 	if not (p and p.valid and p.charability == CA_HOMINGTHOK) then return end
 -- 	if not (p.pflags&PF_SHIELDABILITY)
@@ -84,68 +117,105 @@ local weight = function(player)
 end
 
 local exhaust = function(player)
-	if player.eggrobo_transforming then return end
+	if not (player and player.mo and player.mo.valid)
+		return
+	end
 	local mo = player.mo
+	
+	//Do func_exhaust
+	local defaultfunc = S[-1].func_exhaust
+	local func = S[player.skinvars].func_exhaust
+	local override = nil
+	if not func
+		func = defaultfunc
+	end
+	if func
+		override = func(player)
+	end
+	
+	//Common exhaust states
+	if player.powers[pw_carry] == CR_MACESPIN and player.mo.tracer
+		local maxtime = 4*TICRATE
+		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
+		if player.exhaustmeter <= 0
+			player.exhaustmeter = FRACUNIT
+			player.powers[pw_carry] = CR_NONE
+			player.mo.tracer = nil
+			player.powers[pw_flashing] = TICRATE/4
+		end
+	end
+	if player.charability == CA_FLY and player.powers[pw_tailsfly]
+		local maxtime = 4*TICRATE
+		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
+		if player.exhaustmeter <= 0
+			player.exhaustmeter = FRACUNIT
+			player.powers[pw_tailsfly] = 0
+		end
+	end
+	if player.charability == CA_GLIDEANDCLIMB
+		if (mo.state == S_PLAY_GLIDE or mo.state == S_PLAY_SWIM) and not P_IsObjectOnGround(mo)
+			local maxtime = 5*TICRATE
+			player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
+			if player.exhaustmeter <= 0
+				player.exhaustmeter = FRACUNIT
+				mo.state = S_PLAY_FALL
+				player.pflags = $ & ~PF_GLIDING & ~PF_JUMPED | PF_THOKKED
+				player.glidetime = 0
+			end
+		elseif player.climbing
+			if player.climbing == 5 then
+				if player.exhaustmeter > warningtic then
+					player.exhaustmeter = max(warningtic,$-FRACUNIT/4)
+				else
+					player.exhaustmeter = max(0,$-FRACUNIT/4)
+				end
+			else
+				local maxtime = 8*TICRATE
+				player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
+			end
+			if player.exhaustmeter <= 0
+				player.exhaustmeter = FRACUNIT
+				player.climbing = 0
+				player.pflags = $|PF_JUMPED|PF_THOKKED
+				mo.state = S_PLAY_ROLL
+			end
+		end
+	end
+	if player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING)
+		local maxtime = 6*TICRATE
+		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
+		if player.exhaustmeter <= 0
+			player.exhaustmeter = FRACUNIT
+			player.secondjump = 0
+			mo.state = S_PLAY_FALL
+			player.pflags = $ & ~PF_JUMPED | PF_THOKKED
+		end
+	end
+	
+	//Refill meter
+	if (P_IsObjectOnGround(mo) or P_PlayerInPain(player)) and not player.actionstate and not override
+		player.exhaustmeter = FRACUNIT
+	end
+	
+	//Exhaust warning / color
 	if mo.exhaustcolor == nil then
 		mo.exhaustcolor = false
 	end
-	if (P_IsObjectOnGround(mo) or P_PlayerInPain(player))
-	and not(player.actionstate)
-	and player.exhaustmeter != FRACUNIT 
-	and not(S[player.skinvars].special == B.Action.Dig and player.mo.flags&MF_NOCLIPTHING)
-		//Refill meter
-		player.exhaustmeter = FRACUNIT
-		if mo.exhaustcolor == true then
-			mo.colorized = false
-			mo.color = player.skincolor
-			mo.exhaustcolor = false
-		end
-	return end
-	local use = false
-	local maxtime = TICRATE*6
-	local warningtic = FRACUNIT/3
-	if (player.powers[pw_carry] == CR_MACESPIN and player.mo.tracer) //Swinging from chain
-		maxtime = TICRATE*6
-		use = true
-	elseif player.charability == CA_FLY then //Tails ability
-		maxtime = TICRATE*11/2
-	elseif player.charability == CA_GLIDEANDCLIMB and not(player.mo.flags&MF_NOCLIPTHING) then //Knuckles ability
-		maxtime = $+TICRATE*2
+	if mo.exhaustcolor == true and player.exhaustmeter == FRACUNIT
+		mo.colorized = false
+		mo.color = player.skincolor
+		mo.exhaustcolor = false
 	end
-	//Get usage
-	if 
-		player.powers[pw_tailsfly]
-		or
-		player.climbing
-		or (player.charability==CA_FLOAT and (
-			player.secondjump or player.pflags&(PF_THOKKED|PF_JUMPED)==PF_THOKKED|PF_JUMPED)
-		)
-		use = true
-	end
-	//Use meter
-	if(use) and (player.exhaustmeter) then
-		if player.climbing == 5 then
-			if player.exhaustmeter > warningtic then
-				player.exhaustmeter = max(warningtic,$-FRACUNIT/4)
-			else
-				player.exhaustmeter = max(0,$-FRACUNIT/4)
-			end
-		end
-		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
-	end
-	//Exhaust warning
 	local colorflip = false
+	local warningtic = FRACUNIT/3
 	if player.exhaustmeter < warningtic and not(player.exhaustmeter == 0) then
 		if not(leveltime&7)
--- 			S_StartSound(mo,sfx_s3kb5,player)
 			S_StartSound(mo,sfx_s3kbb,player)
 		end
 		if (leveltime&4)
 			colorflip = true
 		end
 	end
-	
-	//Exhaust color
 	if colorflip == true
 		mo.exhaustcolor = true
 		mo.colorized = true
@@ -155,60 +225,20 @@ local exhaust = function(player)
 		mo.colorized = false
 		mo.color = player.skincolor		
 	end
-	
-	//Fully exhausted
-	if use and not(player.exhaustmeter) then
-		//Tails
-		if player.powers[pw_tailsfly] then
-			player.powers[pw_tailsfly] = 0
-		end
-		//Knuckles
-		if player.climbing then
-			player.climbing = 0
-			player.pflags = $|PF_JUMPED|PF_THOKKED
-			mo.state = S_PLAY_ROLL
-		end
-		//Metal Sonic
-		if (player.charability==CA_FLOAT and player.secondjump) then
-			local spd = FixedHypot(player.rmomx,player.rmomy)
-			local ang = R_PointToAngle2(0,0,player.rmomx,player.rmomy)
-			local limit = FixedMul(player.normalspeed/6,mo.scale)
-			if spd > limit then
-				P_InstaThrust(mo,ang,limit)
-				if P_RandomChance(FRACUNIT/6) then
-					local x = mo.x-P_ReturnThrustX(mo,mo.angle,mo.radius)
-					local y = mo.y-P_ReturnThrustY(mo,mo.angle,mo.radius)
-					local z = mo.z+mo.height/2
-					P_SpawnMobj(x,y,z,MT_SMOKE)
-				end
-				if not(S_SoundPlaying(mo,sfx_s3kc2s)) then
-					S_StartSound(mo,sfx_s3kc2s)
-				end
-			end
-		end
-		//Swinging from chain
-		if (player.powers[pw_carry] == CR_MACESPIN and player.mo.tracer)
-			player.powers[pw_carry] = CR_NONE
-			player.mo.tracer = nil
-			player.powers[pw_flashing] = TICRATE/4
-		end
-	end
+end
+
+B.ExhaustCommon = function(player)
+	local warningtic = FRACUNIT/3
+	local mo = player.mo
 end
 
 B.CharAbilityControl = function(player)
+	fly(player)
+	glide(player)
 	homingthok(player)
 	popgun(player)
 	weight(player)
 	exhaust(player)
-	B.ShieldAbility(player)
-end
-
-B.ShieldActiveAllowed = function(player)
-	if B.GetSkinVarsFlags(player,SKINVARS_GUNSLINGER)
-		return false
-	else
-		return true
-	end
 end
 
 B.MidAirAbilityAllowed = function(player)

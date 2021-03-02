@@ -116,7 +116,7 @@ A.UpdateScore = function()
 end
 
 A.ForceRespawn = function(player)
-	if B.ArenaGametype() and G_GametypeUsesLives()
+	if B.ArenaGametype()// and G_GametypeUsesLives()
 	and not(player.playerstate == PST_LIVE) and player.lives > 0 and not(player.revenge)
 	and leveltime&1
 		then
@@ -324,5 +324,45 @@ A.UpdateGame = function()
 		if not(#A.RedSurvivors and #A.BlueSurvivors) then //Only one team standing (or none)
 			forcewin()
 		return end
+	end
+end
+
+A.KillReward = function(killer)
+	if not (killer and killer.valid) return end
+	
+	if killer.lifeshards == nil
+		killer.lifeshards = 0
+	end
+	
+	if killer.lives >= CV.SurvivalStock.value
+		S_StartSound(nil, sfx_itemup, killer)
+		P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 6, MT_NIGHTSPARKLE, ANGLE_90)
+		killer.rings = $ + 10
+		killer.lifeshards = 0
+		
+	elseif killer.mo and killer.mo.valid//Can get up to 1 extra life above the starting lives
+		killer.rings = $ + 10
+		killer.lifeshards = $ + 1
+		
+		if killer.lifeshards == 1
+			S_StartSound(nil, sfx_s243, killer)
+			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 9, MT_NIGHTSPARKLE, ANGLE_90)
+		elseif killer.lifeshards == 2
+			S_StartSound(nil, sfx_s243, killer)
+			S_StartSound(nil, sfx_s243a, killer)
+			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 12, MT_NIGHTSPARKLE, ANGLE_90)
+		else
+			S_StartSound(nil, sfx_s245, killer)
+			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 15, MT_NIGHTSPARKLE, ANGLE_90)
+		end
+		
+		//print(killer.lifeshards)
+		if killer.lifeshards == KILLSNEEDED
+			killer.lifeshards = 0
+			killer.lives = $ + 1
+			P_PlayLivesJingle(killer)
+			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_1UP_ICON)
+			icon.scale = killer.mo.scale * 4/3
+		end
 	end
 end

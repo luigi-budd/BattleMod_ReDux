@@ -18,12 +18,12 @@ freeslot(
 )
 mobjinfo[MT_SONICBOOM] = {
 	spawnstate = S_SONICBOOM1,
-	speed = 12*FRACUNIT,
+	speed = 22*FRACUNIT,
 	radius = 32*FRACUNIT,
 	height = 16*FRACUNIT,
 	mass = 0,
 	damage = 0,
-	flags = MF_MISSILE|MF_NOGRAVITY|MF_NOBLOCKMAP
+	flags = MF_MISSILE|MF_NOGRAVITY|MF_NOBLOCKMAP|MF_BOUNCE
 }
 states[S_SONICBOOM1] = {
 	sprite = SPR_GUIL,

@@ -167,10 +167,14 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 		if source and source.valid and source.health and source.player and source.player.powers[pw_flashing]
 			source.player.powers[pw_flashing] = 0
 			local nega = P_SpawnMobjFromMobj(source,0,0,0,MT_NEGASHIELD)
-			nega.target = source			
+			nega.target = source
 		end
 		//Affect attacker
 		if inflictor.player
+			if inflictor.player.powers[pw_invulnerability]
+				inflictor.player.powers[pw_invulnerability] = 0
+				P_RestoreMusic(inflictor.player)
+			end
 			local angle = R_PointToAngle2(target.x-target.momx,target.y-target.momy,inflictor.x-inflictor.momx,inflictor.y-inflictor.momy)
 			local thrust = FRACUNIT*10
 			if twodlevel then thrust = B.TwoDFactor($) end

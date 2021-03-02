@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local S = B.SkinVars
 local speedlimit = 48
 
 B.GetLaunchFactor = function(value)
@@ -44,6 +45,18 @@ B.DoPlayerInteract = function(smo,tmo)
 	plr[s] = mo[s].player
 	plr[t] = mo[t].player
 	
+	//Prevpain for vfx reasons
+	local prevpain = {}
+	for n = 1,2
+		if plr[n] then
+			prevpain[n] = (plr[n].powers[pw_nocontrol] > 0
+				or plr[n].panim == PA_PAIN
+				or mo[n].health < 1)
+		else
+			prevpain[n] = false
+		end
+	end
+	
 	//This will tell us if both parties are player objects
 	local pvp = (plr[s]) and (plr[t])
 	
@@ -80,10 +93,6 @@ B.DoPlayerInteract = function(smo,tmo)
 			end
 		end
 	end
-	//Wait... is this used??
-	local recoilfactor = {}
-	recoilfactor[s] = FRACUNIT*(def[t]-def[s]+4)/8
-	recoilfactor[t] = FRACUNIT*(def[s]-def[t]+4)/8
 	
 	//Get type of collision (friendly, competitive, hostile?)
 	local collisiontype = B.GetInteractionType(mo[s],mo[t])
@@ -170,7 +179,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		B.DebugPrint("defense "..def[n],DF_COLLISION)
 	end
 	B.DebugPrint("--------------------",DF_COLLISION)
-	local bias = 0
+	local hurt = 0
 	//Collision info
 	if pvp and G_TagGametype() and leveltime > CV_FindVar("hidetime").value*TICRATE then //! Get hidetime
 		local function tagginghand(n1,n2)
@@ -188,7 +197,10 @@ B.DoPlayerInteract = function(smo,tmo)
 		
 	elseif collisiontype > 1 then //Standard Battle rules
 		//Do collision damage
-		bias = B.DoPlayerCollisionDamage(mo[s],mo[t])
+		hurt = B.DoPlayerCollisionDamage(mo[s],mo[t])
+		// 0: nobody was hurt
+		// 1: t was hurt by s
+		//-1: s was hurt by t
 	end
 	local pain = {}
 	for n = 1,2
@@ -201,96 +213,188 @@ B.DoPlayerInteract = function(smo,tmo)
 		end
 	end
 	
-	local function applythrust(n1,n2)
-		if plr[n1] and plr[n1].climbing return end
-		//Apply XY-Thrust
-		if mo[n1].health then
-			if not(homing[n1])
-				if plr[n1] and P_PlayerInPain(plr[n1])
-					mo[n1].momx = 0
-					mo[n1].momy = 0
-				end
-				P_Thrust(mo[n1],angle[n1],thrust[n1])
-				if not pain[n1] 
-					P_Thrust(mo[n1],angle[n2]+ANGLE_180,min(speedlimit*mo[n1].scale,thrust2[n1]))
-				end
-
-			else
-				thrust[n1] = $/2
-				P_InstaThrust(mo[n1],angle[n1],thrust[n1])
-			end
+	//Custom character collision functions
+	local op1 = false
+	local op2 = false
+	local defaultfunc = S[-1].func_collide
+	
+	if plr[s]
+		local func = S[plr[s].skinvars].func_collide
+		if func
+			op1 = func(s,t,plr,mo,atk,def,pain,collisiontype)
+		elseif defaultfunc
+			op1 = defaultfunc(s,t,plr,mo,atk,def,pain,collisiontype)
 		end
-		
-		//Apply Z-Thrust
-		if not(pain[n1]) then 
-			if not(homing[n1]) then
-				mo[n1].momz = -1*$+max(
-					-speedlimit/2*mo[n1].scale,
-					min(
-						speedlimit/2*mo[n1].scale,
-						FixedMul(
-							B.GetLaunchFactor(momz[n2]),
-							FixedDiv(
-								weight[n2],
-								weight[n1]
+	end
+	if plr[t]
+		local func = S[plr[t].skinvars].func_collide
+		if func
+			op2 = func(t,s,plr,mo,atk,def,pain,collisiontype)
+		elseif defaultfunc
+			op2 = defaultfunc(t,s,plr,mo,atk,def,pain,collisiontype)
+		end
+	end
+	local override_physics = (op1 or op2)
+	
+	if not override_physics
+		local function applythrust(n1,n2)
+			if plr[n1] and plr[n1].climbing return end
+			//Apply XY-Thrust
+			if mo[n1].health then
+				if not(homing[n1])
+					if plr[n1] and P_PlayerInPain(plr[n1])
+						mo[n1].momx = 0
+						mo[n1].momy = 0
+					end
+					P_Thrust(mo[n1],angle[n1],thrust[n1])
+					if not pain[n1] 
+						P_Thrust(mo[n1],angle[n2]+ANGLE_180,min(speedlimit*mo[n1].scale,thrust2[n1]))
+					end
+
+				else
+					thrust[n1] = $/2
+					P_InstaThrust(mo[n1],angle[n1],thrust[n1])
+				end
+			end
+			
+			//Apply Z-Thrust
+			if not(pain[n1]) then 
+				if not(homing[n1]) then
+					mo[n1].momz = -1*$+max(
+						-speedlimit/2*mo[n1].scale,
+						min(
+							speedlimit/2*mo[n1].scale,
+							FixedMul(
+								B.GetLaunchFactor(momz[n2]),
+								FixedDiv(
+									weight[n2],
+									weight[n1]
+								)
 							)
 						)
-					)
-				) //can i make this less messy???
-			else
-				mo[n1].momz = mo[n2].scale*10
+					) //can i make this less messy???
+				else
+					mo[n1].momz = mo[n2].scale*10
+				end
 			end
 		end
-	end
-	applythrust(s,t)
-	applythrust(t,s)
-	
-	//Knuckles interaction
-	local function knuckles(n1,n2)
-		if plr[n1] and mo[n1].health and not(pain[n1])
-			and (plr[n1].pflags&PF_GLIDING or plr[n1].climbing 
-				or (plr[n1].charability == CA_GLIDEANDCLIMB) and collisiontype > 1 and P_IsObjectOnGround(mo[n1]) and not(plr[n1].pflags&PF_SPINNING)
-			) then
-			plr[n1].pflags = $&~(PF_GLIDING|PF_JUMPED)
-			if not(P_IsObjectOnGround(mo[n1])) and not(plr[n1].climbing) then
-				plr[n1].panim = PA_FALL
-				mo[n1].state = S_PLAY_FALL
-				plr[n1].climbing = 0
-				plr[n1].lastsidehit = -1
-				plr[n1].lastlinehit = -1
-			elseif (atk[n2])
-				mo[n1].state = S_PLAY_GLIDE_LANDING
-			end
-		end
-	end
-	
-	knuckles(s,t)
-	knuckles(t,s)
-	
-	//Do recoil state
-	if collisiontype > 1 then
-		local function dorecoil(n1,n2)
-			if plr[n1] and not(plr[n1].climbing or pain[n1] or plr[n1].playerstate != PST_LIVE) and (atk[n2] >= def[n1])
-				then
-				B.DoPlayerFlinch(plr[n1],thrust[n1]/mo[n1].scale*2, angle[n1], thrust[n1])
-			end
-		end
+		applythrust(s,t)
+		applythrust(t,s)
 		
-		dorecoil(s,t)
-		dorecoil(t,s)
+		//Do recoil state
+		if collisiontype > 1 then
+			local function dorecoil(n1,n2)
+				if plr[n1] and not(plr[n1].climbing or pain[n1] or plr[n1].playerstate != PST_LIVE) and (atk[n2] >= def[n1])
+					then
+					B.DoPlayerFlinch(plr[n1],thrust[n1]/mo[n1].scale*2, angle[n1], thrust[n1])
+				end
+			end
+			
+			dorecoil(s,t)
+			dorecoil(t,s)
+		end
 	end
 	
-	//Do Sound
-	local defend = (def[s]|def[t] > 2)
-	local attack = (atk[s]|atk[t] > 2)
-	local damage = (pain[s] or pain[t])
-	if not(defend or attack) then
-		S_StartSound(mo[s],sfx_s3k5d) //Weak
-	elseif not attack then
-		S_StartSound(mo[s],sfx_s3k49) //Sturdy
-	else
-		S_StartSound(mo[s],sfx_s3k5f) //Powerful
+	//Do Sound, VFX
+	local defend = max(def[s],def[t])
+	local attack = max(atk[s],atk[t])
+	local shake = false
+	if (smo and smo.player and smo.player == consoleplayer)
+	or (tmo and tmo.player and tmo.player == consoleplayer)
+		shake = true
 	end
+	
+	if hurt != 0 and pain[s] or pain[t] //Someone got hurt
+		if pain[s] and not prevpain[s]
+			local sc = 2
+			if atk[t] == 1 //1atk hit
+				S_StartSoundAtVolume(mo[t],sfx_s3k49, 220)
+				S_StartSound(mo[s],sfx_s3k96)
+				if shake
+					P_StartQuake(9 * FRACUNIT, 2)
+				end
+			elseif atk[t] == 2 //2atk
+				sc = 4
+				S_StartSoundAtVolume(mo[t],sfx_s3k49, 200)
+				S_StartSound(mo[s],sfx_s3k5f)
+				if shake
+					P_StartQuake(12 * FRACUNIT, 3)
+				end
+			elseif atk[t] >= 3 //3atk or more
+				sc = 6
+				S_StartSoundAtVolume(mo[t],sfx_s3k49, 200)
+				S_StartSound(mo[s],sfx_s3k9b)
+				if shake
+					P_StartQuake(14 * FRACUNIT, 5)
+				end
+			end
+			local vfx = P_SpawnMobjFromMobj(mo[s], 0, 0, mo[s].height/2, MT_SPINDUST)
+			if vfx.valid
+				vfx.scale = mo[s].scale * sc/5
+				vfx.destscale = vfx.scale * 3
+				vfx.colorized = true
+				vfx.color = SKINCOLOR_WHITE
+				vfx.state = S_BCEBOOM
+			end
+		end
+		if pain[t] and not prevpain[t]
+			local sc = 2
+			if atk[s] == 1 //1atk hit
+				S_StartSoundAtVolume(mo[s],sfx_s3k49, 200)
+				S_StartSound(mo[s],sfx_s3k96)
+				if shake
+					P_StartQuake(9 * FRACUNIT, 2)
+				end
+			elseif atk[s] == 2 //2atk
+				sc = 4
+				S_StartSoundAtVolume(mo[s],sfx_s3k49, 200)
+				S_StartSound(mo[s],sfx_s3k5f)
+				if shake
+					P_StartQuake(12 * FRACUNIT, 3)
+				end
+			elseif atk[s] >= 3 //3atk or more
+				sc = 6
+				S_StartSoundAtVolume(mo[s],sfx_s3k49, 200)
+				S_StartSound(mo[s],sfx_s3k9b)
+				if shake
+					P_StartQuake(14 * FRACUNIT, 5)
+				end
+			end
+			local vfx = P_SpawnMobjFromMobj(mo[t], 0, 0, mo[t].height/2, MT_SPINDUST)
+			if vfx.valid
+				vfx.scale = mo[t].scale * sc/5
+				vfx.destscale = vfx.scale * 3
+				vfx.colorized = true
+				vfx.color = SKINCOLOR_WHITE
+				vfx.state = S_BCEBOOM
+			end
+		end
+	else//Nobody got hurt
+		if attack == 1
+			S_StartSound(mo[s],sfx_s3k49)
+			if shake
+				P_StartQuake(5 * FRACUNIT, 2)
+			end
+		elseif attack == 2
+			S_StartSound(mo[s],sfx_s3k49)
+			S_StartSoundAtVolume(mo[s],sfx_s3k61, 70)
+			if shake
+				P_StartQuake(7 * FRACUNIT, 3)
+			end
+		elseif attack >= 3
+			S_StartSound(mo[s],sfx_s3k49)
+			S_StartSoundAtVolume(mo[s],sfx_s3k61, 140)
+			if shake
+				P_StartQuake(9 * FRACUNIT, 4)
+			end
+		else
+			S_StartSoundAtVolume(mo[s],sfx_s3k5d, 200)
+			if shake
+				P_StartQuake(3 * FRACUNIT, 1)
+			end
+		end
+	end
+	
 	if smo.player then smo.player.homing = 0 end 
 	if tmo.player then tmo.player.homing = 0 end
 	//Player interactions completed

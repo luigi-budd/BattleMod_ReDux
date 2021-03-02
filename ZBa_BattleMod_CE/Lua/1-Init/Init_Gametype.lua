@@ -65,7 +65,7 @@ G_AddGametype({
     rankingtype = GT_MATCH,
 	intermissiontype = int_match,
 	defaultpointlimit = 3000,
-	defaulttimelimit = 8,
+	defaulttimelimit = 5,
     headerleftcolor = 75,
     headerrightcolor = 75,
     description = "The player who stands inside the score zone for long enough will claim its reward! Knock your foes out before they steal the spotlight!"
@@ -78,8 +78,8 @@ G_AddGametype({
     rules = GTR_OVERTIME|GTR_TEAMFLAGS|GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES,
     rankingtype = GT_TEAMMATCH,
 	intermissiontype = int_teammatch,
-	defaultpointlimit = 4,
-	defaulttimelimit = 8,
+	defaultpointlimit = 3,
+	defaulttimelimit = 5,
     headerleftcolor = 37,
     headerrightcolor = 150,
     description = "Players must work together to capture the control point before the opposing team does. The more players inside, the faster the capture!"
