@@ -17,10 +17,10 @@ B.StunBreak = function(player, doguard)
 	if mo.tics == 349//First frame of S_PLAY_PAIN
 		player.tech_bfr = false
 	end
-	if buttoncheck(player,doguard) == 1
+	if doguard == 1
 		player.tech_bfr = true
 	end
-	if player.tech_bfr and not buttoncheck(player,doguard)
+	if player.tech_bfr and not doguard
 		player.tech_bfr = nil
 	end
 	

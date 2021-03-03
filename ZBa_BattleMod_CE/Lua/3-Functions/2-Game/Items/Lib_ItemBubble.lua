@@ -83,8 +83,7 @@ I.ItemReward = function(mo,player)
 		player.mo.momz = max(mom, $)
 	end
 	if ((player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP) and (player.pflags & PF_SHIELDABILITY)
-		player.pflags = ($|PF_THOKKED) & ~(PF_STARTJUMP)
-		player.secondjump = UINT8_MAX
+		P_DoBubbleBounce(player)
 	end
  	S_StartSoundAtVolume(player.mo,sfx_cdfm16,150)
  	S_StartSoundAtVolume(player.mo,sfx_pop,160)

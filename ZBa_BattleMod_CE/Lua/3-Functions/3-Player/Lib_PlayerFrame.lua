@@ -63,30 +63,17 @@ local function buttoncheck(player,button)
 	return 0
 end
 
-B.PlayerThinker = function(player)
-	B.TwoDSeeName(player)
-	if player.playerstate != PST_LIVE then return end
-	if not(player.mo) then return end
-	if player.versusvars == nil then return end //Not all variables have yet been initialized
--- 	if B.GetSkinVars(player) == -1
--- 		print("!!!!!!",player.skinvars)
--- 	return end
-	B.GetSkinVars(player)
-	local mo = player.mo
-	B.PlayerMovementControl(player)
-	B.CustomGunslinger(player)
-	B.DoPriority(player)
-	A.RingSpill(player)
-end
-
 B.PlayerThinkFrame = function(player)
-	if player.versusvars == nil then return end //Initiation check (wait till next frame)
-	B.ShieldMax(player) //Regulate shield capacity
 	local pmo = player.mo
-	//Validity check
+	
+	//Sanity checks
+	if player.versusvars == nil then return end
 	if not(pmo and pmo.valid) or player.playerstate != PST_LIVE then return end
-	//Game Mode Check
 	if maptol&(TOL_NIGHTS|TOL_XMAS) then return end
+	
+	//Shield Stock usage
+	B.ShieldStock(player)
+	B.ShieldMax(player) //Regulate shield capacity
 	
 	//Lock-aim
 	if player.lockaim then
@@ -96,38 +83,44 @@ B.PlayerThinkFrame = function(player)
 	if player.lockmove then
 		player.lockmove = false
 	end
+	
+	//Skinvars
+	B.GetSkinVars(player)
+	
 	//Ability control
--- 	B.GetSkinVars(player) //Handled in PlayerThinker
-	B.GuardControl(player)
-	B.CharAbilityControl(player)
+	B.GuardControl(player)//Guard behavior
+	B.CharAbilityControl(player)//Exhaust and ability behavior
 	
 	//Update timers/stats
 	B.GotFlagStats(player)
 	player.charmedtime = max(0,$-1)
 	player.actioncooldown = max(0,$-1)
--- 	B.DoCharmed(player)
 	B.DoBackdraft(player)
 	
 	//Special thinkers
 	A.JettySynThinker(player)
-
-	//PvP Collision
-	B.DoPlayerInteract(pmo,pmo.pushed)
-	B.UpdateRecoilState(pmo)
-	B.UpdateCollisionHistory(pmo)
-
+	B.AutoSpectator(player)
+	A.RingSpill(player)
+	B.PlayerMovementControl(player)
+	
 	//Perform Actions
 	local doaction = buttoncheck(player,player.battleconfig_special)
 	B.MasterActionScript(player,doaction)
-
+	
 	//Guard, Stun Break
 	local doguard = buttoncheck(player,player.battleconfig_guard)
 	B.Guard(player,doguard)	
 	B.StunBreak(player,doguard)
-
-	//Shield control
-	B.ShieldStock(player)
+	
+	//Abilities
 	B.ShieldActives(player)
+	B.CustomGunslinger(player)
+	
+	//PvP Collision
+	B.DoPriority(player)
+	B.DoPlayerInteract(pmo,pmo.pushed)
+	B.UpdateRecoilState(pmo)
+	B.UpdateCollisionHistory(pmo)
 end
 
 B.PlayerPostThinkFrame = function(player)

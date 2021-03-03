@@ -24,6 +24,7 @@ Maps
 		More spacious layouts
 		Rebalanced item spawns
 		Bug fixes
+	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
 
 Collision / bumping
 	Changed the sound effects of collision interactions, adding more unique sounds for successful and defended attacks at different priority levels
@@ -36,9 +37,11 @@ Item Bubbles
 	Item bubbles now create an icon when popped, like a monitor
 
 Misc.
-	When a reserve shield is used, it plays a different sound effect depending on the type of shield
-	Parrying a player will remove their invincibility powerup
 	Increased exhaustion rate for riding CEZ swings
+	Parrying a player will remove their invincibility powerup
+	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
+	In team modes, all shields are team colored
+	When a reserve shield is used, it plays a different sound effect depending on the type of shield
 
 Tails
 	Tails exhausts more quickly

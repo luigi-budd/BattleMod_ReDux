@@ -1,4 +1,4 @@
-freeslot("MT_STUNBREAK","S_STUNBREAK","spr_bsbk")
+freeslot("MT_STUNBREAK","S_STUNBREAK","SPR_BSBK")
 
 mobjinfo[MT_STUNBREAK] = {
 	spawnstate = S_STUNBREAK,

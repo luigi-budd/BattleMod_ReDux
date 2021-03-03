@@ -233,6 +233,7 @@ B.ExhaustCommon = function(player)
 end
 
 B.CharAbilityControl = function(player)
+	B.ArmaCharge(player)
 	fly(player)
 	glide(player)
 	homingthok(player)

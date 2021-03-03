@@ -53,13 +53,6 @@ addHook("SpinSpecial",function(player)
 	end
 end)
 
-
-//Certain player actions that are perhaps more appropriate here than PreThinkFrame or ThinkFrame
-addHook("PlayerThink",function(player)
-	B.AutoSpectator(player)
-	B.PlayerThinker(player)
-end)
-
 //Player against Player damage
 addHook("ShouldDamage", function(target,inflictor,source,damage,other)
 	if not(inflictor and inflictor.valid and inflictor.player and inflictor != target)

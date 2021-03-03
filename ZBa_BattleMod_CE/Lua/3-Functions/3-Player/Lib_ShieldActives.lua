@@ -14,7 +14,9 @@ B.ArmaCharge = function(player)
 	if not player.valid or not player.mo or not player.mo.valid or not player.armachargeup return end
 	local mo = player.mo
 	
-	if mo.state != S_PLAY_ROLL
+	if not player.armachargeup
+	//mo.state != S_PLAY_ROLL
+	or player.actionstate
 	or player.playerstate != PST_LIVE
 	or P_PlayerInPain(player)
 	or (player.powers[pw_shield] & SH_NOSTACK) != SH_ARMAGEDDON
@@ -23,6 +25,7 @@ B.ArmaCharge = function(player)
 		return
 	end
 	
+	mo.state = S_PLAY_ROLL
 	player.pflags = $ | PF_THOKKED | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
 	
 	player.armachargeup = $ + 1
@@ -42,6 +45,8 @@ B.ArmaCharge = function(player)
 	if player.armachargeup >= 27
 		player.armachargeup = nil
 		player.pflags = $ & ~PF_FULLSTASIS
+		player.pflags = $ & ~PF_JUMPED
+		
 		mo.state = S_PLAY_FALL
 		local shake = 14
 		local shaketics = 5
@@ -122,8 +127,6 @@ local AttractionShot = function(player)
 end	
 
 B.ShieldActives = function(player)
-	B.ArmaCharge(player)
-	
 	if player and player.valid and player.mo and player.mo.valid
 		and (player.pflags&PF_JUMPED)
 		and not player.gotcrystal
@@ -133,7 +136,8 @@ B.ShieldActives = function(player)
 		and not player.actionstate
 		and not player.powers[pw_nocontrol]
 		and not player.powers[pw_carry]
-		and ((buttoncheck(player,player.battleconfig_guard) == 1) or ((buttoncheck(player,BT_SPIN) == 1) and not (player.charability2 == CA2_GUNSLINGER)))
+		and ((buttoncheck(player,player.battleconfig_guard) == 1)
+		or (buttoncheck(player,BT_SPIN) == 1 and not(B.GetSkinVarsFlags(player)&SKINVARS_GUNSLINGER)))
 
 		// The SRB2 shields.
 		-- Elemental Stomp.

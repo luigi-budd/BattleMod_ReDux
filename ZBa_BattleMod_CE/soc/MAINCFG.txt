@@ -1,3 +1,13 @@
+Level BZ
+LevelName = Training
+SelectHeading = Training
+Music = TUTORL
+Skynum = 99
+NextLevel = B0
+LevelSelect = 1
+Lua.BattleItems.LocalRate = 10
+Lua.BattleItems_GlobalRate = 10
+
 Level B0
 LevelName = Grass Court
 Music = GFZ1

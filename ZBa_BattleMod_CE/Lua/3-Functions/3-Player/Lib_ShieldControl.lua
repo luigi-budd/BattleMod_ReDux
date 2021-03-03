@@ -124,12 +124,6 @@ B.ShieldStock = function(player)
 	
 end
 
-B.ShieldColor = function(mo,owner)
-	if not(owner and owner.valid and owner.player and owner.player.valid) then return nil end
-	mo.color = owner.player.skincolor
-	mo.colorized = true
-end
-
 B.SpawnWithShield = function(player)
 	if B.SuddenDeath then return end
 	if gametyperules&GTR_PITYSHIELD and not(player.spectator) then
