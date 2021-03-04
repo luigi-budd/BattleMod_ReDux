@@ -1,5 +1,5 @@
 local B = CBW_Battle
-B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,pain,collisiontype)
+B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1].health and not(pain[n1])
 		and (plr[n1].pflags&PF_GLIDING or plr[n1].climbing 
 			or (plr[n1].charability == CA_GLIDEANDCLIMB) and collisiontype > 1 and P_IsObjectOnGround(mo[n1]) and not(plr[n1].pflags&PF_SPINNING)
@@ -18,4 +18,5 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,pain,collisiontype)
 			mo[n1].state = S_PLAY_GLIDE_LANDING
 		end
 	end
+	return false
 end

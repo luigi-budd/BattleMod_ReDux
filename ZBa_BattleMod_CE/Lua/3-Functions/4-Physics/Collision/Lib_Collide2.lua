@@ -220,18 +220,20 @@ B.DoPlayerInteract = function(smo,tmo)
 	
 	if plr[s]
 		local func = S[plr[s].skinvars].func_collide
+		if not func
+			func = defaultfunc
+		end
 		if func
-			op1 = func(s,t,plr,mo,atk,def,pain,collisiontype)
-		elseif defaultfunc
-			op1 = defaultfunc(s,t,plr,mo,atk,def,pain,collisiontype)
+			op1 = func(s,t,plr,mo,atk,def,weight,hurt,pain,angle,thrust,thrust2,collisiontype)
 		end
 	end
 	if plr[t]
 		local func = S[plr[t].skinvars].func_collide
+		if not func
+			func = defaultfunc
+		end
 		if func
-			op2 = func(t,s,plr,mo,atk,def,pain,collisiontype)
-		elseif defaultfunc
-			op2 = defaultfunc(t,s,plr,mo,atk,def,pain,collisiontype)
+			op2 = func(t,s,plr,mo,atk,def,weight,hurt,pain,angle,thrust,thrust2,collisiontype)
 		end
 	end
 	local override_physics = (op1 or op2)
@@ -286,7 +288,7 @@ B.DoPlayerInteract = function(smo,tmo)
 			local function dorecoil(n1,n2)
 				if plr[n1] and not(plr[n1].climbing or pain[n1] or plr[n1].playerstate != PST_LIVE) and (atk[n2] >= def[n1])
 					then
-					B.DoPlayerFlinch(plr[n1],thrust[n1]/mo[n1].scale*2, angle[n1], thrust[n1])
+					B.DoPlayerFlinch(plr[n1],(thrust[n1] * 2)/(mo[n1].scale * 5), angle[n1], thrust[n1])
 				end
 			end
 			

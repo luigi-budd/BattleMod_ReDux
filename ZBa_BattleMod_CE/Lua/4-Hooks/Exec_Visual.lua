@@ -13,8 +13,9 @@ addHook("MobjThinker",function(mo) B.MetalAura(mo,mo.target) end, MT_ENERGYAURA)
 local colorsh = function(mo, redcol, bluecol)
 	B.OverlayHide(mo,mo.target)
 	
+	if mo.colorized return end
 	local target = mo.target
-	if target and target.valid and target.target and target.target.player
+	if target and target.valid and not target.player and target.target and target.target.player
 		target = target.target
 	end
 	
@@ -22,32 +23,39 @@ local colorsh = function(mo, redcol, bluecol)
 		return
 	end
 	
-	if target.player.ctfteam == 1 and redcol
+	if (target.player.ctfteam == 1) and redcol
 		mo.color = redcol
 		mo.colorized = true
+		return
 		
-	elseif target.player.ctfteam == 2 and bluecol
+	elseif (target.player.ctfteam == 2) and bluecol
 		mo.color = bluecol
 		mo.colorized = true
+		return
 	end
 end
 
 local colorsh2 = function(mo)
 	if mo.state >= S_ARMA1 and mo.state <= S_ARMB32
 		colorsh(mo,nil,SKINCOLOR_PURPLE)
+		return
 	end
 	if mo.state >= S_ZAPS1 and mo.state <= S_ZAPSB11
 		colorsh(mo,SKINCOLOR_SUPERRED3,SKINCOLOR_SUPERSKY2)
+		return
 	end
 	if mo.state >= S_FIRS1 and mo.state <= S_FIRSB10
 		colorsh(mo,nil,SKINCOLOR_CYAN)
+		return
 	end
 	if mo.state >= S_BUBS1 and mo.state <= S_BUBSB6
 		colorsh(mo,SKINCOLOR_SUPERGOLD1,nil)
+		return
 	end
+	B.OverlayHide(mo,mo.target)
 end
 
-addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_RUBY,nil) end,MT_ELEMENTAL_ORB)
+addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_CRIMSON,nil) end,MT_ELEMENTAL_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_ORANGE,SKINCOLOR_VAPOR) end,MT_ATTRACT_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_FLAME,SKINCOLOR_SKY) end,MT_WHIRLWIND_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_RED,nil) end,MT_FORCE_ORB)

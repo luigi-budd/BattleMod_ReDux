@@ -85,6 +85,11 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	//Establish enemy player as the last pusher (for hazard kills)
 	B.PlayerCreditPusher(target.player,inflictor)
 	B.PlayerCreditPusher(target.player,source)
+	
+	local player = target.player
+	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON//no more arma revenge boom
+		player.powers[pw_shield] = SH_PITY
+	end
 end,MT_PLAYER)
 
 //Player death

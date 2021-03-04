@@ -1,4 +1,4 @@
-Version CE-v1
+Version CE-v1.1
 
 New ability: Stun Break (costs 30 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
@@ -27,6 +27,8 @@ Maps
 	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
 
 Collision / bumping
+	Reduced duration of recoil stun by 20%
+	Reduced maximum recoil stun duration: (2s -> 1s)
 	Changed the sound effects of collision interactions, adding more unique sounds for successful and defended attacks at different priority levels
 	Added screenshake to collisions increasing based on the attack / defense priority
 	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
@@ -57,7 +59,7 @@ Knuckles
 	Knuckles now exhausts while gliding, instead of only when climbing
 	Knuckles now falls more quickly when gliding at very low speed
 	While gliding, Knuckles behaves as if Legacy mode is disabled
-    Slightly increased the recoil Knuckles recieves after hitting with Gliding Fists
+	Slightly increased the knockback Knuckles recieves after hitting with Gliding Fists
 	Jumpfactor increased from 85% to 90%
 
 Metal Sonic

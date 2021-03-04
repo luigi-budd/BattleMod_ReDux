@@ -306,7 +306,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust,force)
 		player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 	end
 	//Apply recoil
-	player.powers[pw_nocontrol] = max($,min(time,TICRATE*2))
+	player.powers[pw_nocontrol] = max($,min(time,TICRATE))
 	player.mo.recoilangle = angle
 	player.mo.recoilthrust = thrust
 	if not(player.actionsuper) then
