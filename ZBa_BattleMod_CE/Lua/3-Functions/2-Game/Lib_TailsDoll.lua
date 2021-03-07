@@ -156,7 +156,7 @@ local hover = function(mo,t)
 	P_Thrust(mo,dir,-spd/10) //Employ air friction
 	//Vertical movement
 	local water = B.WaterFactor(mo)
-	local hoverthreshold = mo.scale*48
+	local hoverthreshold = mo.scale*24
 	local groundstop = mo.scale*10
 	local thrustaccel = (mo.scale+1)/water
 	local thrustmax = min(mo.scale*4,max(mo.scale*3,mo.scale*mo.hitcounter/4))

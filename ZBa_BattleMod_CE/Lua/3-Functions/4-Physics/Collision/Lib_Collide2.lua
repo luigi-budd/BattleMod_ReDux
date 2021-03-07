@@ -306,70 +306,54 @@ B.DoPlayerInteract = function(smo,tmo)
 		shake = true
 	end
 	
-	if hurt != 0 and pain[s] or pain[t] //Someone got hurt
-		if pain[s] and not prevpain[s]
-			local sc = 2
-			if atk[t] == 1 //1atk hit
-				S_StartSoundAtVolume(mo[t],sfx_s3k49, 220)
-				S_StartSound(mo[s],sfx_s3k96)
-				if shake
-					P_StartQuake(9 * FRACUNIT, 2)
-				end
-			elseif atk[t] == 2 //2atk
-				sc = 4
-				S_StartSoundAtVolume(mo[t],sfx_s3k49, 200)
-				S_StartSound(mo[s],sfx_s3k5f)
-				if shake
-					P_StartQuake(12 * FRACUNIT, 3)
-				end
-			elseif atk[t] >= 3 //3atk or more
-				sc = 6
-				S_StartSoundAtVolume(mo[t],sfx_s3k49, 200)
-				S_StartSound(mo[s],sfx_s3k9b)
-				if shake
-					P_StartQuake(14 * FRACUNIT, 5)
-				end
+	local hitfx = function(n1,n2)
+		//n2 hurt by n1
+		if mo[n2].type == MT_SPARRINGDUMMY
+			S_StartSound(mo[n2],sfx_s3k6e)
+		elseif mo[n2].battleobject
+			S_StartSoundAtVolume(mo[n2],sfx_s3kaa, 120)
+		end
+		local sc = 2
+		if not plr[n1] or atk[n1] == 1 //1atk hit
+			S_StartSoundAtVolume(mo[n1],sfx_s3k49, 220)
+			S_StartSound(mo[n2],sfx_s3k96)
+			if shake
+				P_StartQuake(9 * FRACUNIT, 2)
 			end
-			local vfx = P_SpawnMobjFromMobj(mo[s], 0, 0, mo[s].height/2, MT_SPINDUST)
-			if vfx.valid
-				vfx.scale = mo[s].scale * sc/5
-				vfx.destscale = vfx.scale * 3
-				vfx.colorized = true
-				vfx.color = SKINCOLOR_WHITE
-				vfx.state = S_BCEBOOM
+		elseif atk[n1] == 2 //2atk
+			sc = 4
+			S_StartSoundAtVolume(mo[n1],sfx_s3k49, 200)
+			S_StartSound(mo[n2],sfx_s3k5f)
+			if shake
+				P_StartQuake(12 * FRACUNIT, 3)
+			end
+		elseif atk[n1] >= 3 //3atk or more
+			sc = 6
+			S_StartSoundAtVolume(mo[n1],sfx_s3k49, 200)
+			S_StartSound(mo[n2],sfx_s3k9b)
+			if shake
+				P_StartQuake(14 * FRACUNIT, 5)
 			end
 		end
-		if pain[t] and not prevpain[t]
-			local sc = 2
-			if atk[s] == 1 //1atk hit
-				S_StartSoundAtVolume(mo[s],sfx_s3k49, 200)
-				S_StartSound(mo[s],sfx_s3k96)
-				if shake
-					P_StartQuake(9 * FRACUNIT, 2)
-				end
-			elseif atk[s] == 2 //2atk
-				sc = 4
-				S_StartSoundAtVolume(mo[s],sfx_s3k49, 200)
-				S_StartSound(mo[s],sfx_s3k5f)
-				if shake
-					P_StartQuake(12 * FRACUNIT, 3)
-				end
-			elseif atk[s] >= 3 //3atk or more
-				sc = 6
-				S_StartSoundAtVolume(mo[s],sfx_s3k49, 200)
-				S_StartSound(mo[s],sfx_s3k9b)
-				if shake
-					P_StartQuake(14 * FRACUNIT, 5)
-				end
-			end
-			local vfx = P_SpawnMobjFromMobj(mo[t], 0, 0, mo[t].height/2, MT_SPINDUST)
-			if vfx.valid
-				vfx.scale = mo[t].scale * sc/5
-				vfx.destscale = vfx.scale * 3
-				vfx.colorized = true
-				vfx.color = SKINCOLOR_WHITE
-				vfx.state = S_BCEBOOM
-			end
+		local vfx = P_SpawnMobjFromMobj(mo[n2], 0, 0, mo[n2].height/2, MT_SPINDUST)
+		if vfx.valid
+			vfx.scale = mo[n2].scale * sc/5
+			vfx.destscale = vfx.scale * 3
+			vfx.colorized = true
+			vfx.color = SKINCOLOR_WHITE
+			vfx.state = S_BCEBOOM
+		end
+	end
+	
+	local hitbash1 = (atk[s] > 0 and mo[t].battleobject)
+	local hitbash2 = (atk[t] > 0 and mo[s].battleobject)
+	
+	if (hitbash1 or hitbash2) or (hurt != 0 and ((pain[s] and not prevpain[s]) or (pain[t] and not prevpain[t]))) //Someone got hurt
+		if (hurt == 1 and not prevpain[t]) or hitbash1
+			hitfx(s,t)
+		end
+		if (hurt == -1 and not prevpain[s]) or hitbash2
+			hitfx(t,s)
 		end
 	else//Nobody got hurt
 		if attack == 1

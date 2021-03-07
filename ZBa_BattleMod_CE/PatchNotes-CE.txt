@@ -32,18 +32,12 @@ Collision / bumping
 	Changed the sound effects of collision interactions, adding more unique sounds for successful and defended attacks at different priority levels
 	Added screenshake to collisions increasing based on the attack / defense priority
 	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
+	Bashable objects now play priority-based sound effects when attacked, and have collision visual effects
 
 Item Bubbles
 	Item bubbles can be used to bounce, but it's weaker than monitor bounces
 	Item bubbles now play a sound effect when popped
 	Item bubbles now create an icon when popped, like a monitor
-
-Misc.
-	Increased exhaustion rate for riding CEZ swings
-	Parrying a player will remove their invincibility powerup
-	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
-	In team modes, all shields are team colored
-	When a reserve shield is used, it plays a different sound effect depending on the type of shield
 
 Tails
 	Tails exhausts more quickly
@@ -62,8 +56,21 @@ Knuckles
 	Slightly increased the knockback Knuckles recieves after hitting with Gliding Fists
 	Jumpfactor increased from 85% to 90%
 
+Fang
+	Added some recoil to grounded popgun
+	Added a tiny bit of screenshake to popgun shots
+	Adjusted the popgun firing sound effect
+
 Metal Sonic
 	When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
+
+Misc.
+	Increased the exhaustion rate of CEZ swings
+	Parrying a player will remove their invincibility powerup
+	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
+	In team modes, all shields are team colored
+	When a reserve shield is used, it plays a different sound effect depending on the type of shield
+	Lowered the height at which Tails Doll floats
 
 Modding functionality
 	Added lua scripting features: func_collide, func_exhaust
@@ -76,4 +83,5 @@ Maintenance
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
 	Fixed an issue where using the bubble shield bounce would exhaust Metal Sonic
 	Fixed an issue where elemental fire trails would drain rings from teammates on touch
+	Fixed an issue where Amy was unable to escape CEZ swings
 	Fixed the accuracy of the HUD objective compass in all objective-based modes

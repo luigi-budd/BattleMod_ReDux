@@ -66,13 +66,15 @@ B.ShieldMax = function(player)
 	local mo
 	if player.realmo and player.realmo.valid then mo = player.realmo
 	elseif player.mo and player.mo.valid then mo = player.mo
-	elseif S[player.skinvars]
 	else
 		return
 	end //Can't continue if we can't find the player's skin!
 	
 		//Get shield max
-		local skinmax = S[player.skinvars].shields
+		local skinmax = nil
+		if player.skinvars
+			skinmax = S[player.skinvars].shields
+		end
 		local oldshieldmax = player.shieldmax
 		if skinmax == nil then
 			player.shieldmax = S[-1].shields

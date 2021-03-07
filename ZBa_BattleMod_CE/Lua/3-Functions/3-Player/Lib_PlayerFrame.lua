@@ -113,8 +113,8 @@ B.PlayerThinkFrame = function(player)
 	B.StunBreak(player,doguard)
 	
 	//Abilities
-	B.ShieldActives(player)
 	B.CustomGunslinger(player)
+	B.ShieldActives(player)
 	
 	//PvP Collision
 	B.DoPriority(player)

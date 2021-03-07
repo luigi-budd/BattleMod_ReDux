@@ -116,6 +116,14 @@ local function newGunslinger(player)
 			mo.state = S_PLAY_FIRE
 			player.panim = PA_ABILITY2
 			player.weapondelay = refiretime
+			mo.momx = $ * 2/3
+			mo.momy = $ * 2/3
+			S_StartSoundAtVolume(mo,sfx_s1c4,150)
+			
+			if player == consoleplayer
+				P_StartQuake(4*FRACUNIT,1)
+			end
+			
 			if (lockon and lockon.valid)
 				mo.angle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
 				bullet = P_SpawnPointMissile(
@@ -153,6 +161,8 @@ local function newGunslinger(player)
 				mo.momz = $/2
 				B.DrawSVSprite(player,1)
 				player.airgun = true
+			else
+				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*3)
 			end
 		end
 	end
@@ -161,9 +171,9 @@ local function newGunslinger(player)
 	local dir = R_PointToAngle2(0,0,player.rmomx,player.rmomy)
 	local thres = mo.scale*4
 	if (player.panim == PA_ABILITY2) and spd > thres and P_IsObjectOnGround(player.mo)
-		spd = max(thres,$-FRACUNIT)
-		mo.momx = player.cmomx+P_ReturnThrustX(nil,dir,spd)
-		mo.momy = player.cmomy+P_ReturnThrustY(nil,dir,spd)
+		//spd = max(thres,$-FRACUNIT)
+		//mo.momx = player.cmomx+P_ReturnThrustX(nil,dir,spd)
+		//mo.momy = player.cmomy+P_ReturnThrustY(nil,dir,spd)
 -- 		mo.frame= min(6,$)
 -- 		print(mo.sprite2)
 -- 		if mo.frame == 3 then
