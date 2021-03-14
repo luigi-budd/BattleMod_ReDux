@@ -1,4 +1,4 @@
-Version CE-v1.1
+Version CE-v1.2
 
 New ability: Stun Break (costs 30 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability

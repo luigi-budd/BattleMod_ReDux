@@ -96,11 +96,13 @@ B.DoPlayerInteract = function(smo,tmo)
 	
 	//Get type of collision (friendly, competitive, hostile?)
 	local collisiontype = B.GetInteractionType(mo[s],mo[t])
-
+	
+	
 	local bubble = {} //Player is using bubble shield bounce
 	local homing = {} //Player is using a homing attack
 	local spd = {} //Current horizontal speed
 	local zspd = {} //Current vertical speed
+	local ground = {}
 	for n = 1,2
 		bubble = (plr[n] and plr[n].pflags&PF_SHIELDABILITY and plr[n].powers[pw_shield] == SH_BUBBLEWRAP)
 		if bubble then plr[n].pflags = $&~(PF_SHIELDABILITY|PF_THOKKED) end
@@ -108,6 +110,7 @@ B.DoPlayerInteract = function(smo,tmo)
 			and ((plr[n].powers[pw_shield] == SH_ATTRACTION and plr[n].pflags&PF_SHIELDABILITY) or plr[n].charability == CA_HOMINGTHOK)
 		spd[n] = FixedHypot(mo[n].momx,mo[n].momy)
 		zspd[n] = abs(mo[n].momz)
+		ground[n] = P_IsObjectOnGround(mo[n])
 		//Negate current momentum according to launch factor
 		P_InstaThrust(mo[n],R_PointToAngle2(0,0,mo[n].momx,mo[n].momy),B.GetLaunchFactor(spd[n]))
 		mo[n].momz = B.GetLaunchFactor($)
@@ -224,7 +227,7 @@ B.DoPlayerInteract = function(smo,tmo)
 			func = defaultfunc
 		end
 		if func
-			op1 = func(s,t,plr,mo,atk,def,weight,hurt,pain,angle,thrust,thrust2,collisiontype)
+			op1 = func(s,t,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
 	if plr[t]
@@ -233,7 +236,7 @@ B.DoPlayerInteract = function(smo,tmo)
 			func = defaultfunc
 		end
 		if func
-			op2 = func(t,s,plr,mo,atk,def,weight,hurt,pain,angle,thrust,thrust2,collisiontype)
+			op2 = func(t,s,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
 	local override_physics = (op1 or op2)
