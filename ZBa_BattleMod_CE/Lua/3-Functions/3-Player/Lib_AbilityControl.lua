@@ -164,7 +164,7 @@ local exhaust = function(player)
 			end
 		elseif player.climbing
 			if player.climbing == 5 then
-				if player.exhaustmeter > warningtic then
+				if player.exhaustmeter and (player.exhaustmeter > warningtic) then
 					player.exhaustmeter = max(warningtic,$-FRACUNIT/4)
 				else
 					player.exhaustmeter = max(0,$-FRACUNIT/4)

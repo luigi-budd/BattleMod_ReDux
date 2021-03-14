@@ -144,7 +144,7 @@ I.ItemReward = function(mo,player)
 	if i == 9 then
 		P_SwitchShield(player, SH_BUBBLEWRAP)
 		S_StartSound(player.mo,sfx_s3k3f)
-		P_SpawnMobjFromMobj(mo,0,0,0,MT_THUNDERCOIN_ICON)
+		P_SpawnMobjFromMobj(mo,0,0,0,MT_BUBBLEWRAP_ICON)
 	return end
 	if i == 10 then
 		P_SwitchShield(player, SH_FLAMEAURA)

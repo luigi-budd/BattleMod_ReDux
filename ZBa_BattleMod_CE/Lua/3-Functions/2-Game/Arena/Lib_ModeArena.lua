@@ -329,6 +329,7 @@ end
 
 A.KillReward = function(killer)
 	if not (killer and killer.valid) return end
+	if B.SuddenDeath then return end
 	
 	if killer.lifeshards == nil
 		killer.lifeshards = 0
@@ -336,6 +337,7 @@ A.KillReward = function(killer)
 	
 	if killer.lives >= CV.SurvivalStock.value
 		S_StartSound(nil, sfx_itemup, killer)
+		S_StartSound(nil, sfx_s249, killer)
 		P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 6, MT_NIGHTSPARKLE, ANGLE_90)
 		killer.rings = $ + 10
 		killer.lifeshards = 0
@@ -355,6 +357,7 @@ A.KillReward = function(killer)
 			S_StartSound(nil, sfx_s245, killer)
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 15, MT_NIGHTSPARKLE, ANGLE_90)
 		end
+		S_StartSound(nil, sfx_s249, killer)
 		
 		//print(killer.lifeshards)
 		if killer.lifeshards == KILLSNEEDED
@@ -363,6 +366,9 @@ A.KillReward = function(killer)
 			P_PlayLivesJingle(killer)
 			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_1UP_ICON)
 			icon.scale = killer.mo.scale * 4/3
+		else
+			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_RING_ICON)
+			icon.scale = killer.mo.scale
 		end
 	end
 end

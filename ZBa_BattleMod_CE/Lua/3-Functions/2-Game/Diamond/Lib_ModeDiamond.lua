@@ -213,6 +213,8 @@ D.Thinker = function(mo)
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) //Do z pos while respecting level geometry
 	
 	//Diamond capturing
+	if (B.Exiting) return end
+	
 	local player = t.player
 	local captime = CV.DiamondCaptureTime.value * TICRATE
 	if (player.gotcrystal_time == captime - 1 * TICRATE)
