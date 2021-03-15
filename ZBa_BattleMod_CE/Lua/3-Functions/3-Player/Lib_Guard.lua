@@ -50,7 +50,7 @@ B.Guard = function(player,buttonpressed)
 		if buttonpressed == 1 then
 			player.guard = 1
 			S_StartSound(mo,sfx_cdfm39)
-			player.guardtics = 20
+			player.guardtics = 15
 			player.powers[pw_flashing] = 0
 			if not(player.actionsuper) then
 				player.actionstate = 0
@@ -86,7 +86,7 @@ B.Guard = function(player,buttonpressed)
 		mo.frame = guardframe
 		player.powers[pw_nocontrol] = 2
 		if player.guardtics < 1 then
-			player.guardtics = 20
+			player.guardtics = 13
 			player.guard = -1
 		else
 			mo.guardflash = player.guardtics&2
@@ -96,15 +96,27 @@ B.Guard = function(player,buttonpressed)
 			end
 		end
 	end
-	if player.guard == -1
+	if player.guard <= -1
 		mo.state = S_PLAY_STND
 		mo.sprite2 = SPR2_TRNS
 		mo.frame = guardframe
 		player.powers[pw_nocontrol] = 2		
+		if player.guard == -1
+			mo.guardflash = player.guardtics&2
+			if mo.guardflash then
+				mo.colorized = true
+				mo.color = SKINCOLOR_CARBON
+			end
+		end
 		if player.guardtics < 1 then
-			player.guard = 0
-			mo.sprite2 = SPR2_STND
-			mo.frame = 0
+			if player.guard == -1
+				player.guard = -2
+				player.guardtics = 8
+			else
+				player.guard = 0
+				mo.sprite2 = SPR2_STND
+				mo.frame = 0
+			end
 		end
 	end
 	if player.guard == 2 then

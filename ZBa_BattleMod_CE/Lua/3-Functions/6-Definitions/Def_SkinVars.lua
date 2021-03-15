@@ -61,7 +61,7 @@ S["amy"] = {
 	sprites = {}
 }
 S["fang"] = {
-	flags = SKINVARS_GUARD|SKINVARS_GUNSLINGER,
+	flags = SKINVARS_GUARD|SKINVARS_GUNSLINGER|SKINVARS_NOSPINSHIELD,
 	weight = 100,
 	shields = 1,
 	special = Act.DodgeRoll,

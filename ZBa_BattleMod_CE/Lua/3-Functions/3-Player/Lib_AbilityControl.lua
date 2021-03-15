@@ -227,11 +227,6 @@ local exhaust = function(player)
 	end
 end
 
-B.ExhaustCommon = function(player)
-	local warningtic = FRACUNIT/3
-	local mo = player.mo
-end
-
 B.CharAbilityControl = function(player)
 	B.ArmaCharge(player)
 	fly(player)

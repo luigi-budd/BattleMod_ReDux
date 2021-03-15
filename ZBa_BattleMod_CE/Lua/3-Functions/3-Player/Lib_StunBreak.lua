@@ -34,7 +34,7 @@ B.StunBreak = function(player, doguard)
 		player.pflags = $ & ~(PF_JUMPED)
 		
 		//Launch
-		local techmomz = 10*FRACUNIT/B.WaterFactor(mo)
+		local techmomz = 9*FRACUNIT/B.WaterFactor(mo)
 		P_SetObjectMomZ(mo, techmomz, false)
 		P_InstaThrust(mo,mo.angle,FRACUNIT*12)
 		player.drawangle = mo.angle
@@ -55,7 +55,7 @@ B.StunBreak = function(player, doguard)
 		sb.momz = mo.momz * 3/4
 		local sh = P_SpawnMobjFromMobj(mo,0,0,0,MT_BATTLESHIELD)
 		sh.target = mo
-		player.powers[pw_flashing] = 15
+		player.powers[pw_flashing] = 19
 		
 		//Screenshake
 		if player == consoleplayer

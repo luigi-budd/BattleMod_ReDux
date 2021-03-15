@@ -28,3 +28,5 @@ sfxinfo[sfx_cdfm60].caption = "Wind-up" //used by Tails Doll
 sfxinfo[sfx_nbmper].caption = "/"
 sfxinfo[sfx_kc31].caption = "Stun Break"
 sfxinfo[sfx_s3kc4s].caption = "Charging energy" //Armageddon shield charge sfx
+
+sfxinfo[sfx_shswap].caption = "Swap"

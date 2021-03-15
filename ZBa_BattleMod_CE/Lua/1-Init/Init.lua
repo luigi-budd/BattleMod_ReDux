@@ -34,6 +34,7 @@ rawset(_G,"DF_PLAYER",8)
 
 rawset(_G,"SKINVARS_GUARD",1)
 rawset(_G,"SKINVARS_GUNSLINGER",2)
+rawset(_G,"SKINVARS_NOSPINSHIELD",4)
 
 
 //Version Info

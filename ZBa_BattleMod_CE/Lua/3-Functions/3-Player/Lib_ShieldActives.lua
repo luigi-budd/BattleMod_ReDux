@@ -79,11 +79,11 @@ local WhirlwindJump = function(player)
 	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
 end
 local FlameDash = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED|PF_NOJUMPDAMAGE)
+	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
 	player.mo.state = S_PLAY_ROLL
 	P_Thrust(player.mo, player.mo.angle, 30*player.mo.scale)
 	S_StartSound(player.mo,sfx_s3k43)
-	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
+	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY) & ~PF_NOJUMPDAMAGE
 end
 local BubbleBounce = function(player)
 	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
@@ -94,11 +94,11 @@ local BubbleBounce = function(player)
 	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
 end
 local ThunderJump = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED|PF_NOJUMPDAMAGE)
+	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
 	player.mo.state = S_PLAY_ROLL
 	P_DoJumpShield(player)
 	S_StartSound(player.mo,sfx_s3k45)
-	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
+	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY) & ~PF_NOJUMPDAMAGE
 end
 local ForceStop = function(player)
 	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
@@ -136,46 +136,38 @@ B.ShieldActives = function(player)
 		and not player.actionstate
 		and not player.powers[pw_nocontrol]
 		and not player.powers[pw_carry]
-		and ((buttoncheck(player,player.battleconfig_guard) == 1)
-		or (buttoncheck(player,BT_SPIN) == 1 and not(B.GetSkinVarsFlags(player)&SKINVARS_GUNSLINGER)))
+		and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP))
+		and not (player.pflags&PF_SHIELDABILITY)
+		and ((buttoncheck(player,BT_TOSSFLAG) == 1)
+		or (buttoncheck(player,BT_SPIN) == 1 and not(B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)))
 
 		// The SRB2 shields.
 		-- Elemental Stomp.
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL
-		and not (player.pflags&PF_THOKKED)
-		and not (player.pflags&PF_SHIELDABILITY)
 			ElementalStomp(player)
 			return
 		end
 
 		-- Armageddon Explosion.
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON
-		and not (player.pflags&PF_THOKKED)
-		and not (player.pflags&PF_SHIELDABILITY)
 			ArmageddonExplosion(player)
 			return
 		end
 
 		-- Whirlwind Jump.
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_WHIRLWIND
-		and not (player.pflags&PF_THOKKED)
-		and not (player.pflags&PF_SHIELDABILITY)
 			WhirlwindJump(player)
 			return
 		end
 
 		-- Force Stop.
 		if (player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) == SH_FORCE
-		and not (player.pflags&PF_THOKKED)
-		and not (player.pflags&PF_SHIELDABILITY)
 			ForceStop(player)
 			return
 		end
 
 		-- Attraction Homing Attack.
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT
-		and not (player.pflags&PF_THOKKED)
-		and not (player.pflags&PF_SHIELDABILITY)
 			AttractionShot(player)
 			return
 		end
@@ -183,23 +175,18 @@ B.ShieldActives = function(player)
 		// The S3K shields.
 		-- Flame Dash.
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_FLAMEAURA
-		and not (player.pflags&PF_THOKKED)
-		and not (player.pflags&PF_SHIELDABILITY)
 			FlameDash(player)
 			return
 		end
 	
 		-- Bubble Bounce.
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP
-		and not (player.pflags&PF_SHIELDABILITY)
 			BubbleBounce(player)
 			return
 		end
 		
 		-- Thunder Jump.
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_THUNDERCOIN
-		and not (player.pflags&PF_THOKKED)
-		and not (player.pflags&PF_SHIELDABILITY)
 			ThunderJump(player)
 			return
 		end

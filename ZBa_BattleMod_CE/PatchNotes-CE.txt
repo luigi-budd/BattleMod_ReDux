@@ -3,6 +3,9 @@ Version CE-v1.2
 New ability: Stun Break (costs 30 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
 	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
+	
+New ability: Shield Swap
+	Press the Toss Flag button (while not holding a flag, and while touching the ground) to switch to your reserve shield
 
 Gamemodes
 	Arena, Team Arena
@@ -33,6 +36,11 @@ Collision / bumping
 	Added screenshake to collisions increasing based on the attack / defense priority
 	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
 	Bashable objects now play priority-based sound effects when attacked, and have collision visual effects
+
+Parry
+	The guard animation provides 1 def for a brief pariod after the parry window
+	The guard animation is slightly shorter overall
+	Parrying a player will remove their invincibility powerup
 
 Item Bubbles
 	Item bubbles can be used to bounce, but it's weaker than monitor bounces
@@ -66,7 +74,6 @@ Metal Sonic
 
 Misc.
 	Increased the exhaustion rate of CEZ swings
-	Parrying a player will remove their invincibility powerup
 	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
 	In team modes, all shields are team colored
 	When a reserve shield is used, it plays a different sound effect depending on the type of shield

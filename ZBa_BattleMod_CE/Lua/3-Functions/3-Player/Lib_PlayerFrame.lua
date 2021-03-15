@@ -90,6 +90,7 @@ B.PlayerThinkFrame = function(player)
 	//Ability control
 	B.GuardControl(player)//Guard behavior
 	B.CharAbilityControl(player)//Exhaust and ability behavior
+	B.ShieldSwapControl(player)//Shield swap
 	
 	//Update timers/stats
 	B.GotFlagStats(player)

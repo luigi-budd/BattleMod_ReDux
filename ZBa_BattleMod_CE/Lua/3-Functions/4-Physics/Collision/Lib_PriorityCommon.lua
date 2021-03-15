@@ -56,8 +56,12 @@ B.Priority_Ability = function(player)
 	local tailbounce = pflags&PF_BOUNCING
 	local dashing = player.dashmode > 3*TICRATE and not(player.pflags&PF_STARTDASH)
 	local prepdash = player.dashmode > 3*TICRATE and player.pflags&PF_STARTDASH
+	local guard = (player.guard == -1)
 	
-	if homing 
+	if guard
+		B.SetPriority(player,0,1,nil,0,1,"guard")
+		
+	elseif homing 
 		B.SetPriority(player,1,2,nil,1,2,"homing attack")
 		
 	elseif shieldability
