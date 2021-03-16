@@ -30,40 +30,6 @@ function A_GiveShield(actor,var1,var2)
 	S_StartSound(player.mo, actor.info.seesound)
 end
 
-B.ShieldSwapControl = function(player)
-	if player and player.valid and player.mo and player.mo.valid
-		player.shieldswap_cooldown = max(0, $ - 1)
-		local power = player.shieldstock[1]
-		
-		if not player.gotcrystal
-		and not player.gotflag
-		and not player.isjettysyn
-		and not player.exiting
-		and not player.actionstate
-		and not player.powers[pw_nocontrol]
-		and P_IsObjectOnGround(player.mo)
-		and buttoncheck(player,BT_TOSSFLAG) == 1
-		and not player.shieldswap_cooldown
-		and power
-			
-			player.shieldswap_cooldown = 15
-			
-			local temp = player.powers[pw_shield]&SH_NOSTACK 
-			player.powers[pw_shield] = 0
-			P_RemoveShield(player)
-			
-			B.UpdateShieldStock(player,-1)
-			P_SwitchShield(player, power)
-			
-			player.shieldstock[#player.shieldstock+1] = temp
-			
-			if temp != player.powers[pw_shield]
-				S_StartSound(player.mo, sfx_shswap)
-			end
-		end
-	end
-end
-
 B.UpdateShieldStock = function(player,addshield)
 	local power = player.powers[pw_shield]&SH_NOSTACK
 	local pity = (player.powers[pw_shield]&SH_STACK)|SH_PITY

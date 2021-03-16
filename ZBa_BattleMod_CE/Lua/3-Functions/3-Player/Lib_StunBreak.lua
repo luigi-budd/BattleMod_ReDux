@@ -29,9 +29,9 @@ B.StunBreak = function(player, doguard)
 		player.tech_bfr = nil
 		
 		//State and flags
+		B.ResetPlayerProperties(player,false,false)
 		mo.state = S_PLAY_SPRING
-		player.pflags = $ | PF_SHIELDABILITY
-		player.pflags = $ & ~(PF_JUMPED)
+		player.airdodge = -1
 		
 		//Launch
 		local techmomz = 9*FRACUNIT/B.WaterFactor(mo)
@@ -45,7 +45,7 @@ B.StunBreak = function(player, doguard)
 		S_StartSoundAtVolume(mo, sfx_kc31, 200)
 		
 		//Pay rings, cooldown
-		player.actioncooldown = TICRATE
+		player.actioncooldown = max($, TICRATE)
 		player.rings = $ - 30
 		
 		//Visual effects

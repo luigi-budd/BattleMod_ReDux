@@ -13,6 +13,7 @@ B.PlayerPreThinkFrame = function(player)
 
 	//Spectator functions
 	B.PreAutoSpectator(player)
+	B.AutoSpectator(player)
 	B.SpectatorControl(player)
 
 	//Arena death functions
@@ -90,7 +91,6 @@ B.PlayerThinkFrame = function(player)
 	//Ability control
 	B.GuardControl(player)//Guard behavior
 	B.CharAbilityControl(player)//Exhaust and ability behavior
-	B.ShieldSwapControl(player)//Shield swap
 	
 	//Update timers/stats
 	B.GotFlagStats(player)
@@ -100,7 +100,6 @@ B.PlayerThinkFrame = function(player)
 	
 	//Special thinkers
 	A.JettySynThinker(player)
-	B.AutoSpectator(player)
 	A.RingSpill(player)
 	B.PlayerMovementControl(player)
 	
@@ -112,6 +111,7 @@ B.PlayerThinkFrame = function(player)
 	local doguard = buttoncheck(player,player.battleconfig_guard)
 	B.Guard(player,doguard)	
 	B.StunBreak(player,doguard)
+	B.AirDodge(player,doguard)
 	
 	//Abilities
 	B.CustomGunslinger(player)

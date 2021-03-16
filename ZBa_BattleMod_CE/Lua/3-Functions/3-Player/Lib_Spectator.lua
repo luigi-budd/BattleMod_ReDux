@@ -62,7 +62,6 @@ B.AutoSpectator = function(player)
 	if not(mo.spectarget and mo.spectarget.valid and mo.spectarget.mo and mo.spectarget.mo.valid) then return end
 	local t = mo.spectarget.mo
 	
-	
 	//3D cam
 	if not(twodlevel) then 
 		//Stay in view of target
@@ -77,6 +76,7 @@ B.AutoSpectator = function(player)
 		local realdist = R_PointToDist2(mo.x,mo.y,t.x,t.y)
 		local thrust = (realdist-closedist)*rate/35
 		P_InstaThrust(mo,mo.angle,thrust)
+		P_TeleportMove(mo,mo.x+mo.momx,mo.y+mo.momy,mo.z + mo.momz)
 		//Follow Z position
 		local closedistz = t.scale*48
 		local realdistz = t.z-mo.z+closedistz
@@ -104,6 +104,9 @@ B.SpectatorControl = function(player)
 		player.spectatortime = $+1
 	else
 		player.spectatortime = 0
+	end
+	if (true)
+		return
 	end
 	if player.playerstate then return end
 	if not(player.spectator and player.realmo and player.realmo.valid) then return end

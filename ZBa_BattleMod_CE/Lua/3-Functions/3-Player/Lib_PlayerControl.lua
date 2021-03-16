@@ -40,6 +40,7 @@ B.InitPlayer = function(player)
 	player.gotcrystal_time = 0
 	player.lifeshards = 0
 	player.shieldswap_cooldown = 0
+	player.airdodge = 0
 	player.lockaim = false
 	player.lockmove = false
 	player.rank = 0

@@ -1,11 +1,74 @@
-Version CE-v1.2
+Version CE-v2
 
 New ability: Stun Break (costs 30 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
 	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
 	
+New ability: Air Dodge
+	Press the parry button in midair to avoid damage
+	It also gives a small boost in any direction
+	
 New ability: Shield Swap
-	Press the Toss Flag button (while not holding a flag, and while touching the ground) to switch to your reserve shield
+	Press the Toss Flag button (while not holding a flag) to switch to your reserve shield
+
+Shields
+	Shields can now be activated using the Toss Flag button, even when using Fang
+	Armageddon shield
+		Removed the explosion that happens when the owner is hurt
+		Added a chargeup period and a warning sound effect to the manual explosion
+
+Collision / bumping
+	Reduced duration of recoil stun by 20%
+	Reduced maximum recoil stun duration: (2s -> 1s)
+	Changed the sound effects of collision interactions, adding more unique sounds for successful and defended attacks at different priority levels
+	Added screenshake to collisions increasing based on the attack / defense priority
+	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
+	Bashable objects now play priority-based sound effects when attacked, and have collision visual effects
+
+Parry
+	The guard animation provides 1 def for a brief pariod after the parry window
+	The guard animation is slightly shorter overall
+	Parrying a player will remove their invincibility powerup
+
+Item Bubbles
+	Item bubbles can be used to bounce, but it's weaker than monitor bounces
+	Item bubbles now play a sound effect when popped
+	Item bubbles now create an icon when popped, like a monitor
+
+Sonic
+	Thok actionspeed increased: (40 -> 42)
+	Ground Pound
+		Cooldown increased: (1.5s -> 2s)
+		Horizontal speed retained after hitting the floor reduced: (25% -> 16.7%)
+
+Tails
+	Tails exhausts more quickly
+	Flight Dash's cooldown is increased depending on Tails's exhaustion level, up to 4x longer
+	Tail Swipe's animation is shorter
+	Tail Swipe's projectiles last longer: (35tics -> 45tics)
+	Tail Swipe's projectiles have increased launch speed, can bounce off walls, can bounce off players, and decelerate while traveling
+	All 3 of Tail Swipe's projectiles produce a sound effect instead of just the center one, although the sound is quieter for each
+	Increased Tail Swipe cooldown: (1.25s -> 1.5s)
+
+Knuckles
+	Knuckles now exhausts while gliding, instead of only when climbing
+	Knuckles now falls more quickly when gliding at very low speed
+	While gliding, Knuckles behaves as if Legacy mode is disabled
+	Slightly increased the knockback Knuckles recieves after hitting with Gliding Fists
+	Jumpfactor increased from 85% to 90%
+	Dig
+		Renamed Dig to Drill Dive when in midair
+		Drill Dive can now be performed when Knuckles is in goop water
+		Reduced cooldown after a Dig cancel: (1s -> 0.67s)
+		Knuckles can now cancel drill dive with a glide
+
+Fang
+	Added some recoil to grounded popgun
+	Added a tiny bit of screenshake to popgun shots
+	Adjusted the popgun firing sound effect
+
+Metal Sonic
+	When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
 
 Gamemodes
 	Arena, Team Arena
@@ -28,49 +91,6 @@ Maps
 		Rebalanced item spawns
 		Bug fixes
 	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
-
-Collision / bumping
-	Reduced duration of recoil stun by 20%
-	Reduced maximum recoil stun duration: (2s -> 1s)
-	Changed the sound effects of collision interactions, adding more unique sounds for successful and defended attacks at different priority levels
-	Added screenshake to collisions increasing based on the attack / defense priority
-	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
-	Bashable objects now play priority-based sound effects when attacked, and have collision visual effects
-
-Parry
-	The guard animation provides 1 def for a brief pariod after the parry window
-	The guard animation is slightly shorter overall
-	Parrying a player will remove their invincibility powerup
-
-Item Bubbles
-	Item bubbles can be used to bounce, but it's weaker than monitor bounces
-	Item bubbles now play a sound effect when popped
-	Item bubbles now create an icon when popped, like a monitor
-
-Tails
-	Tails exhausts more quickly
-	When Tails is exhausted, his acceleration is halved
-	Flight Dash's cooldown is increased depending on Tails's exhaustion level, up to 4x longer
-	Tail Swipe's animation is shorter
-	Tail Swipe's projectiles last longer: (35tics -> 45tics)
-	Tail Swipe's projectiles have increased launch speed, can bounce off walls, can bounce off players, and decelerate while traveling
-	All 3 of Tail Swipe's projectiles produce a sound effect instead of just the center one, although the sound is quieter for each
-	Increased Tail Swipe cooldown: (1.25s -> 1.5s)
-
-Knuckles
-	Knuckles now exhausts while gliding, instead of only when climbing
-	Knuckles now falls more quickly when gliding at very low speed
-	While gliding, Knuckles behaves as if Legacy mode is disabled
-	Slightly increased the knockback Knuckles recieves after hitting with Gliding Fists
-	Jumpfactor increased from 85% to 90%
-
-Fang
-	Added some recoil to grounded popgun
-	Added a tiny bit of screenshake to popgun shots
-	Adjusted the popgun firing sound effect
-
-Metal Sonic
-	When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
 
 Misc.
 	Increased the exhaustion rate of CEZ swings

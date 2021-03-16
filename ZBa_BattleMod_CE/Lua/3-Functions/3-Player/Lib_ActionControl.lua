@@ -88,6 +88,7 @@ B.CanDoAction=function(player)
 	if player.isjettysyn then return false end
 	if player.powers[pw_nocontrol] then return false end
 	if player.powers[pw_carry] then return false end
+	if (player.airdodge > 0) then return false end
 	return true
 end
 

@@ -45,6 +45,21 @@ B.DoPlayerInteract = function(smo,tmo)
 	plr[s] = mo[s].player
 	plr[t] = mo[t].player
 	
+	//Airdodge check
+	local function airdodge(n1,n2)
+		if (plr[n1] and plr[n1].airdodge and (plr[n1].airdodge > 0 and plr[n1].airdodge < 15))
+			return false
+		else
+			return true
+		end
+	end
+	
+	if not(airdodge(s,t))
+	or not(airdodge(t,s))
+		//Air dodge ignores bumping entirely
+		return false
+	end
+	
 	//Prevpain for vfx reasons
 	local prevpain = {}
 	for n = 1,2

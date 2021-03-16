@@ -68,22 +68,24 @@ I.ItemReward = function(mo,player)
 	if player.isjettysyn or B.PreRoundWait() then return end
 	
 	//"Monitor bounce" but weaker
-	local ab = abs(player.mo.momz)
-	local threshold = 14 * player.mo.scale
-	local mom
-	if ab > threshold
-		local excess = (abs(player.mo.momz) - threshold) / 4
-		mom = threshold + excess
-	else
-		mom = ab
-	end
-	if (player.mo.flags2 & MF2_OBJECTFLIP)
-		player.mo.momz = min(-mom, $)
-	else
-		player.mo.momz = max(mom, $)
-	end
-	if ((player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP) and (player.pflags & PF_SHIELDABILITY)
-		P_DoBubbleBounce(player)
+	if not P_PlayerInPain(player)
+		local ab = abs(player.mo.momz)
+		local threshold = 14 * player.mo.scale
+		local mom
+		if ab > threshold
+			local excess = (abs(player.mo.momz) - threshold) / 4
+			mom = threshold + excess
+		else
+			mom = ab
+		end
+		if (player.mo.flags2 & MF2_OBJECTFLIP)
+			player.mo.momz = min(-mom, $)
+		else
+			player.mo.momz = max(mom, $)
+		end
+		if ((player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP) and (player.pflags & PF_SHIELDABILITY)
+			P_DoBubbleBounce(player)
+		end
 	end
  	S_StartSoundAtVolume(player.mo,sfx_cdfm16,150)
  	S_StartSoundAtVolume(player.mo,sfx_pop,160)

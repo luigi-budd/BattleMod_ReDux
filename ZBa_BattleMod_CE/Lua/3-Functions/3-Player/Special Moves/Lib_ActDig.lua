@@ -1,6 +1,6 @@
 local B = CBW_Battle
 local cooldown = 3*TICRATE
-local cancelcooldown = TICRATE
+local cancelcooldown = TICRATE * 2/3
 local state_digging = 1
 local state_drilldive = 2
 local state_burrowed = 3
@@ -9,6 +9,17 @@ local setburrowtime = 22 //Time in tics before the player can move after burrowi
 local rockblasttime_x = 35 //Time in tics before horizontal rockblast disappears
 local rockblasttime_y = 47 //Time in tics before vertical rockblast disappears
 local zthreshold = 8 //Z Distance from ground (in fracunits) that will cause Knuckles to resurface
+
+local function buttoncheck(player,button)
+	if player.cmd.buttons&button then
+		if player.buttonhistory&button then
+			return 2
+		else
+			return 1
+		end
+	end
+	return 0
+end
 
 B.Action.Dig_Priority = function(player)
 	if player.actionstate == state_drilldive then
@@ -98,7 +109,7 @@ B.Action.Dig=function(mo,doaction)
 	local dojump = B.PlayerButtonPressed(player,BT_JUMP,false)
 	local dospin = B.PlayerButtonPressed(player,BT_USE,false)
 	local climbing = player.climbing
-	local sludge = mo.eflags&MFE_GOOWATER or P_InQuicksand(mo)
+	local sludge = mo.eflags&MFE_GOOWATER
 	local grounded = P_IsObjectOnGround(mo)
 	local diggingstates = (player.actionstate == state_digging or player.actionstate == state_burrowed)
 	local getcanceltics = player.actiontime
@@ -145,7 +156,7 @@ B.Action.Dig=function(mo,doaction)
 	local trigger_dig =
 		(doaction == 1 and not(sludge) and player.actionstate == 0 and (grounded or climbing))
 		or (grounded and player.actionstate == state_drilldive and not(sludge))
-	local trigger_drilldive = (not(grounded) and not(sludge) and doaction == 1 and player.actionstate == 0)
+	local trigger_drilldive = (not(grounded and not sludge) and doaction == 1 and player.actionstate == 0)
 	local trigger_drilldive_cancel = (player.actionstate == state_drilldive and mo.momz*P_MobjFlip(mo) > 0)
 	local trigger_eject =
 		(player.exhaustmeter == 0)
@@ -185,11 +196,41 @@ B.Action.Dig=function(mo,doaction)
 		return
 	end
 	
-	//Drill dive aesthetics
+	//Drill dive
 	if player.actionstate == state_drilldive then
 		player.actiontime = $+1
 		B.DrawSVSprite(player,1+player.actiontime%4)
 		P_SpawnGhostMobj(mo)
+		
+		if buttoncheck(player, BT_JUMP) == 1
+			local temp = player.exhaustmeter
+			B.ResetPlayerProperties(player,true,false)
+			player.exhaustmeter = temp
+			B.ApplyCooldown(player,cancelcooldown)
+			
+			mo.momz = $ / 2
+			
+			local glidespeed = FixedMul(player.actionspd, player.mo.scale)
+			local playerspeed = player.speed
+
+			if (player.mo.eflags & MFE_UNDERWATER)
+				glidespeed = $ >> 1
+				playerspeed = 2*playerspeed/3
+				if (!(player.powers[pw_super] or player.powers[pw_sneakers]))
+					player.mo.momx = (2*(player.mo.momx - player.cmomx)/3) + player.cmomx
+					player.mo.momy = (2*(player.mo.momy - player.cmomy)/3) + player.cmomy
+				end
+			end
+			
+			player.pflags = $ | PF_GLIDING|PF_THOKKED
+			player.glidetime = 0
+
+			player.mo.state  = S_PLAY_GLIDE
+			if (playerspeed < glidespeed)
+				P_Thrust(player.mo, player.mo.angle, glidespeed - playerspeed)
+			end
+			player.pflags = $ & ~(PF_SPINNING|PF_STARTDASH)
+		end
 	end
 	//Cancel drill dive
 	if trigger_drilldive_cancel then
