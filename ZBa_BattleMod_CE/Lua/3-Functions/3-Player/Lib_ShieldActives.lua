@@ -135,6 +135,7 @@ B.ShieldActives = function(player)
 		
 		if not player.gotcrystal
 			and not player.gotflag
+			and not (player.tossdelay == 2*TICRATE - 1)
 			and not player.isjettysyn
 			and not player.exiting
 			and not player.actionstate

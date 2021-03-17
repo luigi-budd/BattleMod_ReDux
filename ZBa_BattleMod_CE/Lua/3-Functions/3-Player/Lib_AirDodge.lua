@@ -15,12 +15,12 @@ end
 
 B.AirDodge = function(player)
 	if not B return end
-	if not (player and player.valid and player.mo and player.mo.valid) or P_PlayerInPain(player) or player.mo.state == S_PLAY_PAIN
+	if not (player and player.valid and player.mo and player.mo.valid)
 		return
 	end
 	local mo = player.mo
 	
-	if buttoncheck(player, player.battleconfig_guard) == 1
+	if buttoncheck(player, player.battleconfig_guard) == 1 and not P_PlayerInPain(player) and player.mo.state != S_PLAY_PAIN
 		and player.airdodge == 0
 		and player.playerstate == PST_LIVE
 		and not player.exiting
@@ -57,6 +57,14 @@ B.AirDodge = function(player)
 		//SFX
 		S_StartSound(mo, sfx_s3k47)
 		S_StartSoundAtVolume(mo, sfx_nbmper, 120)
+		
+		//Sparkle
+		local sparkle = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SUPERSPARK)
+		sparkle.scale = mo.scale * 5/4
+		sparkle.destscale = 0
+		sparkle.momx = mo.momx / 2
+		sparkle.momy = mo.momy / 2
+		sparkle.momz = mo.momz * 2/3
 	end
 	
 	if player.airdodge != 0
@@ -72,19 +80,24 @@ B.AirDodge = function(player)
 			player.lockmove = true
 			player.airdodge = $ + 1
 			if player.airdodge < 15
-				player.powers[pw_flashing] = max($, 1)
-				if not (player.airdodge % 3)
+				if (player.airdodge % 4) == 3
 					mo.colorized = true
 					mo.color = SKINCOLOR_WHITE
+					mo.airdodgecolor = true
+					P_SpawnGhostMobj(mo)
+				elseif (player.airdodge % 4) != 1
+					mo.colorized = true
+					mo.color = SKINCOLOR_SILVER
 					mo.airdodgecolor = true
 				else
 					mo.colorized = false
 					mo.color = player.skincolor
 					mo.airdodgecolor = false
 				end
-				if (player.airdodge % 4)
-					P_SpawnGhostMobj(mo)
-				end
+			else
+				mo.colorized = false
+				mo.color = player.skincolor
+				mo.airdodgecolor = false
 			end
 			if player.airdodge > TICRATE
 				player.airdodge = -1
@@ -98,5 +111,11 @@ B.AirDodge = function(player)
 		mo.colorized = false
 		mo.color = player.skincolor
 		mo.airdodgecolor = false
+	end
+	
+	if (player.airdodge > 0 and player.airdodge < 15)
+		player.intangible = true
+	else
+		player.intangible = false
 	end
 end

@@ -55,6 +55,8 @@ end)
 
 //Player against Player damage
 addHook("ShouldDamage", function(target,inflictor,source,damage,other)
+	if (target.player and target.player.intangible and (source or inflictor))
+	return false end
 	if not(inflictor and inflictor.valid and inflictor.player and inflictor != target)
 	return end
 	if not(target.player and not(B.MyTeam(target.player,source.player)))
