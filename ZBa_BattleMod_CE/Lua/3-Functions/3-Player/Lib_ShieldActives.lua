@@ -133,14 +133,6 @@ B.CanShieldActive = function(player)
 end
 
 B.DoShieldActive = function(player)
-	if (player.pflags&PF_JUMPED)
-		and not player.powers[pw_carry]
-		and not (player.pflags&PF_THOKKED
-		and not (player.secondjump == UINT8_MAX and (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP))
-		//cool
-	else
-		return
-	end
 	// The SRB2 shields.
 	-- Elemental Stomp.
 	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL
@@ -197,9 +189,12 @@ B.ShieldTossFlagButton = function(player)
 		player.shieldswap_cooldown = max(0, $ - 1)
 		
 		if B.CanShieldActive(player)
+			and (B.ButtonCheck(player,BT_TOSSFLAG) == 1)
 			and not (player.tossdelay == 2*TICRATE - 1)
 			
-			if (B.ButtonCheck(player,BT_TOSSFLAG) == 1)
+			if (player.pflags&PF_JUMPED)
+				and not player.powers[pw_carry]
+				and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP))
 				B.DoShieldActive(player)
 			else
 				--Shield swap
