@@ -11,11 +11,69 @@ B.TeamFireTrail = function(mo)
 	end
 end
 
+B.PikoWaveThinker = function(mo)
+	if not(mo.target and mo.target.valid)
+		P_RemoveMobj(mo)
+		return
+	end
+	if mo.state != S_PIKOWAVE1
+		mo.momx = 0
+		mo.momy = 0
+		mo.momz = 0
+		return
+	end
+	
+	if mo.time == nil
+		mo.time = 1
+	end
+	mo.time = $+1
+	
+	//Spawn projectiles
+	if not(mo.time%2)
+		local range = 3
+		local x = mo.x + P_RandomRange(-range,range)*mo.scale
+		local y = mo.y + P_RandomRange(-range,range)*mo.scale
+		local z = mo.z
+		if P_MobjFlip(mo) == -1
+			z = $ + mo.height
+		end
+		
+		local momz = P_RandomRange(10,12)*FRACUNIT
+		local hfriction = P_RandomRange(80,90)
+		
+		local hrt = P_SpawnXYZMissile(mo.target, mo, MT_PIKOWAVEHEART, x,y,z)
+		if hrt and hrt.valid
+			S_StartSound(hrt,sfx_hoop2)
+			hrt.friction = hfriction //Horz friction
+			hrt.momz = momz * P_MobjFlip(mo)
+			local thrust = hrt.scale*11/5
+			local thrust2 = hrt.scale*2
+			local angle = FixedAngle(P_RandomRange(0,359)<<FRACBITS)
+			P_InstaThrust(hrt,angle,thrust)
+			P_Thrust(hrt,mo.angle,thrust2)
+			hrt.scale = mo.scale / 9
+			hrt.fuse = 50
+			
+			if (mo.time%4) and mo.color
+				hrt.state = S_PIKOWAVE3
+				hrt.color = mo.teamcolor
+			end
+		end
+	end
+	
+	//Speeds up over time
+	local friction = 101
+	mo.momx = $*friction/100
+	mo.momy = $*friction/100
+	
+	mo.angle = $ + ANG10
+end
+
 B.PlayerHeartCollision = function(mo,heart,owner)
 	//Relegate this hook to interactions with players and heart projectiles
 	if not(mo and mo.valid) then return end
 	if not(mo.player) then return end
-	if not(heart and heart.valid and heart.type == MT_LHRT) then return end
+	if not(heart and heart.valid and (heart.type == MT_LHRT or heart.type == MT_PIKOWAVEHEART)) then return end
 	if not(heart.flags&MF_MISSILE) then return end //heart is dead
 	if not(owner and owner.type == MT_PLAYER) then return end
 	//Player vs tagged

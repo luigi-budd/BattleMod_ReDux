@@ -8,13 +8,13 @@ B.PreAutoSpectator = function(player)
 	if not(player.spectator) then return end
 	//3D auto camera control
 	if not(twodlevel) 
-		if player.cmd.forwardmove != 0 or player.cmd.buttons != 0 then
+		if player.cmd.forwardmove != 0 or player.cmd.buttons & (BT_ATTACK|BT_SPIN|BT_JUMP) then
 			player.spectatortime = 0
 		end
 	return end
 	//2D auto camera control
 	if (twodlevel) 
-		if player.cmd.forwardmove != 0 or player.cmd.sidemove != 0 or player.cmd.buttons != 0 then
+		if player.cmd.forwardmove != 0 or player.cmd.sidemove != 0 or player.cmd.buttons & (BT_ATTACK|BT_SPIN|BT_JUMP) then
 			player.spectatortime = 0
 		end
 	end
@@ -22,15 +22,33 @@ end
 
 B.AutoSpectator = function(player)
 	if not(player.spectator) then return end
+	local mo = player.realmo
 
 	//Must be allowed via player config settings
 	if player.battleconfig_autospectator != true then return end
-
+	
+	if mo.specID == nil
+		mo.specID = 0
+	end
+	
+	local cycle = false
+	//autospectator cycle controls
+	if B.ButtonCheck(player,BT_WEAPONNEXT) == 1
+		player.spectatortime = autotime
+		mo.spectarget = nil
+		mo.specID = $ + 1
+		cycle = true
+	elseif B.ButtonCheck(player,BT_WEAPONPREV) == 1
+		player.spectatortime = autotime
+		mo.spectarget = nil
+		mo.specID = $ - 1
+		cycle = true
+	end
+	
 	//No autospectate until idle time has reached a certain threshold
 	if player.spectatortime < autotime then
 	return end
 	
-	local mo = player.realmo
 	local reset = false
 	//Update target
 	if mo.spectarget == nil 
@@ -38,7 +56,7 @@ B.AutoSpectator = function(player)
 	or (mo.spectarget.playerstate != PST_LIVE and mo.spectarget.deadtimer >2*TICRATE)
 	or mo.spectarget.revenge
 		mo.spectarget = nil
-		local reset = true
+		reset = true
 	end
 	//Reset target
 	if player.spectatortime > autotime+resettime or reset == true or mo.spectarget == nil
@@ -50,7 +68,17 @@ B.AutoSpectator = function(player)
 			end
 		end
 		if #options then
-			mo.spectarget = options[P_RandomRange(1,#options)]
+			if cycle
+				S_StartSound(nil, sfx_menu1, player)
+				if mo.specID < 0
+					mo.specID = #options
+				elseif mo.specID > #options
+					mo.specID = 0
+				end
+				mo.spectarget = options[(mo.specID % #options) + 1]
+			else
+				mo.spectarget = options[P_RandomRange(1,#options)]
+			end
 			local t = mo.spectarget.mo
 			if not(twodlevel) then
 				P_TeleportMove(mo,t.x,t.y,t.z)
@@ -61,6 +89,7 @@ B.AutoSpectator = function(player)
 	//Check if target exists or not
 	if not(mo.spectarget and mo.spectarget.valid and mo.spectarget.mo and mo.spectarget.mo.valid) then return end
 	local t = mo.spectarget.mo
+	
 	
 	//3D cam
 	if not(twodlevel) then 
@@ -76,7 +105,6 @@ B.AutoSpectator = function(player)
 		local realdist = R_PointToDist2(mo.x,mo.y,t.x,t.y)
 		local thrust = (realdist-closedist)*rate/35
 		P_InstaThrust(mo,mo.angle,thrust)
-		P_TeleportMove(mo,mo.x+mo.momx,mo.y+mo.momy,mo.z + mo.momz)
 		//Follow Z position
 		local closedistz = t.scale*48
 		local realdistz = t.z-mo.z+closedistz
@@ -104,9 +132,6 @@ B.SpectatorControl = function(player)
 		player.spectatortime = $+1
 	else
 		player.spectatortime = 0
-	end
-	if (true)
-		return
 	end
 	if player.playerstate then return end
 	if not(player.spectator and player.realmo and player.realmo.valid) then return end

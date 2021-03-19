@@ -38,6 +38,6 @@ rawset(_G,"SKINVARS_NOSPINSHIELD",4)
 
 
 //Version Info
-B.VersionNumber = "8"
-B.VersionSub = 6
-B.VersionDate = "11/15/2020"
+B.VersionNumber = "CE v3"
+B.VersionSub = 0
+B.VersionDate = "3/19/2021"

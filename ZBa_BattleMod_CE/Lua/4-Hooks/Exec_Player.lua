@@ -37,21 +37,36 @@ addHook("AbilitySpecial",function(player)
 	end
 end)
 
-addHook("ShieldSpecial", do	return true end)
+addHook("ShieldSpecial", function(player)
+	if B.CanShieldActive(player)
+		and B.ButtonCheck(player,BT_SPIN) == 1
+		and not(B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)
+		B.DoShieldActive(player)
+	end
+	return true
+end)
 
 addHook("JumpSpecial",function(player)
-	if (player.powers[pw_carry]) return end
+	if (player.powers[pw_carry]) or player.battlespawning
+		return
+	end
+	if player.melee_state return true end
+	
 	if not(player.buttonhistory&BT_JUMP)
-		if B.TwinSpin(player) return true end
+		if B.TwinSpinJump(player) return true end
 	end
 end)
 
 addHook("SpinSpecial",function(player)
+	B.ChargeHammer(player)
 	if (player.powers[pw_carry]) return end
-	if not(player.buttonhistory&BT_USE)
+	if not(player.buttonhistory&BT_SPIN)
 		if B.TwinSpin(player) return true end
 	end
 end)
+
+//aaaaaaaaaaa
+addHook("PlayerThink", B.AutoSpectator)
 
 //Player against Player damage
 addHook("ShouldDamage", function(target,inflictor,source,damage,other)

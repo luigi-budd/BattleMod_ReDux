@@ -17,7 +17,7 @@ B.Action.EnergyAttack_Priority = function(player)
 		B.SetPriority(player,1,1,nil,1,1,"energy charge aura")
 	end
 	if player.actionstate == state_dashslicer then
-		B.SetPriority(player,3,3,nil,3,3,"slash strike")
+		B.SetPriority(player,3,3,nil,3,3,"dash slicer")
 	end
 end
 
@@ -74,6 +74,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		if player.dashmode >= TICRATE*3 then
 			player.actiontime = threshold1
 		end
+		player.pflags = $&~(PF_SPINNING)
 		player.canguard = false
 		S_StartSound(mo,sfx_s3k7a)
 		local a = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ENERGYAURA)
@@ -235,6 +236,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		//Next state
 		player.actionstate = state_dashslicer
 		player.actiontime = 0
+		player.dashmode = 0
 		S_StartSound(mo,sfx_cdfm01)
 	end
 	
@@ -242,7 +244,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 	if player.actionstate == state_dashslicer then
 		player.lockaim = true
 		player.lockmove = true
-		player.dashmode = TICRATE*3
+		//player.dashmode = TICRATE*3
 		player.powers[pw_nocontrol] = max($,2)
 		mo.state = S_PLAY_DASH
 		mo.frame = 0
@@ -260,27 +262,29 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 			spd = $*3/4
 		end
 		P_InstaThrust(mo,mo.angle,spd)
-		player.dashmode = max($,TICRATE*3)
 		player.pflags = $|PF_SPINNING
 		
 		
 		//Release the slicer
 		if not(player.actiontime >= TICRATE/3) then return end
 		local missile = P_SPMAngle(mo,MT_DASHSLICER,mo.angle,0)
-		if missile and missile.valid then
+		/*if missile and missile.valid then
 			local spd = FixedHypot(missile.momx,missile.momy)/B.WaterFactor(mo)
 			if mo.flags2&MF2_TWOD or twodlevel then
 				spd = $/2
 			end
 			P_InstaThrust(missile,mo.angle,spd)
-		end
+		end*/
 		//Next state
 		player.actionstate = state_dashslicer+1
 		player.actiontime = 0
 		P_SetObjectMomZ(mo,FRACUNIT*32,0)
+		mo.momx = $ * 2/3
+		mo.momy = $ * 2/3
 		player.pflags = $|(PF_SPINNING|PF_JUMPED)
 		mo.state = S_PLAY_ROLL
 		S_StartSound(mo,sfx_s3ka0)
+		S_StartSound(mo,sfx_cdfm14)
 		B.ApplyCooldown(player,cooldownlength)
 	end
 	
@@ -296,11 +300,11 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		end
 		player.powers[pw_nocontrol] = max($,2)
 		B.ControlThrust(mo,FRACUNIT*90/100)
-		if not(player.actiontime >= TICRATE/2) then return end
+		if not(player.actiontime >= TICRATE*3/7) then return end
 		
 		//Back to neutral
 		player.actionstate = 0
-		mo.state = S_PLAY_WALK
+		mo.state = S_PLAY_SPRING
 		player.pflags = $&~(PF_SPINNING|PF_JUMPED|PF_THOKKED)
 		player.secondjump = 0
 	end
@@ -338,7 +342,7 @@ B.EnergyGather = function(mo,target,xyangle,zangle)
 end
 
 B.DashSlicerSpawn=function(mo)
-	mo.fuse = 10
+	mo.fuse = 8
 	mo.time = 0
 end
 
@@ -355,30 +359,25 @@ B.DashSlicerThinker=function(mo)
 	z = mo.z
 	P_SpawnMobj(x,y,z,MT_DUST)
 	
-	if mo.time < 5 then return end
+	if mo.time < 3 then return end
 	//Slashes
--- 	if not(mo.time&1) then
-		local dist = mo.radius
-		local x,y,z,s
-		local angoff = ANGLE_90
-		z = mo.z
-		if mo.time&1 then
-			x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
-			y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-			s = S_SLASH3
-		else
-			x = mo.x+P_ReturnThrustX(nil,mo.angle-angoff,dist)
-			y = mo.y+P_ReturnThrustY(nil,mo.angle-angoff,dist)
-			s = S_SLASH1
-		end
-		local missile = P_SpawnXYZMissile(mo.target,mo,MT_SLASH,x,y,z)
-		if missile and missile.valid then
-			missile.state = s
-			S_StartSound(mo,sfx_s3kd7s)
-			missile.scale = $*2
-		end
--- 		local thok = P_SpawnMobj(x,y,z,MT_THOK)
--- 		if thok and thok.valid then thok.color = SKINCOLOR_WHITE end
--- 	end
+	local dist = mo.radius
+	local x,y,z,s
+	local angoff = ANGLE_90
+	z = mo.z
+	if mo.time&1 then
+		x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
+		y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
+		s = S_SLASH3
+	else
+		x = mo.x+P_ReturnThrustX(nil,mo.angle-angoff,dist)
+		y = mo.y+P_ReturnThrustY(nil,mo.angle-angoff,dist)
+		s = S_SLASH1
+		S_StartSound(mo.target,sfx_rail1)
+	end
+	local missile = P_SpawnXYZMissile(mo.target,mo,MT_SLASH,x,y,z)
+	if missile and missile.valid then
+		missile.state = s
+		missile.scale = $*2
+	end
 end
-

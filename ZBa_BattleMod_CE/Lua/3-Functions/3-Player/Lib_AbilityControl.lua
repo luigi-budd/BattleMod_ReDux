@@ -41,30 +41,6 @@ B.TailsCatchPlayer = function(player1,player2)
 	S_StartSound(passenger.mo,sfx_s3k4a)
 end
 
-B.TwinSpin = function(player)
-	if not(player.pflags&PF_JUMPED)
-	or not(player.gotflagdebuff or player.powers[pw_shield]&SH_NOSTACK == SH_PITY)
-		return false
-	end
-	
-	if player.charability == CA_TWINSPIN and player.charability2 == CA2_MELEE
-	and not(player.pflags&PF_THOKKED) and player.pflags&PF_JUMPED
-		player.panim = PA_ABILITY
-		player.mo.state = S_PLAY_TWINSPIN
-		player.frame = 0
-		player.pflags = $|PF_THOKKED
-		S_StartSound(player.mo,sfx_s3k42)
-	return true end
-end
-
-local fly = function(player)
-	if not (player and player.mo and player.mo.valid and player.mo.state == S_PLAY_FLY_TIRED)
-		return
-	end
-	player.cmd.forwardmove = $ / 2
-	player.cmd.sidemove = $ / 2
-end
-
 local glide = function(player)
 	if not (player and player.mo and player.mo.valid)
 		return
@@ -91,10 +67,11 @@ local glide = function(player)
 end
 
 local homingthok = function(p)
--- 	if not (p and p.valid and p.charability == CA_HOMINGTHOK) then return end
--- 	if not (p.pflags&PF_SHIELDABILITY)
+	if p.homing and p.target and p.target.valid and p.target.player and p.target.player.valid and p.target.player.intangible
+		p.homing = 0//Air dodging can "shake off" a player that is homing on to you
+	else
 		p.homing = min($,10)
--- 	end
+	end
 end
 
 local popgun = function(player)
@@ -229,7 +206,6 @@ end
 
 B.CharAbilityControl = function(player)
 	B.ArmaCharge(player)
-	fly(player)
 	glide(player)
 	homingthok(player)
 	popgun(player)

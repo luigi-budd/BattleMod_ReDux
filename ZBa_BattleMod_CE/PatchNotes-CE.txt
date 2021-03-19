@@ -62,6 +62,16 @@ Knuckles
 		Reduced cooldown after a Dig cancel: (1s -> 0.67s)
 		Knuckles can now cancel drill dive with a glide
 
+Amy
+	New air ability: Twinspin Jump
+		Acts like a standard double jump, but uses the hammer as well
+	Piko Hammer (grounded)
+		Can now be charged - fully charging the attack unleashes Piko Wave, an attack that creates a huge wave of heart projectiles which can also shield teammates
+		Can now perform a hammer flip by pressing the jump button while using Piko Hammer
+	New special ability: Piko Spin
+		Accelerate forwards while spinning like a top with 2/3 priority. It ends in a standard hammer swing.
+		While it shares the same name as her old air special, this move replaces both Piko Tornado and the previous iteration of Piko Spin
+
 Fang
 	Added some recoil to grounded popgun
 	Added a tiny bit of screenshake to popgun shots
@@ -69,6 +79,13 @@ Fang
 
 Metal Sonic
 	When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
+	Dash Slicer
+		Changed the positions and timings of the claw projectiles, removing the blindspot between metal and the claws
+		Reduced the endlag of the final jump: (18tics -> 15tics)
+		Adjusted sound effects
+		Now enters the spring animation at the end of the final jump
+		No longer provides dashmode during the dash (this doesn't matter for gameplay, but it removes the dashmode deactivation sound)
+		Renamed "slash strike" to "dash slicer" in the hit feed
 
 Gamemodes
 	Arena, Team Arena
@@ -93,11 +110,14 @@ Maps
 	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
 
 Misc.
+	Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
 	Increased the exhaustion rate of CEZ swings
 	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
 	In team modes, all shields are team colored
 	When a reserve shield is used, it plays a different sound effect depending on the type of shield
 	Lowered the height at which Tails Doll floats
+	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
+	Lowered the default priority of non-attraction shot homing attacks: (1/2 -> 1/1)
 
 Modding functionality
 	Added lua scripting features: func_collide, func_exhaust
@@ -107,7 +127,9 @@ Modding functionality
 	func_exhaust is run during battlemod's exhaust code, and can return true in order to prevent exhaustion from resetting on floor touch - use it to give your custom abilities battlemod-specific exhaust limitations!
 
 Maintenance
+	Fixed an issue where projectiles would disappear when they touched teammates
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
+	Fixed an issue where Metal Sonic would not exit the "spinning" state when using Energy Attack, which allowed him to attack during his falling animation
 	Fixed an issue where using the bubble shield bounce would exhaust Metal Sonic
 	Fixed an issue where elemental fire trails would drain rings from teammates on touch
 	Fixed an issue where Amy was unable to escape CEZ swings

@@ -38,7 +38,7 @@ local function newGunLook(player)
 -- 		if (mo.type == MT_PLAYER) return end -- Don't chase after other players!
 		if (mo.type == MT_TARGETDUMMY) return end //We won't be relying on this for player detection
 		if (mo.player and (B.MyTeam(player,mo.player) or mo.player.spectator)) then return end //Disallow targeting teammates
-
+		if (mo.player and mo.player.intangible) then return end//Disallow targeting air dodge
 
 		//Do angle/distance checks
 		local zdist = (pmo.z + pmo.height/2) - (mo.z + mo.height/2)

@@ -1,17 +1,10 @@
 local B = CBW_Battle
 local CV = B.Console
 
-local function buttoncheck(player,button)
-	if player.cmd.buttons&button then
-		if player.buttonhistory&button then
-			return 2
-		else
-			return 1
-		end
-	end
-	return 0
-end
-
+local intangible_time = 14
+local dodge_endlag = TICRATE
+local dodge_momz = 7
+local dodge_thrust = 15
 
 B.AirDodge = function(player)
 	if not B return end
@@ -20,7 +13,7 @@ B.AirDodge = function(player)
 	end
 	local mo = player.mo
 	
-	if buttoncheck(player, player.battleconfig_guard) == 1 and not P_PlayerInPain(player) and player.mo.state != S_PLAY_PAIN
+	if B.ButtonCheck(player, player.battleconfig_guard) == 1 and not P_PlayerInPain(player) and player.mo.state != S_PLAY_PAIN
 		and player.airdodge == 0
 		and player.playerstate == PST_LIVE
 		and not player.exiting
@@ -36,7 +29,7 @@ B.AirDodge = function(player)
 		local neutral = (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
 		
 		player.airdodge = 1
-		player.airdodge_spin = ANGLE_180
+		player.airdodge_spin = ANGLE_90 + ANG10
 		
 		//State and flags
 		B.ResetPlayerProperties(player,false,false)
@@ -44,13 +37,13 @@ B.AirDodge = function(player)
 		player.airgun = false
 		
 		//Launch
-		local momz = 7*FRACUNIT/B.WaterFactor(mo)
+		local momz = dodge_momz*FRACUNIT/B.WaterFactor(mo)
 		P_SetObjectMomZ(mo, momz, false)
 		if neutral
 			mo.momx = $ / 2
 			mo.momy = $ / 2
 		else
-			P_InstaThrust(mo,angle,mo.scale*15)
+			P_InstaThrust(mo,angle,mo.scale*dodge_thrust)
 		end
 		player.drawangle = mo.angle
 		
@@ -79,7 +72,7 @@ B.AirDodge = function(player)
 		elseif player.airdodge > 0
 			player.lockmove = true
 			player.airdodge = $ + 1
-			if player.airdodge < 15
+			if player.airdodge <= intangible_time
 				if (player.airdodge % 4) == 3
 					mo.colorized = true
 					mo.color = SKINCOLOR_WHITE
@@ -99,13 +92,14 @@ B.AirDodge = function(player)
 				mo.color = player.skincolor
 				mo.airdodgecolor = false
 			end
-			if player.airdodge > TICRATE
+			if player.airdodge > dodge_endlag
 				player.airdodge = -1
 				player.lockmove = false
+				player.drawangle = mo.angle
+			else
+				player.airdodge_spin = $ + ANGLE_90 + ANG15 - (ANG1*3 * player.airdodge)
+				player.drawangle = mo.angle + player.airdodge_spin
 			end
-			
-			player.airdodge_spin = $ + ANGLE_90 - (ANG1*3 * player.airdodge)
-			player.drawangle = mo.angle + player.airdodge_spin
 		end
 	elseif mo.airdodgecolor
 		mo.colorized = false
@@ -113,7 +107,7 @@ B.AirDodge = function(player)
 		mo.airdodgecolor = false
 	end
 	
-	if (player.airdodge > 0 and player.airdodge < 15)
+	if (player.airdodge > 0 and player.airdodge <= intangible_time)
 		player.intangible = true
 	else
 		player.intangible = false

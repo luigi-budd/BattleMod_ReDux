@@ -141,7 +141,7 @@ B.DummyLockOn = function(mo,target)
 	end
 	
 	//Get aimable
-	if target.player.playerstate == PST_LIVE
+	if target.player.playerstate == PST_LIVE and not target.player.intangible
 		and
 		not(target.flags&MF_NOCLIPTHING) then
 		mo.flags2 = $|MF2_INVERTAIMABLE //Allow lock-on

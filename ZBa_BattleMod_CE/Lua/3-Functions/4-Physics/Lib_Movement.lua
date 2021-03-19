@@ -71,3 +71,10 @@ B.InstaThrustSpread = function(mo,aim,spread,angle,speed)
 	zangle = FixedMul(abs($),zmul)
 	B.InstaThrustZAim(mo,xyangle+aim,zangle,speed)
 end
+
+B.ZLaunch = function(mo,thrust,relative)
+	if mo.eflags&MFE_UNDERWATER
+		thrust = $*3/5
+	end
+	P_SetObjectMomZ(mo,thrust,relative)
+end

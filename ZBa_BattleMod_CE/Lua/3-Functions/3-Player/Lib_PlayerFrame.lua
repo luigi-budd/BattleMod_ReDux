@@ -4,6 +4,7 @@ local A = B.Arena
 B.PlayerPreThinkFrame = function(player)
 	//Initiate support mobj
 	B.SpawnTargetDummy(player)
+	
 	//History
 	if player.versusvars == nil then
 		player.buttonhistory = player.cmd.buttons
@@ -13,7 +14,6 @@ B.PlayerPreThinkFrame = function(player)
 
 	//Spectator functions
 	B.PreAutoSpectator(player)
-	B.AutoSpectator(player)
 	B.SpectatorControl(player)
 
 	//Arena death functions
@@ -35,33 +35,10 @@ B.PlayerPreThinkFrame = function(player)
 			B.PlayerSetupPhase(player)
 		end
 	end
+	
 	//Control inputs
 	B.PreGunslinging(player)
-	if player.lockaim and player.mo then //Aim is being locked in place
-		player.cmd.aiming = player.aiming>>16
-		player.cmd.angleturn = player.mo.angle>>16
-	end
-	if player.pflags&PF_STASIS then
-		//Failsafe for simple controls
-		player.cmd.sidemove = 0
-		player.cmd.forwardmove = 0
-	end
-	if player.lockmove
-		player.cmd.sidemove = 0
-		player.cmd.forwardmove = 0
-		player.cmd.buttons = 0
-	end
-end
-
-local function buttoncheck(player,button)
-	if player.cmd.buttons&button then
-		if player.buttonhistory&button then
-			return 2
-		else
-			return 1
-		end
-	end
-	return 0
+	B.InputControl(player)
 end
 
 B.PlayerThinkFrame = function(player)
@@ -104,18 +81,19 @@ B.PlayerThinkFrame = function(player)
 	B.PlayerMovementControl(player)
 	
 	//Perform Actions
-	local doaction = buttoncheck(player,player.battleconfig_special)
+	local doaction = B.ButtonCheck(player,player.battleconfig_special)
 	B.MasterActionScript(player,doaction)
 	
 	//Guard, Stun Break
-	local doguard = buttoncheck(player,player.battleconfig_guard)
+	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 	B.Guard(player,doguard)	
 	B.StunBreak(player,doguard)
 	B.AirDodge(player,doguard)
 	
 	//Abilities
+	B.HammerControl(player)
 	B.CustomGunslinger(player)
-	B.ShieldActives(player)
+	B.ShieldTossFlagButton(player)
 	
 	//PvP Collision
 	B.DoPriority(player)

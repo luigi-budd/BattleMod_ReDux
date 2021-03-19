@@ -46,6 +46,7 @@ B.Priority_Ability = function(player)
 	local bubble = (shield==SH_BUBBLEWRAP)
 	local flame = (shield==SH_FLAMEAURA)
 	local elemental = (shield==SH_ELEMENTAL)
+	local attr = (shield==SH_ATTRACT)
 	
 	local sonicthokked = (abil1 == CA_THOK and thokked)
 	local knuckles = (abil1 == CA_GLIDEANDCLIMB)
@@ -61,8 +62,12 @@ B.Priority_Ability = function(player)
 	if guard
 		B.SetPriority(player,0,1,nil,0,1,"guard")
 		
-	elseif homing 
-		B.SetPriority(player,1,2,nil,1,2,"homing attack")
+	elseif homing
+		if attr and shieldability
+			B.SetPriority(player,1,2,nil,1,2,"attraction shot")
+		else
+			B.SetPriority(player,1,2,nil,1,1,"homing attack")
+		end
 		
 	elseif shieldability
 		if bubble
@@ -89,8 +94,12 @@ B.Priority_Ability = function(player)
 		if twinspin then 
 			B.SetPriority(player,1,2,"amy_twinspin",2,3,"aerial hammer strike")
 		end
-		if melee then 
-			B.SetPriority(player,1,0,"amy_melee",1,3,"hammer strike")
+		if melee then
+			if player.melee_state == st_hold
+				B.SetPriority(player,0,0,nil,0,0,nil)
+			else
+				B.SetPriority(player,1,0,"amy_melee",1,3,"hammer strike")
+			end
 		end
 		//Fang
 		if tailbounce then

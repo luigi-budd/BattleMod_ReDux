@@ -10,17 +10,6 @@ local rockblasttime_x = 35 //Time in tics before horizontal rockblast disappears
 local rockblasttime_y = 47 //Time in tics before vertical rockblast disappears
 local zthreshold = 8 //Z Distance from ground (in fracunits) that will cause Knuckles to resurface
 
-local function buttoncheck(player,button)
-	if player.cmd.buttons&button then
-		if player.buttonhistory&button then
-			return 2
-		else
-			return 1
-		end
-	end
-	return 0
-end
-
 B.Action.Dig_Priority = function(player)
 	if player.actionstate == state_drilldive then
 		B.SetPriority(player,2,2,nil,2,2,"drill dive")
@@ -202,7 +191,7 @@ B.Action.Dig=function(mo,doaction)
 		B.DrawSVSprite(player,1+player.actiontime%4)
 		P_SpawnGhostMobj(mo)
 		
-		if buttoncheck(player, BT_JUMP) == 1
+		if B.ButtonCheck(player, BT_JUMP) == 1
 			local temp = player.exhaustmeter
 			B.ResetPlayerProperties(player,true,false)
 			player.exhaustmeter = temp
