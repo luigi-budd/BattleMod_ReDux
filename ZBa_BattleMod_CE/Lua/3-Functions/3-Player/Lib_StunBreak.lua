@@ -2,13 +2,14 @@ local B = CBW_Battle
 local CV = B.Console
 
 B.StunBreakVFXThinker = function(mo)
-	if not B return end
 	mo.color = B.Choose(SKINCOLOR_WHITE,SKINCOLOR_YELLOW,SKINCOLOR_ROSY,SKINCOLOR_GREEN,SKINCOLOR_ORANGE,SKINCOLOR_BLUE,SKINCOLOR_PURPLE)
 end
 
 B.StunBreak = function(player, doguard)
-	if not B return end
-	if not (player and player.valid and player.mo and player.mo.valid) or not P_PlayerInPain(player) or not player.mo.state == S_PLAY_PAIN
+	if not (player and player.valid and player.mo and player.mo.valid)
+		or not P_PlayerInPain(player)
+		or not player.mo.state == S_PLAY_PAIN
+		or player.isjettysyn
 		return
 	end
 	local mo = player.mo

@@ -1,9 +1,11 @@
 local B = CBW_Battle
 B.StunBreakHUD = function(v, player, cam)
-	if not B return end
-	if player.playerstate != PST_LIVE then return end
-	if player.gotflag or player.gotcrystal then return end
-	if not P_PlayerInPain(player) return end
+	if not (player and player.valid and player.mo and player.mo.valid)
+		or not P_PlayerInPain(player)
+		or not player.mo.state == S_PLAY_PAIN
+		or player.isjettysyn
+		return
+	end
 	
 	local xoffset = 16
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER
@@ -24,6 +26,4 @@ B.StunBreakHUD = function(v, player, cam)
 	text = "\x82" .. 30 .. textcolor .. " " .. $
 	v.draw(xoffset,yoffset,patch,flags)
 	v.drawString(xoffset+12,yoffset,text,flags,align)
-	
-	return
 end

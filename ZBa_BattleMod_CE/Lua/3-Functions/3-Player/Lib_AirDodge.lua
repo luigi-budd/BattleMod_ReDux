@@ -13,51 +13,56 @@ B.AirDodge = function(player)
 	end
 	local mo = player.mo
 	
-	if B.ButtonCheck(player, player.battleconfig_guard) == 1 and not P_PlayerInPain(player) and player.mo.state != S_PLAY_PAIN
-		and player.airdodge == 0
-		and player.playerstate == PST_LIVE
-		and not player.exiting
-		and not player.actionstate
-		and not player.climbing
-		and not player.armachargeup
-		and not player.powers[pw_nocontrol]
-		and not P_IsObjectOnGround(mo)
-		
-		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
-		angle = $ + (player.cmd.angleturn << FRACBITS)
-		
-		local neutral = (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
-		
-		player.airdodge = 1
-		player.airdodge_spin = ANGLE_90 + ANG10
-		
-		//State and flags
-		B.ResetPlayerProperties(player,false,false)
-		mo.state = S_PLAY_FALL
-		player.airgun = false
-		
-		//Launch
-		local momz = dodge_momz*FRACUNIT/B.WaterFactor(mo)
-		P_SetObjectMomZ(mo, momz, false)
-		if neutral
-			mo.momx = $ / 2
-			mo.momy = $ / 2
+	if B.ButtonCheck(player, player.battleconfig_guard) == 1 
+		if not P_PlayerInPain(player)
+			and player.mo.state != S_PLAY_PAIN
+			and player.airdodge == 0
+			and player.playerstate == PST_LIVE
+			and not player.exiting
+			and not player.actionstate
+			and not player.climbing
+			and not player.armachargeup
+			and not player.powers[pw_nocontrol]
+			and not P_IsObjectOnGround(mo)
+			
+			local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
+			angle = $ + (player.cmd.angleturn << FRACBITS)
+			
+			local neutral = (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
+			
+			player.airdodge = 1
+			player.airdodge_spin = ANGLE_90 + ANG10
+			
+			//State and flags
+			B.ResetPlayerProperties(player,false,false)
+			mo.state = S_PLAY_FALL
+			player.airgun = false
+			
+			//Launch
+			local momz = dodge_momz*FRACUNIT/B.WaterFactor(mo)
+			P_SetObjectMomZ(mo, momz, false)
+			if neutral
+				mo.momx = $ / 2
+				mo.momy = $ / 2
+			else
+				P_InstaThrust(mo,angle,mo.scale*dodge_thrust)
+			end
+			player.drawangle = mo.angle
+			
+			//SFX
+			S_StartSound(mo, sfx_s3k47)
+			S_StartSoundAtVolume(mo, sfx_nbmper, 120)
+			
+			//Sparkle
+			local sparkle = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SUPERSPARK)
+			sparkle.scale = mo.scale * 5/4
+			sparkle.destscale = 0
+			sparkle.momx = mo.momx / 2
+			sparkle.momy = mo.momy / 2
+			sparkle.momz = mo.momz * 2/3
 		else
-			P_InstaThrust(mo,angle,mo.scale*dodge_thrust)
+			S_StartSound(nil, sfx_s3k8c, player)
 		end
-		player.drawangle = mo.angle
-		
-		//SFX
-		S_StartSound(mo, sfx_s3k47)
-		S_StartSoundAtVolume(mo, sfx_nbmper, 120)
-		
-		//Sparkle
-		local sparkle = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SUPERSPARK)
-		sparkle.scale = mo.scale * 5/4
-		sparkle.destscale = 0
-		sparkle.momx = mo.momx / 2
-		sparkle.momy = mo.momy / 2
-		sparkle.momz = mo.momz * 2/3
 	end
 	
 	if player.airdodge != 0

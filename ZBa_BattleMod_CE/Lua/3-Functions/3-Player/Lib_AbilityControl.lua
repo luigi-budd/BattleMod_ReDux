@@ -158,8 +158,15 @@ local exhaust = function(player)
 			end
 		end
 	end
+	if player.prevfloat == nil
+		player.prevfloat = false
+	end
 	if player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING)
-		local maxtime = 6*TICRATE
+		if not player.prevfloat
+			player.exhaustmeter = max(0,$-FRACUNIT/20)
+		end
+		player.prevfloat = true
+		local maxtime = 4*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 		if player.exhaustmeter <= 0
 			player.exhaustmeter = FRACUNIT
@@ -167,6 +174,9 @@ local exhaust = function(player)
 			mo.state = S_PLAY_FALL
 			player.pflags = $ & ~PF_JUMPED | PF_THOKKED
 		end
+
+	else
+		player.prevfloat = false
 	end
 	
 	//Refill meter

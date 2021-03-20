@@ -111,7 +111,7 @@ B.Guard = function(player,buttonpressed)
 		if player.guardtics < 1 then
 			if player.guard == -1
 				player.guard = -2
-				player.guardtics = 8
+				player.guardtics = 6
 			else
 				player.guard = 0
 				mo.sprite2 = SPR2_STND

@@ -120,7 +120,8 @@ local AttractionShot = function(player)
 end
 
 B.CanShieldActive = function(player)
-	if not player.gotcrystal
+	if not P_PlayerInPain(player)
+		and not player.gotcrystal
 		and not player.gotflag
 		and not player.isjettysyn
 		and not player.exiting
@@ -192,21 +193,23 @@ B.ShieldTossFlagButton = function(player)
 			and (B.ButtonCheck(player,BT_TOSSFLAG) == 1)
 			and not (player.tossdelay == 2*TICRATE - 1)
 			
-			if (player.pflags&PF_JUMPED)
-				and not player.powers[pw_carry]
-				and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP))
+			local temp = player.powers[pw_shield]&SH_NOSTACK
+			local power = player.shieldstock[1]
+			
+			if temp != SH_PITY and
+				(
+					(player.pflags&PF_JUMPED)
+					and not player.powers[pw_carry]
+					and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and temp == SH_BUBBLEWRAP))
+				)
 				B.DoShieldActive(player)
-			else
-				--Shield swap
-				local power = player.shieldstock[1]
-				
+			
+			else--Shield swap
 				if B.ButtonCheck(player,BT_TOSSFLAG) == 1
-				and not player.shieldswap_cooldown
-				and power
-					
-					local temp = player.powers[pw_shield]&SH_NOSTACK
-					if temp != power
-					
+					if not player.shieldswap_cooldown
+					and temp
+					and power
+					and temp != power
 						player.shieldswap_cooldown = 15
 						
 						player.powers[pw_shield] = 0
@@ -216,11 +219,15 @@ B.ShieldTossFlagButton = function(player)
 						P_SwitchShield(player, power)
 						
 						player.shieldstock[#player.shieldstock+1] = temp
-					
+						
 						S_StartSound(player.mo, sfx_shswap)
+					else
+						S_StartSound(nil, sfx_s3k8c, player)
 					end
 				end
 			end
+		elseif B.ButtonCheck(player,BT_TOSSFLAG) == 1
+			S_StartSound(nil, sfx_s3k8c, player)
 		end
 	end
 end

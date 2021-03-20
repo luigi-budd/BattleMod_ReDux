@@ -1,4 +1,4 @@
-Version CE-v3
+Version CE-v3.1
 
 New ability: Stun Break (costs 30 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
@@ -78,14 +78,22 @@ Fang
 	Adjusted the popgun firing sound effect
 
 Metal Sonic
-	When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
-	Dash Slicer
-		Changed the positions and timings of the claw projectiles, removing the blindspot between metal and the claws
-		Reduced the endlag of the final jump: (18tics -> 15tics)
-		Adjusted sound effects
-		Now enters the spring animation at the end of the final jump
-		No longer provides dashmode during the dash (this doesn't matter for gameplay, but it removes the dashmode deactivation sound)
-		Renamed "slash strike" to "dash slicer" in the hit feed
+	Reduced priority of a spindash charge with dashmode: (1/3 -> 1/1)
+	Float
+		When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
+		Reduced maximum float time before exhaustion (6s -> 4s)
+		Added a small exhaustion penalty for each time Metal Sonic "taps" the float button
+	Energy Attack
+		Cancelling the charge with the parry button now results in an air dodge
+		Reduced cooldown: (3s -> 2.75s)
+		Reduced cooldown on cancel or interrupt: (3s -> 1.25s)
+		Dash Slicer
+			Changed the positions and timings of the claw projectiles, removing the blindspot between metal and the claws
+			Reduced the endlag of the final jump: (18tics -> 15tics)
+			Adjusted sound effects
+			Now enters the spring animation at the end of the final jump
+			No longer provides dashmode during the dash (this doesn't matter for gameplay, but it removes the dashmode deactivation sound)
+			Renamed "slash strike" to "dash slicer" in the hit feed
 
 Gamemodes
 	Arena, Team Arena
@@ -111,6 +119,7 @@ Maps
 
 Misc.
 	Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
+	Increased the respawn timer for spikes: (3s -> 10s)
 	Increased the exhaustion rate of CEZ swings
 	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
 	In team modes, all shields are team colored

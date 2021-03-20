@@ -39,5 +39,5 @@ rawset(_G,"SKINVARS_NOSPINSHIELD",4)
 
 //Version Info
 B.VersionNumber = "CE v3"
-B.VersionSub = 0
-B.VersionDate = "3/19/2021"
+B.VersionSub = 1
+B.VersionDate = "3/20/2021"

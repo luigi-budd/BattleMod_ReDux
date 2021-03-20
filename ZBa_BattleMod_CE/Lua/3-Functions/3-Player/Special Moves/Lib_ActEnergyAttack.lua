@@ -6,7 +6,8 @@ local threshold2 = threshold1+35
 local state_charging = 1
 local state_energyblast = 2
 local state_dashslicer = 3
-local cooldownlength = 3*TICRATE
+local cooldownlength = TICRATE*11/4
+local cooldown_cancel = TICRATE*5/4
 local sideangle = ANG15/4 //Horizontal spread
 local vertwidth = ANG15/2 //Vertical spread
 local blastcount1 = 3
@@ -61,7 +62,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 	//Intercepted while charging
 	if (player.actionstate == state_charging or player.actionstate == state_energyblast) and player.powers[pw_nocontrol] then
 		player.actionstate = 0
-		B.ApplyCooldown(player,cooldownlength)
+		B.ApplyCooldown(player,cooldown_cancel)
 		return
 	end
 	
@@ -74,7 +75,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		if player.dashmode >= TICRATE*3 then
 			player.actiontime = threshold1
 		end
-		player.pflags = $&~(PF_SPINNING)
+		player.pflags = $&~(PF_SPINNING|PF_SHIELDABILITY)
 		player.canguard = false
 		S_StartSound(mo,sfx_s3k7a)
 		local a = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ENERGYAURA)
@@ -157,7 +158,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		B.ResetPlayerProperties(player,false,false)
 		player.actiontime = -1
 		S_StartSound(mo,sfx_s3k7d)
-		B.ApplyCooldown(player,cooldownlength)
+		B.ApplyCooldown(player,cooldown_cancel)
 	end
 	
 	//Release blast

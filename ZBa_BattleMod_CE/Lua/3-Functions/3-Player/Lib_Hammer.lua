@@ -85,8 +85,8 @@ B.HammerControl = function(player)
 		if player.melee_state == st_jump or player.cmd.buttons&BT_JUMP
 			//Hammer jump
 			P_DoJump(player,false)
-			B.ZLaunch(mo,14*FRACUNIT,false)
-			P_Thrust(mo,player.drawangle,12*mo.scale)
+			B.ZLaunch(mo,13*FRACUNIT,false)
+			P_Thrust(mo,player.drawangle,9*mo.scale)
 			S_StartSound(mo,sfx_cdfm37)
 			S_StartSound(mo,sfx_s3ka0)
 			player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
@@ -195,6 +195,8 @@ B.ChargeHammer = function(player)
 	mo.frame = 0
 	
 	//Angle adjustment
-	player.drawangle = player.thinkmoveangle
+	if player.thinkmoveangle
+		player.drawangle = player.thinkmoveangle
+	end
 	return true
 end

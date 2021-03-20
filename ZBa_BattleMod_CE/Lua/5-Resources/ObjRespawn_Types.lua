@@ -14,7 +14,7 @@ end
 -- this is used for timerfunc
 -- forces either type of spike to respawn in 3 seconds
 local function SpikeTimer()
-	return 3*TICRATE
+	return 10*TICRATE
 end
 
 AddObjectTypeRespawn(

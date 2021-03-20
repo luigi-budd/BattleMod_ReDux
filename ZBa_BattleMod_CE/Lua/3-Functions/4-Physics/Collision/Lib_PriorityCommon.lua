@@ -95,8 +95,8 @@ B.Priority_Ability = function(player)
 			B.SetPriority(player,1,2,"amy_twinspin",2,3,"aerial hammer strike")
 		end
 		if melee then
-			if player.melee_state == st_hold
-				B.SetPriority(player,0,0,nil,0,0,nil)
+			if player.melee_state == 1//st_hold
+				B.SetPriority(player,0,1,nil,0,1,"hammer charge")
 			else
 				B.SetPriority(player,1,0,"amy_melee",1,3,"hammer strike")
 			end
@@ -109,7 +109,7 @@ B.Priority_Ability = function(player)
 		if dashing then
 			B.SetPriority(player,3,1,nil,3,1,"dash attack")
 		elseif prepdash then
-			B.SetPriority(player,1,3,nil,1,3,"charged dash attack")
+			B.SetPriority(player,1,1,nil,1,1,"charged dash attack")
 		end
 	end
 end
