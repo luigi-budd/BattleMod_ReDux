@@ -7,6 +7,8 @@ sfxinfo[sfx_cdfm16].caption = "Dispatch" //For RC missiles
 sfxinfo[sfx_s3k48].caption = "Engine" //For RC Crawlas
 
 sfxinfo[sfx_s3kcfl].caption = "Dustdevil" //Piko tornado
+sfxinfo[sfx_hamrc].caption = "Piko wave ready" //Piko tornado
+sfxinfo[sfx_hoop2].priority = 59//lower priority sound for the piko wave heart spawns
 
 sfxinfo[sfx_s1c3].caption = "Fully charged" //Charged state for Metal Sonic energy attack
 sfxinfo[sfx_cdfm01].caption = "Dash strike"

@@ -14,8 +14,10 @@ local function twin(player)
 end
 
 B.TwinSpinJump = function(player) //Double jump function
-	if not(player.charability == CA_TWINSPIN and player.charability2 == CA2_MELEE and not(player.pflags&PF_THOKKED) and player.pflags&PF_JUMPED)
-		or player.gotflag or player.gotflagdebuff
+	if not(B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
+	or player.pflags&PF_THOKKED
+	or not(player.pflags&PF_JUMPED)
+	or player.gotflagdebuff
 		return
 	end
 	
@@ -35,7 +37,9 @@ B.TwinSpinJump = function(player) //Double jump function
 end
 
 B.TwinSpin = function(player)
-	if not(player.charability == CA_TWINSPIN and player.charability2 == CA2_MELEE and not(player.pflags&PF_THOKKED) and player.pflags&PF_JUMPED)
+	if not(B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
+	or player.pflags&PF_THOKKED
+	or not(player.pflags&PF_JUMPED)
 		return
 	end
 	
@@ -43,6 +47,27 @@ B.TwinSpin = function(player)
 	return true
 end
 
+//Wave spawning function
+local function SpawnWave(player,angle_offset,mute)
+	local mo = player.mo
+	local wave = P_SPMAngle(mo,MT_PIKOWAVE,player.drawangle + angle_offset)
+	if wave and wave.valid
+		if G_GametypeHasTeams() and player.ctfteam == 2
+			wave.teamcolor = SKINCOLOR_SAPPHIRE
+		else
+			wave.teamcolor = SKINCOLOR_RUBY
+		end
+		wave.mute = mute
+		if not(wave.mute)
+			S_StartSound(wave,sfx_nbmper)
+		end
+		wave.color = SKINCOLOR_GOLD
+		wave.fuse = 30
+		wave.scale = mo.scale * 5/4
+	end
+end
+
+//Hammer ticframe control
 B.HammerControl = function(player)
 	//Initialize variables
 	if player.melee_state == nil player.melee_state = 0 end
@@ -50,11 +75,12 @@ B.HammerControl = function(player)
 
 	local mo = player.mo
 
-	if not(mo and mo.valid and player.charability2 == CA2_MELEE)
+	if not(mo and mo.valid and B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
 		player.melee_state = 0
 		player.melee_charge = 0
 		return
 	end
+	player.charability2 = CA2_MELEE
 	if P_PlayerInPain(player) or player.actionstate or player.powers[pw_nocontrol] or player.playerstate != PST_LIVE
 		player.melee_state = st_idle
 		return
@@ -74,8 +100,13 @@ B.HammerControl = function(player)
 	if player.melee_state == st_hold
 		if not(player.cmd.buttons&BT_SPIN)
 			S_StartSound(mo,sfx_s3k42)
-			B.ZLaunch(mo, FRACUNIT*2, true)
+			if player.melee_charge >= FRACUNIT
+				B.ZLaunch(mo, FRACUNIT*3, true)
+			else
+				B.ZLaunch(mo, FRACUNIT*2, true)
+			end
 			player.melee_state = st_release
+			mo.state = S_PLAY_MELEE
 		elseif player.melee_charge >= FRACUNIT
 			B.DrawAimLine(player,player.drawangle)
 		end
@@ -85,27 +116,15 @@ B.HammerControl = function(player)
 		if player.melee_state == st_jump or player.cmd.buttons&BT_JUMP
 			//Hammer jump
 			P_DoJump(player,false)
-			B.ZLaunch(mo,13*FRACUNIT,false)
-			P_Thrust(mo,player.drawangle,9*mo.scale)
+			B.ZLaunch(mo,FRACUNIT*27/2,false)
+			P_Thrust(mo,player.drawangle,6*mo.scale)
 			S_StartSound(mo,sfx_cdfm37)
 			S_StartSound(mo,sfx_s3ka0)
 			player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
 			mo.state = S_PLAY_ROLL
 			player.panim = PA_ROLL
 		elseif player.melee_charge >= FRACUNIT
-			//Spawn wave
-			local wave = P_SPMAngle(mo,MT_PIKOWAVE,player.drawangle)
-			if wave and wave.valid
-				if G_GametypeHasTeams() and player.ctfteam == 2
-					wave.teamcolor = SKINCOLOR_SAPPHIRE
-				else
-					wave.teamcolor = SKINCOLOR_RUBY
-				end
-				S_StartSound(wave,sfx_nbmper)
-				wave.color = SKINCOLOR_GOLD
-				wave.fuse = 30
-				wave.scale = mo.scale * 5/4
-			end
+			SpawnWave(player,0,false)
 		end
 		player.melee_state = st_idle
 	end
@@ -114,7 +133,7 @@ end
 B.ChargeHammer = function(player)	
 	local mo = player.mo
 	
-	if not(player.charability2 == CA2_MELEE)
+	if not(B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
 	or player.melee_state > 1
 	or not(P_IsObjectOnGround(mo))
 	or not(player.melee_state or not(player.pflags&PF_USEDOWN))
@@ -129,7 +148,7 @@ B.ChargeHammer = function(player)
 	//Jump cancel
 	if player.melee_state == st_hold and player.cmd.buttons&BT_JUMP
 		S_StartSound(mo,sfx_s3k42)
-		P_SetObjectMomZ(mo,FRACUNIT*2,true)
+		B.ZLaunch(mo, FRACUNIT*2, true)
 		player.melee_state = st_jump
 	end	
 	
@@ -174,7 +193,7 @@ B.ChargeHammer = function(player)
 			player.melee_charge = FRACUNIT
 			local z = mo.z
 			if P_MobjFlip(mo) == -1
-				z = $+mo.height-mobjinfo[MT_SPARK].height
+				z = $+mo.height-mobjinfo[MT_SUPERSPARK].height
 			end
 			//P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<6,8,MT_SPARK,ANGLE_90,nil,1)
 			local spark = P_SpawnMobj(
@@ -193,7 +212,7 @@ B.ChargeHammer = function(player)
 	//Visual
 	mo.state = S_PLAY_MELEE
 	mo.frame = 0
-	
+	player.charability2 = CA2_NONE //Make Amy vulnerable during holding frames
 	//Angle adjustment
 	if player.thinkmoveangle
 		player.drawangle = player.thinkmoveangle

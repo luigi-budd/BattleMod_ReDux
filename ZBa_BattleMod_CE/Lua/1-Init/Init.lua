@@ -27,17 +27,18 @@ B.RedScore = 0
 B.BlueScore = 0
 
 //Flags
-rawset(_G,"DF_GAMETYPE",1)
-rawset(_G,"DF_COLLISION",2)
-rawset(_G,"DF_ITEM",4)
-rawset(_G,"DF_PLAYER",8)
+rawset(_G,"DF_GAMETYPE",	1<<0)
+rawset(_G,"DF_COLLISION",	1<<1)
+rawset(_G,"DF_ITEM",		1<<2)
+rawset(_G,"DF_PLAYER",		1<<3)
 
-rawset(_G,"SKINVARS_GUARD",1)
-rawset(_G,"SKINVARS_GUNSLINGER",2)
-rawset(_G,"SKINVARS_NOSPINSHIELD",4)
+rawset(_G,"SKINVARS_GUARD",			1<<0)
+rawset(_G,"SKINVARS_GUNSLINGER",	1<<1)
+rawset(_G,"SKINVARS_NOSPINSHIELD",	1<<2)
+rawset(_G,"SKINVARS_ROSY",			1<<3)
 
 
 //Version Info
 B.VersionNumber = "CE v3"
-B.VersionSub = 1
-B.VersionDate = "3/20/2021"
+B.VersionSub = 2
+B.VersionDate = "3/22/2021"

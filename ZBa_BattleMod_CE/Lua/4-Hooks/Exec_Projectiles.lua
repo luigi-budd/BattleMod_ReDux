@@ -18,7 +18,7 @@ addHook("MobjMoveCollide", function(tmthing,thing)
 	//Fix for teammates interacting at all with teammate projectiles
 	if tmthing.flags&MF_MISSILE
 		and B.MyTeam(tmthing.target.player,thing.player)
-		and not tmthing.cantouchteam
+		and not tmthing.info.cantouchteam
 		return false
 	end
 end)
@@ -51,15 +51,36 @@ addHook("MobjThinker",function(mo)
 end,MT_SONICBOOM)
 
 //Amy love hearts
-addHook("MobjSpawn",function(mo) if mo.valid then mo.cantouchteam = true end end,MT_LHRT)
-addHook("MobjSpawn",function(mo) if mo.valid then mo.cantouchteam = true end end,MT_PIKOWAVEHEART)
+addHook("MobjSpawn",function(mo)
+	if mo.valid
+		mo.cantouchteam = true
+		mo.blockable = 1
+		mo.block_stun = 3
+		//mo.block_sound = sfx_s3kb5
+		mo.block_hthrust = 6
+		mo.block_vthrust = 2
+	end
+end,MT_LHRT)
+addHook("MobjSpawn",function(mo)
+	if mo.valid
+		mo.cantouchteam = true
+		mo.blockable = 1
+		mo.block_stun = 6
+		//mo.block_sound = sfx_s3kb5
+		mo.block_hthrust = 7
+		mo.block_vthrust = 5
+	end
+end,MT_PIKOWAVEHEART)
+
 addHook("MobjMoveCollide", function(mover,collide) if collide and (collide.battleobject or not(collide.flags&MF_SOLID)) then return end end, MT_PIKOWAVE)
 addHook("MobjMoveBlocked", function(mo)
 	mo.fuse = max(1, $ - 9)
 	S_StartSound(mo,sfx_nbmper)
 end, MT_PIKOWAVE)
 addHook("MobjThinker", function(mo)
-	mo.scale = $ + FRACUNIT/45
+	if mo.grow
+		mo.scale = $ + FRACUNIT/40
+	end
 	mo.momx = $ * mo.friction / 100
 	mo.momy = $ * mo.friction / 100
 	mo.momz = $ - (P_MobjFlip(mo) * FRACUNIT / 3)
@@ -80,6 +101,13 @@ addHook("MobjSpawn",B.DustDevilSpawn,MT_DUSTDEVIL_BASE)
 
 //Fang
 addHook("MobjSpawn",function(mo)
+	if mo.valid
+		mo.blockable = 1
+		mo.block_stun = 5
+		//mo.block_sound = sfx_s3kb5
+		mo.block_hthrust = 12
+		mo.block_vthrust = 10
+	end
 	return true //Overwrite default behavior so that corks won't damage invulnerable players
 end,MT_CORK)
 
@@ -109,6 +137,6 @@ addHook("MobjThinker",B.RockBlastObject,MT_ROCKBLAST)
 addHook("MobjThinker",function(mo) if P_IsObjectOnGround(mo) then P_RemoveMobj(mo) return true end end,MT_ROCKCRUMBLE2)
 addHook("ShouldDamage", B.PlayerCorkDamage, MT_PLAYER)
 addHook("ShouldDamage", B.PlayerHeartCollision, MT_PLAYER)
-addHook("ShouldDamage",B.PlayerBombDamage,MT_PLAYER)
-addHook("ShouldDamage",B.PlayerRoboMissileCollision,MT_PLAYER)
-addHook("MobjThinker",B.TeamFireTrail,MT_SPINFIRE)
+addHook("ShouldDamage", B.PlayerBombDamage,MT_PLAYER)
+addHook("ShouldDamage", B.PlayerRoboMissileCollision,MT_PLAYER)
+addHook("MobjThinker", B.TeamFireTrail,MT_SPINFIRE)

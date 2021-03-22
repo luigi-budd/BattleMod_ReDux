@@ -191,7 +191,7 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 			local thrust = FRACUNIT*10
 			if twodlevel then thrust = B.TwoDFactor($) end
 			P_SetObjectMomZ(inflictor,thrust)
-			B.DoPlayerFlinch(inflictor.player, 45, angle, inflictor.scale*3,true)
+			B.DoPlayerTumble(inflictor.player, 45, angle, inflictor.scale*3, true)
 		else
 			P_DamageMobj(inflictor,target,target)
 		end

@@ -7,8 +7,14 @@ addHook("HurtMsg",function(player,inflictor,source)
 end,MT_PLAYER)
 
 addHook("HurtMsg",function(player,inflictor,source) 
-	if not(inflictor and inflictor.valid and inflictor.info.name) then return end
+	if not(inflictor and inflictor.valid and (inflictor.name or inflictor.info.name)) then return end
 	if inflictor.type == MT_PLAYER then return end
-	print(B.CustomHurtMessage(player,source,inflictor.info.name))
+	local name
+	if inflictor.name
+		name = inflictor.name
+	elseif inflictor.info.name
+		name = inflictor.info.name
+	end
+	print(B.CustomHurtMessage(player,source,name))
 	return true
  end,NULL)

@@ -38,9 +38,10 @@ B.InitPlayer = function(player)
 	player.exhaustmeter = FRACUNIT
 	player.gotcrystal = false
 	player.gotcrystal_time = 0
-	player.lifeshards = 0
+	//player.lifeshards = 0
 	player.shieldswap_cooldown = 0
 	player.airdodge = 0
+	player.tumble = 0
 	player.melee_state = 0
 	player.thinkmoveangle = 0
 	player.intangible = false
@@ -299,7 +300,7 @@ B.DrawAimLine = function(player,angle)
 	end
 end
 
-B.DoPlayerFlinch = function(player, time, angle, thrust,force)
+B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 	//Uncurl
 	if P_IsObjectOnGround(player.mo) then
 		player.panim = 0
@@ -319,6 +320,65 @@ B.DoPlayerFlinch = function(player, time, angle, thrust,force)
 	end
 	if force == true then
 		P_InstaThrust(player.mo,angle,thrust)
+	end
+end
+
+B.DoPlayerTumble = function(player, time, angle, thrust, force)
+	player.panim = PA_PAIN
+	player.mo.state = S_PLAY_PAIN
+	player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
+	
+	player.tumble = time
+	player.airdodge_spin = 0
+	
+	//player.mo.recoilangle = angle
+	//player.mo.recoilthrust = thrust
+	if not(player.actionsuper) then
+		player.actionstate = 0
+	end
+	if force == true then
+		P_InstaThrust(player.mo,angle,thrust)
+	end
+end
+
+B.Tumble = function(player)
+	if not (player and player.valid and player.mo and player.mo.valid)
+		return
+	end
+	local mo = player.mo
+	
+	if player.tumble > 0
+		if player.isjettysyn
+			or player.powers[pw_carry]
+			or P_PlayerInPain(player)
+			
+			player.tumble = 0
+			player.lockmove = false
+			player.drawangle = mo.angle
+			B.ResetPlayerProperties(player,false,false)
+			
+		else
+			if P_IsObjectOnGround(mo)
+				S_StartSound(mo, sfx_s3k49)
+				B.ZLaunch(mo, 6*FRACUNIT, true)
+			end
+			
+			player.powers[pw_nocontrol] = max($, 2)
+			player.panim = PA_PAIN
+			player.mo.state = S_PLAY_PAIN
+			
+			player.lockmove = true
+			player.tumble = $ - 1
+			if player.tumble <= 0
+				player.tumble = -1
+				player.lockmove = false
+				player.drawangle = mo.angle
+				B.ResetPlayerProperties(player,false,false)
+			else
+				player.airdodge_spin = $ + ANGLE_45
+				player.drawangle = mo.angle + player.airdodge_spin
+			end
+		end
 	end
 end
 

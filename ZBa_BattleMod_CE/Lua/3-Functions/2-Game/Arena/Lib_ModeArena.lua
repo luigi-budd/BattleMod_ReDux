@@ -330,44 +330,47 @@ end
 A.KillReward = function(killer)
 	if not (killer and killer.valid) return end
 	if B.SuddenDeath then return end
+	local survival = G_GametypeUsesLives() and B.ArenaGametype()
 	
 	if killer.lifeshards == nil
 		killer.lifeshards = 0
 	end
 	
-	if killer.lives >= CV.SurvivalStock.value
-		S_StartSound(nil, sfx_itemup, killer)
-		S_StartSound(nil, sfx_s249, killer)
-		P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 6, MT_NIGHTSPARKLE, ANGLE_90)
-		killer.rings = $ + 10
-		killer.lifeshards = 0
+	S_StartSound(nil, sfx_s249, killer)
+	
+	if killer.mo and killer.mo.valid and killer.playerstate == PST_LIVE and not killer.revenge
+		if killer.lives >= CV.SurvivalStock.value or not survival
+			killer.lifeshards = 0
+		else
+			killer.lifeshards = $ + 1
+		end
 		
-	elseif killer.mo and killer.mo.valid//Can get up to 1 extra life above the starting lives
 		killer.rings = $ + 10
-		killer.lifeshards = $ + 1
+		S_StartSound(killer.mo, sfx_itemup, killer)
+		S_StartSound(killer.mo, sfx_s249, killer)
 		
-		if killer.lifeshards == 1
+		if (killer.lifeshards == 0) or not survival
+			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 9, MT_NIGHTSPARKLE, ANGLE_90)
+		elseif killer.lifeshards == 1
 			S_StartSound(nil, sfx_s243, killer)
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 9, MT_NIGHTSPARKLE, ANGLE_90)
 		elseif killer.lifeshards == 2
-			S_StartSound(nil, sfx_s243, killer)
 			S_StartSound(nil, sfx_s243a, killer)
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 12, MT_NIGHTSPARKLE, ANGLE_90)
-		else
-			S_StartSound(nil, sfx_s245, killer)
+		elseif killer.lifeshards == 3
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 15, MT_NIGHTSPARKLE, ANGLE_90)
 		end
-		S_StartSound(nil, sfx_s249, killer)
 		
-		//print(killer.lifeshards)
-		if killer.lifeshards == KILLSNEEDED
+		if (killer.lifeshards == 3) and survival
 			killer.lifeshards = 0
 			killer.lives = $ + 1
 			P_PlayLivesJingle(killer)
 			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_1UP_ICON)
 			icon.scale = killer.mo.scale * 4/3
+			print("\x89" .. killer.name .. " earned an extra life!")
 		else
 			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_RING_ICON)
+			killer.rings = $ + 10
 			icon.scale = killer.mo.scale
 		end
 	end

@@ -19,8 +19,18 @@ mobjinfo[MT_PIKOWAVEHEART] = {
 	radius = 24*FRACUNIT,
 	height = 24*FRACUNIT,
 	damage = 1,
+	cantouchteam = true,
+	blockable = 1,
+	block_stun = 6,
+	block_hthrust = 10,
+	block_vthrust = 3,
 	flags = MF_NOBLOCKMAP|MF_MISSILE
 }
+mobjinfo[MT_LHRT].blockable = 1
+mobjinfo[MT_LHRT].block_stun = 3
+mobjinfo[MT_LHRT].block_hthrust = 6
+mobjinfo[MT_LHRT].block_vthrust = 2
+
 states[S_PIKOWAVE1] = {
 	sprite = SPR_BHRT,
 	frame = FF_PAPERSPRITE|B

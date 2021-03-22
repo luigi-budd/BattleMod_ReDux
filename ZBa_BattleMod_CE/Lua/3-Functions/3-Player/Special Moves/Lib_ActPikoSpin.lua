@@ -30,7 +30,7 @@ local function sparkle(mo)
 end
 
 local function spinhammer(mo)
-	mo.state = S_PLAY_MELEE
+	mo.state = S_PLAY_MELEE_LANDING
 	mo.frame = 0
 	//mo.player.pflags = ($ | PF_JUMPED | PF_THOKKED) & ~PF_NOJUMPDAMAGE
 	mo.sprite2 = SPR2_MLEL
@@ -39,6 +39,9 @@ end
 local DoThrust = function(mo)
 	P_Thrust(mo,mo.angle,thrust)
 	B.ControlThrust(mo,friction,limit,zfriction,nil)
+	if not P_IsObjectOnGround(mo)
+		B.ZLaunch(mo, FRACUNIT/3, true)
+	end
 end
 
 B.Action.PikoSpin = function(mo,doaction)
@@ -71,13 +74,15 @@ B.Action.PikoSpin = function(mo,doaction)
 			B.ApplyCooldown(player,cooldown)
 			player.actionstate = specialstate
 			player.actiontime = 0
+			mo.momz = $ / 2
 			DoThrust(mo)
 			S_StartSoundAtVolume(mo,sfx_3db16,130)
 			S_StartSound(mo,sfx_s3ka0)
 		end
 	
-	//Ground Special
+	//Special
 	elseif player.actionstate == specialstate then
+		player.charability2 = CA2_MELEE
 		player.powers[pw_nocontrol] = max($,2)
 		sparkle(mo)
 		player.drawangle = player.cmd.angleturn<<FRACBITS+ANGLE_45*(player.actiontime&7)

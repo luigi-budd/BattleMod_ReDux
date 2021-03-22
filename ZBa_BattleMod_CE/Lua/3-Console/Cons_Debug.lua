@@ -28,11 +28,7 @@ end,1)
 
 /*
 B.TestScript = function(player)
-	COM_BufInsertText(player,"preround 0")
--- 	COM_BufInsertText(player,"survival_stock 1")
-	COM_BufInsertText(player,"battledebug 4")
-	COM_BufInsertText(player,"map "..tostring(gamemap).." -force")
--- 	print(unpack(B.Item.GlobalChance))
+	P_SetObjectMomZ(player.mo, 10*FRACUNIT)
+	B.DoPlayerTumble(player, 45, 0, 10*FRACUNIT, true)
 end
-
 */

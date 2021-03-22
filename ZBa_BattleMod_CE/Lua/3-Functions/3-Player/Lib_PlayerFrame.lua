@@ -90,6 +90,9 @@ B.PlayerThinkFrame = function(player)
 	B.StunBreak(player,doguard)
 	B.AirDodge(player,doguard)
 	
+	//Tumble state
+	B.Tumble(player)
+	
 	//Abilities
 	B.HammerControl(player)
 	B.CustomGunslinger(player)

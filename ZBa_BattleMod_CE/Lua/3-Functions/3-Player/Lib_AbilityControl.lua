@@ -29,6 +29,7 @@ B.TailsCatchPlayer = function(player1,player2)
 -- 	or passenger.carried_time < 15
 	or passenger.powers[pw_carry]
 	or passenger.mo.momz*flip > 0
+	or passenger.exhaustmeter <= 0
 		return
 	end
 	//Assign carry states
