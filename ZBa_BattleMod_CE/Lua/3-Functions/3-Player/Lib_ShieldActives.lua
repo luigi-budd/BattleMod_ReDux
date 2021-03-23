@@ -124,6 +124,7 @@ B.CanShieldActive = function(player)
 		and not player.gotcrystal
 		and not player.gotflag
 		and not player.isjettysyn
+		and not player.revenge
 		and not player.exiting
 		and not player.actionstate
 		and not player.powers[pw_nocontrol]

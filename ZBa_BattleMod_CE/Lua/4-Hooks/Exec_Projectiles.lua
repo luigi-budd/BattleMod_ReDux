@@ -18,7 +18,7 @@ addHook("MobjMoveCollide", function(tmthing,thing)
 	//Fix for teammates interacting at all with teammate projectiles
 	if tmthing.flags&MF_MISSILE
 		and B.MyTeam(tmthing.target.player,thing.player)
-		and not tmthing.info.cantouchteam
+		and not tmthing.cantouchteam
 		return false
 	end
 end)

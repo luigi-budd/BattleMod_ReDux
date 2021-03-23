@@ -30,6 +30,8 @@ B.TailsCatchPlayer = function(player1,player2)
 	or passenger.powers[pw_carry]
 	or passenger.mo.momz*flip > 0
 	or passenger.exhaustmeter <= 0
+	or passenger.powers[pw_tailsfly]
+	or passenger.mo.state == S_PLAY_FLY_TIRED
 		return
 	end
 	//Assign carry states
@@ -112,6 +114,7 @@ local exhaust = function(player)
 	end
 	
 	//Common exhaust states
+	local warningtic = FRACUNIT/3
 	if player.powers[pw_carry] == CR_MACESPIN and player.mo.tracer
 		local maxtime = 4*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
@@ -195,7 +198,6 @@ local exhaust = function(player)
 		mo.exhaustcolor = false
 	end
 	local colorflip = false
-	local warningtic = FRACUNIT/3
 	if player.exhaustmeter < warningtic and not(player.exhaustmeter == 0) then
 		if not(leveltime&7)
 			S_StartSound(mo,sfx_s3kbb,player)

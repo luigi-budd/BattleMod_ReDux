@@ -20,9 +20,10 @@ B.AirDodge = function(player)
 		and not player.actionstate
 		and not player.climbing
 		and not player.armachargeup
+		and not player.isjettysyn
+		and not player.revenge
 		and not player.powers[pw_nocontrol]
 		and not P_IsObjectOnGround(mo)
-		and not player.tumble
 		
 		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
 		angle = $ + (player.cmd.angleturn << FRACBITS)

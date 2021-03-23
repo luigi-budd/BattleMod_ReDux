@@ -358,7 +358,7 @@ B.Tumble = function(player)
 			B.ResetPlayerProperties(player,false,false)
 			
 		else
-			if P_IsObjectOnGround(mo)
+			if P_IsObjectOnGround(mo) and (mo.momz * P_MobjFlip(mo) <= 0)
 				S_StartSound(mo, sfx_s3k49)
 				B.ZLaunch(mo, 6*FRACUNIT, true)
 			end

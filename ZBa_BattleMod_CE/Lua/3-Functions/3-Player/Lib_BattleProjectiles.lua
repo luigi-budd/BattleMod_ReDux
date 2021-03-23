@@ -68,7 +68,7 @@ B.PikoWaveThinker = function(mo)
 	
 	//Spawn projectiles
 	if not(mo.time%2)
-		S_StartSound(hrt,sfx_hoop2)
+		S_StartSound(mo,sfx_hoop2)
 		spawnheart(mo, launchang, 0, true, 10)
 	else
 		spawnheart(mo, launchang, -ANG30*2, false, 7)
@@ -106,7 +106,7 @@ B.PlayerHeartCollision = function(mo,heart,owner)
 			return true
 		end
 	end*/
-	if B.MyTeam(mo.player,owner.player)
+	if B.MyTeam(mo.player,owner.player) and not B.SuddenDeath
 		then//Do pink shield
 		B.AddPinkShield(mo.player,owner.player)
 		return 
