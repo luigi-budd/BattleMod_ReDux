@@ -119,17 +119,17 @@ local exhaust = function(player)
 		local maxtime = 4*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 		if player.exhaustmeter <= 0
-			player.exhaustmeter = FRACUNIT
+			//player.exhaustmeter = FRACUNIT
 			player.powers[pw_carry] = CR_NONE
 			player.mo.tracer = nil
 			player.powers[pw_flashing] = TICRATE/4
 		end
 	end
-	if player.charability == CA_FLY and player.powers[pw_tailsfly]
+	if player.powers[pw_tailsfly]
 		local maxtime = 4*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 		if player.exhaustmeter <= 0
-			player.exhaustmeter = FRACUNIT
+			//player.exhaustmeter = FRACUNIT
 			player.powers[pw_tailsfly] = 0
 		end
 	end
@@ -138,7 +138,7 @@ local exhaust = function(player)
 			local maxtime = 5*TICRATE
 			player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 			if player.exhaustmeter <= 0
-				player.exhaustmeter = FRACUNIT
+				//player.exhaustmeter = FRACUNIT
 				mo.state = S_PLAY_FALL
 				player.pflags = $ & ~PF_GLIDING & ~PF_JUMPED | PF_THOKKED
 				player.glidetime = 0
@@ -155,7 +155,7 @@ local exhaust = function(player)
 				player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 			end
 			if player.exhaustmeter <= 0
-				player.exhaustmeter = FRACUNIT
+				//player.exhaustmeter = FRACUNIT
 				player.climbing = 0
 				player.pflags = $|PF_JUMPED|PF_THOKKED
 				mo.state = S_PLAY_ROLL
@@ -173,7 +173,7 @@ local exhaust = function(player)
 		local maxtime = 4*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 		if player.exhaustmeter <= 0
-			player.exhaustmeter = FRACUNIT
+			//player.exhaustmeter = FRACUNIT
 			player.secondjump = 0
 			mo.state = S_PLAY_FALL
 			player.pflags = $ & ~PF_JUMPED | PF_THOKKED
@@ -222,6 +222,7 @@ B.CharAbilityControl = function(player)
 	glide(player)
 	homingthok(player)
 	popgun(player)
+	//pogo(player)
 	weight(player)
 	exhaust(player)
 end

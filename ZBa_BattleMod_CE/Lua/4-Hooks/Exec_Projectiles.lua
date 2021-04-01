@@ -4,6 +4,13 @@ local B = CBW_Battle
 addHook("ShouldDamage", function(target,inflictor,source,something,idk)
 	if not(target.player and inflictor and inflictor.valid and source and source.valid and source.player)
 	return end
+	
+	if inflictor.type == MT_SPINFIRE
+	and not(target.player.powers[pw_shield]&SH_PROTECTFIRE)
+	and not(target.player.powers[pw_flashing] or target.player.powers[pw_super])
+	and not(B.MyTeam(target.player,source.player))
+		return true
+	end
 end,MT_PLAYER)
 
 //Player v player projectile
@@ -33,6 +40,12 @@ addHook("MobjThinker",function(mo)
 end,MT_NULL)
 
 
+//Sonic ground pound
+addHook("MobjSpawn",function(mo)
+	mo.hit_sound = sfx_hit00
+end,MT_GROUNDPOUND)
+
+
 //Tails Projectiles
 addHook("MobjThinker",function(mo)
 	if not(mo.flags&MF_MISSILE) then return end
@@ -50,9 +63,21 @@ addHook("MobjThinker",function(mo)
 	P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
 end,MT_SONICBOOM)
 
+addHook("MobjSpawn",function(mo)
+	mo.hit_sound = sfx_hit02
+end,MT_SONICBOOM)
+
+
+//Knux rocks
+addHook("MobjSpawn",function(mo)
+	mo.hit_sound = sfx_hit00
+end,MT_ROCKBLAST)
+
+
 //Amy love hearts
 addHook("MobjSpawn",function(mo)
 	if mo.valid
+		mo.hit_sound = sfx_hit03
 		mo.cantouchteam = true
 		mo.blockable = 1
 		mo.block_stun = 3
@@ -63,6 +88,7 @@ addHook("MobjSpawn",function(mo)
 end,MT_LHRT)
 addHook("MobjSpawn",function(mo)
 	if mo.valid
+		mo.hit_sound = sfx_hit03
 		mo.cantouchteam = true
 		mo.blockable = 1
 		mo.block_stun = 6
@@ -71,7 +97,6 @@ addHook("MobjSpawn",function(mo)
 		mo.block_vthrust = 5
 	end
 end,MT_PIKOWAVEHEART)
-
 addHook("MobjMoveCollide", function(mover,collide) if collide and (collide.battleobject or not(collide.flags&MF_SOLID)) then return end end, MT_PIKOWAVE)
 addHook("MobjMoveBlocked", function(mo)
 	mo.fuse = max(1, $ - 9)
@@ -86,6 +111,7 @@ addHook("MobjThinker", function(mo)
 	mo.momz = $ - (P_MobjFlip(mo) * FRACUNIT / 3)
 end, MT_PIKOWAVEHEART)
 addHook("MobjThinker", B.PikoWaveThinker, MT_PIKOWAVE)
+
 
 //Piko tornado
 addHook("TouchSpecial",B.DustDevilTouch,MT_DUSTDEVIL)
@@ -102,6 +128,7 @@ addHook("MobjSpawn",B.DustDevilSpawn,MT_DUSTDEVIL_BASE)
 //Fang
 addHook("MobjSpawn",function(mo)
 	if mo.valid
+		mo.hit_sound = sfx_hit04
 		mo.blockable = 1
 		mo.block_stun = 5
 		//mo.block_sound = sfx_s3kb5
@@ -110,8 +137,6 @@ addHook("MobjSpawn",function(mo)
 	end
 	return true //Overwrite default behavior so that corks won't damage invulnerable players
 end,MT_CORK)
-
-
 addHook("MobjThinker",function(mo)
 	if mo.flags&MF_MISSILE and mo.target and mo.target.player then
 		local ghost = P_SpawnGhostMobj(mo)
@@ -127,10 +152,15 @@ end,MT_CORK)
 //Metal Sonic
 addHook("MobjSpawn",B.DashSlicerSpawn,MT_DASHSLICER)
 addHook("MobjThinker",B.DashSlicerThinker,MT_DASHSLICER)
-
 addHook("MobjThinker",function(mo)
 	mo.flags2 = $^^MF2_DONTDRAW
 end,MT_SLASH)
+addHook("MobjSpawn",function(mo)
+	mo.hit_sound = sfx_hit02
+end,MT_SLASH)
+addHook("MobjSpawn",function(mo)
+	mo.hit_sound = sfx_hit01
+end,MT_ENERGYBLAST)
 
 //Other
 addHook("MobjThinker",B.RockBlastObject,MT_ROCKBLAST)

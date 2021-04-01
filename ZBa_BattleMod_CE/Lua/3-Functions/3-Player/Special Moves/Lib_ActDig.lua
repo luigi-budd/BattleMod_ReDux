@@ -191,13 +191,11 @@ B.Action.Dig=function(mo,doaction)
 		B.DrawSVSprite(player,1+player.actiontime%4)
 		P_SpawnGhostMobj(mo)
 		
-		if B.ButtonCheck(player, BT_JUMP) == 1
-			local temp = player.exhaustmeter
+		if B.ButtonCheck(player, BT_JUMP) == 1 and player.exhaustmeter
 			B.ResetPlayerProperties(player,true,false)
-			player.exhaustmeter = temp
 			B.ApplyCooldown(player,cancelcooldown)
 			
-			mo.momz = $ / 2
+			mo.momz = $ / 3
 			
 			local glidespeed = FixedMul(player.actionspd, player.mo.scale)
 			local playerspeed = player.speed

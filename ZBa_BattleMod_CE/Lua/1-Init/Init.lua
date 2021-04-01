@@ -1,3 +1,5 @@
+assert(not CBW_Battle, "Loaded multiple instances of BattleMod")
+
 rawset(_G,"CBW_Battle",{})
 local B = CBW_Battle
 

@@ -9,30 +9,24 @@ local throw_strength = 30
 local throw_lift = 10
 local thrustpower = 16
 
+local function sbvars(m,pmo)
+	if m and m.valid then
+		m.fuse = 45
+		m.momx = $/2+pmo.momx/2
+		m.momy = $/2+pmo.momy/2
+		S_StartSoundAtVolume(m,sfx_s3kb8,190)
+	end
+end
+
 local function domissile(mo,thrustfactor)
 	//Projectile
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle+sideangle,0)
-	if m and m.valid then
-		m.fuse = 45
-		m.momx = $/2+mo.momx/2
-		m.momy = $/2+mo.momy/2
-		S_StartSoundAtVolume(m,sfx_s3kb8,190)
-	end
+	sbvars(m,mo)
 	//Do Side Projectiles
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle-sideangle,0)
-	if m and m.valid then
-		m.fuse = 45
-		m.momx = $/2+mo.momx/2
-		m.momy = $/2+mo.momy/2
-		S_StartSoundAtVolume(m,sfx_s3kb8,190)
-	end
+	sbvars(m,mo)
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
-	if m and m.valid then
-		m.fuse = 45
-		m.momx = $+mo.momx/2
-		m.momy = $+mo.momy/2
-		S_StartSoundAtVolume(m,sfx_s3kb8,190)
-	end
+	sbvars(m,mo)
 	//Thrust
 	if not(P_IsObjectOnGround(mo))
 		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*5)

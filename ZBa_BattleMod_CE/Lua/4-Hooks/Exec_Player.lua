@@ -103,11 +103,24 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	B.PlayerCreditPusher(target.player,inflictor)
 	B.PlayerCreditPusher(target.player,source)
 	
+	if inflictor.hit_sound and target and target.valid
+		S_StartSound(target, inflictor.hit_sound)
+	end
+	
 	local player = target.player
 	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON//no more arma revenge boom
 		player.powers[pw_shield] = SH_PITY
 	end
 end,MT_PLAYER)
+
+addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
+	if not target and target.valid return end
+	if target.player return end
+	
+	if inflictor.hit_sound and target and target.valid
+		S_StartSound(target, inflictor.hit_sound)
+	end
+end)
 
 //Player death
 addHook("MobjDeath",function(target,inflictor,source,damagetype)

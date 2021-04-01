@@ -31,7 +31,7 @@ mobjinfo[MT_ITEM_PRESPAWN] = {
         dispoffset = 0,
         mass = 100,
         activesound = sfx_None,
-        flags = MF_SPECIAL|MF_NOGRAVITY|MF_BOUNCE,
+        flags = MF_SPECIAL|MF_NOGRAVITY|MF_BOUNCE|MF_NOBLOCKMAP,
         raisestate = S_NULL
 }
 

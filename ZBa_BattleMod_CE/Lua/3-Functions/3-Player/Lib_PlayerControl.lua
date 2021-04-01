@@ -126,7 +126,7 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 		player.actionstate = 0
 		player.actiontime = 0
 	end
-	player.exhaustmeter = FRACUNIT
+	//player.exhaustmeter = FRACUNIT
 	player.otherscore = nil
 end
 
@@ -336,6 +336,10 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force)
 	if not(player.actionsuper) then
 		player.actionstate = 0
 	end
+	
+	S_StartSound(player.mo, sfx_s3k98)
+	S_StartSoundAtVolume(player.mo, sfx_kc38, 70)
+	
 	if force == true then
 		P_InstaThrust(player.mo,angle,thrust)
 	end
@@ -348,6 +352,8 @@ B.Tumble = function(player)
 	local mo = player.mo
 	
 	if player.tumble > 0
+		
+		//End tumble
 		if player.isjettysyn
 			or player.powers[pw_carry]
 			or P_PlayerInPain(player)
@@ -355,32 +361,64 @@ B.Tumble = function(player)
 			player.tumble = 0
 			player.lockmove = false
 			player.drawangle = mo.angle
-			B.ResetPlayerProperties(player,false,false)
-			
+			S_StopSoundByID(mo, sfx_kc38)
+		
+		//Do tumble animation
 		else
-			if P_IsObjectOnGround(mo) and (mo.momz * P_MobjFlip(mo) <= 0)
-				S_StartSound(mo, sfx_s3k49)
-				B.ZLaunch(mo, 6*FRACUNIT, true)
+			if mo.tumble_prevmomz == nil
+				mo.tumble_prevmomz = mo.momz
 			end
 			
-			player.powers[pw_nocontrol] = max($, 2)
-			player.panim = PA_PAIN
-			player.mo.state = S_PLAY_PAIN
+			if P_IsObjectOnGround(mo) and (mo.momz * P_MobjFlip(mo) <= 0)
+				S_StartSound(mo, sfx_s3k49)
+				mo.momz = mo.tumble_prevmomz * -2/3
+				
+				if mo.momz * P_MobjFlip(mo) < 6 * FRACUNIT
+					mo.momz = 6 * FRACUNIT * P_MobjFlip(mo)
+				elseif mo.momz * P_MobjFlip(mo) > 13 * FRACUNIT
+					mo.momz = 13 * FRACUNIT * P_MobjFlip(mo)
+				end
+			end
 			
-			player.lockmove = true
+			mo.tumble_prevmomz = mo.momz
+			
 			player.tumble = $ - 1
 			if player.tumble <= 0
+				
 				player.tumble = -1
 				player.lockmove = false
 				player.drawangle = mo.angle
+				S_StopSoundByID(mo, sfx_kc38)
+				player.panim = PA_FALL
 				B.ResetPlayerProperties(player,false,false)
+				if P_IsObjectOnGround(mo)
+					mo.state = S_PLAY_FALL
+				end
+				
 			else
+				player.powers[pw_nocontrol] = max($, 2)
+				player.lockmove = true
+				player.panim = PA_PAIN
+				player.mo.state = S_PLAY_PAIN
+				
 				player.airdodge_spin = $ + ANGLE_45
 				player.drawangle = mo.angle + player.airdodge_spin
+
+				if not (player.tumble % 4)// and not P_PlayerInPain(player)
+					local g = P_SpawnGhostMobj(mo)
+					g.color = SKINCOLOR_BLACK
+					g.colorized = true
+					g.destscale = g.scale * 2
+				end
 			end
 		end
 	end
 end
+/*
+B.TestScript = function(player)
+	B.ZLaunch(player.mo, 8*FRACUNIT)
+	B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
+end*/
 
 B.PlayerCreditPusher = function(player,source)
 	if source and source.valid and source.player

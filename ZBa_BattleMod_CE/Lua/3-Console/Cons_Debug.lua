@@ -25,10 +25,3 @@ COM_AddCommand("test",function(player)
 		CONS_Printf(player,"No test script available for loading.")
 	end
 end,1)
-
-/*
-B.TestScript = function(player)
-	P_SetObjectMomZ(player.mo, 10*FRACUNIT)
-	B.DoPlayerTumble(player, 45, 0, 10*FRACUNIT, true)
-end
-*/
