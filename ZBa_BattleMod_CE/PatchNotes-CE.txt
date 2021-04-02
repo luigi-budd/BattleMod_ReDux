@@ -135,6 +135,7 @@ Misc.
 	Lowered the height at which Tails Doll floats
 	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
 	Lowered the default priority of non-attraction shot homing attacks: (1/2 -> 1/1)
+	Added sound effects to various projectiles on a successful hit
 
 Modding functionality
 	Added new skinvars: func_collide, func_exhaust
@@ -150,10 +151,13 @@ Modding functionality
 			mo.block_stun - amount of horizontal thrust to apply on block (will be multiplied by scale later)
 			mo.block_hthrust - amount of horizontal thrust to apply on block (will be multiplied by scale later)
 			mo.block_vthrust - amount of vertical thrust to apply on block (will be multiplied by scale later)
+	Added mo.hit_sound for projectiles (sound to play on successful hit)
 	Added the mo.cantouchteam variable, which allows for friendly projectiles to interact with teammates. This can be used for support purposes, like with love hearts
 	Added the mo.name variable, which allows projectiles and other hazardous items to bypass the mo.info.name variable in the hitfeed
 
 Maintenance
+	Added an error message when BattleMod is loaded after another version of BattleMod is loaded
+	Fixed an issue where bubble items were in the blockmap
 	Fixed an issue where projectiles would disappear when they touched teammates
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
 	Fixed an issue where Metal Sonic would not exit the "spinning" state when using Energy Attack, which allowed him to attack during his falling animation

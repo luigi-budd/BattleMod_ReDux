@@ -30,6 +30,11 @@ B.SPriority_TailBounce = function(mo,other)
 	else return true end
 end
 
+B.SPriority_SpringDrop = function(mo,other)
+	if (B.GetZCollideAngle(mo,other) < ANGLE_22h) then return false
+	else return true end
+end
+
 /*
 B.SPriority_StompDamage = function(mo,other)
 	local bottomheight = mo.z
@@ -78,5 +83,6 @@ Add("knuckles_glide",B.SPriority_Glide)
 Add("amy_twinspin",B.SPriority_TwinSpin)
 Add("amy_melee",B.SPriority_Melee)
 Add("fang_tailbounce",B.SPriority_TailBounce)
+Add("fang_springdrop",B.SPriority_SpringDrop)
 Add("can_damage",B.SPriority_CanDamage)
 //Add("stomp_damage",B.SPriority_StompDamage)

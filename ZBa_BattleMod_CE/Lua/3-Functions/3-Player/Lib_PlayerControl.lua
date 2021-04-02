@@ -362,6 +362,7 @@ B.Tumble = function(player)
 			player.lockmove = false
 			player.drawangle = mo.angle
 			S_StopSoundByID(mo, sfx_kc38)
+			B.ResetPlayerProperties(player,false,false)
 		
 		//Do tumble animation
 		else
@@ -381,7 +382,7 @@ B.Tumble = function(player)
 			end
 			
 			mo.tumble_prevmomz = mo.momz
-			
+
 			player.tumble = $ - 1
 			if player.tumble <= 0
 				
@@ -397,7 +398,6 @@ B.Tumble = function(player)
 				
 			else
 				player.powers[pw_nocontrol] = max($, 2)
-				player.lockmove = true
 				player.panim = PA_PAIN
 				player.mo.state = S_PLAY_PAIN
 				

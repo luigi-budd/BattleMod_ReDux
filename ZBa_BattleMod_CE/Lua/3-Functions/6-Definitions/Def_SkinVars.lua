@@ -65,8 +65,9 @@ S["fang"] = {
 	flags = SKINVARS_GUARD|SKINVARS_GUNSLINGER|SKINVARS_NOSPINSHIELD,
 	weight = 100,
 	shields = 1,
-	special = Act.DodgeRoll,
+	special = Act.CombatRoll,
 	guard_frame = 1,
+	func_priority_ext = Act.CombatRoll_Priority,
 	sprites = {
 		S_FANGCHAR_AIRFIRE1,
 		S_FANGCHAR_AIRFIRE2
