@@ -41,6 +41,6 @@ rawset(_G,"SKINVARS_ROSY",			1<<3)
 
 
 //Version Info
-B.VersionNumber = "CE v3"
-B.VersionSub = 2
-B.VersionDate = "3/22/2021"
+B.VersionNumber = "CE v4"
+B.VersionSub = 0
+B.VersionDate = "4/2/2021"
