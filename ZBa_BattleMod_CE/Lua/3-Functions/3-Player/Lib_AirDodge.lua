@@ -39,6 +39,20 @@ B.AirDodge = function(player)
 		mo.state = S_PLAY_FALL
 		player.airgun = false
 		
+		//Release carried player
+		for otherplayer in players.iterate
+			local partner = otherplayer.mo
+			if not(
+				partner and partner.valid
+				and partner.tracer == mo
+				and otherplayer.powers[pw_carry] == CR_PLAYER
+			)
+				continue
+			end
+			partner.tracer = nil
+			otherplayer.powers[pw_carry] = 0
+		end
+		
 		//Launch
 		local momz = dodge_momz*FRACUNIT/B.WaterFactor(mo)
 		P_SetObjectMomZ(mo, momz, false)
