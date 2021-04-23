@@ -252,7 +252,7 @@ B.MyTeam = function(player,myplayer) //Also accepts player.mo
 		end
 	end
 	//Battle check
-	if (B.BattleGametype() or G_RingSlingerGametype()) and not(G_GametypeHasTeams()) then
+	if not(gametyperules & (GTR_FRIENDLY | GTR_TEAMS)) then
 		return false
 	end
 	//default
