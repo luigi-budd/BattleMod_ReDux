@@ -2,6 +2,7 @@ local B = CBW_Battle
 local CV = B.Console
 
 local intangible_time = 14
+local intangible_time_gotflag = 9
 local dodge_endlag = TICRATE
 local dodge_momz = 7
 local dodge_thrust = 15
@@ -11,6 +12,11 @@ B.AirDodge = function(player)
 		return
 	end
 	local mo = player.mo
+	
+	local intangible_time_real = intangible_time
+	if player.gotflagdebuff
+		intangible_time_real = intangible_time_gotflag
+	end
 	
 	if B.ButtonCheck(player, player.battleconfig_guard) == 1 
 		and player.mo.state != S_PLAY_PAIN
@@ -54,19 +60,25 @@ B.AirDodge = function(player)
 		end
 		
 		//Launch
-		local momz = dodge_momz*FRACUNIT/B.WaterFactor(mo)
-		P_SetObjectMomZ(mo, momz, false)
-		if neutral
-			mo.momx = $ / 2
-			mo.momy = $ / 2
-		else
-			P_InstaThrust(mo,angle,mo.scale*dodge_thrust)
+		local dodge_momz_real = dodge_momz*FRACUNIT/B.WaterFactor(mo)
+		local dodge_thrust_real = mo.scale*dodge_thrust
+		if player.gotflagdebuff
+			dodge_momz_real = $ * 3/4
+			dodge_thrust_real = $ * 2/3
+		end
+		
+		P_SetObjectMomZ(mo, dodge_momz_real, false)
+		
+		mo.momx = $ / 4
+		mo.momy = $ / 4
+		if not neutral
+			P_Thrust(mo,angle,dodge_thrust_real)
 		end
 		player.drawangle = mo.angle
 		
 		//SFX
 		S_StartSound(mo, sfx_s3k47)
-		S_StartSoundAtVolume(mo, sfx_nbmper, 120)
+		S_StartSoundAtVolume(mo, sfx_nbmper, 125)
 		
 		//Sparkle
 		local sparkle = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SUPERSPARK)
@@ -77,6 +89,8 @@ B.AirDodge = function(player)
 		sparkle.momz = mo.momz * 2/3
 	end
 	
+	
+	//Airdodge is in progress
 	if player.airdodge != 0
 		if player.isjettysyn
 			or player.powers[pw_carry]
@@ -89,7 +103,7 @@ B.AirDodge = function(player)
 		elseif player.airdodge > 0
 			player.lockmove = true
 			player.airdodge = $ + 1
-			if player.airdodge <= intangible_time
+			if player.airdodge <= intangible_time_real
 				if (player.airdodge % 4) == 3
 					mo.colorized = true
 					mo.color = SKINCOLOR_WHITE
@@ -124,7 +138,7 @@ B.AirDodge = function(player)
 		mo.airdodgecolor = false
 	end
 	
-	if (player.airdodge > 0 and player.airdodge <= intangible_time)
+	if (player.airdodge > 0 and player.airdodge <= intangible_time_real)
 		player.intangible = true
 	else
 		player.intangible = false
