@@ -14,6 +14,7 @@ B.AirDodge = function(player)
 	
 	if B.ButtonCheck(player, player.battleconfig_guard) == 1 
 		and player.mo.state != S_PLAY_PAIN
+		and player.mo.state != S_PLAY_STUN
 		and player.airdodge == 0
 		and player.playerstate == PST_LIVE
 		and not player.exiting
