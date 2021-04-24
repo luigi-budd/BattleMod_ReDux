@@ -80,15 +80,15 @@ B.PlayerThinkFrame = function(player)
 	A.RingSpill(player)
 	B.PlayerMovementControl(player)
 	
-	//Perform Actions
-	local doaction = B.ButtonCheck(player,player.battleconfig_special)
-	B.MasterActionScript(player,doaction)
-	
 	//Guard, Stun Break
 	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 	B.Guard(player,doguard)	
 	B.StunBreak(player,doguard)
 	B.AirDodge(player,doguard)
+	
+	//Perform Actions
+	local doaction = B.ButtonCheck(player,player.battleconfig_special)
+	B.MasterActionScript(player,doaction)
 	
 	//Tumble state
 	B.Tumble(player)

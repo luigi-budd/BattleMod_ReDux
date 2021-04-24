@@ -18,7 +18,8 @@ B.AirDodge = function(player)
 		intangible_time_real = intangible_time_gotflag
 	end
 	
-	if B.ButtonCheck(player, player.battleconfig_guard) == 1 
+	if B.ButtonCheck(player, player.battleconfig_guard) == 1
+		and (CV.Guard.value)
 		and player.mo.state != S_PLAY_PAIN
 		and player.mo.state != S_PLAY_STUN
 		and player.airdodge == 0
@@ -30,12 +31,15 @@ B.AirDodge = function(player)
 		and not player.isjettysyn
 		and not player.revenge
 		and not player.powers[pw_nocontrol]
+		and not player.powers[pw_carry]
 		and not P_IsObjectOnGround(mo)
 		
 		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
 		angle = $ + (player.cmd.angleturn << FRACBITS)
 		
-		local neutral = (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
+		if player.battleconfig_dodgecamera or (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
+			angle = mo.angle
+		end
 		
 		player.airdodge = 1
 		player.airdodge_spin = ANGLE_90 + ANG10
@@ -71,9 +75,9 @@ B.AirDodge = function(player)
 		
 		mo.momx = $ / 4
 		mo.momy = $ / 4
-		if not neutral
+		//if not neutral
 			P_Thrust(mo,angle,dodge_thrust_real)
-		end
+		//end
 		player.drawangle = mo.angle
 		
 		//SFX

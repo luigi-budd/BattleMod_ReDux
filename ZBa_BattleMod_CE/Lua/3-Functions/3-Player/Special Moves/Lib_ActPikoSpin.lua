@@ -1,20 +1,13 @@
 local B = CBW_Battle
 
 local specialstate = 1
-local cooldown = TICRATE*2
+local cooldown = TICRATE*7/4
 local specialtime = 20
 local specialendtime = 24
 local thrust = FRACUNIT*2
 local friction = FRACUNIT*10/10
 local zfriction = FRACUNIT*9/10
 local limit = FRACUNIT*36
-
-local function ZLaunch(mo,thrust,relative)
-	if mo.eflags&MFE_UNDERWATER
-		thrust = $*3/5
-	end
-	P_SetObjectMomZ(mo,thrust,relative)
-end
 
 B.Action.PikoSpin_Priority = function(player)
 	if player.actionstate == specialstate
@@ -40,7 +33,7 @@ local DoThrust = function(mo)
 	P_Thrust(mo,mo.angle,thrust)
 	B.ControlThrust(mo,friction,limit,zfriction,nil)
 	if not P_IsObjectOnGround(mo)
-		B.ZLaunch(mo, FRACUNIT/3, true)
+		B.ZLaunch(mo, FRACUNIT/2, true)
 	end
 end
 
@@ -75,6 +68,7 @@ B.Action.PikoSpin = function(mo,doaction)
 			player.actionstate = specialstate
 			player.actiontime = 0
 			mo.momz = $ / 2
+			P_InstaThrust(mo, mo.angle, 10*FRACUNIT)
 			DoThrust(mo)
 			S_StartSoundAtVolume(mo,sfx_3db16,130)
 			S_StartSound(mo,sfx_s3ka0)
@@ -97,7 +91,7 @@ B.Action.PikoSpin = function(mo,doaction)
 		player.actionstate = $ + 1
 		player.actiontime = 0
 		player.drawangle = mo.angle
-		ZLaunch(mo, FRACUNIT*3, true)
+		B.ZLaunch(mo, FRACUNIT*3, true)
 		mo.momx = $ * 2/3
 		mo.momy = $ * 2/3
 		player.melee_state = st_release

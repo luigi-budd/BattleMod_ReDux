@@ -153,7 +153,7 @@ local function newGunslinger(player)
 			player.drawangle = mo.angle
 			//Air function
 			if not(P_IsObjectOnGround(mo))
-				player.pflags = $|PF_THOKKED
+				B.ResetPlayerProperties(player,false,true)
 				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*10)
 				P_SetObjectMomZ(mo,FRACUNIT*5,true)
 				mo.momx = $/2

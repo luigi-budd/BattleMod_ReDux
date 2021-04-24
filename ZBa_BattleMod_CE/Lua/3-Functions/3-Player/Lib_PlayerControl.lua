@@ -60,6 +60,9 @@ B.InitPlayer = function(player)
 	end
 	
 	//Player Config
+	if player.battleconfig_dodgecamera == nil
+		player.battleconfig_dodgecamera = true
+	end
 	if player.battleconfig_guard == nil then
 		player.battleconfig_guard = BT_FIRENORMAL
 	end

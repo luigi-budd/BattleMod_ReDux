@@ -48,6 +48,20 @@ local print_help = function(player)
 	CONS_Printf(player,"Valid arguments: jump, spin, fire, firenormal, tossflag, camleft, camright, custom1, custom2, custom3, nextweapon, prevweapon, weapon1, weapon2, weapon3, weapon4, weapon5, weapon6, weapon7")
 end
 
+COM_AddCommand("battleconfig_dodgecamera", function(player, arg)
+	if not(player and player.valid) then
+		CONS_Printf(player,"Please wait until inside a game to use this command.")
+		return
+	end
+	if arg == "true" or arg == "1" or arg == "on" or arg == "yes" then
+		player.battleconfig_dodgecamera = true
+	elseif arg == "false" or arg == "0" or arg == "off" or arg == "no" then	
+		player.battleconfig_dodgecamera = false
+	else
+		CONS_Printf(player,"battleconfig_dodgecamera <on/off> default on")
+	end
+end,0)
+
 COM_AddCommand("battleconfig_autospectator", function(player, arg)
 	if not(player and player.valid) then
 		CONS_Printf(player,"Please wait until inside a game to use this command.")

@@ -50,17 +50,27 @@ local glide = function(player)
 	end
 	local mo = player.mo
 	if (mo.state == S_PLAY_GLIDE or mo.state == S_PLAY_SWIM) and player.glidetime and not P_IsObjectOnGround(mo)
+		if player.glidetime > 16 //Downward force when gliding very slowly
+			if (player.speed < 12 * FRACUNIT)
+				P_SetObjectMomZ(mo, FRACUNIT * -3/4, true)
+			elseif (player.speed < 24 * FRACUNIT)
+				P_SetObjectMomZ(mo, FRACUNIT * -1/2, true)
+			end
+		end
+	end
+end
+
+local legacykill = function(player)
+	local mo = player.mo
+	if not (mo and mo.valid) return end
+	
+	local glide = ((mo.state == S_PLAY_GLIDE or mo.state == S_PLAY_SWIM) and player.glidetime and not P_IsObjectOnGround(mo))
+	local hammer = (mo.state == S_PLAY_MELEE or mo.state == S_PLAY_MELEE_LANDING or mo.state == S_PLAY_MELEE_FINISH)
+	
+	if glide or hammer
 		if not (player.pflags & PF_DIRECTIONCHAR)//Begin directionchar gliding
 			player.waslegacy = true
 			player.pflags = $ | PF_DIRECTIONCHAR
-		end
-		
-		if player.glidetime > 16 //Downward force when gliding very slowly
-			if (player.speed < 12 * FRACUNIT)
-				P_SetObjectMomZ(mo, FRACUNIT * -1, true)
-			elseif (player.speed < 24 * FRACUNIT)
-				P_SetObjectMomZ(mo, FRACUNIT * -2/3, true)
-			end
 		end
 		
 	elseif player.waslegacy//End directionchar gliding
@@ -115,6 +125,17 @@ local exhaust = function(player)
 	
 	//Common exhaust states
 	local warningtic = FRACUNIT/3
+	if player.pflags & PF_STARTDASH
+		override = true
+		local maxtime = 7*TICRATE
+		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
+		if player.exhaustmeter <= 0
+			player.exhaustmeter = FRACUNIT
+			player.pflags = $ & ~(PF_STARTDASH|PF_SPINNING)
+			mo.state = S_PLAY_STND
+		end
+		
+	end
 	if player.powers[pw_carry] == CR_MACESPIN and player.mo.tracer
 		local maxtime = 4*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
@@ -134,6 +155,13 @@ local exhaust = function(player)
 		end
 	end
 	if player.charability == CA_GLIDEANDCLIMB
+		if player.climbing == 5
+			if player.exhaustmeter and (player.exhaustmeter > warningtic) then
+				player.exhaustmeter = max(warningtic,$-FRACUNIT/4)
+			else
+				player.exhaustmeter = max(0,$-FRACUNIT/4)
+			end
+		end
 		if (mo.state == S_PLAY_GLIDE or mo.state == S_PLAY_SWIM) and not P_IsObjectOnGround(mo)
 			local maxtime = 5*TICRATE
 			player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
@@ -144,16 +172,8 @@ local exhaust = function(player)
 				player.glidetime = 0
 			end
 		elseif player.climbing
-			if player.climbing == 5 then
-				if player.exhaustmeter and (player.exhaustmeter > warningtic) then
-					player.exhaustmeter = max(warningtic,$-FRACUNIT/4)
-				else
-					player.exhaustmeter = max(0,$-FRACUNIT/4)
-				end
-			else
-				local maxtime = 8*TICRATE
-				player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
-			end
+			local maxtime = 8*TICRATE
+			player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 			if player.exhaustmeter <= 0
 				//player.exhaustmeter = FRACUNIT
 				player.climbing = 0
@@ -217,6 +237,13 @@ local exhaust = function(player)
 	end
 end
 
+local flashingnerf = function(player)
+	if not B.BattleGametype() return end
+	if player.powers[pw_flashing] < (3 * TICRATE - 1)
+		player.powers[pw_flashing] = min($, 2*TICRATE)
+	end
+end
+
 B.CharAbilityControl = function(player)
 	B.ArmaCharge(player)
 	glide(player)
@@ -225,6 +252,8 @@ B.CharAbilityControl = function(player)
 	//pogo(player)
 	weight(player)
 	exhaust(player)
+	legacykill(player)
+	flashingnerf(player)
 end
 
 B.MidAirAbilityAllowed = function(player)

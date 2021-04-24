@@ -43,6 +43,11 @@ end,MT_NULL)
 //Sonic ground pound
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit00
+	mo.blockable = 1
+	mo.block_stun = 3
+	mo.block_sound = sfx_s3k49
+	mo.block_hthrust = 2
+	mo.block_vthrust = 5
 end,MT_GROUNDPOUND)
 
 
@@ -71,6 +76,11 @@ end,MT_SONICBOOM)
 //Knux rocks
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit00
+	mo.blockable = 1
+	mo.block_stun = 3
+	mo.block_sound = sfx_s3k49
+	mo.block_hthrust = 4
+	mo.block_vthrust = 4
 end,MT_ROCKBLAST)
 
 

@@ -101,10 +101,11 @@ B.HammerControl = function(player)
 		if not(player.cmd.buttons&BT_SPIN)
 			S_StartSound(mo,sfx_s3k42)
 			if player.melee_charge >= FRACUNIT
-				B.ZLaunch(mo, FRACUNIT*3, true)
+				B.ZLaunch(mo, FRACUNIT*5, true)
 			else
-				B.ZLaunch(mo, FRACUNIT*2, true)
+				B.ZLaunch(mo, FRACUNIT*3, true)
 			end
+			P_Thrust(mo, player.drawangle, 5*FRACUNIT)
 			player.melee_state = st_release
 			mo.state = S_PLAY_MELEE
 		elseif player.melee_charge >= FRACUNIT
@@ -116,11 +117,11 @@ B.HammerControl = function(player)
 		if player.melee_state == st_jump or player.cmd.buttons&BT_JUMP
 			//Hammer jump
 			P_DoJump(player,false)
-			B.ZLaunch(mo,FRACUNIT*27/2,false)
-			P_Thrust(mo,player.drawangle,6*mo.scale)
+			B.ZLaunch(mo,FRACUNIT*12,false)
+			P_Thrust(mo,player.drawangle,3*mo.scale)
 			S_StartSound(mo,sfx_cdfm37)
 			S_StartSound(mo,sfx_s3ka0)
-			player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
+			player.pflags = ($ | PF_JUMPED | PF_THOKKED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
 			mo.state = S_PLAY_ROLL
 			player.panim = PA_ROLL
 		elseif player.melee_charge >= FRACUNIT
@@ -138,6 +139,11 @@ B.ChargeHammer = function(player)
 	or not(P_IsObjectOnGround(mo))
 	or not(player.melee_state or not(player.pflags&PF_USEDOWN))
 	return end
+	
+	//Angle adjustment
+	if player.thinkmoveangle
+		player.drawangle = player.thinkmoveangle
+	end
 
 	//Start Charge
 	if player.melee_state == st_idle
@@ -148,7 +154,7 @@ B.ChargeHammer = function(player)
 	//Jump cancel
 	if player.melee_state == st_hold and player.cmd.buttons&BT_JUMP
 		S_StartSound(mo,sfx_s3k42)
-		B.ZLaunch(mo, FRACUNIT*2, true)
+		B.ZLaunch(mo, FRACUNIT*3, true)
 		player.melee_state = st_jump
 	end	
 	
@@ -167,7 +173,7 @@ B.ChargeHammer = function(player)
 	//Hold Charge
 	if player.melee_charge < FRACUNIT
 		//Add Charge
-		local chargetime = 20
+		local chargetime = 22
 		player.melee_charge = $+FRACUNIT/chargetime
 		local offset_angle = player.drawangle + ANGLE_180
 		local offset_dist = mo.radius*3
@@ -213,9 +219,5 @@ B.ChargeHammer = function(player)
 	mo.state = S_PLAY_MELEE
 	mo.frame = 0
 	player.charability2 = CA2_NONE //Make Amy vulnerable during holding frames
-	//Angle adjustment
-	if player.thinkmoveangle
-		player.drawangle = player.thinkmoveangle
-	end
 	return true
 end

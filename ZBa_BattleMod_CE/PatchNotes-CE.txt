@@ -1,12 +1,16 @@
 Version CE-v5
 
-New ability: Stun Break (costs 30 rings)
+New ability: Stun Break (costs 20 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
 	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
 	
 New ability: Air Dodge
 	Press the parry button in midair to avoid damage
 	It also gives a small boost in any direction
+	The dodge's invulnerability and dodge distance are reduced while holding the flag/diamond
+	
+Added console command: battleconfig_dodgecamera (default: on)
+	If disabled, air dodge and stun break can be angled towards the player's movement direction.
 	
 New ability: Shield Swap
 	Press the Toss Flag button (while not holding a flag) to switch to your reserve shield
@@ -39,9 +43,14 @@ Item Bubbles
 
 Sonic
 	Thok actionspeed increased: (40 -> 42)
+	Super Spin Jump
+		Priority reduced (2/2 -> 1/2)
 	Ground Pound
 		Cooldown increased: (1.5s -> 2s)
-		Horizontal speed retained after hitting the floor reduced: (25% -> 16.7%)
+		Projectiles are blockable by 1 defense or more
+		Priority when falling reduced (2/2 -> 1/2)
+		Upwards momentum at the start of the ground pound increased
+		If jump is held, Sonic can bounce forwards after a ground pound
 
 Tails
 	Tails cannot carry exhausted teammates
@@ -62,14 +71,26 @@ Knuckles
 	Dig
 		Renamed Dig to Drill Dive when in midair
 		Drill Dive can now be performed when Knuckles is in goop water
-		Reduced cooldown after a Dig cancel: (1s -> 0.67s)
-		Knuckles can now cancel drill dive with a glide
+		Knuckles can now cancel drill dive with a glide (1s cooldown)
+		Rock Blast:
+			Rock projectiles are now blockable by 1 defense or more
+			Cooldown: (3s+ dig time -> 3s, 4s if jumped)
+			Rock Blast Jump:
+				Reduced jump height
+				Added a sound effect to Rock Blast jump
+				When used, Knuckles's horizontal speed is cut by 2/3
+			Knuckles now curls after a rock blast
+			Knuckles can now glide for a very short time after a Rock Blast
+		Emerge:
+			When used, Knuckles's horizontal speed is cut by 2/3
+			Launch height increased
 
 Amy
 	Slightly adjusted the knockback of blocked love hearts (it should be nearly identical)
 	New air ability: Twinspin Jump
 		Acts like a standard double jump, but uses the hammer as well
 	Piko Hammer (grounded)
+		When swinging the hammer, Amy behaves as if Legacy mode is disabled
 		Can now be charged - fully charging the attack unleashes Piko Wave, an attack that creates a huge wave of heart projectiles which can also shield teammates
 		Can now perform a hammer flip by pressing the jump button while using Piko Hammer
 	New special ability: Piko Spin
@@ -125,9 +146,9 @@ Maps
 	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
 
 Misc.
-	In any mode, except during Sudden Death, killing another player awards the killer 10 rings
+	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
+	Players can now exhaust while charging a spindash for a very long time
 	Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
-	Increased the respawn timer for spikes: (3s -> 10s)
 	Increased the exhaustion rate of CEZ swings
 	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
 	In team modes, all shields are team colored
@@ -136,6 +157,7 @@ Misc.
 	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
 	Lowered the default priority of non-attraction shot homing attacks: (1/2 -> 1/1)
 	Added sound effects to various projectiles on a successful hit
+	Increased the respawn timer for spikes: (3s -> 10s)
 
 Modding functionality
 	Added new skinvars: func_collide, func_exhaust

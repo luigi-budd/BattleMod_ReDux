@@ -5,19 +5,18 @@ local state_superspinjump = 1
 local state_groundpound_rise = 2
 local state_groundpound_fall = 3
 local jumpthrust = 42*FRACUNIT
-local pound_startthrust = 10*FRACUNIT
+local pound_startthrust = 12*FRACUNIT
 local pound_downaccel = FRACUNIT*4//4
 local jumpfriction = FRACUNIT*9/10
 local poundfriction = FRACUNIT
-local reboundthrust = 10
+local reboundthrust = 9
+local reboundthrust2 = 16
 
 B.Action.SuperSpinJump_Priority = function(player)
 	if player.actionstate == state_superspinjump then
-		B.SetPriority(player,2,2,nil,2,2,"super spin jump")
-	elseif player.actionstate == state_groundpound_rise then
-		B.SetPriority(player,1,2,nil,1,2,"rising ground pound")
-	elseif player.actionstate == state_groundpound_fall then
-		B.SetPriority(player,2,2,nil,2,2,"ground pound")
+		B.SetPriority(player,1,2,nil,1,2,"super spin jump")
+	elseif player.actionstate == state_groundpound_rise or player.actionstate == state_groundpound_fall then
+		B.SetPriority(player,1,2,nil,1,2,"ground pound")
 	end
 end
 
@@ -70,6 +69,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			end
 		end
 	return end
+	
 	//Ground pound phase 1
 	if player.actionstate == state_groundpound_rise 
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
@@ -88,18 +88,37 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		else
 			P_SetObjectMomZ(mo,-pound_downaccel/water,true)
 			if mo.eflags&MFE_JUSTHITFLOOR then //We have hit a surface
-				endgroundpound = true
-				thrust = reboundthrust*FRACUNIT/water
-				P_SetObjectMomZ(mo,thrust,true) //Inherit platform momentum
+				endgroundpound = false
+				local blastspeed = 4
+				local fuse = 10
+				if (player.cmd.buttons & BT_JUMP)
+					blastspeed = 2
+					fuse = 6
+					S_StartSound(mo, sfx_jump)
+					S_StartSound(mo, sfx_s3kae)
+					B.ZLaunch(mo,reboundthrust2*FRACUNIT,true)
+					mo.state = S_PLAY_JUMP
+					player.pflags = $&~PF_THOKKED
+					B.ResetPlayerProperties(player,true,false)
+					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/5)
+					P_Thrust(mo,mo.angle,12*FRACUNIT)
+					player.drawangle = mo.angle
+				else
+					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/3)
+					B.ZLaunch(mo,reboundthrust*FRACUNIT,true)
+					player.state = S_PLAY_SPRING
+					//player.pflags = $|PF_JUMPED|PF_NOJUMPDAMAGE
+				end
+				player.pflags = $&~PF_SPINNING
+				
 				S_StartSound(mo,sfx_s3k5f)
-				player.state = S_PLAY_SPRING
-				P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/6)
+				
 				//Create projectile blast
 				for n = 0, 23
 					local p = P_SPMAngle(mo,MT_GROUNDPOUND,mo.angle+n*ANG15,0)
 					if p and p.valid then
-						p.momz = mo.scale*P_MobjFlip(mo)*2/water
-						p.fuse = TICRATE/3
+						p.momz = mo.scale*P_MobjFlip(mo)*blastspeed/water
+						p.fuse = fuse
 -- 						P_InstaThrust(p,p.angle,player.actiontime>>1)
 					end
 				end
@@ -109,6 +128,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		end
 		if endgroundpound //End ground pound state
 			player.actionstate = 0
+			
 			mo.state = S_PLAY_SPRING
 			if player.pflags&PF_JUMPED then
 				player.pflags = $|PF_STARTJUMP|PF_NOJUMPDAMAGE

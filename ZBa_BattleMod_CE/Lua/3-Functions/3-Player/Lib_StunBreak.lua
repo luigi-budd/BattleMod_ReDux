@@ -10,6 +10,7 @@ B.StunBreak = function(player, doguard)
 		or not P_PlayerInPain(player)
 		or not player.mo.state == S_PLAY_PAIN
 		or player.isjettysyn
+		or CV.Guard.value == 0
 		return
 	end
 	local mo = player.mo
@@ -26,7 +27,14 @@ B.StunBreak = function(player, doguard)
 	end
 	
 	//Do the stun break
-	if mo.tics <= 327 and player.tech_bfr and player.rings >= 30
+	if mo.tics <= 327 and player.tech_bfr and player.rings >= 20
+		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
+		angle = $ + (player.cmd.angleturn << FRACBITS)
+		
+		if player.battleconfig_dodgecamera
+			angle = mo.angle
+		end
+		
 		player.tech_bfr = nil
 		
 		//State and flags
@@ -35,10 +43,10 @@ B.StunBreak = function(player, doguard)
 		player.airdodge = -1
 		
 		//Launch
-		local techmomz = 9*FRACUNIT/B.WaterFactor(mo)
+		local techmomz = 7*FRACUNIT/B.WaterFactor(mo)
 		P_SetObjectMomZ(mo, techmomz, false)
-		P_InstaThrust(mo,mo.angle,FRACUNIT*12)
-		player.drawangle = mo.angle
+		P_InstaThrust(mo,angle,FRACUNIT*12)
+		player.drawangle = angle
 		
 		//SFX
 		S_StartSound(mo,sfx_cdfm66,player)
@@ -47,7 +55,7 @@ B.StunBreak = function(player, doguard)
 		
 		//Pay rings, cooldown
 		player.actioncooldown = max($, TICRATE)
-		player.rings = $ - 30
+		player.rings = $ - 20
 		
 		//Visual effects
 		local sb = P_SpawnMobjFromMobj(mo,0,0,0,MT_STUNBREAK)

@@ -1,11 +1,12 @@
 local B = CBW_Battle
-local cooldown = 3*TICRATE
-local cancelcooldown = TICRATE * 2/3
+local cooldown = TICRATE * 3
+local cooldown_bigjump = TICRATE * 4
+local cancelcooldown = TICRATE
 local state_digging = 1
 local state_drilldive = 2
 local state_burrowed = 3
 local state_rising = 4
-local setburrowtime = 22 //Time in tics before the player can move after burrowing
+local setburrowtime = TICRATE/2 //Time in tics before the player can move after burrowing
 local rockblasttime_x = 35 //Time in tics before horizontal rockblast disappears
 local rockblasttime_y = 47 //Time in tics before vertical rockblast disappears
 local zthreshold = 8 //Z Distance from ground (in fracunits) that will cause Knuckles to resurface
@@ -164,8 +165,8 @@ B.Action.Dig=function(mo,doaction)
 		player.exhaustmeter = min(FRACUNIT,$+FRACUNIT/4)
 		mo.flags = $|MF_NOCLIPTHING
 		mo.flags2 = $|MF2_DONTDRAW
-		player.pflags = $|PF_JUMPSTASIS
-		player.normalspeed = skins[mo.skin].normalspeed*3/8
+		player.pflags = ($|PF_JUMPSTASIS) & ~PF_SPINNING
+		player.normalspeed = skins[mo.skin].normalspeed*3/5
 		S_StartSound(mo,sfx_s3kccs)
 		player.canguard = 0
 		return
@@ -231,7 +232,8 @@ B.Action.Dig=function(mo,doaction)
 		B.DrawSVSprite(player,(player.actiontime/2)%4+5)
 		//End rising state
 		if P_MobjFlip(mo)*mo.momz <= 0 or P_IsObjectOnGround(mo)
-			B.ResetPlayerProperties(player,false,true)
+			B.ResetPlayerProperties(player,true,false)
+			player.exhaustmeter = FRACUNIT / 3 + 1
 		end
 	end
 	
@@ -242,7 +244,7 @@ B.Action.Dig=function(mo,doaction)
 	
 	//Eject player from burrow state
 	if trigger_eject then
-		P_SetObjectMomZ(mo,FixedMul(FRACUNIT*4,player.jumpfactor),false)
+		P_SetObjectMomZ(mo,FixedMul(FRACUNIT*6,player.jumpfactor),false)
 		B.ResetPlayerProperties(player,false,false)
 		mo.state = S_PLAY_FALL
 		S_StartSound(mo,sfx_s3k82)
@@ -250,9 +252,11 @@ B.Action.Dig=function(mo,doaction)
 			B.DoDebris(mo,P_RandomChance(FRACUNIT/2),P_RandomRange(5,10))
 		end
 		//Apply cooldown
-		B.ApplyCooldown(player,max(cancelcooldown,getcanceltics))
+		B.ApplyCooldown(player,cancelcooldown)
 		player.powers[pw_nocontrol] = 2
 		player.actiontime = 0
+		mo.momx = $ / 3
+		mo.momy = $ / 3
 		return
 	end
 	
@@ -274,7 +278,7 @@ B.Action.Dig=function(mo,doaction)
 	//Timers
 	player.actiontime = $+1
 	if player.exhaustmeter and P_IsObjectOnGround(mo)
-		player.exhaustmeter = max(0,$-FRACUNIT/35/6)
+		player.exhaustmeter = max(0,$-FRACUNIT/TICRATE/3)
 	end
 	
 	//Smoke
@@ -289,14 +293,14 @@ B.Action.Dig=function(mo,doaction)
 	
 	//Digging state
 	if player.actionstate == state_digging
-		player.pflags = $|PF_JUMPSTASIS|PF_STASIS
+		player.pflags = $|PF_JUMPSTASIS//|PF_STASIS
 		if player.actiontime >= setburrowtime
 			player.actionstate = state_burrowed
 		end
 		B.DoDebris(mo,P_RandomChance(FRACUNIT/2),P_RandomRange(5,20))
 		return
 	end
-	player.pflags = ($|PF_JUMPSTASIS)&~PF_STASIS
+	player.pflags = ($|PF_JUMPSTASIS)//&~PF_STASIS
 
 	//Moving while burrowed
 	if abs(player.cmd.forwardmove) or abs(player.cmd.sidemove) then
@@ -306,13 +310,12 @@ B.Action.Dig=function(mo,doaction)
 			S_StartSound(mo,sfx_s3k67)
 		end
 	end
-		
+	
 	//Rock blast attack
 	if (doaction == 1)
 		then
 		player.exhaustmeter = 0
 		B.PayRings(player)
-		B.ApplyCooldown(player,getcanceltics+cooldown)
 		player.pflags = $&~PF_JUMPSTASIS
 		P_DoJump(player,false)
 		B.ResetPlayerProperties(player,true,true)
@@ -321,8 +324,14 @@ B.Action.Dig=function(mo,doaction)
 			B.DrawSVSprite(player,5)
 		end
 		if player.cmd.buttons&BT_JUMP then
+			mo.momx = $ / 3
+			mo.momy = $ / 3
 			player.pflags = $|PF_STARTJUMP|PF_JUMPDOWN
-			A_ZThrust(mo, 7, 0)
+			B.ZLaunch(mo, FRACUNIT*9/2, true)
+			B.ApplyCooldown(player,cooldown_bigjump)
+			S_StartSound(mo, sfx_s3ka0)
+		else
+			B.ApplyCooldown(player,cooldown)
 		end
 		S_StartSound(mo,sfx_s3k59)
 		for n = 0, 7

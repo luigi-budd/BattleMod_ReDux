@@ -64,6 +64,7 @@ A.ResetLives = function()
 	for player in players.iterate
 		player.revenge = false
 		player.respawnpenalty = 0
+		player.lifeshards = 0
 	end
 	if not(gametyperules&GTR_LIVES) or not(B.BattleGametype()) then return end
 	local L = CV.SurvivalStock.value
@@ -345,7 +346,7 @@ A.KillReward = function(killer)
 			killer.lifeshards = $ + 1
 		end
 		
-		killer.rings = $ + 10
+		killer.rings = $ + 20
 		S_StartSound(killer.mo, sfx_itemup, killer)
 		S_StartSound(killer.mo, sfx_s249, killer)
 		
@@ -370,7 +371,6 @@ A.KillReward = function(killer)
 			print("\x89" .. killer.name .. " earned an extra life!")
 		else
 			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_RING_ICON)
-			killer.rings = $ + 10
 			icon.scale = killer.mo.scale
 		end
 	end

@@ -33,7 +33,7 @@ local spawnheart = function(mo, launchang, anglemod, grow, zspd)
 		local thrust2 = mo.scale * 10
 		P_Thrust(hrt,launchang + anglemod,thrust2)
 		hrt.scale = mo.scale / 2
-		hrt.fuse = 50
+		hrt.fuse = 38
 		hrt.grow = grow
 		
 		if (mo.time%4) and mo.color
