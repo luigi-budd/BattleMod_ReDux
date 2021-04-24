@@ -1,4 +1,4 @@
-Version CE-v5.1
+Version CE-v5.2
 
 New ability: Stun Break (costs 20 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
@@ -73,8 +73,11 @@ Knuckles
 	Jumpfactor increased from 85% to 90%
 	Dig
 		Renamed Dig to Drill Dive when in midair
+		Knuckles can now cancel Drill Dive with a glide (1s cooldown)
+		Drill Dive now puts Knuckles in the fall state after hitting a monitor or enemy
 		Drill Dive can now be performed when Knuckles is in goop water
-		Knuckles can now cancel drill dive with a glide (1s cooldown)
+		Increased movement speed while underground
+		Reduced duration of the startup period before a Rock Blast is allowed, and allowed full movement during this period
 		Rock Blast:
 			Rock projectiles are now blockable by 1 defense or more
 			Cooldown: (3s+ dig time -> 3s, 4s if jumped)

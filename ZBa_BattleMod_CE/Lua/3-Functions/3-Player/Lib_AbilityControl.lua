@@ -127,7 +127,7 @@ local exhaust = function(player)
 	local warningtic = FRACUNIT/3
 	if player.pflags & PF_STARTDASH
 		override = true
-		local maxtime = 7*TICRATE
+		local maxtime = 5*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 		if player.exhaustmeter <= 0
 			player.exhaustmeter = FRACUNIT

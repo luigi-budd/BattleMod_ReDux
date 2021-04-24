@@ -222,7 +222,8 @@ B.Action.Dig=function(mo,doaction)
 	end
 	//Cancel drill dive
 	if trigger_drilldive_cancel then
-		B.ResetPlayerProperties(player,true,false)
+		mo.state = S_PLAY_FALL
+		B.ResetPlayerProperties(player,false,false)
 		B.ApplyCooldown(player,cancelcooldown)
 	end
 	
