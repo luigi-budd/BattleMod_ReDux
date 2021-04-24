@@ -44,10 +44,10 @@ end,MT_NULL)
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit00
 	mo.blockable = 1
-	mo.block_stun = 3
+	mo.block_stun = 4
 	mo.block_sound = sfx_s3k49
 	mo.block_hthrust = 2
-	mo.block_vthrust = 5
+	mo.block_vthrust = 6
 end,MT_GROUNDPOUND)
 
 
@@ -77,10 +77,10 @@ end,MT_SONICBOOM)
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit00
 	mo.blockable = 1
-	mo.block_stun = 3
+	mo.block_stun = 2
 	mo.block_sound = sfx_s3k49
-	mo.block_hthrust = 4
-	mo.block_vthrust = 4
+	mo.block_hthrust = 3
+	mo.block_vthrust = 3
 end,MT_ROCKBLAST)
 
 
