@@ -1,4 +1,4 @@
-Version CE-v5
+Version CE-v5.1
 
 New ability: Stun Break (costs 20 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
@@ -89,10 +89,13 @@ Amy
 	Slightly adjusted the knockback of blocked love hearts (it should be nearly identical)
 	New air ability: Twinspin Jump
 		Acts like a standard double jump, but uses the hammer as well
+		When swinging the hammer, Amy always aims towards the camera
+	Twinspin
+		When swinging the hammer, Amy always aims towards the camera
 	Piko Hammer (grounded)
-		When swinging the hammer, Amy behaves as if Legacy mode is disabled
 		Can now be charged - fully charging the attack unleashes Piko Wave, an attack that creates a huge wave of heart projectiles which can also shield teammates
 		Can now perform a hammer flip by pressing the jump button while using Piko Hammer
+		When swinging the hammer, Amy always aims towards the camera
 	New special ability: Piko Spin
 		Accelerate forwards while spinning like a top with 2/3 priority. It ends in a standard hammer swing
 		If used in midair, Amy will hover a little bit while spinning
@@ -146,6 +149,7 @@ Maps
 	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
 
 Misc.
+	Reduced mercy invincibility after taking a hit (3s -> 2s)
 	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
 	Players can now exhaust while charging a spindash for a very long time
 	Added the ability to scroll through players when spectating (uses next/previous weapon buttons)

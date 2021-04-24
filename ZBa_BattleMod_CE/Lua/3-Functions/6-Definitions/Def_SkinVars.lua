@@ -17,7 +17,7 @@ S[-1] = {
 	sprites = {}
 }
 S["sonic"] = {
-	weight = 90,
+	weight = 100,
 	shields = 1, 
 	special = Act.SuperSpinJump,
 	guard_frame = 2,
@@ -63,7 +63,7 @@ S["amy"] = {
 }
 S["fang"] = {
 	flags = SKINVARS_GUARD|SKINVARS_GUNSLINGER|SKINVARS_NOSPINSHIELD,
-	weight = 100,
+	weight = 105,
 	shields = 1,
 	special = Act.CombatRoll,
 	guard_frame = 1,
