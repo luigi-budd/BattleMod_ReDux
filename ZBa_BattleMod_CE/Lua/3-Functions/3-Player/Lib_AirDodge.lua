@@ -4,7 +4,7 @@ local CV = B.Console
 local intangible_time = 14
 local intangible_time_gotflag = 9
 local dodge_endlag = TICRATE
-local dodge_momz = 7
+local dodge_momz = 5
 local dodge_thrust = 15
 
 B.AirDodge = function(player)
@@ -67,7 +67,6 @@ B.AirDodge = function(player)
 		local dodge_momz_real = dodge_momz*FRACUNIT/B.WaterFactor(mo)
 		local dodge_thrust_real = mo.scale*dodge_thrust
 		if player.gotflagdebuff
-			dodge_momz_real = $ * 3/4
 			dodge_thrust_real = $ * 2/3
 		end
 		
