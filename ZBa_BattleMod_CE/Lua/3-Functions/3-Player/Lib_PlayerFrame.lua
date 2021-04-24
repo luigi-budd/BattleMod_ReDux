@@ -65,6 +65,9 @@ B.PlayerThinkFrame = function(player)
 	//Skinvars
 	B.GetSkinVars(player)
 	
+	//Tumble state
+	B.Tumble(player)
+	
 	//Ability control
 	B.GuardControl(player)//Guard behavior
 	B.CharAbilityControl(player)//Exhaust and ability behavior
@@ -91,9 +94,6 @@ B.PlayerThinkFrame = function(player)
 	
 	//Guard
 	B.Guard(player,doguard)
-	
-	//Tumble state
-	B.Tumble(player)
 	
 	//Abilities
 	B.HammerControl(player)

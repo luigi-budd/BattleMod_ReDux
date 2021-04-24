@@ -42,15 +42,18 @@ Item Bubbles
 	Item bubbles now create an icon when popped, like a monitor
 
 Sonic
+	Weight increased: (90 -> 95)
 	Thok actionspeed increased: (40 -> 42)
 	Super Spin Jump
 		Priority reduced (2/2 -> 1/2)
+		Added a sweetspot above Sonic with (2/2) priority
 	Ground Pound
 		Cooldown increased: (1.5s -> 2s)
-		Projectiles are blockable by 1 defense or more
 		Priority when falling reduced (2/2 -> 1/2)
+		Added a sweetspot below Sonic while falling with (2/2) priority
+		Projectiles are blockable by 1 defense or more
 		Upwards momentum at the start of the ground pound increased
-		If jump is held, Sonic can bounce forwards after a ground pound
+		If jump is held, Sonic can bounce after a ground pound
 
 Tails
 	Tails cannot carry exhausted teammates
@@ -102,9 +105,13 @@ Amy
 		While it shares the same name as her old air special, this move replaces both Piko Tornado and the previous iteration of Piko Spin
 
 Fang
+	Weight increased: (100 -> 105)
+	Air popgun no longer removes control from fang
 	Added some recoil to grounded popgun
 	Added a tiny bit of screenshake to popgun shots
 	Adjusted the popgun firing sound effect
+	New special ability: Combat Roll
+		Dash forwards in ball form with 1/1 priority. If it collides with an opponent but doesn't do damage, it can tumble them for a midair popgun followup!
 
 Metal Sonic
 	Reduced priority of a spindash charge with dashmode: (1/3 -> 1/1)

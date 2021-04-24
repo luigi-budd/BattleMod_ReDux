@@ -198,6 +198,7 @@ local function newGunslinger(player)
 	
 	//Air gunning
 	if not(P_IsObjectOnGround(mo)) and player.airgun == true and player.weapondelay
+		player.drawangle = mo.angle
 -- 		print(mo.state,B.GetSVSprite(player,1),B.GetSVSprite(player,2),player.weapondelay)
 -- 		if mo.state == B.GetSVSprite(player,1)
 		if player.weapondelay < refiretime-1 and player.weapondelay > refiretime-3

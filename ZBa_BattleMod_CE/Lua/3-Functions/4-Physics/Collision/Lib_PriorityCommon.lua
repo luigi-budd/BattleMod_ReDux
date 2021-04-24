@@ -42,6 +42,8 @@ B.Priority_Ability = function(player)
 	local spinjump = (pflags&PF_JUMPED and not(pflags&PF_NOJUMPDAMAGE))
 	local spinning = pflags&PF_SPINNING
 	
+	local super = (player.powers[pw_super])
+	local invstar = (player.powers[pw_invulnerability])
 	local homing = (player.homing)
 	local bubble = (shield==SH_BUBBLEWRAP)
 	local flame = (shield==SH_FLAMEAURA)
@@ -59,7 +61,12 @@ B.Priority_Ability = function(player)
 	local prepdash = player.dashmode > 3*TICRATE and player.pflags&PF_STARTDASH
 	local guard = (player.guard == -1)
 	
-	if guard
+	if super
+		B.SetPriority(player,99,99,nil,99,99,"super aura")
+	elseif invstar
+		B.SetPriority(player,99,99,nil,99,99,"invincibility aura")
+		
+	elseif guard
 		B.SetPriority(player,0,1,nil,0,1,"guard")
 		
 	elseif homing

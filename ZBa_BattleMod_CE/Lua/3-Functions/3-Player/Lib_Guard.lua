@@ -37,6 +37,7 @@ B.Guard = function(player,buttonpressed)
 	if not(player.playerstate == PST_LIVE) or (player.spectator) then return end
 	if P_PlayerInPain(player)
 	or not(P_IsObjectOnGround(mo) or (player.guard and nearground(mo,flip)))
+	or player.tumble
 	or not(player.canguard)
 		if player.guard != 0 then
 			if not(P_PlayerInPain(player)) and not(player.pflags&(PF_JUMPED|PF_SPINNING)) then

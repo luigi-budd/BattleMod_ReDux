@@ -1,5 +1,5 @@
 local B = CBW_Battle
-local cooldown = TICRATE*2
+local cooldown = TICRATE*5/2
 local xythrust = 24
 local zthrust = 8
 local dropspeed = 20
@@ -15,7 +15,7 @@ B.Action.CombatRoll = function(mo,doaction)
 	local drop_state = player.actionstate == 1 and bouncing
 		and P_MobjFlip(mo)*mo.momz < 0
 	local thrust_state = player.actiontime and mo.state == S_PLAY_ROLL
-		and not(P_IsObjectOnGround(mo)) and player.actiontime < 20
+		and not(P_IsObjectOnGround(mo)) and player.actiontime < 18
 	
 	//Properties
 	player.actiontext = "Combat Roll"
@@ -66,7 +66,11 @@ B.Action.CombatRoll = function(mo,doaction)
 		P_SpawnParaloop(mo.x,mo.y,mo.z,mo.scale*128,16,MT_DUST,ANGLE_90,nil,true)
 		return
 	end
-
+	
+	if thrust_state
+		player.drawangle = mo.angle
+	end
+	
 	//Reset state
 	if not(drop_state or thrust_state)
 		player.actiontime = 0
@@ -76,6 +80,34 @@ B.Action.CombatRoll = function(mo,doaction)
 		if player.actiontime%8
 			P_SpawnGhostMobj(mo)
 		end
+	end
+end
+
+local function fanghop(player)
+	local mo = player.mo
+	B.ZLaunch(mo, 7 * mo.scale, false)
+	mo.state = S_PLAY_JUMP
+	mo.momx = $ * -3/4
+	mo.momy = $ * -3/4
+	player.actionstate = 0
+	player.actiontime = 0
+	player.pflags = ($ | (PF_JUMPED | PF_STARTJUMP | PF_NOJUMPDAMAGE)) & ~PF_THOKKED
+	player.powers[pw_nocontrol] = 18
+end
+
+B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if not (plr[n1] and plr[n1].valid and plr[n1].playerstate == PST_LIVE)
+		or not mo[n1].health
+		or not (plr[n1].actiontime and mo[n1].state == S_PLAY_ROLL)
+		or pain[n1]
+		return false
+	end
+	if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2)
+		fanghop(plr[n1])
+		B.DoPlayerTumble(plr[n2], 24, angle[n1], mo[n1].scale*3, true)
+		P_InstaThrust(mo[n2], angle[n2], mo[n1].scale * 5)
+		B.ZLaunch(mo[n2], 7 * mo[n2].scale, false)
+		return true
 	end
 end
 

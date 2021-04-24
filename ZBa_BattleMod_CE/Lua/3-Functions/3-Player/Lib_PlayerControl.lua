@@ -333,6 +333,7 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force)
 	
 	player.tumble = time
 	player.airdodge_spin = 0
+	//player.powers[pw_flashing] = 0
 	
 	//player.mo.recoilangle = angle
 	//player.mo.recoilthrust = thrust
@@ -359,7 +360,7 @@ B.Tumble = function(player)
 		//End tumble
 		if player.isjettysyn
 			or player.powers[pw_carry]
-			or P_PlayerInPain(player)
+			or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
 			
 			player.tumble = 0
 			player.lockmove = false
@@ -417,11 +418,11 @@ B.Tumble = function(player)
 		end
 	end
 end
-/*
+
 B.TestScript = function(player)
 	B.ZLaunch(player.mo, 8*FRACUNIT)
 	B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
-end*/
+end
 
 B.PlayerCreditPusher = function(player,source)
 	if source and source.valid and source.player

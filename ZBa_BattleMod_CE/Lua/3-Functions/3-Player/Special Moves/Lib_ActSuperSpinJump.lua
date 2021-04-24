@@ -10,13 +10,13 @@ local pound_downaccel = FRACUNIT*4//4
 local jumpfriction = FRACUNIT*9/10
 local poundfriction = FRACUNIT
 local reboundthrust = 9
-local reboundthrust2 = 16
+local reboundthrust2 = 17
 
 B.Action.SuperSpinJump_Priority = function(player)
 	if player.actionstate == state_superspinjump then
-		B.SetPriority(player,1,2,nil,1,2,"super spin jump")
+		B.SetPriority(player,1,2,"tails_fly",2,2,"super spin jump")
 	elseif player.actionstate == state_groundpound_rise or player.actionstate == state_groundpound_fall then
-		B.SetPriority(player,1,2,nil,1,2,"ground pound")
+		B.SetPriority(player,1,2,"fang_tailbounce",2,2,"ground pound")
 	end
 end
 
@@ -98,13 +98,13 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					S_StartSound(mo, sfx_s3kae)
 					B.ZLaunch(mo,reboundthrust2*FRACUNIT,true)
 					mo.state = S_PLAY_JUMP
-					player.pflags = $&~PF_THOKKED
 					B.ResetPlayerProperties(player,true,false)
-					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/5)
-					P_Thrust(mo,mo.angle,12*FRACUNIT)
+					player.pflags = $|PF_STARTJUMP
+					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/8)
+					P_Thrust(mo,mo.angle,8*mo.scale)
 					player.drawangle = mo.angle
 				else
-					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/3)
+					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/4)
 					B.ZLaunch(mo,reboundthrust*FRACUNIT,true)
 					player.state = S_PLAY_SPRING
 					//player.pflags = $|PF_JUMPED|PF_NOJUMPDAMAGE

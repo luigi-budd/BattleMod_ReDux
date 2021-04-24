@@ -17,7 +17,7 @@ S[-1] = {
 	sprites = {}
 }
 S["sonic"] = {
-	weight = 100,
+	weight = 95,
 	shields = 1, 
 	special = Act.SuperSpinJump,
 	guard_frame = 2,
@@ -68,6 +68,7 @@ S["fang"] = {
 	special = Act.CombatRoll,
 	guard_frame = 1,
 	func_priority_ext = Act.CombatRoll_Priority,
+	func_collide = B.Fang_Collide,
 	sprites = {
 		S_FANGCHAR_AIRFIRE1,
 		S_FANGCHAR_AIRFIRE2
