@@ -11,6 +11,9 @@ local function twin(player)
 	player.frame = 0
 	player.pflags = $|PF_THOKKED|PF_NOJUMPDAMAGE
 	S_StartSound(player.mo,sfx_s3k42)
+	
+	//Angle adjustment
+	player.drawangle = player.mo.angle
 end
 
 B.TwinSpinJump = function(player) //Double jump function
@@ -50,7 +53,7 @@ end
 //Wave spawning function
 local function SpawnWave(player,angle_offset,mute)
 	local mo = player.mo
-	local wave = P_SPMAngle(mo,MT_PIKOWAVE,player.drawangle + angle_offset)
+	local wave = P_SPMAngle(mo,MT_PIKOWAVE,mo.angle + angle_offset)
 	if wave and wave.valid
 		if G_GametypeHasTeams() and player.ctfteam == 2
 			wave.teamcolor = SKINCOLOR_SAPPHIRE
@@ -67,6 +70,18 @@ local function SpawnWave(player,angle_offset,mute)
 	end
 end
 
+local function hammerjump(player)
+	local mo = player.mo
+	P_DoJump(player,false)
+	B.ZLaunch(mo,FRACUNIT*12,false)
+	P_Thrust(mo,mo.angle,3*mo.scale)
+	S_StartSound(mo,sfx_cdfm37)
+	S_StartSound(mo,sfx_s3ka0)
+	player.pflags = ($ | PF_JUMPED | PF_THOKKED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
+	mo.state = S_PLAY_ROLL
+	player.panim = PA_ROLL
+end
+
 //Hammer ticframe control
 B.HammerControl = function(player)
 	//Initialize variables
@@ -80,8 +95,15 @@ B.HammerControl = function(player)
 		player.melee_charge = 0
 		return
 	end
+	
+	if mo.state == S_PLAY_TWINSPIN
+		//Angle adjustment
+		player.drawangle = mo.angle
+		return
+	end
+	
 	player.charability2 = CA2_MELEE
-	if P_PlayerInPain(player) or player.actionstate or player.powers[pw_nocontrol] or player.playerstate != PST_LIVE
+	if P_PlayerInPain(player) or player.powers[pw_nocontrol] or player.playerstate != PST_LIVE
 		player.melee_state = st_idle
 		return
 	end
@@ -101,29 +123,22 @@ B.HammerControl = function(player)
 		if not(player.cmd.buttons&BT_SPIN)
 			S_StartSound(mo,sfx_s3k42)
 			if player.melee_charge >= FRACUNIT
-				B.ZLaunch(mo, FRACUNIT*5, true)
+				B.ZLaunch(mo, FRACUNIT*4, true)
 			else
 				B.ZLaunch(mo, FRACUNIT*3, true)
 			end
-			P_Thrust(mo, player.drawangle, 5*FRACUNIT)
+			P_Thrust(mo, mo.angle, 5*mo.scale)
 			player.melee_state = st_release
 			mo.state = S_PLAY_MELEE
 		elseif player.melee_charge >= FRACUNIT
-			B.DrawAimLine(player,player.drawangle)
+			B.DrawAimLine(player, mo.angle)
 		end
 	end
 	
 	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and P_IsObjectOnGround(mo)
 		if player.melee_state == st_jump or player.cmd.buttons&BT_JUMP
 			//Hammer jump
-			P_DoJump(player,false)
-			B.ZLaunch(mo,FRACUNIT*12,false)
-			P_Thrust(mo,player.drawangle,3*mo.scale)
-			S_StartSound(mo,sfx_cdfm37)
-			S_StartSound(mo,sfx_s3ka0)
-			player.pflags = ($ | PF_JUMPED | PF_THOKKED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
-			mo.state = S_PLAY_ROLL
-			player.panim = PA_ROLL
+			hammerjump(player)
 		elseif player.melee_charge >= FRACUNIT
 			SpawnWave(player,0,false)
 		end
@@ -141,9 +156,7 @@ B.ChargeHammer = function(player)
 	return end
 	
 	//Angle adjustment
-	if player.thinkmoveangle
-		player.drawangle = player.thinkmoveangle
-	end
+	player.drawangle = mo.angle
 
 	//Start Charge
 	if player.melee_state == st_idle
@@ -155,6 +168,7 @@ B.ChargeHammer = function(player)
 	if player.melee_state == st_hold and player.cmd.buttons&BT_JUMP
 		S_StartSound(mo,sfx_s3k42)
 		B.ZLaunch(mo, FRACUNIT*3, true)
+		P_Thrust(mo, mo.angle, 5*mo.scale)
 		player.melee_state = st_jump
 	end	
 	
@@ -175,7 +189,7 @@ B.ChargeHammer = function(player)
 		//Add Charge
 		local chargetime = 22
 		player.melee_charge = $+FRACUNIT/chargetime
-		local offset_angle = player.drawangle + ANGLE_180
+		local offset_angle = mo.angle + ANGLE_180
 		local offset_dist = mo.radius*3
 		local range = 8
 		local offset_x = P_ReturnThrustX(nil,offset_angle,offset_dist) + P_RandomRange(-range,range)*FRACUNIT

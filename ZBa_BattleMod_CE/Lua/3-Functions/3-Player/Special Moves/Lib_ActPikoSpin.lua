@@ -37,6 +37,18 @@ local DoThrust = function(mo)
 	end
 end
 
+local function hammerjump(player)
+	local mo = player.mo
+	P_DoJump(player,false)
+	B.ZLaunch(mo,FRACUNIT*12,false)
+	P_Thrust(mo,mo.angle,3*mo.scale)
+	S_StartSound(mo,sfx_cdfm37)
+	S_StartSound(mo,sfx_s3ka0)
+	player.pflags = ($ | PF_JUMPED | PF_THOKKED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
+	mo.state = S_PLAY_ROLL
+	player.panim = PA_ROLL
+end
+
 B.Action.PikoSpin = function(mo,doaction)
 	local player = mo.player
 	if P_PlayerInPain(player) then
@@ -68,7 +80,7 @@ B.Action.PikoSpin = function(mo,doaction)
 			player.actionstate = specialstate
 			player.actiontime = 0
 			mo.momz = $ / 2
-			P_InstaThrust(mo, mo.angle, 10*FRACUNIT)
+			P_InstaThrust(mo, mo.angle, 12*FRACUNIT)
 			DoThrust(mo)
 			S_StartSoundAtVolume(mo,sfx_3db16,130)
 			S_StartSound(mo,sfx_s3ka0)
@@ -100,7 +112,7 @@ B.Action.PikoSpin = function(mo,doaction)
 	
 	//End lag
 	elseif player.actionstate == specialstate+1 
-		player.powers[pw_nocontrol] = max($,2)
+		//player.powers[pw_nocontrol] = max($,2)
 		if player.actiontime >= specialendtime
 			mo.state = S_PLAY_FALL
 			player.actionstate = 0
@@ -108,6 +120,9 @@ B.Action.PikoSpin = function(mo,doaction)
 			return
 		end
 		if P_IsObjectOnGround(mo)
+			if player.cmd.buttons&BT_JUMP
+				hammerjump(player)
+			end
 			player.actionstate = 0
 			player.actiontime = 0
 			return
