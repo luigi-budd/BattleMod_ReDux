@@ -419,10 +419,10 @@ B.Tumble = function(player)
 	end
 end
 
-B.TestScript = function(player)
+/*B.TestScript = function(player)
 	B.ZLaunch(player.mo, 8*FRACUNIT)
 	B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
-end
+end*/
 
 B.PlayerCreditPusher = function(player,source)
 	if source and source.valid and source.player

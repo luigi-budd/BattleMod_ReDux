@@ -35,6 +35,7 @@ Parry
 	Parrying a player will remove their invincibility powerup
 	Parrying a player will now place them in a "tumble" state, which is similar to standard hitstun but removes the ability to air dodge
 	Tumbling players bounce off floors and cannot move for a period of time
+	Removed the ability to parry during some special moves
 
 Item Bubbles
 	Item bubbles can be used to bounce, but it's weaker than monitor bounces
