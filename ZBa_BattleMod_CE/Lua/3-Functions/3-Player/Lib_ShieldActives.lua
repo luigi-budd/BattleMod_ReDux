@@ -52,7 +52,8 @@ end
 local ElementalStomp = function(player)
 	local mo = player.mo
 	mo.state = S_PLAY_ROLL
-	P_InstaThrust(mo, 0, 0*FRACUNIT)
+	mo.momx = $ * 3/5
+	mo.momy = $ * 3/5
 	P_SetObjectMomZ(mo, -25*FRACUNIT)
 	S_StartSound(mo,sfx_s3k43)
 	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)

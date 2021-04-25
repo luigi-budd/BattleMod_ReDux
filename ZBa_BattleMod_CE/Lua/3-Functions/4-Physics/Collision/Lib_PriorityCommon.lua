@@ -82,7 +82,7 @@ B.Priority_Ability = function(player)
 		elseif flame
 			B.SetPriority(player,1,2,nil,1,2,"flame dash")
 		elseif elemental
-			B.SetPriority(player,1,2,nil,1,2,"elemental drop")
+			B.SetPriority(player,1,2,"fang_tailbounce",2,2,"elemental drop")
 		end
 	else
 		//Sonic

@@ -2,6 +2,7 @@ local B = CBW_Battle
 local CV = B.Console
 
 B.TeamFireTrail = function(mo)
+	mo.fuse = min($, TICRATE * 4)
 	if not(G_GametypeHasTeams() and mo.target and mo.target.valid and mo.target.player) then return end
 	if not(mo.ctfteam) then
 		local player = mo.target.player

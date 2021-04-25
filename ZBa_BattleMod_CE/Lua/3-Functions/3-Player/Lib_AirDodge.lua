@@ -49,6 +49,10 @@ B.AirDodge = function(player)
 		mo.state = S_PLAY_FALL
 		player.airgun = false
 		
+		if (player.powers[pw_shield] & SH_NOSTACK) == SH_WHIRLWIND
+			player.pflags = $ | PF_SHIELDABILITY
+		end
+		
 		//Release carried player
 		for otherplayer in players.iterate
 			local partner = otherplayer.mo

@@ -107,6 +107,21 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 		S_StartSound(target, inflictor.hit_sound)
 	end
 	
+	if inflictor.spawnfire and source.player and source.player.playerstate == PST_LIVE and (source.player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL
+		S_StartSound(inflictor, sfx_s22e)
+		S_StartSoundAtVolume(inflictor, sfx_s3k82, 180)
+		local m = 20
+		for n = 0, m
+			local fire = P_SPMAngle(inflictor,MT_SPINFIRE,0,0)
+			if fire and fire.valid
+				fire.flags = $ & ~MF_NOGRAVITY
+				B.InstaThrustZAim(fire,(360/m)*n*ANG1,ANGLE_45*P_MobjFlip(inflictor),inflictor.scale * 7)
+				fire.fuse = 4 * TICRATE
+				fire.target = source
+			end
+		end
+	end
+	
 	local player = target.player
 	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON//no more arma revenge boom
 		player.powers[pw_shield] = SH_PITY

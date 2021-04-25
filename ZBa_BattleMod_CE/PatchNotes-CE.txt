@@ -1,25 +1,33 @@
-Version CE-v5.2
+Version CE-v6
 
 New ability: Stun Break (costs 20 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
 	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
-	
+
 New ability: Air Dodge
 	Press the parry button in midair to avoid damage
 	It also gives a small boost in any direction
 	The dodge's invulnerability and dodge distance are reduced while holding the flag/diamond
-	
+
 Added console command: battleconfig_dodgecamera (default: on)
 	If disabled, air dodge and stun break can be angled towards the player's movement direction.
-	
+
 New ability: Shield Swap
 	Press the Toss Flag button (while not holding a flag) to switch to your reserve shield
 
 Shields
 	Shields can now be activated using the Toss Flag button, even when using Fang
+	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
+	In team modes, all shields are team colored
+	When a reserve shield is used, it plays a different sound effect depending on the type of shield
 	Armageddon shield
 		Removed the explosion that happens when the owner is hurt
 		Added a chargeup period and a warning sound effect to the manual explosion
+	Elemental shield
+		Horizontal speed is cut by 3/5 when starting the stomp, instead being set to 0
+		Reduced duration of flame projectiles
+		When hurting a player with Fang's cork or Amy's love hearts, a ring of flames will spawn
+		Added a 2/2 sweetspot at the bottom of the stomp
 
 Collision / bumping
 	Reduced duration of recoil stun by 20%
@@ -159,20 +167,19 @@ Maps
 		Bug fixes
 	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
 
-Misc.
+Major gameplay changes
 	Reduced mercy invincibility after taking a hit (3s -> 2s)
 	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
-	Players can now exhaust while charging a spindash for a very long time
+	Players can now exhaust while charging a spindash for 5 seconds
+
+Minor gameplay changes
+	Added sound effects to various projectiles on a successful hit
 	Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
 	Increased the exhaustion rate of CEZ swings
-	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
-	In team modes, all shields are team colored
-	When a reserve shield is used, it plays a different sound effect depending on the type of shield
+	Increased the respawn timer for spikes: (3s -> 10s)
 	Lowered the height at which Tails Doll floats
 	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
-	Lowered the default priority of non-attraction shot homing attacks: (1/2 -> 1/1)
-	Added sound effects to various projectiles on a successful hit
-	Increased the respawn timer for spikes: (3s -> 10s)
+	Lowered the default priority of non-attraction homing attacks used by some custom characters: (1/2 -> 1/1)
 
 Modding functionality
 	Added new skinvars: func_collide, func_exhaust
@@ -193,12 +200,13 @@ Modding functionality
 	Added the mo.name variable, which allows projectiles and other hazardous items to bypass the mo.info.name variable in the hitfeed
 
 Maintenance
-	Added an error message when BattleMod is loaded after another version of BattleMod is loaded
-	Fixed an issue where bubble items were in the blockmap
+	Added an error message when BattleMod is loaded after another version of BattleMod has already been loaded
 	Fixed an issue where projectiles would disappear when they touched teammates
+	Fixed an issue where Amy was unable to escape CEZ swings
+	Fixed an issue where Metal Sonic could float indefinitely after colliding with a player while hovering
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
 	Fixed an issue where Metal Sonic would not exit the "spinning" state when using Energy Attack, which allowed him to attack during his falling animation
 	Fixed an issue where using the bubble shield bounce would exhaust Metal Sonic
+	Fixed an issue where bubble items were included in the blockmap
 	Fixed an issue where elemental fire trails would drain rings from teammates on touch
-	Fixed an issue where Amy was unable to escape CEZ swings
 	Fixed the accuracy of the HUD objective compass in all objective-based modes

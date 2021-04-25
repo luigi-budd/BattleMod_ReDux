@@ -94,6 +94,7 @@ addHook("MobjSpawn",function(mo)
 		//mo.block_sound = sfx_s3kb5
 		mo.block_hthrust = 6
 		mo.block_vthrust = 2
+		mo.spawnfire = true
 	end
 end,MT_LHRT)
 addHook("MobjSpawn",function(mo)
@@ -105,6 +106,7 @@ addHook("MobjSpawn",function(mo)
 		//mo.block_sound = sfx_s3kb5
 		mo.block_hthrust = 7
 		mo.block_vthrust = 5
+		mo.spawnfire = true
 	end
 end,MT_PIKOWAVEHEART)
 addHook("MobjMoveCollide", function(mover,collide) if collide and (collide.battleobject or not(collide.flags&MF_SOLID)) then return end end, MT_PIKOWAVE)
@@ -144,6 +146,7 @@ addHook("MobjSpawn",function(mo)
 		//mo.block_sound = sfx_s3kb5
 		mo.block_hthrust = 12
 		mo.block_vthrust = 10
+		mo.spawnfire = true
 	end
 	return true //Overwrite default behavior so that corks won't damage invulnerable players
 end,MT_CORK)
