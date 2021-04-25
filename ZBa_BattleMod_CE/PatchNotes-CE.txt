@@ -1,5 +1,7 @@
 Version CE-v6
 
+Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
+
 New ability: Stun Break (costs 20 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
 	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
