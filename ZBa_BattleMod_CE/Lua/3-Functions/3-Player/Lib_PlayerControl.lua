@@ -355,14 +355,14 @@ B.Tumble = function(player)
 	end
 	local mo = player.mo
 	
-	if player.tumble > 0
+	if player.tumble
 		
 		//End tumble
 		if player.isjettysyn
 			or player.powers[pw_carry]
 			or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
 			
-			player.tumble = 0
+			player.tumble = nil
 			player.lockmove = false
 			player.drawangle = mo.angle
 			S_StopSoundByID(mo, sfx_kc38)
@@ -390,7 +390,7 @@ B.Tumble = function(player)
 			player.tumble = $ - 1
 			if player.tumble <= 0
 				
-				player.tumble = -1
+				player.tumble = nil
 				player.lockmove = false
 				player.drawangle = mo.angle
 				S_StopSoundByID(mo, sfx_kc38)
@@ -419,10 +419,10 @@ B.Tumble = function(player)
 	end
 end
 
-/*B.TestScript = function(player)
+B.TestScript = function(player)
 	B.ZLaunch(player.mo, 8*FRACUNIT)
 	B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
-end*/
+end
 
 B.PlayerCreditPusher = function(player,source)
 	if source and source.valid and source.player
