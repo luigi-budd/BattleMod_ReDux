@@ -38,7 +38,7 @@ B.ArmaCharge = function(player)
 	if player.armachargeup >= 27
 		player.armachargeup = nil
 		player.pflags = $ & ~PF_FULLSTASIS
-		player.pflags = $ & ~PF_JUMPED
+		player.pflags = $ & ~(PF_JUMPED|PF_THOKKED)
 		
 		mo.state = S_PLAY_FALL
 		local shake = 14
@@ -50,71 +50,73 @@ B.ArmaCharge = function(player)
 end
 
 local ElementalStomp = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
-	player.mo.state = S_PLAY_ROLL
-	P_InstaThrust(player.mo, 0, 0*FRACUNIT)
-	P_SetObjectMomZ(player.mo, -25*FRACUNIT)
-	S_StartSound(player.mo,sfx_s3k43)
+	local mo = player.mo
+	mo.state = S_PLAY_ROLL
+	P_InstaThrust(mo, 0, 0*FRACUNIT)
+	P_SetObjectMomZ(mo, -25*FRACUNIT)
+	S_StartSound(mo,sfx_s3k43)
 	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
 end
 local ArmageddonExplosion = function(player)
+	local mo = player.mo
 	player.armachargeup = 1
 	player.dashmode = 0
 	player.pflags = $ | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
-	player.mo.state = S_PLAY_ROLL
+	mo.state = S_PLAY_ROLL
 
-	S_StartSoundAtVolume(player.mo, sfx_s3kc4s, 200)
+	S_StartSoundAtVolume(mo, sfx_s3kc4s, 200)
 	S_StartSoundAtVolume(nil, sfx_s3kc4s, 100)
 end
 local WhirlwindJump = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
 	P_DoJumpShield(player)
 	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
 end
 local FlameDash = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
-	player.mo.state = S_PLAY_ROLL
-	P_Thrust(player.mo, player.mo.angle, 30*player.mo.scale)
-	S_StartSound(player.mo,sfx_s3k43)
+	local mo = player.mo
+	mo.state = S_PLAY_ROLL
+	P_Thrust(mo, mo.angle, 30*mo.scale)
+	S_StartSound(mo,sfx_s3k43)
 	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY) & ~PF_NOJUMPDAMAGE
 end
 local BubbleBounce = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
-	P_DoBubbleBounce(player)
-	player.mo.state = S_PLAY_ROLL
-	P_SetObjectMomZ(player.mo, -25*FRACUNIT)
-	S_StartSound(player.mo,sfx_s3k44)
-	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
+	local mo = player.mo
+	mo.momx = $/3
+	mo.momy = $/3
+	S_StartSound(mo,sfx_s3k44)
+	mo.state = S_PLAY_ROLL
+	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY) & ~PF_NOJUMPDAMAGE
+	P_SetObjectMomZ(mo, -24*FRACUNIT)
 end
 local ThunderJump = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
-	player.mo.state = S_PLAY_ROLL
+	local mo = player.mo
+	mo.state = S_PLAY_ROLL
 	P_DoJumpShield(player)
-	S_StartSound(player.mo,sfx_s3k45)
+	S_StartSound(mo,sfx_s3k45)
 	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY) & ~PF_NOJUMPDAMAGE
 end
 local ForceStop = function(player)
-	player.pflags = ($|PF_JUMPED) & ~(PF_THOKKED)
-	P_InstaThrust(player.mo, 0, 0*FRACUNIT)
+	local mo = player.mo
+	P_InstaThrust(mo, 0, 0*FRACUNIT)
 	
 	player.weapondelay = 25
-	P_SetObjectMomZ(player.mo, 0*FRACUNIT)
-	S_StartSound(player.mo,sfx_ngskid)
+	P_SetObjectMomZ(mo, 0*FRACUNIT)
+	S_StartSound(mo,sfx_ngskid)
 	player.pflags = $|PF_THOKKED|PF_SHIELDABILITY
 end
 local AttractionShot = function(player)
+	local mo = player.mo
 	local lockonshield = P_LookForEnemies(player, false, false)
-	player.mo.tracer = lockonshield
-	player.mo.target = lockonshield
+	mo.tracer = lockonshield
+	mo.target = lockonshield
 	if lockonshield and lockonshield.valid
 		player.pflags = ($|PF_THOKKED|PF_JUMPED|PF_SHIELDABILITY) & ~(PF_NOJUMPDAMAGE)
-		player.mo.state = S_PLAY_ROLL
-		player.mo.angle = R_PointToAngle2(player.mo.x, player.mo.y, lockonshield.x, lockonshield.y)
-		S_StartSound(player.mo, sfx_s3k40)
+		mo.state = S_PLAY_ROLL
+		mo.angle = R_PointToAngle2(mo.x, mo.y, lockonshield.x, lockonshield.y)
+		S_StartSound(mo, sfx_s3k40)
 		player.homing = 1*TICRATE/2
 	else
 		player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
-		S_StartSound(player.mo, sfx_s3ka6)
+		S_StartSound(mo, sfx_s3ka6)
 		player.homing = 2
 	end
 end
