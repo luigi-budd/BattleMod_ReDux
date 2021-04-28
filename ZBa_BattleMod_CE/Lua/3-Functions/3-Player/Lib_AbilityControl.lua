@@ -125,7 +125,7 @@ local exhaust = function(player)
 	
 	//Common exhaust states
 	local warningtic = FRACUNIT/3
-	if player.pflags & PF_STARTDASH
+	/*if player.pflags & PF_STARTDASH
 		override = true
 		local maxtime = 5*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
@@ -134,8 +134,7 @@ local exhaust = function(player)
 			player.pflags = $ & ~(PF_STARTDASH|PF_SPINNING)
 			mo.state = S_PLAY_STND
 		end
-		
-	end
+	end*/
 	if player.powers[pw_carry] == CR_MACESPIN and player.mo.tracer
 		local maxtime = 4*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)

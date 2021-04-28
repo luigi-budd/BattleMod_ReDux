@@ -25,14 +25,16 @@ B.GotFlagStats = function(player)
 		player.acceleration = skin.acceleration
 		player.runspeed = skin.runspeed
 		player.mindash = skin.mindash
+		player.maxdash = skin.maxdash
 		player.charflags = skins[player.mo.skin].flags
 	end
 	//Apply debuff
 	if player.gotflagdebuff
 		player.normalspeed = skin.normalspeed*4/5
-		player.acceleration = skin.acceleration*4/5
+		player.acceleration = skin.acceleration*5/6
 		player.runspeed = skin.runspeed*4/5
-		player.mindash = skin.mindash*4/5
+		player.mindash = skin.mindash*3/4
+		player.maxdash = skin.maxdash*4/5
 		player.dashmode = 0
 		player.charflags = skins[player.mo.skin].flags & ~SF_RUNONWATER
 	end

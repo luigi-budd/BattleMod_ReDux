@@ -177,7 +177,8 @@ Maps
 Major gameplay changes
 	Reduced mercy invincibility after taking a hit (3s -> 2s)
 	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
-	Players can now exhaust while charging a spindash for 5 seconds
+	Spindash minimum and maximum speed are now reduced while holding the flag (min: 100% -> 75%, max: 100% -> 80%)
+	Acceleration while holding the flag increased (80% -> 83%)
 
 Minor gameplay changes
 	Added sound effects to various projectiles on a successful hit
