@@ -1,4 +1,4 @@
-Version CE-v7
+Version CE-v6
 
 Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
 
