@@ -1,4 +1,4 @@
-Version CE-v6
+Version CE-v7
 
 Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
 
@@ -58,13 +58,18 @@ Sonic
 	Super Spin Jump
 		Priority reduced (2/2 -> 1/2)
 		Added a sweetspot above Sonic with (2/2) priority
+		Added subtle squash and stretch animation
 	Ground Pound
-		Cooldown increased: (1.5s -> 2s)
+		Cooldown increased: (1.5s -> 2.25s)
 		Priority when falling reduced (2/2 -> 1/2)
 		Added a sweetspot below Sonic while falling with (2/2) priority
 		Projectiles are blockable by 1 defense or more
 		Upwards momentum at the start of the ground pound increased
-		If jump is held, Sonic can bounce after a ground pound
+		Added new moves that can be performed when ground pound hits the floor
+			If spin is held, Sonic can perform a dash
+			If jump is held, Sonic can perform a bounce jump
+			If neither is held, Sonic creates a shockwave as usual
+		Added subtle squash and stretch animation
 
 Tails
 	Tails cannot carry exhausted teammates
@@ -184,10 +189,11 @@ Minor gameplay changes
 	Lowered the default priority of non-attraction homing attacks used by some custom characters: (1/2 -> 1/1)
 
 Modding functionality
-	Added new skinvars: func_collide, func_exhaust
+	Added new skinvars: func_collide, func_precollide, func_postcollide, func_exhaust
 		These can be set using CBW_Battle.SkinVars["skinname"].func_collide and CBW_Battle.SkinVars["skinname"].func_exhaust
 		func_collide is run when the player collides with another player - it's useful for making certain moves behave uniquely on player contact!
 		If func_collide returns true, collision physics will be overridden
+		func_precollide runs before func_collide, and func_postcollide runs after Battle's collision physics happen
 		func_exhaust is run during battlemod's exhaust code, and can return true in order to prevent exhaustion from resetting on floor touch - use it to give your custom abilities battlemod-specific exhaust limitations!
 	Added universal mechanics supporting blockable projectiles
 		"Blockable projectiles" are projectiles such as Fang's corks which only deal damage when the target has low enough defense

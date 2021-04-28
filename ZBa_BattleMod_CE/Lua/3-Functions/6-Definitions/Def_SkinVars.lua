@@ -12,7 +12,9 @@ S[-1] = {
 	func_guard_trigger = G.Parry,
 	func_priority = B.Priority_FullCommon,
 	func_priority_ext = nil,
+	func_precollide = nil,
 	func_collide = nil,
+	func_postcollide = nil,
 	func_exhaust = nil,
 	sprites = {}
 }

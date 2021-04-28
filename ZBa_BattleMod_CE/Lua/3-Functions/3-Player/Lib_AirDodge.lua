@@ -105,10 +105,12 @@ B.AirDodge = function(player)
 			or P_IsObjectOnGround(mo)
 			
 			player.airdodge = 0
-			player.lockmove = false
+			player.pflags = $ & ~PF_FULLSTASIS
+			//player.lockmove = false
 			
 		elseif player.airdodge > 0
-			player.lockmove = true
+			player.pflags = $ | PF_FULLSTASIS
+			//player.lockmove = true
 			player.airdodge = $ + 1
 			if player.airdodge <= intangible_time_real
 				if (player.airdodge % 4) == 3

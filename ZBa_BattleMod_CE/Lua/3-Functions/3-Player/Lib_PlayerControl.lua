@@ -401,7 +401,8 @@ B.Tumble = function(player)
 				end
 				
 			else
-				player.powers[pw_nocontrol] = max($, 2)
+				//player.powers[pw_nocontrol] = max($, 2)
+				player.pflags = $ | PF_FULLSTASIS
 				player.panim = PA_PAIN
 				player.mo.state = S_PLAY_PAIN
 				

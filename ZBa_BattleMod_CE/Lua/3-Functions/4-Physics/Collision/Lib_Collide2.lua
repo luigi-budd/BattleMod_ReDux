@@ -222,6 +222,29 @@ B.DoPlayerInteract = function(smo,tmo)
 	end
 	
 	//Custom character collision functions
+	//PRECOLLIDE
+	local defaultfunc = S[-1].func_precollide
+	if plr[s]
+		local func = S[plr[s].skinvars].func_precollide
+		if not func
+			func = defaultfunc
+		end
+		if func
+			func(s,t,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+		end
+	end
+	if plr[t]
+		local func = S[plr[t].skinvars].func_precollide
+		if not func
+			func = defaultfunc
+		end
+		if func
+			func(t,s,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+		end
+	end
+	
+	
+	//COLLIDE
 	local op1 = false
 	local op2 = false
 	local defaultfunc = S[-1].func_collide
@@ -304,6 +327,28 @@ B.DoPlayerInteract = function(smo,tmo)
 			dorecoil(t,s)
 		end
 	end
+	
+	//POSTCOLLIDE
+	local defaultfunc = S[-1].func_postcollide
+	if plr[s]
+		local func = S[plr[s].skinvars].func_postcollide
+		if not func
+			func = defaultfunc
+		end
+		if func
+			func(s,t,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+		end
+	end
+	if plr[t]
+		local func = S[plr[t].skinvars].func_postcollide
+		if not func
+			func = defaultfunc
+		end
+		if func
+			func(t,s,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+		end
+	end
+	
 	
 	//Do Sound, VFX
 	local defend = max(def[s],def[t])

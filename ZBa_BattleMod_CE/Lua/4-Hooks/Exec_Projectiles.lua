@@ -7,7 +7,7 @@ addHook("ShouldDamage", function(target,inflictor,source,something,idk)
 	
 	if inflictor.type == MT_SPINFIRE
 	and not(target.player.powers[pw_shield]&SH_PROTECTFIRE)
-	and not(target.player.powers[pw_flashing] or target.player.powers[pw_super])
+	and not(target.player.powers[pw_flashing] or target.player.powers[pw_super] or target.player.powers[pw_invulnerability])
 	and not(B.MyTeam(target.player,source.player))
 		return true
 	end
