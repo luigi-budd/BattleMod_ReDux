@@ -5,14 +5,20 @@ B.Priority_Core = function(player)
 -- 	local shieldability = pflags&PF_SHIELDABILITY
 	local spinjump = (pflags&PF_JUMPED and not(pflags&PF_NOJUMPDAMAGE))
 	local spinning = pflags&PF_SPINNING
-	//local stomping = (player.mo and player.mo.valid
-	//and (skins[player.mo.skin].flags&SF_STOMPDAMAGE) and not P_PlayerInPain(player))
+	local stomping = (player.mo and player.mo.valid
+	and (skins[player.mo.skin].flags&SF_STOMPDAMAGE) and not P_PlayerInPain(player))
 	
 	local t = "attack"
 	local atk = 0
 	local def = 0
 	
 	//Spin attack and Stomp Damage
+	if stomping and not spinning
+		if (player.mo.momz * P_MobjFlip(player.mo) < 0)
+			B.SetPriority(player,0,0,"stomp",1,1,"stomp attack")
+		end
+		return
+	end
 	if spinjump
 		atk = 1
 		def = 1
@@ -20,12 +26,10 @@ B.Priority_Core = function(player)
 	elseif spinning then
 		atk = 1
 		def = 1
-		t = "spin attack"		
-	//elseif stomping
-	//	t = "jump attack" //We need a better method of detecting this...
+		t = "spin attack"
 	end
 	
-	B.SetPriority(player,atk,def,"can_damage",1,1,t)	
+	B.SetPriority(player,atk,def,"can_damage",atk,def,t)	
 end
 
 B.Priority_Ability = function(player)

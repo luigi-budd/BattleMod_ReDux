@@ -71,5 +71,7 @@ addHook("MobjThinker",function(mo)
 		if not(owner and owner.valid and owner.player and owner.player.valid) then return nil end
 		mo.color = owner.player.skincolor
 		mo.colorized = true
-	end 
+	else
+		mo.color = SKINCOLOR_CERULEAN
+	end
 end,MT_PITY_ORB)

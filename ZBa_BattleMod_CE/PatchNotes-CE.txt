@@ -1,4 +1,4 @@
-Version CE-v6
+Version CE-v7
 
 Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
 
@@ -139,7 +139,6 @@ Metal Sonic
 		Reduced maximum float time before exhaustion (6s -> 4s)
 		Added a small exhaustion penalty for each time Metal Sonic "taps" the float button
 	Energy Attack
-		Cancelling the charge with the parry button now results in an air dodge
 		Reduced cooldown: (3s -> 2.75s)
 		Reduced cooldown on cancel or interrupt: (3s -> 1.25s)
 		Dash Slicer
@@ -207,6 +206,7 @@ Modding functionality
 	Added mo.hit_sound for projectiles (sound to play on successful hit)
 	Added the mo.cantouchteam variable, which allows for friendly projectiles to interact with teammates. This can be used for support purposes, like with love hearts
 	Added the mo.name variable, which allows projectiles and other hazardous items to bypass the mo.info.name variable in the hitfeed
+	Added support for SF_STOMPDAMAGE characters - they have a 1/1 sweetspot while falling
 
 Maintenance
 	Added an error message when BattleMod is loaded after another version of BattleMod has already been loaded

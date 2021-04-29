@@ -146,19 +146,26 @@ B.DoPlayerCollisionDamage = function(smo,tmo)
 		P_DamageMobj(smo,tmo,tsrc,0)
 		return -1
 	else
+		local ret = 0
 		if bias[s] < 0 and not(invuln[s] or power[s]) then
 			P_DamageMobj(smo,tmo,tsrc,0)
-			return -1
+			ret = -1
 		end
 		if bias[t] < 0 and not(invuln[t] or power[t]) then
 			P_DamageMobj(tmo,smo,ssrc,0)
-			return 1
+			if ret == -1
+				ret = 2
+			else
+				ret = 1
+			end
 		end
+		return ret
 	end
 	return 0
 	// 0: nobody was hurt
 	// 1: t was hurt by s
 	//-1: s was hurt by t
+	// 2: both hurt
 end
 
 B.UpdateRecoilState = function(mo)

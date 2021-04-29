@@ -349,7 +349,6 @@ B.DoPlayerInteract = function(smo,tmo)
 		end
 	end
 	
-	
 	//Do Sound, VFX
 	local defend = max(def[s],def[t])
 	local attack = max(atk[s],atk[t])
@@ -402,10 +401,10 @@ B.DoPlayerInteract = function(smo,tmo)
 	local hitbash2 = (atk[t] > 0 and mo[s].battleobject)
 	
 	if (hitbash1 or hitbash2) or (hurt != 0 and ((pain[s] and not prevpain[s]) or (pain[t] and not prevpain[t]))) //Someone got hurt
-		if (hurt == 1 and not prevpain[t]) or hitbash1
+		if ((hurt == 1 or hurt == 2) and not prevpain[t]) or hitbash1
 			hitfx(s,t)
 		end
-		if (hurt == -1 and not prevpain[s]) or hitbash2
+		if ((hurt == -1 or hurt == 2) and not prevpain[s]) or hitbash2
 			hitfx(t,s)
 		end
 	else//Nobody got hurt
@@ -434,8 +433,12 @@ B.DoPlayerInteract = function(smo,tmo)
 		end
 	end
 	
-	if smo.player then smo.player.homing = 0 end 
-	if tmo.player then tmo.player.homing = 0 end
+	if smo.player then
+		smo.player.homing = 0
+	end 
+	if tmo.player then
+		tmo.player.homing = 0
+	end
 	//Player interactions completed
 	return true
 end

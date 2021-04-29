@@ -26,13 +26,21 @@ B.SPriority_Melee = function(mo,other)
 end
 
 B.SPriority_TailBounce = function(mo,other)
-	if (B.GetZCollideAngle(mo,other) < ANGLE_45) then return false
-	else return true end
+	if (B.GetZCollideAngle(mo,other) < ANGLE_45) then return false end
+	S_StartSound(mo, sfx_s3k90)
+	return true
 end
 
 B.SPriority_SpringDrop = function(mo,other)
-	if (B.GetZCollideAngle(mo,other) < ANGLE_22h) then return false
-	else return true end
+	if (B.GetZCollideAngle(mo,other) < ANGLE_22h) then return false end
+	S_StartSound(mo, sfx_s3k90)
+	return true
+end
+
+B.SPriority_Stomp = function(mo,other)
+	if (B.GetZCollideAngle(mo,other) < ANGLE_22h) then return false end
+	S_StartSound(mo, sfx_s3k90)
+	return true
 end
 
 /*
@@ -85,4 +93,4 @@ Add("amy_melee",B.SPriority_Melee)
 Add("fang_tailbounce",B.SPriority_TailBounce)
 Add("fang_springdrop",B.SPriority_SpringDrop)
 Add("can_damage",B.SPriority_CanDamage)
-//Add("stomp_damage",B.SPriority_StompDamage)
+Add("stomp",B.SPriority_Stomp)

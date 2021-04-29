@@ -68,16 +68,22 @@ B.AirDodge = function(player)
 		end
 		
 		//Launch
-		local dodge_momz_real = dodge_momz*FRACUNIT/B.WaterFactor(mo)
+		local dodge_momz_real = dodge_momz*mo.scale/B.WaterFactor(mo)
 		local dodge_thrust_real = mo.scale*dodge_thrust
 		if player.gotflagdebuff
-			dodge_thrust_real = $ * 2/3
+			dodge_thrust_real = $ * 3/4
+			dodge_momz_real = $ / 2
 		end
 		
-		P_SetObjectMomZ(mo, dodge_momz_real, false)
+		local diff = dodge_momz_real - mo.momz*P_MobjFlip(mo)
+		if (diff > 0)
+			P_SetObjectMomZ(mo, dodge_momz_real, false)
+		else
+			P_SetObjectMomZ(mo, (dodge_momz_real - diff/2), false)
+		end
 		
-		mo.momx = $ / 4
-		mo.momy = $ / 4
+		mo.momx = $ / 7
+		mo.momy = $ / 7
 		//if not neutral
 			P_Thrust(mo,angle,dodge_thrust_real)
 		//end
@@ -89,13 +95,15 @@ B.AirDodge = function(player)
 		
 		//Sparkle
 		local sparkle = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SUPERSPARK)
-		sparkle.scale = mo.scale * 5/4
+		sparkle.scale = mo.scale
 		sparkle.destscale = 0
+		if AST_ADD
+			sparkle.blendmode = AST_ADD
+		end
 		sparkle.momx = mo.momx / 2
 		sparkle.momy = mo.momy / 2
 		sparkle.momz = mo.momz * 2/3
 	end
-	
 	
 	//Airdodge is in progress
 	if player.airdodge != 0
@@ -117,7 +125,10 @@ B.AirDodge = function(player)
 					mo.colorized = true
 					mo.color = SKINCOLOR_WHITE
 					mo.airdodgecolor = true
-					P_SpawnGhostMobj(mo)
+					local g = P_SpawnGhostMobj(mo)
+					if AST_ADD
+						g.blendmode = AST_ADD
+					end
 				elseif (player.airdodge % 4) != 1
 					mo.colorized = true
 					mo.color = SKINCOLOR_SILVER

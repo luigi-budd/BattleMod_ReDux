@@ -13,7 +13,7 @@ local reboundthrust = 9
 local reboundthrust2 = 16
 local reboundthrust3 = 7
 local reboundforward = 5
-local rebounddropdash = 24
+local rebounddropdash = 22
 
 B.Action.SuperSpinJump_Priority = function(player)
 	if player.actionstate == state_superspinjump then
@@ -112,11 +112,12 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					B.ZLaunch(mo,reboundthrust3*FRACUNIT,true)
 					S_StartSound(mo, sfx_zoom)
 					S_StartSoundAtVolume(mo, sfx_kc3b, 100)
-					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/8)
+					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/3)
 					P_Thrust(mo,mo.angle,rebounddropdash*mo.scale)
 					B.ResetPlayerProperties(player,true,true)
 					mo.state = S_PLAY_JUMP
 					player.pflags = $ | PF_SPINNING
+					player.drawangle = mo.angle
 					for i = -2, 2
 						local dust = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
 						P_Thrust(dust, mo.angle + ANG20 * i, mo.scale * -20)
