@@ -97,7 +97,7 @@ B.Action.Dig=function(mo,doaction)
 	end
 
 	local dojump = B.PlayerButtonPressed(player,BT_JUMP,false)
-	local dospin = B.PlayerButtonPressed(player,BT_USE,false)
+	local dospin = B.PlayerButtonPressed(player,BT_SPIN,false)
 	local climbing = player.climbing
 	local sludge = mo.eflags&MFE_GOOWATER
 	local grounded = P_IsObjectOnGround(mo)

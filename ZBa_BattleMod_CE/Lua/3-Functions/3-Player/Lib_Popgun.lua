@@ -108,9 +108,9 @@ local function newGunslinger(player)
 			P_SpawnLockOn(player, lockon, mobjinfo[MT_LOCKON].spawnstate)
 		end
 		//Trigger firing action
-		if (player.cmd.buttons & BT_USE)
+		if (player.cmd.buttons & BT_SPIN)
 -- 		and not (player.gunheld)
-		and not(player.buttonhistory&BT_USE)
+		and not(player.buttonhistory&BT_SPIN)
 			local bullet = nil
 
 			mo.state = S_PLAY_FIRE
@@ -245,7 +245,7 @@ B.CustomGunslinger = function(player)
 		player.gunheld = false
 	end
 
-	if not (player.cmd.buttons & BT_USE)
+	if not (player.cmd.buttons & BT_SPIN)
 		player.gunheld = false
 	end
 

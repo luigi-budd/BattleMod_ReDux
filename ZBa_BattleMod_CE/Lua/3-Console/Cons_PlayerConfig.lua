@@ -1,6 +1,6 @@
 local str2btn = {}
 str2btn["jump"] = BT_JUMP
-str2btn["spin"] = BT_USE
+str2btn["spin"] = BT_SPIN
 str2btn["fire"] = BT_ATTACK
 str2btn["firenormal"] = BT_FIRENORMAL
 str2btn["tossflag"] = BT_TOSSFLAG

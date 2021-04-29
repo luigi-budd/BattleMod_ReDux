@@ -116,7 +116,7 @@ A.JettySynAttack = function(player)
 		if player.powers[pw_flashing] then return end
 		if player.actiontime < 0 then return end
 		//Pull the trigger
-		if B.PlayerButtonPressed(player,BT_USE,false)
+		if B.PlayerButtonPressed(player,BT_SPIN,false)
 		or B.PlayerButtonPressed(player,player.battleconfig_special,false)
 		
 		then

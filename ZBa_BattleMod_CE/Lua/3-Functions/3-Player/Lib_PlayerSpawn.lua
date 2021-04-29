@@ -35,7 +35,7 @@ B.PlayerBattleSpawning = function(player)
 	if not(player.battlespawning) then return false end
 	local mo = player.mo
 	local dojump = B.PlayerButtonPressed(player,BT_JUMP,false,true) 
-	local dospin = B.PlayerButtonPressed(player,BT_USE,false,true)
+	local dospin = B.PlayerButtonPressed(player,BT_SPIN,false,true)
 	local can_act = player.battlespawning < 25
 	
 	player.battlespawning = $-1
@@ -63,7 +63,7 @@ B.PlayerBattleSpawning = function(player)
 	if dospin then
 		P_Thrust(mo,mo.angle,mo.scale*24)
 		S_StartSound(mo,sfx_zoom)
-		player.cmd.buttons = $|BT_USE
+		player.cmd.buttons = $|BT_SPIN
 		player.battlespawning = 0
 		player.pflags = ($|PF_USEDOWN|PF_SPINNING)
 		mo.flags = $&~MF_NOCLIPTHING

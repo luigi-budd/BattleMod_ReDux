@@ -45,7 +45,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 	//Action triggers
 	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)
 	local charging = player.exhaustmeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
-	local slashtrigger = attackready and B.PlayerButtonPressed(player,BT_USE,false)
+	local slashtrigger = attackready and B.PlayerButtonPressed(player,BT_SPIN,false)
 	local blasttrigger = not(slashtrigger) and attackready and doaction == 0 and attackready
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local dashtrigger = not(slashtrigger) and attackready and doaction == 2 and B.PlayerButtonPressed(player,BT_JUMP,false)

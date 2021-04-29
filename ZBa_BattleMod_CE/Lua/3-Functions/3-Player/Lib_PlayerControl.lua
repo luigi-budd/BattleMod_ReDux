@@ -456,7 +456,7 @@ B.PlayerSetupPhase = function(player)
 			newskin()
 		until skinchanged == true
 	end
-	if player.cmd.buttons&BT_USE and not(player.buttonhistory&BT_USE) then
+	if player.cmd.buttons&BT_SPIN and not(player.buttonhistory&BT_SPIN) then
 		skinnum = $-1
 		if skinnum < 0 then skinnum = #skins-1 end
 		newskin()

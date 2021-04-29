@@ -154,7 +154,7 @@ B.SpectatorControl = function(player)
 		if sid > 20
 			player.cmd.buttons = $|BT_JUMP
 		elseif sid < -20
-			player.cmd.buttons = $|BT_USE
+			player.cmd.buttons = $|BT_SPIN
 		end
 		sid = 0
 	end
@@ -174,7 +174,7 @@ B.SpectatorControl = function(player)
 	end
 	local zmom = 0
 	if player.cmd.buttons&BT_JUMP then zmom = $+zmult*FRACUNIT end
-	if player.cmd.buttons&BT_USE then zmom = $-zmult*FRACUNIT end
+	if player.cmd.buttons&BT_SPIN then zmom = $-zmult*FRACUNIT end
 	local accel = move/25*xymult
 	//Translate movement vectors
 	mo.mom[1] = $+P_ReturnThrustX(nil,redirect,accel)
@@ -219,7 +219,7 @@ B.SpectatorControl = function(player)
 	//Avoid redudant movement from P_SpectatorMove
 	player.cmd.forwardmove = 0
 	player.cmd.sidemove = 0
-	player.cmd.buttons = $&~(BT_JUMP|BT_USE)
+	player.cmd.buttons = $&~(BT_JUMP|BT_SPIN)
 end
 
 B.SpectatorLives = function(player)
