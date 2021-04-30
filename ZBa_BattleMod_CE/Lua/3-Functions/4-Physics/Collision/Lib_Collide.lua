@@ -242,7 +242,7 @@ B.UpdateCollisionHistory = function(pmo)
 		else
 			pmo.pushtics = $+1
 			//After a certain time, clean the slate
-			if pmo.pushtics > 15 then
+			if pmo.pushtics > 12 then
 				pmo.pushed_last = nil
 				pmo.pushed = nil
 				pmo.pushtics = 0

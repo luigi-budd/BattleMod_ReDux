@@ -38,6 +38,8 @@ Collision / bumping
 	Added screenshake to collisions increasing based on the attack / defense priority
 	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
 	Bashable objects now play priority-based sound effects when attacked, and have collision visual effects
+	Reduced lockout time for colliding with the same player twice (15tics -> 12tics)
+	Collisions can no longer occur during pre-round countdown
 
 Parry
 	The guard animation provides 1 def for a brief pariod after the parry window
