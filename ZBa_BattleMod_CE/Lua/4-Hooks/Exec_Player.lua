@@ -176,7 +176,9 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 			player.deadtimer = TICRATE*3
 		end
 	end
-	A.KillReward(killer)
+	if not (target.player and target.player.revenge)
+		A.KillReward(killer)
+	end
 	
 	player.spectatortime = player.deadtimer -TICRATE*3
 end, MT_PLAYER)

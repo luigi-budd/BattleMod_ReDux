@@ -75,6 +75,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		if player.dashmode >= TICRATE*3 then
 			player.actiontime = threshold1
 		end
+		player.dashmode = 0
 		player.pflags = $&~(PF_SPINNING|PF_SHIELDABILITY)
 		player.canguard = false
 		S_StartSound(mo,sfx_s3k7a)

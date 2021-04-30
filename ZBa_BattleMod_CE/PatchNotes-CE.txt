@@ -181,12 +181,14 @@ Major gameplay changes
 
 Minor gameplay changes
 	Added sound effects to various projectiles on a successful hit
-	Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
 	Increased the exhaustion rate of CEZ swings
 	Increased the respawn timer for spikes: (3s -> 10s)
 	Lowered the height at which Tails Doll floats
 	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
 	Lowered the default priority of non-attraction homing attacks used by some custom characters: (1/2 -> 1/1)
+	Auto-Spectator Camera
+		Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
+		Increased the time between automatic player cycles
 
 Modding functionality
 	Added new skinvars: func_collide, func_precollide, func_postcollide, func_exhaust
@@ -217,6 +219,8 @@ Maintenance
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
 	Fixed an issue where Metal Sonic would not exit the "spinning" state when using Energy Attack, which allowed him to attack during his falling animation
 	Fixed an issue where using the bubble shield bounce would exhaust Metal Sonic
+	Fixed an issue where dashmode could be maintained during Metal Sonic's Energy Attack
 	Fixed an issue where bubble items were included in the blockmap
 	Fixed an issue where elemental fire trails would drain rings from teammates on touch
+	Fixed an issue where revenge jetty-syn players could deal damage for 1 tic while invisible during overtime
 	Fixed the accuracy of the HUD objective compass in all objective-based modes

@@ -22,7 +22,10 @@ end
 
 //This function takes precedent over all other priority scripts
 B.SuperPriority = function(player)
-	if player and player.isjettysyn then
+	if player
+	and player.isjettysyn
+	and not B.Overtime
+	and not player.battlespawning
 		B.SetPriority(player,1,0,nil,1,0)
 	return true end
 	return false

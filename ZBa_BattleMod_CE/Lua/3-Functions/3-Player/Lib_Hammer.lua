@@ -72,8 +72,8 @@ end
 
 local function hammerjump(player)
 	local mo = player.mo
-	P_DoJump(player,false)
-	B.ZLaunch(mo,FRACUNIT*12,false)
+	//P_DoJump(player,false)
+	B.ZLaunch(mo,FRACUNIT*12,true)
 	P_Thrust(mo,mo.angle,3*mo.scale)
 	S_StartSound(mo,sfx_cdfm37)
 	S_StartSound(mo,sfx_s3ka0)

@@ -2,7 +2,7 @@ local B = CBW_Battle
 local CV = B.Console
 local autotime = TICRATE*15 //time before auto spectator camera takes effect
 local rate = 10 //speed of cam dist adjustment
-local resettime = TICRATE*15 //time before auto spectator resets to new player
+local resettime = TICRATE*25 //time before auto spectator resets to new player
 
 B.PreAutoSpectator = function(player)
 	if not(player.spectator) then return end
