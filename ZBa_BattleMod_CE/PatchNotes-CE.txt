@@ -209,6 +209,7 @@ Modding functionality
 	Added support for SF_STOMPDAMAGE characters - they have a 1/1 sweetspot while falling
 
 Maintenance
+	Changed team chat to actually work, making it no longer visible to the enemy team and spectators
 	Added an error message when BattleMod is loaded after another version of BattleMod has already been loaded
 	Fixed an issue where projectiles would disappear when they touched teammates
 	Fixed an issue where Amy was unable to escape CEZ swings
