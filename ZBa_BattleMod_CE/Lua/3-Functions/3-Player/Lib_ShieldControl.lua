@@ -84,7 +84,7 @@ B.ShieldMax = function(player)
 	
 		//Get shield max
 		local skinmax = nil
-		if player.skinvars
+		if player.skinvars and S[player.skinvars]
 			skinmax = S[player.skinvars].shields
 		end
 		local oldshieldmax = player.shieldmax
