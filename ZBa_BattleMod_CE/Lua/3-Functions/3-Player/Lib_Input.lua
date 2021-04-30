@@ -36,7 +36,11 @@ B.GetInputAngle = function(player)
 	if not mo
 		mo = player.truemo
 	end
-	if mo
+	
+	if mo and mo.valid
+		if (mo.flags2&MF2_TWOD or twodlevel)
+			return mo.angle
+		end
 		local fw = player.cmd.forwardmove
 		local sw = player.cmd.sidemove
 		-- 	local pang = player.cmd.angleturn << 16//is this netsafe?

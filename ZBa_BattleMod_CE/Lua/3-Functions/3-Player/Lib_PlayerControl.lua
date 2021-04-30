@@ -206,29 +206,6 @@ B.PlayerButtonPressed = function(player,button,held,check_stasis)
 	return true
 end
 
-B.GetInputAngle = function(player)
-	//2d check
-	if (player.mo and player.mo.valid)
-	and (player.mo.flags2&MF2_TWOD or twodlevel) then
-		return player.mo.angle
-	end
-	
-	//3d
-	local fw = player.cmd.forwardmove
-	local sw = player.cmd.sidemove
-	local pang = player.cmd.angleturn << 16
-	
-	if fw == 0 and sw == 0 then
-		return nil
-	end
-	
-	local c0, s0 = cos(pang), sin(pang)
-	
-	local rx, ry = fw*c0 + sw*s0, fw*s0 - sw*c0
-	local retangle = R_PointToAngle2(0, 0, rx, ry)
-	return retangle
-end
-
 B.MyTeam = function(player,myplayer) //Also accepts player.mo
 	//Check yourself before you wreck yourself
 	if myplayer == player then return true end
