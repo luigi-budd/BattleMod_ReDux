@@ -126,14 +126,14 @@ B.DoPlayerInteract = function(smo,tmo)
 	local weight = {}
 	for n = 1,2
 		local w = nil
-		if not(homing[n])
+		//if not(homing[n])
 			if mo[n].weight == nil then
 				mo[n].weight = FRACUNIT
 			end
 			w = mo[n].weight
-		else
-			w = FRACUNIT/10
-		end
+		//else
+		//	w = FRACUNIT/10
+		//end
 		weight[n] = max(1,FixedMul(w,mo[n].scale))
 	end
 	

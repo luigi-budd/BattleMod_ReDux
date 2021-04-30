@@ -34,8 +34,7 @@ B.AirDodge = function(player)
 		and not player.powers[pw_carry]
 		and not P_IsObjectOnGround(mo)
 		
-		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
-		angle = $ + (player.cmd.angleturn << FRACBITS)
+		local angle = B.GetInputAngle(player)
 		
 		if player.battleconfig_dodgecamera or (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
 			angle = mo.angle
