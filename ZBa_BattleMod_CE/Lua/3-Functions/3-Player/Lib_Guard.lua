@@ -89,7 +89,7 @@ B.Guard = function(player,buttonpressed)
 		mo.frame = guardframe
 		player.powers[pw_nocontrol] = 2
 		if player.guardtics < 1 then
-			player.guardtics = 13
+			player.guardtics = 10
 			player.guard = -1
 		else
 			mo.guardflash = player.guardtics&2
@@ -114,7 +114,7 @@ B.Guard = function(player,buttonpressed)
 		if player.guardtics < 1 then
 			if player.guard == -1
 				player.guard = -2
-				player.guardtics = 6
+				player.guardtics = 9
 			else
 				player.guard = 0
 				mo.sprite2 = SPR2_STND
