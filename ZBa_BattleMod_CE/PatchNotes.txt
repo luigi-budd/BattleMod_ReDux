@@ -57,7 +57,7 @@ Item Bubbles
 
 Sonic
 	Weight increased: (90 -> 95)
-	Thok actionspeed increased: (40 -> 42)
+	Thok actionspeed increased: (40 -> 43)
 	Super Spin Jump
 		Priority reduced (2/2 -> 1/2)
 		Added a sweetspot above Sonic with (2/2) priority
