@@ -9,7 +9,9 @@ end
 
 //Handle "battle" collision interactions
 B.DoPlayerInteract = function(smo,tmo)
+	//Preround
 	if B.PreRoundWait() return end
+	
 	if tmo == nil then return end
 	//We'll be repeating a lot of functions in this script, so let's make use of some arrays
 	local s = 1

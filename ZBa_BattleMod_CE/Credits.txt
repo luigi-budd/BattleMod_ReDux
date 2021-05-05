@@ -10,6 +10,7 @@ Krabs:
 	Knuckles & Fang support scripting
 	Beta testing
 	SFX
+	v9 scripting
 FlareBlade93:
 	Pumpkin Peak Zone stage layout and visual design
 	Beta Testing
@@ -26,13 +27,15 @@ Flame:
 TehRealSalt:
 	Original Fang popgun aim/fire re-emulation script
 DirkTheHusky:
-	Instashield Sprites
+	Instashield sprites
 MotorRoach:
 	Tails special move sprites
 Phanthonas:
 	Original Tails Doll sprites
 FlyingNosaj:
 	Tails Doll edited sprites
+Inazuma:
+	Stun Break vfx sprites
 Anonymous:
 	Color saving for team/FFA mode switching
 LJ Sonic:
@@ -57,3 +60,4 @@ Other:
 Chess pieces pulled from Secret of Mana, "Poltergeist" (spritesheet from The Spriters Resource)
 Metal Sonic "claw" sprites pulled from RPG Maker 2003
 Battle "shield" pulled from Sonic Battle
+Various sound effects pulled from Super Smash Bros. Melee and Super Smash Bros. Ultimate (from The Sounds Resource)

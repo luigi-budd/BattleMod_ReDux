@@ -123,6 +123,8 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 	player.charability2 = skin.ability2
 	player.normalspeed = skin.normalspeed
 	player.thrustfactor = skin.thrustfactor
+	player.mindash = skin.mindash
+	player.maxdash = skin.maxdash
 	player.climbing = 0
 	player.secondjump = 0
 	if not(player.actionsuper) then

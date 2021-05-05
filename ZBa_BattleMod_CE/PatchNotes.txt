@@ -1,3 +1,234 @@
+2121/5/xx
+Version 9
+
+Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
+
+New ability: Stun Break (costs 20 rings)
+	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
+	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
+
+New ability: Air Dodge
+	Press the parry button in midair to avoid damage
+	It also gives a small boost in any direction
+	The dodge's invulnerability and dodge distance are reduced while holding the flag/diamond
+
+Added console command: battleconfig_dodgecamera (default: on)
+	If disabled, air dodge and stun break can be angled towards the player's movement direction.
+
+New ability: Shield Swap
+	Press the Toss Flag button (while not holding a flag) to switch to your reserve shield
+
+Shields
+	Shields can now be activated using the Toss Flag button, even when using Fang
+	Adjusted shield visuals, making most of them more translucent while making the whirlwind shield more opaque
+	In team modes, all shields are team colored
+	When a reserve shield is used, it plays a different sound effect depending on the type of shield
+	Armageddon shield
+		Removed the explosion that happens when the owner is hurt
+		Added a chargeup period and a warning sound effect to the manual explosion
+	Elemental shield
+		Horizontal speed is cut by 3/5 when starting the stomp, instead being set to 0
+		Reduced duration of flame projectiles
+		When hurting a player with Fang's cork or Amy's love hearts, a ring of flames will spawn
+		Added a 2/2 sweetspot at the bottom of the stomp
+
+Collision / bumping
+	Reduced duration of recoil stun by 20%
+	Reduced maximum recoil stun duration: (2s -> 1s)
+	Changed the sound effects of collision interactions, adding more unique sounds for successful and defended attacks at different priority levels
+	Added screenshake to collisions increasing based on the attack / defense priority
+	Added a visual effect when a collison causes damage - the effect is larger for attacks with higher priority
+	Bashable objects now play priority-based sound effects when attacked, and have collision visual effects
+	Reduced lockout time for colliding with the same player twice (15tics -> 12tics)
+	Collisions can no longer occur during pre-round countdown
+
+Parry
+	The guard animation provides 1 def for a brief pariod after the parry window
+	The guard animation is slightly shorter overall
+	Parrying a player will remove their invincibility powerup
+	Parrying a player will now place them in a "tumble" state, which is similar to standard hitstun but removes the ability to air dodge
+	Tumbling players bounce off floors and cannot move for a period of time
+	Removed the ability to parry during some special moves
+
+Item Bubbles
+	Item bubbles can be used to bounce, but it's weaker than monitor bounces
+	Item bubbles now play a sound effect when popped
+	Item bubbles now create an icon when popped, like a monitor
+
+Sonic
+	Weight increased: (90 -> 95)
+	Thok actionspeed increased: (40 -> 42)
+	Super Spin Jump
+		Priority reduced (2/2 -> 1/2)
+		Added a sweetspot above Sonic with (2/2) priority
+		Added subtle squash and stretch animation
+	Ground Pound
+		Cooldown increased: (1.5s -> 2.25s)
+		Priority when falling reduced (2/2 -> 1/2)
+		Added a sweetspot below Sonic while falling with (2/2) priority
+		Projectiles are blockable by 1 defense or more
+		Upwards momentum at the start of the ground pound increased
+		Added new moves that can be performed when ground pound hits the floor
+			If spin is held, Sonic can perform a dash
+			If jump is held, Sonic can perform a bounce jump
+			If neither is held, Sonic creates a shockwave as usual
+		Added subtle squash and stretch animation
+
+Tails
+	Tails cannot carry exhausted teammates
+	Tails exhausts more quickly
+	Flight Dash's cooldown is increased depending on Tails's exhaustion level, up to 4x longer
+	Tail Swipe's animation is shorter
+	Tail Swipe's projectiles last longer: (35tics -> 45tics)
+	Tail Swipe's projectiles have increased launch speed, can bounce off walls, can bounce off players, and decelerate while traveling
+	All 3 of Tail Swipe's projectiles produce a sound effect instead of just the center one, although the sound is quieter for each
+	Increased Tail Swipe cooldown: (1.25s -> 1.5s)
+
+Knuckles
+	Knuckles now exhausts while gliding, instead of only when climbing
+	Knuckles now falls more quickly when gliding at very low speed
+	While gliding, Knuckles behaves as if Legacy mode is disabled
+	Slightly increased the knockback Knuckles recieves after hitting with Gliding Fists
+	Jumpfactor increased from 85% to 90%
+	Dig
+		Renamed Dig to Drill Dive when in midair
+		Knuckles can now cancel Drill Dive with a glide (1s cooldown)
+		Drill Dive now puts Knuckles in the fall state after hitting a monitor or enemy
+		Drill Dive can now be performed when Knuckles is in goop water
+		Increased movement speed while underground
+		Reduced duration of the startup period before a Rock Blast is allowed, and allowed full movement during this period
+		Rock Blast:
+			Rock projectiles are now blockable by 1 defense or more
+			Cooldown: (3s+ dig time -> 3s, 4s if jumped)
+			Rock Blast Jump:
+				Reduced jump height
+				Added a sound effect to Rock Blast jump
+				When used, Knuckles's horizontal speed is cut by 2/3
+			Knuckles now curls after a rock blast
+			Knuckles can now glide for a very short time after a Rock Blast
+		Emerge:
+			When used, Knuckles's horizontal speed is cut by 2/3
+			Launch height increased
+
+Amy
+	Slightly adjusted the knockback of blocked love hearts (it should be nearly identical)
+	New air ability: Twinspin Jump
+		Acts like a standard double jump, but uses the hammer as well
+		When swinging the hammer, Amy always aims towards the camera
+	Twinspin
+		When swinging the hammer, Amy always aims towards the camera
+	Piko Hammer (grounded)
+		Can now be charged - fully charging the attack unleashes Piko Wave, an attack that creates a huge wave of heart projectiles which can also shield teammates
+		Can now perform a hammer flip by pressing the jump button while using Piko Hammer
+		When swinging the hammer, Amy always aims towards the camera
+	New special ability: Piko Spin
+		Accelerate forwards while spinning like a top with 2/3 priority. It ends in a standard hammer swing
+		If used in midair, Amy will hover a little bit while spinning
+		While it shares the same name as her old air special, this move replaces both Piko Tornado and the previous iteration of Piko Spin
+
+Fang
+	Weight increased: (100 -> 105)
+	Air popgun no longer removes control from fang
+	Added some recoil to grounded popgun
+	Added a tiny bit of screenshake to popgun shots
+	Adjusted the popgun firing sound effect
+	New special ability: Combat Roll
+		Dash forwards in ball form with 1/1 priority. If it collides with an opponent but doesn't do damage, it can tumble them for a midair popgun followup!
+
+Metal Sonic
+	Reduced priority of a spindash charge with dashmode: (1/3 -> 1/1)
+	Float
+		When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
+		Reduced maximum float time before exhaustion (6s -> 4s)
+		Added a small exhaustion penalty for each time Metal Sonic "taps" the float button
+	Energy Attack
+		Reduced cooldown: (3s -> 2.75s)
+		Reduced cooldown on cancel or interrupt: (3s -> 1.25s)
+		Dash Slicer
+			Changed the positions and timings of the claw projectiles, removing the blindspot between metal and the claws
+			Reduced the endlag of the final jump: (18tics -> 15tics)
+			Adjusted sound effects
+			Now enters the spring animation at the end of the final jump
+			No longer provides dashmode during the dash (this doesn't matter for gameplay, but it removes the dashmode deactivation sound)
+			Renamed "slash strike" to "dash slicer" in the hit feed
+
+Gamemodes
+	Arena, Team Arena
+		Players are now forced to respawn, like in Survival modes
+	Survival, Team Survival
+		If a player has less than the maximum life count, killing 3 opponents will grant an extra life
+	Control Point
+		Reduced time limit (8:00 -> 5:00)
+	Team Control Point
+		Reduced point limit: (4 -> 3)
+		Reduced time limit: (8:00 -> 5:00)
+	Diamond, Team Diamond
+		After holding the diamond for 30 seconds, it's captured, awarding the player/team with a score bonus and spawning a new diamond somewhere else
+		Added console variable diamond_capture_time (default: 30, range: 10-60)
+		Added console variable diamond_capture_bonus (default: 1000, range: 0-100000)
+	CTF
+		Added HUD flag compasses
+
+Maps
+	Grass Court, Oasis, King's Board, Snow Globe, Mushroom Pit, Sideshow, Aquarium, and Chaos Shrine
+		More spacious layouts
+		Rebalanced item spawns
+		Bug fixes
+	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
+
+Major gameplay changes
+	Reduced mercy invincibility after taking a hit (3s -> 2s)
+	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
+	Spindash minimum and maximum speed are now reduced while holding the flag (min: 100% -> 75%, max: 100% -> 80%)
+	Acceleration while holding the flag increased (80% -> 83%)
+
+Minor gameplay changes
+	Added sound effects to various projectiles on a successful hit
+	Increased the exhaustion rate of CEZ swings
+	Increased the respawn timer for spikes: (3s -> 10s)
+	Lowered the height at which Tails Doll floats
+	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
+	Lowered the default priority of non-attraction homing attacks used by some custom characters: (1/2 -> 1/1)
+	Auto-Spectator Camera
+		Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
+		Increased the time between automatic player cycles
+
+Modding functionality
+	Added new skinvars: func_collide, func_precollide, func_postcollide, func_exhaust
+		These can be set using CBW_Battle.SkinVars["skinname"].func_collide and CBW_Battle.SkinVars["skinname"].func_exhaust
+		func_collide is run when the player collides with another player - it's useful for making certain moves behave uniquely on player contact!
+		If func_collide returns true, collision physics will be overridden
+		func_precollide runs before func_collide, and func_postcollide runs after Battle's collision physics happen
+		func_exhaust is run during battlemod's exhaust code, and can return true in order to prevent exhaustion from resetting on floor touch - use it to give your custom abilities battlemod-specific exhaust limitations!
+	Added universal mechanics supporting blockable projectiles
+		"Blockable projectiles" are projectiles such as Fang's corks which only deal damage when the target has low enough defense
+		You can create projectiles that are blockable by giving any missile these variables:
+			mo.blockable - if set to a number, the target will need that much defense or more to block the shot
+			mo.block_sound - sound to play when blocked. If it's not set, it will use the same sound effect as fang's corks
+			mo.block_stun - amount of horizontal thrust to apply on block (will be multiplied by scale later)
+			mo.block_hthrust - amount of horizontal thrust to apply on block (will be multiplied by scale later)
+			mo.block_vthrust - amount of vertical thrust to apply on block (will be multiplied by scale later)
+	Added mo.hit_sound for projectiles (sound to play on successful hit)
+	Added the mo.cantouchteam variable, which allows for friendly projectiles to interact with teammates. This can be used for support purposes, like with love hearts
+	Added the mo.name variable, which allows projectiles and other hazardous items to bypass the mo.info.name variable in the hitfeed
+	Added support for SF_STOMPDAMAGE characters - they have a 1/1 sweetspot while falling
+
+Maintenance
+	Changed team chat to actually work, making it no longer visible to the enemy team and spectators
+	Added an error message when BattleMod is loaded after another version of BattleMod has already been loaded
+	Fixed an issue where projectiles would disappear when they touched teammates
+	Fixed an issue where Amy was unable to escape CEZ swings
+	Fixed an issue where Metal Sonic could float indefinitely after colliding with a player while hovering
+	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
+	Fixed an issue where Metal Sonic would not exit the "spinning" state when using Energy Attack, which allowed him to attack during his falling animation
+	Fixed an issue where using the bubble shield bounce would exhaust Metal Sonic
+	Fixed an issue where dashmode could be maintained during Metal Sonic's Energy Attack
+	Fixed an issue where bubble items were included in the blockmap
+	Fixed an issue where elemental fire trails would drain rings from teammates on touch
+	Fixed an issue where revenge jetty-syn players could deal damage for 1 tic while invisible during overtime
+	Fixed the accuracy of the HUD objective compass in all objective-based modes
+#
+
 2020/11/15
 Version 8.6
 

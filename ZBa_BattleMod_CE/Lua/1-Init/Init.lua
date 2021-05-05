@@ -5,8 +5,8 @@ local B = CBW_Battle
 
 //Version Info
 B.VersionNumber = "CE v7"
-B.VersionSub = 2
-B.VersionDate = "4/30/2021"
+B.VersionSub = 3
+B.VersionDate = "5/5/2021"
 
 //Sub Tables
 B.NetVars = {}

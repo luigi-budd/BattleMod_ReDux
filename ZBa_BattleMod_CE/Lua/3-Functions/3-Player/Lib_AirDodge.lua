@@ -74,11 +74,11 @@ B.AirDodge = function(player)
 			dodge_momz_real = $ / 2
 		end
 		
-		local diff = dodge_momz_real - mo.momz*P_MobjFlip(mo)
+		local diff = dodge_momz_real - (mo.momz*P_MobjFlip(mo))
 		if (diff > 0)
-			P_SetObjectMomZ(mo, dodge_momz_real, false)
+			mo.momz =  dodge_momz_real, false
 		else
-			P_SetObjectMomZ(mo, (dodge_momz_real - diff/2), false)
+			mo.momz =  dodge_momz_real - diff/2
 		end
 		
 		mo.momx = $ / 7
