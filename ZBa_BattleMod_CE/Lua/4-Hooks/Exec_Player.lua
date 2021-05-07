@@ -39,7 +39,7 @@ end)
 
 addHook("ShieldSpecial", function(player)
 	if B.CanShieldActive(player)
-		and B.ButtonCheck(player,BT_SPIN) == 1
+		and (B.ButtonCheck(player,BT_SPIN) == 1 or (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1))
 		and not(B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)
 		B.DoShieldActive(player)
 	end
