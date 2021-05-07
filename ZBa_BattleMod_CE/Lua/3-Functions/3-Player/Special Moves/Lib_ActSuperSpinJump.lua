@@ -27,8 +27,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	local player = mo.player
 	
 	if player.actionstate == 0 and player.squashstretch
-		//mo.spritexscale = FRACUNIT
-		//mo.spriteyscale = FRACUNIT
+		mo.spritexscale = FRACUNIT
+		mo.spriteyscale = FRACUNIT
 		player.squashstretch = false
 	end
 	
@@ -55,8 +55,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			B.PayRings(player)
 			//Do high jump
 			if P_IsObjectOnGround(mo) then
-				//mo.spritexscale = FRACUNIT * 4/5
-				//mo.spriteyscale = FRACUNIT * 5/4
+				mo.spritexscale = FRACUNIT * 4/5
+				mo.spriteyscale = FRACUNIT * 5/4
 				player.squashstretch = true
 		
 				player.actionstate = state_superspinjump
@@ -186,8 +186,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			end
 			player.pflags = $&~PF_SPINNING
 		else
-			//mo.spritexscale = max(FRACUNIT * 3/4, min($ - FRACUNIT/100, FRACUNIT))
-			//mo.spriteyscale = max(FRACUNIT, min($ + FRACUNIT/100, FRACUNIT*4/3))
+			mo.spritexscale = max(FRACUNIT * 3/4, min($ - FRACUNIT/100, FRACUNIT))
+			mo.spriteyscale = max(FRACUNIT, min($ + FRACUNIT/100, FRACUNIT*4/3))
 			player.squashstretch = true
 		end
 	end
@@ -195,8 +195,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	if player.actionstate == state_superspinjump 
 		B.ControlThrust(mo,FRACUNIT,nil,jumpfriction,nil)
 		
-		//mo.spritexscale = max(FRACUNIT * 4/5, min($ + FRACUNIT/30, FRACUNIT))
-		//mo.spriteyscale = max(FRACUNIT, min($ - FRACUNIT/30, FRACUNIT * 5/4))
+		mo.spritexscale = max(FRACUNIT * 4/5, min($ + FRACUNIT/30, FRACUNIT))
+		mo.spriteyscale = max(FRACUNIT, min($ - FRACUNIT/30, FRACUNIT * 5/4))
 		player.squashstretch = true
 		
 		//Go into fall frames after end-rising
