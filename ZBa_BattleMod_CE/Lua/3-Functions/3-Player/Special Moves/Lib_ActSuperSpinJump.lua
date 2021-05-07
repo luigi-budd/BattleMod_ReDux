@@ -231,8 +231,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		trail.state = S_THOK
 		trail.frame = TR_TRANS70|A
 		trail.destscale = 0
-		//trail.spritexscale = mo.spritexscale
-		//trail.spriteyscale = mo.spriteyscale
+		trail.spritexscale = mo.spritexscale
+		trail.spriteyscale = mo.spriteyscale
 		
 		/*if leveltime % 4 == 0
 			trail = P_SpawnGhostMobj(mo)

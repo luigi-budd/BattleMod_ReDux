@@ -1,7 +1,7 @@
 local B = CBW_Battle
 
 B.ArmaCharge = function(player)
-	if not player.valid or not player.mo or not player.mo.valid or not player.armachargeup
+	if not player.valid or not player.mo or not player.mo.valid or not player.armachargeup or player.gotflagdebuff
 		player.armachargeup = nil
 		return
 	end
@@ -192,6 +192,7 @@ end
 B.ShieldTossFlagButton = function(player)
 	if player and player.valid and player.mo and player.mo.valid
 		player.shieldswap_cooldown = max(0, $ - 1)
+		local mo = player.mo
 		
 		if B.CanShieldActive(player)
 			and (B.ButtonCheck(player,BT_TOSSFLAG) == 1)
@@ -202,7 +203,8 @@ B.ShieldTossFlagButton = function(player)
 			
 			if temp != SH_PITY and
 				(
-					(player.pflags&PF_JUMPED)
+					(player.pflags&PF_JUMPED or temp == SH_WHIRLWIND)
+					and not P_IsObjectOnGround(mo)
 					and not player.powers[pw_carry]
 					and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and temp == SH_BUBBLEWRAP))
 				)
