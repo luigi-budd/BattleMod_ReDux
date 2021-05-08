@@ -1,5 +1,5 @@
 2121/5/7
-CE Version 7.3
+CE Version 8
 
 Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
 

@@ -4,8 +4,8 @@ rawset(_G,"CBW_Battle",{})
 local B = CBW_Battle
 
 //Version Info
-B.VersionNumber = "CE v7"
-B.VersionSub = 3
+B.VersionNumber = "CE v8"
+B.VersionSub = 0
 B.VersionDate = "5/7/2021"
 
 //Sub Tables

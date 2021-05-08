@@ -23,7 +23,7 @@ SMS Alfredo:
 	Damage priority support scripting
 	CP HUD support scripting
 Wane:
-	Balance adjustments
+	v9 balance adjustments
 Flame:
 	2D dynamic camera script
 TehRealSalt:
