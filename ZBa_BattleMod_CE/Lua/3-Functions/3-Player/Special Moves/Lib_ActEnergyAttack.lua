@@ -90,6 +90,8 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		local a = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ENERGYAURA)
 		if a and a.valid then 
 			a.target = mo
+			a.scale = mo.scale
+			a.spriteyoffset = -16*FRACUNIT
 		end
 	end
 	
@@ -264,7 +266,10 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		local x = mo.x+P_RandomRange(-r,r)*FRACUNIT
 		local y = mo.y+P_RandomRange(-r,r)*FRACUNIT
 		local z = mo.z+P_RandomRange(0,mo.height/FRACUNIT)*FRACUNIT
-		P_SpawnMobj(x,y,z,MT_SUPERSPARK)
+		local spark = P_SpawnMobj(x,y,z,MT_SUPERSPARK)
+		if spark and spark.valid
+			spark.scale = mo.scale
+		end
 		P_SpawnGhostMobj(mo)
 		local spd = FixedMul(player.normalspeed/B.WaterFactor(mo),mo.scale)
 		if twodlevel or mo.flags2&MF2_TWOD then
