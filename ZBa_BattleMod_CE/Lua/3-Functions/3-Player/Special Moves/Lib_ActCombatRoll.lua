@@ -21,7 +21,6 @@ B.Action.CombatRoll = function(mo,doaction)
 	player.actiontext = "Combat Roll"
 	player.actionrings = 10
 	if player.pflags&PF_BOUNCING
-		player.actionrings = 10
 		player.actiontext = "Spring Drop"
 	end
 	

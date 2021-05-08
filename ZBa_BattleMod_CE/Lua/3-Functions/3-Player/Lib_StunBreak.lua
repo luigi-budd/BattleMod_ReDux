@@ -10,7 +10,7 @@ B.StunBreak = function(player, doguard)
 		or not P_PlayerInPain(player)
 		or not player.mo.state == S_PLAY_PAIN
 		or player.isjettysyn
-		or CV.Guard.value == 0
+		or not (CV.Guard.value)
 		return
 	end
 	local mo = player.mo

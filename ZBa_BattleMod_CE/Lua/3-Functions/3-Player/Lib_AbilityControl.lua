@@ -147,7 +147,6 @@ local exhaust = function(player)
 	end
 	if player.powers[pw_tailsfly]
 		local maxtime = 5*TICRATE
-		print(mo.momz * P_MobjFlip(mo) / FRACUNIT)
 		if mo.momz * P_MobjFlip(mo) > 5*FRACUNIT
 			maxtime = 2*TICRATE
 		elseif mo.momz * P_MobjFlip(mo) > 3*FRACUNIT

@@ -35,12 +35,6 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 	if P_PlayerInPain(player)
 		player.actionstate = 0
 	end
-	
-	if not(B.CanDoAction(player) or player.actionstate >= state_dashslicer)
-		if B.GetSVSprite(player)
-			B.ResetPlayerProperties(player,false,false)
-		return end
-	return end
 		
 	//Action info
 	player.actiontext = "Energy Attack"
@@ -49,6 +43,12 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 	if player.exhaustmeter < FRACUNIT and player.actionstate == 1 then
 		player.action2text = "Overheat "..100*player.exhaustmeter/FRACUNIT.."%"
 	end
+	
+	if not(B.CanDoAction(player) or player.actionstate >= state_dashslicer)
+		if B.GetSVSprite(player)
+			B.ResetPlayerProperties(player,false,false)
+		return end
+	return end
 	
 	//Action triggers
 	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)

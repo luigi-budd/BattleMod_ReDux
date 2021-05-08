@@ -6,11 +6,13 @@ Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
 New ability: Stun Break (costs 20 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
 	After a tech, you can't use special moves for 1sec, and you gain a tiny amount of blinking invuln
+	If guarding is disabled in the console, stun break will also be disabled
 
 New ability: Air Dodge
 	Press the parry button in midair to avoid damage
 	It also gives a small boost in any direction
 	The dodge's invulnerability and dodge distance are reduced while holding the flag/diamond
+	If guarding is disabled in the console, air dodge will also be disabled
 
 Added console command: battleconfig_dodgecamera (default: on)
 	If disabled, air dodge and stun break can be angled towards the player's movement direction.
@@ -43,8 +45,6 @@ Collision / bumping
 	Collisions can no longer occur during pre-round countdown
 
 Parry
-	The guard animation provides 1 def for a brief pariod after the parry window
-	The guard animation is slightly shorter overall
 	Parrying a player will remove their invincibility powerup
 	Parrying a player will now place them in a "tumble" state, which is similar to standard hitstun but removes the ability to air dodge
 	Tumbling players bounce off floors and cannot move for a period of time
@@ -57,7 +57,7 @@ Item Bubbles
 
 Sonic
 	Weight increased: (90 -> 95)
-	Thok actionspeed increased: (40 -> 43)
+	Increased thok speed: (40 -> 45)
 	Super Spin Jump
 		Priority reduced (2/2 -> 1/2)
 		Added a sweetspot above Sonic with (2/2) priority
@@ -71,25 +71,33 @@ Sonic
 		Added new moves that can be performed when ground pound hits the floor
 			If spin is held, Sonic can perform a dash
 			If jump is held, Sonic can perform a bounce jump
-			If neither is held, Sonic creates a shockwave as usual
+			If neither is held, Sonic creates a shockwave as usual, but loses 80% of his speed
 		Added subtle squash and stretch animation
 
 Tails
-	Tails cannot carry exhausted teammates
-	Tails exhausts more quickly
-	Flight Dash's cooldown is increased depending on Tails's exhaustion level, up to 4x longer
-	Tail Swipe's animation is shorter
-	Tail Swipe's projectiles last longer: (35tics -> 45tics)
-	Tail Swipe's projectiles have increased launch speed, can bounce off walls, can bounce off players, and decelerate while traveling
-	All 3 of Tail Swipe's projectiles produce a sound effect instead of just the center one, although the sound is quieter for each
-	Increased Tail Swipe cooldown: (1.25s -> 1.5s)
+	Fly
+		Velocity increased: (100 -> 115)
+		Tails cannot carry exhausted teammates
+		Tails exhausts more quickly, especially while moving upwards
+		When exhaustion runs out, Tails's vertical speed is cut slightly
+		When exhausted, Tails has reduced movement control
+	Flight Dash's cooldown is increased depending on Tails's exhaustion level, up to 3x longer
+	Tail Swipe
+		Increased cooldown: (1.25s -> 1.4s)
+		Reduced endlag
+		Tail Swipe's projectiles last longer: (35tics -> 45tics)
+		Tail Swipe's projectiles have increased launch speed, can bounce off walls, can bounce off players, and decelerate while traveling
+		All 3 of Tail Swipe's projectiles produce a sound effect instead of just the center one, although the sound is quieter for each
 
 Knuckles
-	Knuckles now exhausts while gliding, instead of only when climbing
-	Knuckles now falls more quickly when gliding at very low speed
-	While gliding, Knuckles behaves as if Legacy mode is disabled
-	Slightly increased the knockback Knuckles recieves after hitting with Gliding Fists
-	Jumpfactor increased from 85% to 90%
+	Jumpfactor increased: (85% -> 90%)
+	Weight increased: (115 -> 120)
+	Glide & Climb
+		Knuckles now exhausts while gliding, instead of only when climbing
+		Knuckles exhausts more quickly while climbing: (8s -> 5s)
+		Knuckles now falls more quickly when gliding at very low speed
+		While gliding, Knuckles behaves as if Legacy mode is disabled
+		Slightly increased the knockback Knuckles recieves after hitting with Gliding Fists
 	Dig
 		Renamed Dig to Drill Dive when in midair
 		Knuckles can now cancel Drill Dive with a glide (1s cooldown)
@@ -118,6 +126,7 @@ Amy
 	Twinspin
 		When swinging the hammer, Amy always aims towards the camera
 	Piko Hammer (grounded)
+		Increased horizontal thrust when swinging the hammer: (5->9)
 		Can now be charged - fully charging the attack unleashes Piko Wave, an attack that creates a huge wave of heart projectiles which can also shield teammates
 		Can now perform a hammer flip by pressing the jump button while using Piko Hammer
 		When swinging the hammer, Amy always aims towards the camera
@@ -128,10 +137,12 @@ Amy
 
 Fang
 	Weight increased: (100 -> 105)
-	Air popgun no longer removes control from fang
-	Added some recoil to grounded popgun
-	Added a tiny bit of screenshake to popgun shots
-	Adjusted the popgun firing sound effect
+	Popgun:
+		Incrased cork projectile speed: (48 -> 51)
+		Air popgun no longer removes control from fang
+		Added some recoil to grounded popgun
+		Added a tiny bit of screenshake to popgun shots
+		Adjusted the popgun firing sound effect
 	New special ability: Combat Roll
 		Dash forwards in ball form with 1/1 priority. If it collides with an opponent but doesn't do damage, it can tumble them for a midair popgun followup!
 
@@ -139,18 +150,23 @@ Metal Sonic
 	Reduced priority of a spindash charge with dashmode: (1/3 -> 1/1)
 	Float
 		When exhausted, Metal Sonic simply stops floating instead of overheating and slowing down
-		Reduced maximum float time before exhaustion (6s -> 4s)
+		Reduced maximum float time before exhaustion (6s -> 3s)
 		Added a small exhaustion penalty for each time Metal Sonic "taps" the float button
 	Energy Attack
-		Reduced cooldown: (3s -> 2.75s)
-		Reduced cooldown on cancel or interrupt: (3s -> 1.25s)
+		Reduced cooldown on cancel or interrupt: (3s -> 1s)
+		Energy Blast:
+			Reduced projectile speed: (48 -> 28)
+			Reduced cooldown: (3s -> 1.25s)
 		Dash Slicer
 			Changed the positions and timings of the claw projectiles, removing the blindspot between metal and the claws
-			Reduced the endlag of the final jump: (18tics -> 15tics)
+			Reduced the endlag of the final jump: (18tics -> 13tics)
+			Reduced the vertical thrust of the final jump: (32 -> 24)
 			Adjusted sound effects
 			Now enters the spring animation at the end of the final jump
 			No longer provides dashmode during the dash (this doesn't matter for gameplay, but it removes the dashmode deactivation sound)
 			Renamed "slash strike" to "dash slicer" in the hit feed
+		Dash Burst:
+			Reduced cooldown: (3s -> 2.5s)
 
 Gamemodes
 	Arena, Team Arena
@@ -218,6 +234,7 @@ Maintenance
 	Added an error message when BattleMod is loaded after another version of BattleMod has already been loaded
 	Fixed an issue where projectiles would disappear when they touched teammates
 	Fixed an issue where Amy was unable to escape CEZ swings
+	Fixed an issue where Metal Sonic could maintain dashmode speed forever if Energy Attack was charged for exactly 1 frame
 	Fixed an issue where Metal Sonic could float indefinitely after colliding with a player while hovering
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
 	Fixed an issue where Metal Sonic would not exit the "spinning" state when using Energy Attack, which allowed him to attack during his falling animation

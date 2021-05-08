@@ -34,7 +34,7 @@ B.ActionHUD=function(v, player, cam)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	return end //Don't draw anything more if we're holding an item
 	if text and not(player.actioncooldown and leveltime&1) then 
-		if player.actioncooldown then
+		if player.actioncooldown or player.actionallowed != true then
 			textflags = TF_GRAY
 			text = "Cooldown "..G_TicsToSeconds(player.actioncooldown).."."..G_TicsToCentiseconds(player.actioncooldown)
 		elseif textflags == nil then
