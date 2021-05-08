@@ -234,6 +234,7 @@ Maintenance
 	Added an error message when BattleMod is loaded after another version of BattleMod has already been loaded
 	Fixed an issue where projectiles would disappear when they touched teammates
 	Fixed an issue where Amy was unable to escape CEZ swings
+	Fixed an issue where Metal Sonic's energy aura was misaligned, and would not match Metal's scale properly for one frame
 	Fixed an issue where Metal Sonic could maintain dashmode speed forever if Energy Attack was charged for exactly 1 frame
 	Fixed an issue where Metal Sonic could float indefinitely after colliding with a player while hovering
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
