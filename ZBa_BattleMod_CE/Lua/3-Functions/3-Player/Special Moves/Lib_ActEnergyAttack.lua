@@ -6,12 +6,20 @@ local threshold2 = threshold1+35
 local state_charging = 1
 local state_energyblast = 2
 local state_dashslicer = 3
-local cooldownlength = TICRATE*11/4
-local cooldown_cancel = TICRATE*5/4
+local cooldown_dash = TICRATE * 5/2
+local cooldown_blast = TICRATE * 5/4
+local cooldown_slice = TICRATE * 2
+local cooldown_cancel = TICRATE
 local sideangle = ANG15/4 //Horizontal spread
 local vertwidth = ANG15/2 //Vertical spread
 local blastcount1 = 3
 local blastcount2 = 5
+
+local resetdashmode = function(p)
+	p.dashmode = 0
+	p.normalspeed = skins[p.skin].normalspeed
+	p.jumpfactor = skins[p.skin].jumpfactor
+end
 
 B.Action.EnergyAttack_Priority = function(player)
 	if player.actionstate == state_charging then
@@ -75,7 +83,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		if player.dashmode >= TICRATE*3 then
 			player.actiontime = threshold1
 		end
-		player.dashmode = 0
+		resetdashmode(player)
 		player.pflags = $&~(PF_SPINNING|PF_SHIELDABILITY)
 		player.canguard = false
 		S_StartSound(mo,sfx_s3k7a)
@@ -95,7 +103,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		end
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
-		player.exhaustmeter = max(0,$-(FRACUNIT/TICRATE/6))
+		player.exhaustmeter = max(0,$-(FRACUNIT/TICRATE/2))
 		
 		//Gather spheres
 		local gather = P_SpawnMobj(mo.x,mo.y,mo.z+mo.height/2,MT_ENERGYGATHER)
@@ -150,10 +158,10 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		S_StartSound(mo,sfx_s3k54)
 		P_InstaThrust(mo,mo.angle,FixedMul(player.normalspeed,mo.scale))
 		mo.state = S_PLAY_DASH
-		B.ApplyCooldown(player,cooldownlength)
+		B.ApplyCooldown(player,cooldown_dash)
 		player.dashmode = TICRATE*3
 	end
-		
+	
 	//Unable to charge
 	if canceltrigger then
 		B.ResetPlayerProperties(player,false,false)
@@ -204,7 +212,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		//Apply recoil
 		P_InstaThrust(mo,mo.angle+ANGLE_180,6*mo.scale)
 		player.actiontime = 0
-		B.ApplyCooldown(player,cooldownlength)
+		B.ApplyCooldown(player,cooldown_blast)
 	end
 	
 	//Update states
@@ -238,7 +246,6 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		//Next state
 		player.actionstate = state_dashslicer
 		player.actiontime = 0
-		player.dashmode = 0
 		S_StartSound(mo,sfx_cdfm01)
 	end
 	
@@ -280,19 +287,18 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		//Next state
 		player.actionstate = state_dashslicer+1
 		player.actiontime = 0
-		P_SetObjectMomZ(mo,FRACUNIT*32,0)
+		B.ZLaunch(mo,FRACUNIT*24,0)
 		mo.momx = $ * 2/3
 		mo.momy = $ * 2/3
 		player.pflags = $|(PF_SPINNING|PF_JUMPED)
 		mo.state = S_PLAY_ROLL
 		S_StartSound(mo,sfx_s3ka0)
 		S_StartSound(mo,sfx_cdfm14)
-		B.ApplyCooldown(player,cooldownlength)
+		B.ApplyCooldown(player,cooldown_slice)
 	end
 	
 	//Slash-striking
 	if player.actionstate == state_dashslicer+1 then
--- 		player.dashmode = 0
 		player.lockaim = true
 		player.lockmove = true
 		if not(player.pflags&(PF_SPINNING|PF_JUMPED)) then
@@ -302,7 +308,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		end
 		player.powers[pw_nocontrol] = max($,2)
 		B.ControlThrust(mo,FRACUNIT*90/100)
-		if not(player.actiontime >= TICRATE*3/7) then return end
+		if not(player.actiontime >= TICRATE*3/8) then return end
 		
 		//Back to neutral
 		player.actionstate = 0

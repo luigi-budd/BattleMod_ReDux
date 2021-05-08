@@ -111,16 +111,16 @@ addHook("MobjSpawn",function(mo)
 end,MT_PIKOWAVEHEART)
 addHook("MobjMoveCollide", function(mover,collide) if collide and (collide.battleobject or not(collide.flags&MF_SOLID)) then return end end, MT_PIKOWAVE)
 addHook("MobjMoveBlocked", function(mo)
-	mo.fuse = max(1, $ - 9)
+	//mo.fuse = max(1, $ - 9)
 	S_StartSound(mo,sfx_nbmper)
 end, MT_PIKOWAVE)
 addHook("MobjThinker", function(mo)
 	if mo.grow
-		mo.scale = $ + FRACUNIT/40
+		mo.scale = $ + FRACUNIT/45
 	end
 	mo.momx = $ * mo.friction / 100
 	mo.momy = $ * mo.friction / 100
-	mo.momz = $ - (P_MobjFlip(mo) * FRACUNIT / 3)
+	mo.momz = $ - (P_MobjFlip(mo) * mo.scale)
 end, MT_PIKOWAVEHEART)
 addHook("MobjThinker", B.PikoWaveThinker, MT_PIKOWAVE)
 

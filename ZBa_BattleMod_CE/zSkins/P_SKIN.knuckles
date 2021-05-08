@@ -1,2 +1,3 @@
 name = knuckles
 jumpfactor = 0.9
+actionspd = 28

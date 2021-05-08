@@ -37,7 +37,7 @@ S["tails"] = {
 	}
 }
 S["knuckles"] = {
-	weight = 115,
+	weight = 120,
 	shields = 1,
 	special = Act.Dig,
 	guard_frame = 2,

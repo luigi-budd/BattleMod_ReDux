@@ -146,10 +146,22 @@ local exhaust = function(player)
 		end
 	end
 	if player.powers[pw_tailsfly]
-		local maxtime = 4*TICRATE
+		local maxtime = 5*TICRATE
+		print(mo.momz * P_MobjFlip(mo) / FRACUNIT)
+		if mo.momz * P_MobjFlip(mo) > 5*FRACUNIT
+			maxtime = 2*TICRATE
+		elseif mo.momz * P_MobjFlip(mo) > 3*FRACUNIT
+			maxtime = 3*TICRATE
+		end
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
+		
 		if player.exhaustmeter <= 0
 			//player.exhaustmeter = FRACUNIT
+			if P_MobjFlip(mo) == 1
+				mo.momz = min($, 5*FRACUNIT)
+			else
+				mo.momz = max($, -5*FRACUNIT)
+			end
 			player.powers[pw_tailsfly] = 0
 		end
 	end
@@ -171,7 +183,7 @@ local exhaust = function(player)
 				player.glidetime = 0
 			end
 		elseif player.climbing
-			local maxtime = 8*TICRATE
+			local maxtime = 5*TICRATE
 			player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 			if player.exhaustmeter <= 0
 				//player.exhaustmeter = FRACUNIT
@@ -189,7 +201,7 @@ local exhaust = function(player)
 			player.exhaustmeter = max(0,$-FRACUNIT/20)
 		end
 		player.prevfloat = true
-		local maxtime = 4*TICRATE
+		local maxtime = 3*TICRATE
 		player.exhaustmeter = max(0,$-FRACUNIT/maxtime)
 		if player.exhaustmeter <= 0
 			//player.exhaustmeter = FRACUNIT

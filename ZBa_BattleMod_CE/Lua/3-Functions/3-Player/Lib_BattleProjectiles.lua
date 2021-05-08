@@ -31,10 +31,10 @@ local spawnheart = function(mo, launchang, anglemod, grow, zspd)
 		local angle = FixedAngle(P_RandomRange(0,359)<<FRACBITS)
 		P_InstaThrust(hrt,angle,thrust)
 		
-		local thrust2 = mo.scale * 10
+		local thrust2 = mo.scale * 13
 		P_Thrust(hrt,launchang + anglemod,thrust2)
 		hrt.scale = mo.scale / 2
-		hrt.fuse = 38
+		hrt.fuse = 29
 		hrt.grow = grow
 		
 		if (mo.time%4) and mo.color
@@ -68,16 +68,16 @@ B.PikoWaveThinker = function(mo)
 	local launchang = R_PointToAngle2(0,0,mo.momx,mo.momy)
 	
 	//Spawn projectiles
-	if not(mo.time%2)
+	if not(mo.time%3)
 		S_StartSound(mo,sfx_hoop2)
-		spawnheart(mo, launchang, 0, true, 10)
+		spawnheart(mo, launchang, 0, true, 9)
 	else
-		spawnheart(mo, launchang, -ANG30*2, false, 7)
-		spawnheart(mo, launchang, ANG30*2, false, 7)
+		spawnheart(mo, launchang, -ANG30, false, 7)
+		spawnheart(mo, launchang, ANG30, false, 7)
 	end
 	
 	//Speeds up over time
-	local friction = 101
+	local friction = 103
 	mo.momx = $*friction/100
 	mo.momy = $*friction/100
 	

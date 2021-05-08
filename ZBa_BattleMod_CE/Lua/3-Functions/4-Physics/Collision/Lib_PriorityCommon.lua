@@ -70,9 +70,6 @@ B.Priority_Ability = function(player)
 	elseif invstar
 		B.SetPriority(player,99,99,nil,99,99,"invincibility aura")
 		
-	elseif guard
-		B.SetPriority(player,0,1,nil,0,1,"guard")
-		
 	elseif homing
 		if attr and shieldability
 			B.SetPriority(player,1,2,nil,1,2,"attraction shot")

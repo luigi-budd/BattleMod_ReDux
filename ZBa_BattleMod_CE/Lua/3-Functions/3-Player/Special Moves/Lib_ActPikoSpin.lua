@@ -1,17 +1,18 @@
 local B = CBW_Battle
 
 local specialstate = 1
-local cooldown = TICRATE*7/4
+local cooldown = TICRATE*5/3
 local specialtime = 20
-local specialendtime = 24
-local thrust = FRACUNIT*2
+local specialendtime = 21
+local instathrust = FRACUNIT*14
+local thrust = FRACUNIT*3
 local friction = FRACUNIT*10/10
 local zfriction = FRACUNIT*9/10
 local limit = FRACUNIT*36
 
 B.Action.PikoSpin_Priority = function(player)
 	if player.actionstate == specialstate
-		B.SetPriority(player,2,3,nil,2,3,"piko spin technique")
+		B.SetPriority(player,2,2,nil,2,2,"piko spin technique")
 	end
 end
 
@@ -80,7 +81,7 @@ B.Action.PikoSpin = function(mo,doaction)
 			player.actionstate = specialstate
 			player.actiontime = 0
 			mo.momz = $ / 2
-			P_InstaThrust(mo, mo.angle, 12*FRACUNIT)
+			P_InstaThrust(mo, mo.angle, instathrust)
 			DoThrust(mo)
 			S_StartSoundAtVolume(mo,sfx_3db16,130)
 			S_StartSound(mo,sfx_s3ka0)

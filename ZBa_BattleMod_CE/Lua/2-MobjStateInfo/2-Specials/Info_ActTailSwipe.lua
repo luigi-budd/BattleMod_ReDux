@@ -18,7 +18,7 @@ freeslot(
 )
 mobjinfo[MT_SONICBOOM] = {
 	spawnstate = S_SONICBOOM1,
-	speed = 22*FRACUNIT,
+	speed = 26*FRACUNIT,
 	radius = 32*FRACUNIT,
 	height = 16*FRACUNIT,
 	mass = 0,

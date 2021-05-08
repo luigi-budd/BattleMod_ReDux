@@ -1,7 +1,7 @@
 local B = CBW_Battle
-local cooldown = TICRATE*5/2
-local xythrust = 24
-local zthrust = 8
+local cooldown = TICRATE*3/2
+local xythrust = 38
+local zthrust = 9
 local dropspeed = 20
 
 B.Action.CombatRoll = function(mo,doaction)
@@ -21,6 +21,7 @@ B.Action.CombatRoll = function(mo,doaction)
 	player.actiontext = "Combat Roll"
 	player.actionrings = 10
 	if player.pflags&PF_BOUNCING
+		player.actionrings = 10
 		player.actiontext = "Spring Drop"
 	end
 	

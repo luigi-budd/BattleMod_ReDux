@@ -22,6 +22,8 @@ SMS Alfredo:
 	Battle shielding core script
 	Damage priority support scripting
 	CP HUD support scripting
+Wane:
+	Balance adjustments
 Flame:
 	2D dynamic camera script
 TehRealSalt:

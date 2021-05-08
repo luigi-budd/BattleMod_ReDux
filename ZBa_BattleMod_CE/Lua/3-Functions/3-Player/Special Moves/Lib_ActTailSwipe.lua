@@ -1,7 +1,7 @@
 local B = CBW_Battle
 local state_swipe = 1
 local state_thrust = 2
-local cooldown_swipe = TICRATE*3/2
+local cooldown_swipe = TICRATE*7/5
 local cooldown_dash = TICRATE*5/4
 local cooldown_throw = cooldown_dash
 local sideangle = ANG30 + ANG10
@@ -112,9 +112,9 @@ B.Action.TailSwipe = function(mo,doaction)
 		B.PayRings(player)
 		//Tails can get as much as 4x cooldown for using flight dash after flying for a while
 		if mo.state == S_PLAY_FLY_TIRED
-			B.ApplyCooldown(player, cooldown_dash * 4)
+			B.ApplyCooldown(player, cooldown_dash * 3)
 		else
-			B.ApplyCooldown(player, min(cooldown_dash * 4, max(cooldown_dash, (cooldown_dash * 5) - (player.exhaustmeter * 300/FRACUNIT))))
+			B.ApplyCooldown(player, min(cooldown_dash * 3, max(cooldown_dash, (cooldown_dash * 5) - (player.exhaustmeter * 300/FRACUNIT))))
 		end
 		//Set state
 		player.powers[pw_tailsfly] = 0
