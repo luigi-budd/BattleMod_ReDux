@@ -93,6 +93,7 @@ Knuckles
 	Jumpfactor increased: (85% -> 90%)
 	Weight increased: (115 -> 120)
 	Glide & Climb
+		Glide minimum speed increased (25 -> 28)
 		Knuckles now exhausts while gliding, instead of only when climbing
 		Knuckles exhausts more quickly while climbing: (8s -> 5s)
 		Knuckles now falls more quickly when gliding at very low speed
