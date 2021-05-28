@@ -45,6 +45,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	local jumpflags = (player.pflags|PF_JUMPED|PF_THOKKED)&~(PF_STARTJUMP|PF_NOJUMPDAMAGE|PF_GLIDING|PF_BOUNCING|PF_SPINNING)
 	//Neutral
 	if player.actionstate == 0
+		player.squashstretch = 0
 		if doaction == 1 then
 			B.PayRings(player)
 			//Do high jump

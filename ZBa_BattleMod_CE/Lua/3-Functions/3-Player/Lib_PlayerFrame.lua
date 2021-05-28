@@ -44,6 +44,12 @@ end
 B.PlayerThinkFrame = function(player)
 	local pmo = player.mo
 	
+	if (pmo and pmo.valid) and ((not player.squashstretch) or player.playerstate != PST_LIVE)
+		pmo.spritexscale = FRACUNIT
+		pmo.spriteyscale = FRACUNIT
+		player.squashstretch = nil
+	end
+	
 	//Sanity checks
 	if player.versusvars == nil then return end
 	if not(pmo and pmo.valid) or player.playerstate != PST_LIVE then return end
@@ -103,12 +109,6 @@ B.PlayerThinkFrame = function(player)
 	B.DoPlayerInteract(pmo,pmo.pushed)
 	B.UpdateRecoilState(pmo)
 	B.UpdateCollisionHistory(pmo)
-	
-	if player.actionstate == 0 and player.squashstretch
-		pmo.spritexscale = FRACUNIT
-		pmo.spriteyscale = FRACUNIT
-		player.squashstretch = false
-	end
 end
 
 B.PlayerPostThinkFrame = function(player)
