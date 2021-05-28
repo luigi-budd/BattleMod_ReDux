@@ -236,7 +236,7 @@ A.HUD = function(v,player,cam)
 		//Draw head
 		if not(blink) then
 			v.drawScaled((xoffset+headx)*f, (yoffset+heady+ouchy)*f, heads, v.getSprite2Patch(p.mo.skin, SPR2_LIFE),
-				headflags, v.getColormap(nil, p.mo.color)
+				headflags, v.getColormap(p.mo.skin, p.mo.color)
 			)
 		end
 
@@ -291,12 +291,12 @@ A.HUD = function(v,player,cam)
 					for n = 1,p.lives
 						v.drawScaled((xoffset+livesx+livesn*(n-1))*f,(yoffset+livesy)*f,livess,
 							v.getSprite2Patch(p.mo.skin, SPR2_LIFE),
-							livesf, v.getColormap(nil, p.skincolor))
+							livesf, v.getColormap(p.mo.skin, p.skincolor))
 					end
 				else
 					v.drawScaled((xoffset+livesx)*f,(yoffset+livesy)*f,livess,
 						v.getSprite2Patch(p.mo.skin, SPR2_LIFE),
-						livesf, v.getColormap(nil, p.skincolor))
+						livesf, v.getColormap(p.mo.skin, p.skincolor))
 					text = p.lives
 					livesy2 = $
 					v.drawString(xoffset+livesx2,yoffset+livesy2,text,livesf,livesa)

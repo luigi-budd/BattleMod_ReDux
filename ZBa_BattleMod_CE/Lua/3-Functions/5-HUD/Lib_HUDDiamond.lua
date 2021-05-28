@@ -83,10 +83,10 @@ D.HUD = function(v, player, cam)
 	if id.target and id.target.valid and id.target.player then
 		if not(G_GametypeHasTeams())
 			v.draw(xoffset+right+(center*2), yoffset+bottom, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-				flags|V_FLIP, v.getColormap(nil, id.target.player.skincolor))
+				flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
 		else
 			v.draw(xoffset+right*4+(center*2), yoffset+bottom/2, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-				flags|V_FLIP, v.getColormap(nil, id.target.player.skincolor))
+				flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
 		end
 		if id.target.player.gotcrystal and id.target.player.gotcrystal_time
 			local percent_amt = id.target.player.gotcrystal_time * 100 / captime

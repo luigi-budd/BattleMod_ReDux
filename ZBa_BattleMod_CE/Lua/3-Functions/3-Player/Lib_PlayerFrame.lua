@@ -103,6 +103,12 @@ B.PlayerThinkFrame = function(player)
 	B.DoPlayerInteract(pmo,pmo.pushed)
 	B.UpdateRecoilState(pmo)
 	B.UpdateCollisionHistory(pmo)
+	
+	if player.actionstate == 0 and player.squashstretch
+		pmo.spritexscale = FRACUNIT
+		pmo.spriteyscale = FRACUNIT
+		player.squashstretch = false
+	end
 end
 
 B.PlayerPostThinkFrame = function(player)

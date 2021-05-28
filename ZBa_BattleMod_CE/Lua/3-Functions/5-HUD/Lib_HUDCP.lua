@@ -81,14 +81,14 @@ CP.HUD = function(v, player, cam)
 				and CP.LeadCapPlr.captureamount == CP.LeadCapAmt and CP.LeadCapPlr.playerstate == PST_LIVE
 				then
 				v.draw(xoffset+right+(center*2), yoffset+bottom, v.getSprite2Patch(CP.LeadCapPlr.mo.skin, SPR2_LIFE),
-					flags|V_FLIP, v.getColormap(nil, CP.LeadCapPlr.mo.color))
+					flags|V_FLIP, v.getColormap(CP.LeadCapPlr.mo.skin, CP.LeadCapPlr.mo.color))
 			end
 			text = "\x82"..CP.LeadCapAmt*100/CP.Meter.."%" //Suppose it doesn't hurt to draw this either way...
 			v.drawString(xoffset+right,yoffset+4,text,flags,rightalign)
 			//Get our player
 			if player.mo and CP.Active
 				v.draw(xoffset+left-(center*2), yoffset+bottom, v.getSprite2Patch(player.mo.skin, SPR2_LIFE),
-					flags, v.getColormap(nil, player.mo.color))
+					flags, v.getColormap(player.mo.skin, player.mo.color))
 				text = player.captureamount*100/CP.Meter.."%"
 				v.drawString(xoffset+left,yoffset+4,text,flags,leftalign)
 			end

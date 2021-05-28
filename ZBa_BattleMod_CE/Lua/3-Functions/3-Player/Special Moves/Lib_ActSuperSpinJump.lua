@@ -26,12 +26,6 @@ end
 B.Action.SuperSpinJump=function(mo,doaction)
 	local player = mo.player
 	
-	if player.actionstate == 0 and player.squashstretch
-		mo.spritexscale = FRACUNIT
-		mo.spriteyscale = FRACUNIT
-		player.squashstretch = false
-	end
-	
 	if not(B.CanDoAction(player)) then
 		player.actionstate = 0
 	return end

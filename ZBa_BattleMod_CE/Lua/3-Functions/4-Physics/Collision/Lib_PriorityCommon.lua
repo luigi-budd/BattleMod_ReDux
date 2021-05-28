@@ -29,7 +29,7 @@ B.Priority_Core = function(player)
 		t = "spin attack"
 	end
 	
-	B.SetPriority(player,atk,def,"can_damage",atk,def,t)	
+	B.SetPriority(player,atk,def,"can_damage",1,1,t)	
 end
 
 B.Priority_Ability = function(player)
