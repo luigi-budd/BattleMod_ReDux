@@ -143,7 +143,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					
 					for i = 0, 9
 						local dust = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
-						P_Thrust(dust, mo.angle + ANG20 * 2 * i, mo.scale * -20)
+						P_Thrust(dust, mo.angle + (ANG1 * 36 * i), mo.scale * -20)
 						
 						if (mo.eflags & MFE_VERTICALFLIP) // readjust z position if needed
 							dust.z = mo.z + mo.height - dust.height
