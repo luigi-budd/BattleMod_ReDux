@@ -245,6 +245,7 @@ Maintenance
 	Fixed an issue where bubble items were included in the blockmap
 	Fixed an issue where elemental fire trails would drain rings from teammates on touch
 	Fixed an issue where revenge jetty-syn players could deal damage for 1 tic while invisible during overtime
+	Fixed an issue where HUD icons for characters would display incorrectly for characters that don't use the default startcolor (like Espio)
 	Fixed the accuracy of the HUD objective compass in all objective-based modes
 #
 
