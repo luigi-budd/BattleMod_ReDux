@@ -212,6 +212,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		// 0: nobody was hurt
 		// 1: t was hurt by s
 		//-1: s was hurt by t
+		// 2: both hurt
 	end
 	local pain = {}
 	for n = 1,2

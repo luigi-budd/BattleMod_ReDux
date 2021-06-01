@@ -40,6 +40,6 @@ rawset(_G,"DF_ITEM",		1<<2)
 rawset(_G,"DF_PLAYER",		1<<3)
 
 rawset(_G,"SKINVARS_GUARD",			1<<0)
-rawset(_G,"SKINVARS_GUNSLINGER",	1<<1)
-rawset(_G,"SKINVARS_NOSPINSHIELD",	1<<2)
+rawset(_G,"SKINVARS_NOSPINSHIELD",	1<<1)
+rawset(_G,"SKINVARS_GUNSLINGER",	1<<2)
 rawset(_G,"SKINVARS_ROSY",			1<<3)

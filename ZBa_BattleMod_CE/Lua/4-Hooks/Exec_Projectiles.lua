@@ -22,11 +22,16 @@ addHook("MobjMoveCollide", function(tmthing,thing)
 		
 		return
 	end
-	//Fix for teammates interacting at all with teammate projectiles
 	if tmthing.flags&MF_MISSILE
-		and B.MyTeam(tmthing.target.player,thing.player)
-		and not tmthing.cantouchteam
-		return false
+		//Fix for teammates interacting at all with teammate projectiles
+		if B.MyTeam(tmthing.target.player,thing.player)
+			and not tmthing.cantouchteam
+			return false
+		end
+		//Projectile intangibility
+		if thing.player.intangible
+			return false
+		end
 	end
 end)
 
