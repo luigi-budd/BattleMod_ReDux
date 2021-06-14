@@ -70,7 +70,9 @@ S["fang"] = {
 	special = Act.CombatRoll,
 	guard_frame = 1,
 	func_priority_ext = Act.CombatRoll_Priority,
+	func_precollide = B.Fang_PreCollide,
 	func_collide = B.Fang_Collide,
+	func_postcollide = B.Fang_PostCollide,
 	sprites = {
 		S_FANGCHAR_AIRFIRE1,
 		S_FANGCHAR_AIRFIRE2

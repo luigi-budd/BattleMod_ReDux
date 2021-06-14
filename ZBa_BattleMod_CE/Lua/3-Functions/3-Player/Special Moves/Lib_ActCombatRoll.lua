@@ -95,11 +95,30 @@ local function fanghop(player)
 	player.powers[pw_nocontrol] = 18
 end
 
+local function iscombatroll(player)
+	if not (player and player.valid and player.playerstate == PST_LIVE)
+		or not player.mo
+		or not (player.actiontime and player.mo.state == S_PLAY_ROLL)
+		or not player.mo.health
+		return false
+	end
+	return true
+end
+
+B.Fang_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if iscombatroll(plr[n1])
+		plr[n1].fangmarker = true
+	end
+end
+
+B.Fang_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and plr[n1].fangmarker
+		plr[n1].fangmarker = nil
+	end
+end
+
 B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if not (plr[n1] and plr[n1].valid and plr[n1].playerstate == PST_LIVE)
-		or not mo[n1].health
-		or not (plr[n1].actiontime and mo[n1].state == S_PLAY_ROLL)
-		or pain[n1]
+	if not plr[n1].fangmarker
 		return false
 	end
 	if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2)
