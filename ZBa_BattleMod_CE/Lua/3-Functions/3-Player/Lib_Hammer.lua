@@ -77,7 +77,7 @@ local function hammerjump(player)
 	P_Thrust(mo,player.drawangle,2*mo.scale)
 	S_StartSound(mo,sfx_cdfm37)
 	S_StartSound(mo,sfx_s3ka0)
-	player.pflags = ($ | PF_JUMPED | PF_THOKKED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
+	player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
 	mo.state = S_PLAY_ROLL
 	player.panim = PA_ROLL
 end
