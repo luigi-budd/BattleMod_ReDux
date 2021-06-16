@@ -87,12 +87,12 @@ local function fanghop(player)
 	local mo = player.mo
 	B.ZLaunch(mo, 7 * mo.scale, false)
 	mo.state = S_PLAY_JUMP
-	mo.momx = $ * -3/4
-	mo.momy = $ * -3/4
+	mo.momx = $ * -2/3
+	mo.momy = $ * -2/3
 	player.actionstate = 0
 	player.actiontime = 0
 	player.pflags = ($ | (PF_JUMPED | PF_STARTJUMP | PF_NOJUMPDAMAGE)) & ~PF_THOKKED
-	player.powers[pw_nocontrol] = 18
+	player.powers[pw_nocontrol] = 16
 end
 
 local function iscombatroll(player)
