@@ -242,4 +242,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		
 		player.pflags = $|PF_THOKKED
 	end
+	
+	if mo.state != S_PLAY_ROLL
+		player.squashstretch = false
+	end
 end

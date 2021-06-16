@@ -64,10 +64,10 @@ B.ActionHUD=function(v, player, cam)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	end
 	//Action 2 text
-	yoffset = $+10
 	text = player.action2text
 	textflags = player.action2textflags
 	if not(player.gotflag) and text and not(player.actioncooldown) then 
+		yoffset = $+10
 		if textflags == nil then
 			textflags = 0
 			if (player.actionstate == 0 and player.action2rings > player.rings) then
@@ -94,4 +94,40 @@ B.ActionHUD=function(v, player, cam)
 		v.draw(xoffset,yoffset,patch,flags)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	end
+	
+	if not CV.Guard.value
+		return
+	end
+	
+	yoffset = $+10
+	local patch = v.cachePatch("PARRYBT")
+	local textcolor = 0
+	
+	if not (player and player.valid and player.mo and player.mo.valid)
+		or not P_PlayerInPain(player)
+		or not player.mo.state == S_PLAY_PAIN
+		or player.isjettysyn
+		
+		textcolor = "\x80"
+		if P_IsObjectOnGround(player.mo)
+			text = "Guard"
+		else
+			text = "Air Dodge"
+		end
+	else
+		text = "Stun Break"
+		textcolor = "\x86"
+		if player.rings >= 20
+			if leveltime % 3 == 0
+				textcolor = ""
+			elseif leveltime % 3 == 1
+				textcolor = "\x83"
+			else
+				textcolor = "\x87"
+			end
+		end
+	end
+	text = textcolor .. " " .. $
+	v.draw(xoffset,yoffset,patch,flags)
+	v.drawString(xoffset+10,yoffset,text,flags,align)
 end

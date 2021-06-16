@@ -6,7 +6,6 @@ local D = B.Diamond
 local F = B.CTF
 
 hud.add(B.ActionHUD, player)
-hud.add(B.StunBreakHUD, player)
 hud.add(B.ShieldStockHUD, player)
 hud.add(CP.HUD, player)
 hud.add(D.HUD, player)

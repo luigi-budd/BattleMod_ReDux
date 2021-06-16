@@ -28,6 +28,7 @@ B.SparringPartnerControl = function()
 	local exists = (B.TrainingDummy and B.TrainingDummy.valid)
 	//Get training value
 	if G_TagGametype() then training = false
+	elseif CBW_Chaos_Library and CBW_Chaos_Library.Gametypes[gametype] then training = false
 	elseif not(G_GametypeHasTeams()) and playercount == 1 and CV.TailsDoll.value >= 1 then training = true
 	elseif G_GametypeHasTeams() and (redcount == 0 or bluecount == 0) and CV.TailsDoll.value >= 1 then training = true
 	end

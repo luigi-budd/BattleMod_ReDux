@@ -1,7 +1,31 @@
-2020/6/14
+2020/6/x
 Version 9.0
 
 Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
+
+Gamemodes
+	Arena, Team Arena
+		Players are now forced to respawn, like in Survival modes
+	Survival, Team Survival
+		If a player has less than the maximum life count, killing 3 opponents will grant an extra life
+	Control Point
+		Reduced time limit (8:00 -> 5:00)
+	Team Control Point
+		Reduced point limit: (4 -> 3)
+		Reduced time limit: (8:00 -> 5:00)
+	Diamond, Team Diamond
+		After holding the diamond for 30 seconds, it's captured, awarding the player/team with a score bonus and spawning a new diamond somewhere else
+		Added console variable diamond_capture_time (default: 30, range: 10-60)
+		Added console variable diamond_capture_bonus (default: 1000, range: 0-100000)
+	CTF
+		Added HUD flag compasses
+
+Maps
+	Grass Court, Oasis, King's Board, Snow Globe, Mushroom Pit, Sideshow, Aquarium, and Chaos Shrine
+		More spacious layouts
+		Rebalanced item spawns
+		Bug fixes
+	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
 
 New ability: Stun Break (costs 20 rings)
 	After getting hurt, you can press the Parry button to hop out of the pain state and get back into the action, at the cost of your blinking invulnerability
@@ -19,6 +43,24 @@ Added console command: battleconfig_dodgecamera (default: on)
 
 New ability: Shield Swap
 	Press the Toss Flag button (while not holding a flag) to switch to your reserve shield
+
+Major gameplay changes
+	Reduced mercy invincibility after taking a hit (3s -> 2s)
+	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
+	Spindash minimum and maximum speed are now reduced while holding the flag (min: 100% -> 75%, max: 100% -> 80%)
+	Acceleration while holding the flag increased (80% -> 83%)
+
+Minor gameplay changes
+	Added hud indicator for guard / air dodge / stun break
+	Added sound effects to various projectiles on a successful hit
+	Increased the exhaustion rate of CEZ swings
+	Increased the respawn timer for spikes: (3s -> 10s)
+	Lowered the height at which Tails Doll floats
+	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
+	Lowered the default priority of non-attraction homing attacks used by some custom characters: (1/2 -> 1/1)
+	Auto-Spectator Camera
+		Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
+		Increased the time between automatic player cycles
 
 Shields
 	Shields can now be activated using the Toss Flag button, even when using Fang
@@ -169,47 +211,6 @@ Metal Sonic
 		Dash Burst:
 			Reduced cooldown: (3s -> 2.5s)
 
-Gamemodes
-	Arena, Team Arena
-		Players are now forced to respawn, like in Survival modes
-	Survival, Team Survival
-		If a player has less than the maximum life count, killing 3 opponents will grant an extra life
-	Control Point
-		Reduced time limit (8:00 -> 5:00)
-	Team Control Point
-		Reduced point limit: (4 -> 3)
-		Reduced time limit: (8:00 -> 5:00)
-	Diamond, Team Diamond
-		After holding the diamond for 30 seconds, it's captured, awarding the player/team with a score bonus and spawning a new diamond somewhere else
-		Added console variable diamond_capture_time (default: 30, range: 10-60)
-		Added console variable diamond_capture_bonus (default: 1000, range: 0-100000)
-	CTF
-		Added HUD flag compasses
-
-Maps
-	Grass Court, Oasis, King's Board, Snow Globe, Mushroom Pit, Sideshow, Aquarium, and Chaos Shrine
-		More spacious layouts
-		Rebalanced item spawns
-		Bug fixes
-	Added Training Zone, which can be accessed via the level select menu in singleplayer (MAPBZ)
-
-Major gameplay changes
-	Reduced mercy invincibility after taking a hit (3s -> 2s)
-	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
-	Spindash minimum and maximum speed are now reduced while holding the flag (min: 100% -> 75%, max: 100% -> 80%)
-	Acceleration while holding the flag increased (80% -> 83%)
-
-Minor gameplay changes
-	Added sound effects to various projectiles on a successful hit
-	Increased the exhaustion rate of CEZ swings
-	Increased the respawn timer for spikes: (3s -> 10s)
-	Lowered the height at which Tails Doll floats
-	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
-	Lowered the default priority of non-attraction homing attacks used by some custom characters: (1/2 -> 1/1)
-	Auto-Spectator Camera
-		Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
-		Increased the time between automatic player cycles
-
 Modding functionality
 	Added new skinvars: func_collide, func_precollide, func_postcollide, func_exhaust
 		These can be set using CBW_Battle.SkinVars["skinname"].func_collide and CBW_Battle.SkinVars["skinname"].func_exhaust
@@ -233,20 +234,22 @@ Modding functionality
 Maintenance
 	Changed team chat to actually work, making it no longer visible to the enemy team and spectators
 	Added an error message when BattleMod is loaded after another version of BattleMod has already been loaded
+	Added a lua workaround to a bug in 2.2.9 where spawning near flicky mapthings could cause the game to crash
 	Fixed an issue where projectiles would disappear when they touched teammates
+	Fixed an issue where Super Sonic could float during ground pound
 	Fixed an issue where Amy was unable to escape CEZ swings
 	Fixed an issue where Metal Sonic's energy aura was misaligned, and would not match Metal's scale properly for one frame
 	Fixed an issue where Metal Sonic could maintain dashmode speed forever if Energy Attack was charged for exactly 1 frame
 	Fixed an issue where Metal Sonic could float indefinitely after colliding with a player while hovering
 	Fixed an issue where Metal Sonic could float after using a bubble shield bounce or a lightning shield jump
 	Fixed an issue where Metal Sonic would not exit the "spinning" state when using Energy Attack, which allowed him to attack during his falling animation
-	Fixed an issue where using the bubble shield bounce would exhaust Metal Sonic
-	Fixed an issue where dashmode could be maintained during Metal Sonic's Energy Attack
+	Fixed an issue where Metal Sonic would exhaust from using the bubble shield bounce
+	Fixed an issue where Metal Sonic's Energy Attack could maintain dashmode
 	Fixed an issue where bubble items were included in the blockmap
 	Fixed an issue where elemental fire trails would drain rings from teammates on touch
 	Fixed an issue where revenge jetty-syn players could deal damage for 1 tic while invisible during overtime
 	Fixed an issue where HUD icons for characters would display incorrectly for characters that don't use the default startcolor (like Espio)
-	Fixed the accuracy of the HUD objective compass in all objective-based modes
+	Fixed an issue where the HUD objective compass in all objective-based modes was inaccurate
 #
 
 2020/11/15

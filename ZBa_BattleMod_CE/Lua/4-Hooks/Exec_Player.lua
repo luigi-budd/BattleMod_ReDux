@@ -65,6 +65,12 @@ addHook("SpinSpecial",function(player)
 	end
 end)
 
+addHook("JumpSpinSpecial", function(player)
+	if player.powers[pw_super] and player.charability == CA_THOK and player.actionstate
+		return true
+	end
+end)
+
 //aaaaaaaaaaa
 addHook("PlayerThink", B.AutoSpectator)
 
