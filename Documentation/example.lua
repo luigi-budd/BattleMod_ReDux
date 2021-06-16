@@ -152,9 +152,11 @@ addHook("ThinkFrame", function()
 		end
 		
 		--Collide functions allow for special behaviors on player collision
-		--For this example, we'll make sonic's roll state cause tumble if it clashes with an enemy without dealing damage, similar to fang's combat roll.
-		--The collision code is not exactly a cakewalk to work with, but another example of its use can be found in Shadow's battle script.
+		--For this example, we'll make sonic's roll state play a sound effect and bypass the standard collision physics if it clashes with an enemy without dealing damage.
+		--The collision code is not exactly a cakewalk to work with, but another example of its use can be found in Fang's combat roll script (Lua\3-Functions\3-Player\Special Moves\Lib_ActCombatRoll.lua).
+		--That combatroll script also contains an example of precollide and postcollide's usefulness.
 		--	~Krabs
+		
 		local CollideFunc = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 			--There's a lot of arguments here, apologies...
 			
@@ -187,9 +189,7 @@ addHook("ThinkFrame", function()
 				return false
 			end
 			if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2) --Make sure the other player wasn't damaged
-				B.DoPlayerTumble(plr[n2], 24, angle[n1], mo[n1].scale*3, true)
-				P_InstaThrust(mo[n2], angle[n2], mo[n1].scale * 5)
-				B.ZLaunch(mo[n2], 7 * mo[n2].scale, false)
+				S_StartSound(mo[n1], sfx_lose)
 				return true
 			end
 		end
