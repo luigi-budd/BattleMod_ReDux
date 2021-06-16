@@ -19,7 +19,7 @@ S[-1] = {
 	sprites = {}
 }
 S["sonic"] = {
-	weight = 95,
+	weight = 100,
 	shields = 1, 
 	special = Act.SuperSpinJump,
 	guard_frame = 2,
