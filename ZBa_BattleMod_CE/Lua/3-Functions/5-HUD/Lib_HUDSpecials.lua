@@ -99,9 +99,25 @@ B.ActionHUD=function(v, player, cam)
 		return
 	end
 	
+	if not player.mo and player.mo.valid return end
+	
 	yoffset = $+10
 	local patch = v.cachePatch("PARRYBT")
 	local textcolor = 0
+	local canguard = (player.canguard and not player.actionstate)
+	local candodge = (player.mo.state != S_PLAY_PAIN
+		and player.mo.state != S_PLAY_STUN
+		and player.airdodge == 0
+		and player.playerstate == PST_LIVE
+		and not player.exiting
+		and not player.actionstate
+		and not player.climbing
+		and not player.armachargeup
+		and not player.isjettysyn
+		and not player.revenge
+		and not player.powers[pw_nocontrol]
+		and not player.powers[pw_carry]
+		and not P_IsObjectOnGround(player.mo))
 	
 	if not (player and player.valid and player.mo and player.mo.valid)
 		or not P_PlayerInPain(player)
@@ -110,8 +126,10 @@ B.ActionHUD=function(v, player, cam)
 		
 		textcolor = "\x80"
 		if P_IsObjectOnGround(player.mo)
+			if not canguard return end
 			text = "Guard"
 		else
+			if not candodge return end
 			text = "Air Dodge"
 		end
 	else
