@@ -2,7 +2,7 @@ local B = CBW_Battle
 local state_swipe = 1
 local state_thrust = 2
 local cooldown_swipe = TICRATE*7/5
-local cooldown_dash = TICRATE*5/4
+local cooldown_dash = TICRATE*6/5
 local cooldown_throw = cooldown_dash
 local sideangle = ANG30 + ANG10
 local throw_strength = 30
@@ -12,8 +12,8 @@ local thrustpower = 16
 local function sbvars(m,pmo)
 	if m and m.valid then
 		m.fuse = 45
-		m.momx = $/2+pmo.momx/2
-		m.momy = $/2+pmo.momy/2
+		m.momx = $ + pmo.momx/2
+		m.momy = $ + pmo.momy/2
 		S_StartSoundAtVolume(m,sfx_s3kb8,190)
 	end
 end

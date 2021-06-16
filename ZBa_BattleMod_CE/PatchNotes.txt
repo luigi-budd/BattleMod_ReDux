@@ -123,7 +123,9 @@ Tails
 		Tails exhausts more quickly, especially while moving upwards
 		When exhaustion runs out, Tails's vertical speed is cut slightly
 		When exhausted, Tails has reduced movement control
-	Flight Dash's cooldown is increased depending on Tails's exhaustion level, up to 3x longer
+	Flight Dash
+		Cooldown reduced: (1.25 -> 1.2s)
+		Cooldown is increased depending on Tails's exhaustion level, up to 3x longer
 	Tail Swipe
 		Increased cooldown: (1.25s -> 1.4s)
 		Reduced endlag
@@ -182,7 +184,7 @@ Fang
 	Weight increased: (100 -> 105)
 	Popgun:
 		Incrased cork projectile speed: (48 -> 51)
-		Air popgun no longer removes control from fang
+		Air popgun now only locks Fang's air control for a short moment, instead of until floor touch
 		Added some recoil to grounded popgun
 		Added a tiny bit of screenshake to popgun shots
 		Adjusted the popgun firing sound effect
