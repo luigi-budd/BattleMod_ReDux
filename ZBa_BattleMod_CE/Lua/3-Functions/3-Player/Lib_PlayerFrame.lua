@@ -75,7 +75,7 @@ B.PlayerThinkFrame = function(player)
 	B.Tumble(player)
 	
 	//Ability control
-	B.GuardControl(player)//Guard behavior
+	B.GuardControl(player)//Check if guard is allowed
 	B.CharAbilityControl(player)//Exhaust and ability behavior
 	
 	//Update timers/stats

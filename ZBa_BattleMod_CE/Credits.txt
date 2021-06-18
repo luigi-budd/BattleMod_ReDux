@@ -6,10 +6,11 @@ CobaltBW:
 	Music composition/arrangement
 Krabs:
 	Arena stage layouts and visual designs
-	v9 design / scripting
 	Texture work
+	Knuckles & Fang support scripting
 	Beta testing
 	SFX
+	v9 scripting
 FlareBlade93:
 	Pumpkin Peak Zone stage layout and visual design
 	Beta Testing
@@ -22,9 +23,7 @@ SMS Alfredo:
 	Damage priority support scripting
 	CP HUD support scripting
 Wane:
-	Balance adjustments
-Lianvee:
-	HUD scripting
+	v9 balance adjustments
 Flame:
 	2D dynamic camera script
 TehRealSalt:

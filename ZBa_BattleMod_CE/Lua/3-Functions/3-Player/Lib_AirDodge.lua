@@ -20,6 +20,7 @@ B.AirDodge = function(player)
 	
 	if B.ButtonCheck(player, player.battleconfig_guard) == 1
 		and (CV.Guard.value)
+		and player.canguard
 		and player.mo.state != S_PLAY_PAIN
 		and player.mo.state != S_PLAY_STUN
 		and player.airdodge == 0

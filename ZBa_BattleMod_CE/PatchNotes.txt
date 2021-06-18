@@ -252,6 +252,7 @@ Maintenance
 	Fixed an issue where revenge jetty-syn players could deal damage for 1 tic while invisible during overtime
 	Fixed an issue where HUD icons for characters would display incorrectly for characters that don't use the default startcolor (like Espio)
 	Fixed an issue where the HUD objective compass in all objective-based modes was inaccurate
+	Fixed an issue where custom characters could not set their guard frame to the 0th frame of their transformation
 #
 
 2020/11/15

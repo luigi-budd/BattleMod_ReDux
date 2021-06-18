@@ -69,7 +69,7 @@ B.Guard = function(player,buttonpressed)
 		P_SetMobjStateNF(player.followmobj,S_NULL)
 	end
 	local guardframe
-	if B.SkinVars[player.skinvars].guard_frame then
+	if B.SkinVars[player.skinvars].guard_frame != nil then
 		guardframe = B.SkinVars[player.skinvars].guard_frame
 	else
 		guardframe = B.SkinVars[-1].guard_frame
