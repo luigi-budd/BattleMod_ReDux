@@ -15,6 +15,7 @@ local function getshield(n)
 end
 
 B.ShieldStockHUD = function(v, player, cam)
+	if not (B.HUDMain) then return end
 	if player.playerstate != PST_LIVE then return end
 	if not(CV.ShieldStock.value) then return end
 	if not(gametyperules&GTR_PITYSHIELD) then return end
@@ -24,8 +25,9 @@ B.ShieldStockHUD = function(v, player, cam)
 	local align = "thin"
 	local s = 4
 	local t = 2
-	local xoffset = 306
-	local yoffset = 182
+	
+	local xoffset = hudinfo[HUD_POWERUPS].x+18	-- 288+18 = 306
+	local yoffset = hudinfo[HUD_POWERUPS].y+6	-- 176+6 = 182
 	local text = "Sh "..#player.shieldstock.."/"..player.shieldmax
 	//Draw shield reserves
 

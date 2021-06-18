@@ -2,19 +2,21 @@ local B = CBW_Battle
 local CV = B.Console
 
 B.ActionHUD=function(v, player, cam)
+	if not (B.HUDMain) then return end
+	if not hud.enabled("rings") then return end
 	if player.playerstate != PST_LIVE then return end
 	if not(CV.Actions.value) then return end
 	if player.actionallowed != true and not player.gotflag then return end
-	if G_TagGametype() and leveltime < CV_FindVar("hidetime").value*TICRATE then return end
+	if G_TagGametype() and (leveltime < CV_FindVar("hidetime").value*TICRATE) then return end
 	local TF_GRAY = 1
 	local TF_YELLOW = 2
 	local TF_RED = 3
 	local blink = false
-	local xoffset = 16
+	local xoffset = hudinfo[HUD_RINGS].x -- 16
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER
 	local align = "thin"
 	//Action 1 text
-	local yoffset = 56
+	local yoffset = hudinfo[HUD_RINGS].y+14 -- 42+14 = 56
 	local text = player.actiontext
 	local textflags = player.actiontextflags
 	local gotflag = player.gotflag
@@ -99,7 +101,7 @@ B.ActionHUD=function(v, player, cam)
 		return
 	end
 	
-	if not player.mo and player.mo.valid return end
+	if not (player.mo and player.mo.valid) return end
 	
 	yoffset = $+10
 	local patch = v.cachePatch("PARRYBT")

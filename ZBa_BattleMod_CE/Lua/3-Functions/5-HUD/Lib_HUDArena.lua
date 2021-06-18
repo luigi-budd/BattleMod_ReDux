@@ -126,6 +126,7 @@ local function setoffsets(player,m)
 end
 
 A.HUD = function(v,player,cam)
+	if not (B.HUDMain) then return end
 	if not(B.ArenaGametype()) then 
 		hud.enable("score")
 	return end
@@ -327,4 +328,3 @@ A.HUD = function(v,player,cam)
 		end
 	end
 end
-

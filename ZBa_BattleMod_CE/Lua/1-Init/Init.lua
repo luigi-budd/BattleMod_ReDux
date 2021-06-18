@@ -32,6 +32,8 @@ B.SkinVars = {}
 B.MessageText = {}
 B.RedScore = 0
 B.BlueScore = 0
+B.HUDMain = true
+B.HUDAlt = true
 
 //Flags
 rawset(_G,"DF_GAMETYPE",	1<<0)

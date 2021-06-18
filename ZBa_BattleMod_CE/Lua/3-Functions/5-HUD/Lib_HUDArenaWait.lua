@@ -6,6 +6,7 @@ local yo = 152
 
 //Enable/disable spectator controls hud
 B.SpectatorControlHUD = function(v,player,cam)
+	if not (B.HUDAlt) then return end
 	if player.spectatortime != nil
 	and (player.spectatortime < TICRATE*9 or (player.spectatortime < TICRATE*10 and player.spectatortime&1))
 		hud.enable("textspectator")
@@ -16,10 +17,11 @@ end
 
 //Waiting to join
 A.WaitJoinHUD = function(v, player, cam)
-	if not(gametyperules&GTR_LIVES) or (gametyperules&GTR_FRIENDLY) then return end //Competitive lives only
+	if not (B.HUDAlt) then return end
+	if not (gametyperules&GTR_LIVES) or (gametyperules&GTR_FRIENDLY) then return end //Competitive lives only
 	local dead = (player.spectator and not(A.SpawnLives))
 		or (player.playerstate == PST_DEAD and player.revenge)
-	if not(dead) then return end
+	if not (dead) then return end
 	if not(CV.Revenge.value) or B.SuddenDeath then
 -- 		local t = "\x85".."You've been ELIMINATED!"
 -- 		v.drawString(160,160,t,V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,"center")
@@ -41,7 +43,7 @@ end
 //Game set!
 local lerpamt = FRACUNIT
 A.GameSetHUD = function(v,player,cam)
-	if not(B.BattleGametype()) or not(B.Exiting)
+	if not (B.BattleGametype()) or not (B.Exiting) or not (B.HUDAlt) then
 		lerpamt = FRACUNIT
 	return end
 	local a = v.cachePatch("LTFNT065")
@@ -77,6 +79,10 @@ end
 //Revenge JettySyn
 local revengehud = false
 A.RevengeHUD = function(v,player,cam)
+	if not (B.HUDAlt) then -- Gateway.
+		revengehud = false
+		return
+	end
 	if player.revenge and not(revengehud) then
 		hud.disable("lives")
 		hud.disable("rings")

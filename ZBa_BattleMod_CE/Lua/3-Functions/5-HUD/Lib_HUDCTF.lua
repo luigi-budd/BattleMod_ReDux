@@ -2,6 +2,9 @@ local B = CBW_Battle
 local F = B.CTF
 
 F.HUD = function(v, player, cam)
+	if not (B.HUDMain) then return end
+	if not hud.enabled("teamscores") then return end -- Gateway.
+	
 	local redflag = F.RedFlag
 	local blueflag = F.BlueFlag
 	

@@ -6,8 +6,9 @@ local captime = CV.DiamondCaptureTime.value * TICRATE
 
 D.HUD = function(v, player, cam)
 	local id = D.ID
-	if not(id and id.valid) then return end
-	if not(player.realmo) then return end
+	if not (B.HUDMain) then return end
+	if not (id and id.valid) then return end
+	if not (player.realmo) then return end
 -- 	if B.PreRoundWait() then return end
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
 	local xoffset = 152
