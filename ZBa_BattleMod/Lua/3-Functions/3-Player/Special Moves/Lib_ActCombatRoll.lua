@@ -122,7 +122,9 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		return false
 	end
 	if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2)
-		fanghop(plr[n1])
+		if not plr[n2].fangmarker
+			fanghop(plr[n1])
+		end
 		B.DoPlayerTumble(plr[n2], 24, angle[n1], mo[n1].scale*3, true)
 		P_InstaThrust(mo[n2], angle[n2], mo[n1].scale * 5)
 		B.ZLaunch(mo[n2], 7 * mo[n2].scale, false)
