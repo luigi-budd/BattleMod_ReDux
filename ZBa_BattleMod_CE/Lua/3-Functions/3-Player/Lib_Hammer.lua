@@ -70,14 +70,17 @@ local function SpawnWave(player,angle_offset,mute)
 	end
 end
 
-local function hammerjump(player)
+local function hammerjump(player,power)
+	local h = power and 6 or 2
+	local v = power and 13 or 10
+		
 	local mo = player.mo
 	//P_DoJump(player,false)
-	B.ZLaunch(mo,FRACUNIT*11,true)
-	P_Thrust(mo,player.drawangle,2*mo.scale)
+	B.ZLaunch(mo,FRACUNIT*v,true)
+	P_Thrust(mo,player.drawangle,h*mo.scale)
 	S_StartSound(mo,sfx_cdfm37)
-	S_StartSound(mo,sfx_s3ka0)
-	player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
+	S_StartSoundAtVolume(mo,sfx_s3ka0,power and 255 or 100)
+	player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~(PF_NOJUMPDAMAGE | PF_THOKKED)
 	mo.state = S_PLAY_ROLL
 	player.panim = PA_ROLL
 end
@@ -138,7 +141,11 @@ B.HammerControl = function(player)
 	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and P_IsObjectOnGround(mo)
 		if player.melee_state == st_jump or player.cmd.buttons&BT_JUMP
 			//Hammer jump
-			hammerjump(player)
+			if player.melee_charge >= FRACUNIT
+				hammerjump(player,true)
+			else
+				hammerjump(player,false)
+			end
 		elseif player.melee_charge >= FRACUNIT
 			SpawnWave(player,0,false)
 		end

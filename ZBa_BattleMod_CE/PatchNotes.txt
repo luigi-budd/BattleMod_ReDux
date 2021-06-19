@@ -1,4 +1,4 @@
-2020/6/x
+2020/6/19
 Version 9.0
 
 Added tutorial images (replaces the NiGHTS tutorial when pressing F1)
@@ -59,6 +59,7 @@ Minor gameplay changes
 	Lowered the height at which Tails Doll floats
 	Renamed "homing attack" to "attraction shot" in the hit feed when using the attraction shield's homing attack
 	Lowered the default priority of non-attraction homing attacks used by some custom characters: (1/2 -> 1/1)
+	Players now become invulnerable during "GAME SET"
 	Auto-Spectator Camera
 		Added the ability to scroll through players when spectating (uses next/previous weapon buttons)
 		Increased the time between automatic player cycles
@@ -165,7 +166,7 @@ Knuckles
 			Launch height increased
 
 Amy
-	Slightly adjusted the knockback of blocked love hearts (it should be nearly identical)
+	Weight reduced: (100 -> 95)
 	New air ability: Twinspin Jump
 		Acts like a standard double jump, but uses the hammer as well
 		When swinging the hammer, Amy always aims towards the camera
@@ -174,12 +175,17 @@ Amy
 	Piko Hammer (grounded)
 		Increased horizontal thrust when swinging the hammer: (5->9)
 		Can now be charged - fully charging the attack unleashes Piko Wave, an attack that creates a huge wave of heart projectiles which can also shield teammates
-		Can now perform a hammer flip by pressing the jump button while using Piko Hammer
+		Can now perform a Hammer Flip by pressing the jump button while using Piko Hammer. If fully charged, the Hammer Flip will be stronger.
 		When swinging the hammer, Amy always aims towards the camera
 	New special ability: Piko Spin
 		Accelerate forwards while spinning like a top with 2/3 priority. It ends in a standard hammer swing
 		If used in midair, Amy will hover a little bit while spinning
 		While it shares the same name as her old air special, this move replaces both Piko Tornado and the previous iteration of Piko Spin
+		If the move ends with Amy's hammer touching the ground, Piko spin can transition into a charged Hammer Flip by holding the jump button
+		If jump is held while the move ends, Amy will remain in the hammer state while falling
+	Love Hearts
+		Adjusted the knockback of blocked love hearts (it should be nearly identical)
+		Blocked love hearts can now uncurl players, just like popgun shots
 
 Fang
 	Weight increased: (100 -> 105)
@@ -204,7 +210,7 @@ Metal Sonic
 			Reduced projectile speed: (48 -> 28)
 			Reduced cooldown: (3s -> 1.25s)
 		Dash Slicer
-			Changed the positions and timings of the claw projectiles, removing the blindspot between metal and the claws
+			Changed the positions and timings of the claw projectiles, removing the blindspot between Metal Sonic and the claws
 			Reduced the endlag of the final jump: (18tics -> 13tics)
 			Reduced the vertical thrust of the final jump: (32 -> 24)
 			Adjusted sound effects
@@ -225,7 +231,7 @@ Modding functionality
 		"Blockable projectiles" are projectiles such as Fang's corks which only deal damage when the target has low enough defense
 		You can create projectiles that are blockable by giving any missile these variables:
 			mo.blockable - if set to a number, the target will need that much defense or more to block the shot
-			mo.block_sound - sound to play when blocked. If it's not set, it will use the same sound effect as fang's corks
+			mo.block_sound - sound to play when blocked. If it's not set, it will use the same sound effect as Fang's corks
 			mo.block_stun - amount of horizontal thrust to apply on block (will be multiplied by scale later)
 			mo.block_hthrust - amount of horizontal thrust to apply on block (will be multiplied by scale later)
 			mo.block_vthrust - amount of vertical thrust to apply on block (will be multiplied by scale later)

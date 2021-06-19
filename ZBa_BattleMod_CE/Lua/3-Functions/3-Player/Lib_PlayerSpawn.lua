@@ -55,6 +55,7 @@ B.PlayerBattleSpawning = function(player)
 	if dojump then
 		player.pflags = ($|PF_STARTJUMP|PF_JUMPDOWN)&~(PF_SPINNING|PF_THOKKED)
 		player.cmd.buttons = $|BT_JUMP
+		player.buttonhistory = $|BT_JUMP
 		P_DoJump(player,true)
 		player.battlespawning = 0
 		mo.flags = $&~MF_NOCLIPTHING
@@ -64,6 +65,7 @@ B.PlayerBattleSpawning = function(player)
 		P_Thrust(mo,mo.angle,mo.scale*24)
 		S_StartSound(mo,sfx_zoom)
 		player.cmd.buttons = $|BT_SPIN
+		player.buttonhistory = $|BT_SPIN
 		player.battlespawning = 0
 		player.pflags = ($|PF_USEDOWN|PF_SPINNING)
 		mo.flags = $&~MF_NOCLIPTHING

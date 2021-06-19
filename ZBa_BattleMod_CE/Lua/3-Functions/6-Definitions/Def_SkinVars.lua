@@ -56,7 +56,7 @@ S["knuckles"] = {
 }
 S["amy"] = {
 	flags = SKINVARS_GUARD|SKINVARS_ROSY|SKINVARS_NOSPINSHIELD,
-	weight = 100,
+	weight = 95,
 	shields = 1,
 	special = Act.PikoSpin,
 	guard_frame = 1,

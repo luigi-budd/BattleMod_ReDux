@@ -1,7 +1,7 @@
 local B = CBW_Battle
 
 local specialstate = 1
-local cooldown = TICRATE*5/3
+local cooldown = TICRATE*7/4
 local specialtime = 20
 local specialendtime = 21
 local instathrust = FRACUNIT*14
@@ -38,14 +38,17 @@ local DoThrust = function(mo)
 	end
 end
 
-local function hammerjump(player)
+local function hammerjump(player,power)
+	local h = power and 6 or 2
+	local v = power and 13 or 10
+		
 	local mo = player.mo
-	P_DoJump(player,false)
-	B.ZLaunch(mo,FRACUNIT*12,false)
-	P_Thrust(mo,mo.angle,3*mo.scale)
+	//P_DoJump(player,false)
+	B.ZLaunch(mo,FRACUNIT*v,true)
+	P_Thrust(mo,player.drawangle,h*mo.scale)
 	S_StartSound(mo,sfx_cdfm37)
-	S_StartSound(mo,sfx_s3ka0)
-	player.pflags = ($ | PF_JUMPED | PF_THOKKED | PF_STARTJUMP) & ~PF_NOJUMPDAMAGE
+	S_StartSoundAtVolume(mo,sfx_s3ka0,power and 255 or 100)
+	player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~(PF_NOJUMPDAMAGE | PF_THOKKED)
 	mo.state = S_PLAY_ROLL
 	player.panim = PA_ROLL
 end
@@ -80,6 +83,7 @@ B.Action.PikoSpin = function(mo,doaction)
 			B.ApplyCooldown(player,cooldown)
 			player.actionstate = specialstate
 			player.actiontime = 0
+			player.pflags = $ | PF_THOKKED
 			mo.momz = $ / 2
 			P_InstaThrust(mo, mo.angle, instathrust)
 			DoThrust(mo)
@@ -114,7 +118,7 @@ B.Action.PikoSpin = function(mo,doaction)
 	//End lag
 	elseif player.actionstate == specialstate+1 
 		//player.powers[pw_nocontrol] = max($,2)
-		if player.actiontime >= specialendtime
+		if player.actiontime >= specialendtime and not (player.cmd.buttons&BT_JUMP)
 			mo.state = S_PLAY_FALL
 			player.actionstate = 0
 			player.actiontime = 0
@@ -122,7 +126,7 @@ B.Action.PikoSpin = function(mo,doaction)
 		end
 		if P_IsObjectOnGround(mo)
 			if player.cmd.buttons&BT_JUMP
-				hammerjump(player)
+				hammerjump(player,true)
 			end
 			player.actionstate = 0
 			player.actiontime = 0

@@ -26,13 +26,17 @@ B.PlayerPreThinkFrame = function(player)
 		player.lockmove = false
 	end
 	
-	//Spawning
+	//Spawning, end of round
 	if player.playerstate == PST_LIVE then
 		//Battle spawn animation
 		local spawning = B.PlayerBattleSpawning(player) 
 		//Pre Round Setup
 		if not(spawning) and B.PreRoundWait()
 			B.PlayerSetupPhase(player)
+		end
+		//Post round invuln
+		if B.Exiting
+			player.powers[pw_flashing] = TICRATE
 		end
 	end
 	
