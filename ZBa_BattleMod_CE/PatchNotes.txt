@@ -53,6 +53,7 @@ Major gameplay changes
 Minor gameplay changes
 	Added hud indicator for guard / air dodge / stun break
 	Added sound effects to various projectiles on a successful hit
+	Added a new menu and hud for pre-round character selection (use left/right to select a character)
 	Increased the exhaustion rate of CEZ swings
 	Increased the respawn timer for spikes: (3s -> 10s)
 	Lowered the height at which Tails Doll floats

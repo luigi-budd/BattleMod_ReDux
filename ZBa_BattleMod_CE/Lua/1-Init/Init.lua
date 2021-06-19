@@ -34,6 +34,7 @@ B.RedScore = 0
 B.BlueScore = 0
 B.HUDMain = true
 B.HUDAlt = true
+B.HUDRoulette = {}
 
 //Flags
 rawset(_G,"DF_GAMETYPE",	1<<0)

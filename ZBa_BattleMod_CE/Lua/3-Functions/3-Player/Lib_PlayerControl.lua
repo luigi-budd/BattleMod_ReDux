@@ -52,6 +52,9 @@ B.InitPlayer = function(player)
 	player.guard = 0
 	player.guardtics = 0
 	player.carried_time = 0
+	player.roulette_x = 0
+	player.roulette_prev_left = 0
+	player.roulette_prev_right = 0
 	if player.respawnpenalty == nil then
 		player.respawnpenalty = 0
 	end
@@ -423,23 +426,51 @@ B.PlayerSetupPhase = function(player)
 -- 		COM_BufInsertText(mo.player, skintext..tostring(skinnum))
 		R_SetPlayerSkin(player,skinnum)
 		S_StartSound(nil,sfx_menu1,player)
+		S_StartSound(nil,sfx_kc50,player)
 		B.GetSkinVars(player)
 		B.SpawnWithShield(player)
 		skinchanged = true
 	end
+	
 	//Roulette
-	if player.cmd.buttons&BT_JUMP and not(player.buttonhistory&BT_JUMP) then
-		repeat 
-			skinnum = $+1
-			if skinnum >= #skins then skinnum = 0 end
+	local change = 0
+	if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE)
+		local deadzone = 20
+		local right = player.cmd.sidemove >= deadzone
+		local left = player.cmd.sidemove <= -deadzone
+		local scrollright = player.roulette_prev_right > 18 and player.roulette_prev_right % 4 == 0
+		local scrollleft = player.roulette_prev_left > 18 and player.roulette_prev_left % 4 == 0
+		if right and (scrollright or not player.roulette_prev_right)
+			repeat 
+				skinnum = $+1
+				if skinnum >= #skins then skinnum = 0 end
+				newskin()
+			until skinchanged == true
+			change = 1
+		end
+		if left and (scrollleft or not player.roulette_prev_left)
+			skinnum = $-1
+			if skinnum < 0 then skinnum = #skins-1 end
 			newskin()
-		until skinchanged == true
+			change = -1
+		end
+		player.roulette_prev_right = (right and $+1) or 0
+		player.roulette_prev_left = (left and $+1) or 0
 	end
-	if player.cmd.buttons&BT_SPIN and not(player.buttonhistory&BT_SPIN) then
-		skinnum = $-1
-		if skinnum < 0 then skinnum = #skins-1 end
-		newskin()
-	end	
+	
+	if (leveltime + 17 == CV_FindVar("hidetime").value*TICRATE) and player != secondarydisplayplayer
+		S_StartSound(nil, sfx_s251, player)
+	end
+	
+	//Roulette scrolling (to be used by the HUD later)
+	if change == 0
+		player.roulette_x = $*6/10
+		if abs(player.roulette_x) < FRACUNIT
+			player.roulette_x = 0
+		end
+	else
+		player.roulette_x = (40*FRACUNIT*change)
+	end
 	
 	//No control
 	player.powers[pw_nocontrol] = 2
