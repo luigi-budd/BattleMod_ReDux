@@ -77,9 +77,9 @@ B.AirDodge = function(player)
 		
 		local diff = dodge_momz_real - (mo.momz*P_MobjFlip(mo))
 		if (diff > 0)
-			mo.momz =  dodge_momz_real, false
+			mo.momz = dodge_momz_real*P_MobjFlip(mo)
 		else
-			mo.momz =  dodge_momz_real - diff/2
+			mo.momz = (dodge_momz_real - diff/2)*P_MobjFlip(mo)
 		end
 		
 		mo.momx = $ / 7
