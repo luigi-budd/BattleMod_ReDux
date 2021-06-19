@@ -199,6 +199,7 @@ A.UpdateGame = function()
 				if not(player.lives) and CV.Revenge.value then
 					player.lives = 1
 					player.revenge = true
+					player.lifeshards = 0
 				end
 			continue end //Gate for team survivors
 			if player.ctfteam == 1 then A.RedSurvivors[#A.RedSurvivors+1] = player

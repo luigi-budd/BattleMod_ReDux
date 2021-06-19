@@ -227,6 +227,7 @@ B.SpectatorLives = function(player)
 	and player.lives == 0 then
 		player.lives = 1
 		player.revenge = true
+		player.lifeshards = 0
 	end
 end
 

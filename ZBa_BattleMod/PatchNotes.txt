@@ -7,7 +7,7 @@ Gamemodes
 	Arena, Team Arena
 		Players are now forced to respawn, like in Survival modes
 	Survival, Team Survival
-		If a player has less than the maximum life count, killing 3 opponents will grant an extra life
+		If a player has less than the maximum life count, killing 3 opponents will grant an extra life. This counter is reset to 0 if the player becomes a jetty-syn.
 	Control Point
 		Reduced time limit (8:00 -> 5:00)
 	Team Control Point
