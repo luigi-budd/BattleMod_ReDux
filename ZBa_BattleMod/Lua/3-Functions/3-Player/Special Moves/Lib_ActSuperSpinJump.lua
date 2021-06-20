@@ -13,7 +13,7 @@ local reboundthrust = 11
 local reboundthrust2 = 16
 local reboundthrust3 = 7
 local reboundforward = 5
-local rebounddropdash = 22
+local rebounddropdash = 24
 
 B.Action.SuperSpinJump_Priority = function(player)
 	if player.actionstate == state_superspinjump then
@@ -79,6 +79,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		end
 	return end
 	
+	player.pflags = $|PF_JUMPSTASIS
+	
 	//Ground pound phase 1
 	if player.actionstate == state_groundpound_rise 
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
@@ -104,14 +106,15 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				end
 				
 				if (player.cmd.buttons & BT_SPIN)
+					player.buttonhistory = $ | BT_SPIN
 					B.ZLaunch(mo,reboundthrust3*FRACUNIT,true)
 					S_StartSound(mo, sfx_zoom)
 					S_StartSoundAtVolume(mo, sfx_kc3b, 100)
 					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/3)
 					P_Thrust(mo,mo.angle,rebounddropdash*mo.scale)
 					B.ResetPlayerProperties(player,true,true)
-					mo.state = S_PLAY_JUMP
-					player.pflags = $ | PF_SPINNING
+					mo.state = S_PLAY_ROLL
+					player.pflags = $|PF_SPINNING
 					player.drawangle = mo.angle
 					for i = -2, 2
 						local dust = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
@@ -125,13 +128,14 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					P_SpawnThokMobj(player)
 					
 				elseif (player.cmd.buttons & BT_JUMP)
+					player.buttonhistory = $ | BT_JUMP
 					S_StartSound(mo, sfx_jump)
 					S_StartSound(mo, sfx_s3kae)
 					S_StartSoundAtVolume(mo, sfx_kc3b, 100)
 					B.ZLaunch(mo,reboundthrust2*FRACUNIT,true)
 					B.ResetPlayerProperties(player,true,false)
 					mo.state = S_PLAY_JUMP
-					player.pflags = $|PF_STARTJUMP
+					player.pflags = ($|PF_STARTJUMP)&~PF_SPINNING
 					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/8)
 					P_Thrust(mo,mo.angle,reboundforward*mo.scale)
 					player.drawangle = mo.angle
@@ -165,9 +169,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/5)
 					B.ZLaunch(mo,reboundthrust*FRACUNIT,true)
 					player.state = S_PLAY_SPRING
-					//player.pflags = $|PF_JUMPED|PF_NOJUMPDAMAGE
+					player.pflags = ($|PF_THOKKED)&~PF_SPINNING
 				end
-				player.pflags = $&~PF_SPINNING
 			else
 				player.actiontime = abs(mo.momz)
 			end
