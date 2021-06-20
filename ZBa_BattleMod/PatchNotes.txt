@@ -45,7 +45,7 @@ New ability: Shield Swap
 	Press the Toss Flag button (while not holding a flag) to switch to your reserve shield
 
 Major gameplay changes
-	Reduced mercy invincibility after taking a hit (3s -> 2s)
+	Reduced mercy invincibility after taking a hit in Battle modes (3s -> 2s)
 	In any mode, except during Sudden Death, killing another player awards the killer 20 rings
 	Spindash minimum and maximum speed are now reduced while holding the flag (min: 100% -> 75%, max: 100% -> 80%)
 	Acceleration while holding the flag increased (80% -> 83%)
