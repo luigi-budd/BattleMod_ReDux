@@ -6,7 +6,6 @@ B.ActionHUD=function(v, player, cam)
 	if not hud.enabled("rings") then return end
 	if player.playerstate != PST_LIVE then return end
 	if not(CV.Actions.value) then return end
-	if player.actionallowed != true and not player.gotflag then return end
 	if G_TagGametype() and (leveltime < CV_FindVar("hidetime").value*TICRATE) then return end
 	local TF_GRAY = 1
 	local TF_YELLOW = 2
@@ -15,6 +14,32 @@ B.ActionHUD=function(v, player, cam)
 	local xoffset = hudinfo[HUD_RINGS].x -- 16
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER
 	local align = "thin"
+	
+	if player.actionallowed != true and not player.gotflag then
+		if P_PlayerInPain(player)
+		and player.mo.state == S_PLAY_PAIN
+		and not player.isjettysyn
+		and (CV.Guard.value)
+			local patch = v.cachePatch("PARRYBT")
+			local text = "Stun Break"
+			local textcolor = "\x86"
+			local yoffset = hudinfo[HUD_RINGS].y+14
+			if player.rings >= 20
+				if leveltime % 3 == 0
+					textcolor = ""
+				elseif leveltime % 3 == 1
+					textcolor = "\x83"
+				else
+					textcolor = "\x87"
+				end
+			end
+			text = "\x82" .. 20 .. textcolor .. " " .. $
+			v.draw(xoffset,yoffset,patch,flags)
+			v.drawString(xoffset+10,yoffset,text,flags,align)
+		end
+		return
+	end
+	
 	//Action 1 text
 	local yoffset = hudinfo[HUD_RINGS].y+14 -- 42+14 = 56
 	local text = player.actiontext
@@ -107,7 +132,8 @@ B.ActionHUD=function(v, player, cam)
 	local patch = v.cachePatch("PARRYBT")
 	local textcolor = 0
 	local canguard = (player.canguard and not player.actionstate)
-	local candodge = (player.mo.state != S_PLAY_PAIN
+	local candodge = (player.canguard
+		and player.mo.state != S_PLAY_PAIN
 		and player.mo.state != S_PLAY_STUN
 		and player.airdodge == 0
 		and player.playerstate == PST_LIVE
@@ -121,31 +147,13 @@ B.ActionHUD=function(v, player, cam)
 		and not player.powers[pw_carry]
 		and not P_IsObjectOnGround(player.mo))
 	
-	if not (player and player.valid and player.mo and player.mo.valid)
-		or not P_PlayerInPain(player)
-		or not player.mo.state == S_PLAY_PAIN
-		or player.isjettysyn
-		
-		textcolor = "\x80"
-		if P_IsObjectOnGround(player.mo)
-			if not canguard return end
-			text = "Guard"
-		else
-			if not candodge return end
-			text = "Air Dodge"
-		end
+	textcolor = "\x80"
+	if P_IsObjectOnGround(player.mo)
+		if not canguard return end
+		text = "Guard"
 	else
-		text = "Stun Break"
-		textcolor = "\x86"
-		if player.rings >= 20
-			if leveltime % 3 == 0
-				textcolor = ""
-			elseif leveltime % 3 == 1
-				textcolor = "\x83"
-			else
-				textcolor = "\x87"
-			end
-		end
+		if not candodge return end
+		text = "Air Dodge"
 	end
 	text = textcolor .. " " .. $
 	v.draw(xoffset,yoffset,patch,flags)
