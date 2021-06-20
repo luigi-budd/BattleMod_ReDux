@@ -100,7 +100,7 @@ Item Bubbles
 	Item bubbles now create an icon when popped, like a monitor
 
 Sonic
-	Weight increased: (90 -> 95)
+	Weight increased: (90 -> 100)
 	Increased thok speed: (40 -> 45)
 	Super Spin Jump
 		Priority reduced (2/2 -> 1/2)
