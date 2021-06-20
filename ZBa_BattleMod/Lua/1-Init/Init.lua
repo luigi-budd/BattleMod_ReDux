@@ -6,7 +6,7 @@ local B = CBW_Battle
 //Version Info
 B.VersionNumber = 9
 B.VersionSub = 0
-B.VersionDate = "6/19/2021"
+B.VersionDate = "6/20/2021"
 
 //Sub Tables
 B.NetVars = {}

@@ -47,6 +47,7 @@ B.InitPlayer = function(player)
 	player.intangible = false
 	player.lockaim = false
 	player.lockmove = false
+	player.lockjumpframe = 0
 	player.rank = 0
 	player.canguard = true
 	player.guard = 0

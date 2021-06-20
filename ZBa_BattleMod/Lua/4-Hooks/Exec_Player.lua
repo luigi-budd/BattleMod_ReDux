@@ -47,6 +47,10 @@ addHook("ShieldSpecial", function(player)
 end)
 
 addHook("JumpSpecial",function(player)
+	if player.lockjumpframe
+		return true
+	end
+	
 	if (player.powers[pw_carry]) or player.battlespawning
 		return
 	end

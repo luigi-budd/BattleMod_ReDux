@@ -79,8 +79,6 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		end
 	return end
 	
-	player.pflags = $|PF_JUMPSTASIS
-	
 	//Ground pound phase 1
 	if player.actionstate == state_groundpound_rise 
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
@@ -93,13 +91,14 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	//Ground pound phase 2
 	if player.actionstate == state_groundpound_fall 
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
-		local endgroundpound = false
 		if mo.momz*P_MobjFlip(mo) > 0 then //If we're moving upward, then something must have interrupted us.
-			endgroundpound = true
+			player.actionstate = 0
+			player.pflags = $&~(PF_SPINNING|PF_JUMPED)
 		else
 			P_SetObjectMomZ(mo,-pound_downaccel/water,true)
 			if mo.eflags&MFE_JUSTHITFLOOR then //We have hit a surface
-				endgroundpound = false
+				player.lockjumpframe = 2
+				player.actionstate = 0
 				
 				if player == displayplayer
 					P_StartQuake(6*FRACUNIT, 3)
@@ -168,25 +167,15 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					
 					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/5)
 					B.ZLaunch(mo,reboundthrust*FRACUNIT,true)
-					player.state = S_PLAY_SPRING
+					mo.state = S_PLAY_SPRING
 					player.pflags = ($|PF_THOKKED)&~PF_SPINNING
 				end
 			else
 				player.actiontime = abs(mo.momz)
+				mo.spritexscale = max(FRACUNIT * 3/4, min($ - FRACUNIT/100, FRACUNIT))
+				mo.spriteyscale = max(FRACUNIT, min($ + FRACUNIT/100, FRACUNIT*4/3))
+				player.squashstretch = true
 			end
-		end
-		if endgroundpound //End ground pound state
-			player.actionstate = 0
-			
-			mo.state = S_PLAY_SPRING
-			if player.pflags&PF_JUMPED then
-				player.pflags = $|PF_STARTJUMP|PF_NOJUMPDAMAGE
-			end
-			player.pflags = $&~PF_SPINNING
-		else
-			mo.spritexscale = max(FRACUNIT * 3/4, min($ - FRACUNIT/100, FRACUNIT))
-			mo.spriteyscale = max(FRACUNIT, min($ + FRACUNIT/100, FRACUNIT*4/3))
-			player.squashstretch = true
 		end
 	end
 	//SuperSpinJump state

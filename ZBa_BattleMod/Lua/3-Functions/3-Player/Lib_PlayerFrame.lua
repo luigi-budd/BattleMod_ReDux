@@ -11,7 +11,7 @@ B.PlayerPreThinkFrame = function(player)
 		B.InitPlayer(player)
 		player.versusvars = true
 	end
-
+	
 	//Spectator functions
 	B.PreAutoSpectator(player)
 	B.SpectatorControl(player)
@@ -117,4 +117,9 @@ end
 
 B.PlayerPostThinkFrame = function(player)
 	player.buttonhistory = player.cmd.buttons
+	
+	//Lock jump timer
+	if player.lockjumpframe
+		player.lockjumpframe = $ - 1
+	end
 end
