@@ -93,7 +93,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
 		if mo.momz*P_MobjFlip(mo) > 0 then //If we're moving upward, then something must have interrupted us.
 			player.actionstate = 0
-			player.pflags = $&~(PF_SPINNING|PF_JUMPED)
+			player.pflags = $|PF_JUMPED|PF_STARTJUMP|PF_NOJUMPDAMAGE&~PF_SPINNING|PF_JUMPED
+			mo.state = S_PLAY_SPRING
 		else
 			P_SetObjectMomZ(mo,-pound_downaccel/water,true)
 			if mo.eflags&MFE_JUSTHITFLOOR then //We have hit a surface
@@ -106,14 +107,15 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				
 				if (player.cmd.buttons & BT_SPIN)
 					player.buttonhistory = $ | BT_SPIN
-					B.ZLaunch(mo,reboundthrust3*FRACUNIT,true)
+					//B.ZLaunch(mo,reboundthrust3*FRACUNIT,true)
+					S_StopSoundByID(mo, sfx_zoom)
 					S_StartSound(mo, sfx_zoom)
 					S_StartSoundAtVolume(mo, sfx_kc3b, 100)
 					P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/3)
 					P_Thrust(mo,mo.angle,rebounddropdash*mo.scale)
 					B.ResetPlayerProperties(player,true,true)
 					mo.state = S_PLAY_ROLL
-					player.pflags = $|PF_SPINNING
+					player.pflags = $|PF_SPINNING&~PF_JUMPED
 					player.drawangle = mo.angle
 					for i = -2, 2
 						local dust = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
