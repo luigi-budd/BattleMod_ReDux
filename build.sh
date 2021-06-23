@@ -19,9 +19,12 @@ testCmd "ln";
 PK3_FLAGS=${PK3_FLAGS:-$PK3_FLAGS_DEF}
 PK3_VERSION=${PK3_VERSION:-$PK3_VERSION_DEF}
 PK3_SUBVERSION=${PK3_SUBVERSION:-$PK3_SUBVERSION_DEF}
-PK3_VERSIONDATE=$(date +"%-m/%-d/%Y")
 PK3_NAME=${PK3_NAME:-$PK3_NAME_DEF}
 FOLDER_NAME=${FOLDER_NAME:-$FOLDER_NAME_DEF}
+
+PK3_BUILDDATA_DATE=$(date +"%-m/%-d/%Y")
+PK3_BUILDDATA_TIME=$(date +"%l:%M:%S %p")
+PK3_BUILDDATA_COMMIT=$(git rev-parse --short HEAD)
 
 if [ -z "${PK3_EXCLUDE+x}" ]; then # if no exist
 	declare -n PK3_EXCLUDE=PK3_EXCLUDE_DEF # refer to PK3_EXCLUDE_DEF
@@ -29,13 +32,12 @@ fi
 
 PK3_FULLNAME="$PK3_FLAGS"_"$PK3_NAME"-v"$PK3_VERSION"_"$PK3_SUBVERSION"
 PK3_LATESTNAME="$PK3_FLAGS"_"$PK3_NAME"-latest
-PK3_COMMIT=$(git rev-parse --short HEAD)
 
 if [[ "$*" == *"cleanbuilds"* ]]; then
 	shopt -s extglob
 
 	# Clean files that aren't .gitignore that contain +, but don't contain the current commit hash.
-	FILES_TO_RM=$(find builds -type f ! -name "*.gitignore*" -name "*+*" ! -name "*$PK3_COMMIT*")
+	FILES_TO_RM=$(find builds -type f ! -name "*.gitignore*" -name "*+*" ! -name "*$PK3_BUILDDATA_COMMIT*")
 
 	if [ "$FILES_TO_RM" != "" ]; then
 		rm $FILES_TO_RM
@@ -58,13 +60,13 @@ if [[ "$*" == *"cleanbuilds"* ]]; then
 	exit # Don't create pk3
 fi
 
-if [[ ! $PK3_RELEASE ]]; then
+if [[ $PK3_RELEASE != 1 ]]; then
 	if [[ "$*" == *"testbuild"* ]]; then
-		PK3_FULLNAME="$PK3_FULLNAME"-test_"$PK3_COMMIT"
+		PK3_FULLNAME="$PK3_FULLNAME"-test_"$PK3_BUILDDATA_COMMIT"
 	else
 		PK3_TIME=$(date +"%m.%d.%y-%H.%M.%S")
 
-		PK3_METADATA="$PK3_COMMIT"_"$PK3_TIME"
+		PK3_METADATA="$PK3_BUILDDATA_COMMIT"_"$PK3_TIME"
 		PK3_FULLNAME="$PK3_FULLNAME"+"$PK3_METADATA"
 	fi
 fi
@@ -74,7 +76,10 @@ cd $FOLDER_NAME
 # create version info lua file
 echo "CBW_Battle.VersionNumber = $PK3_VERSION
 CBW_Battle.VersionSub = $PK3_SUBVERSION
-CBW_Battle.VersionDate = $PK3_VERSIONDATE"> ../$FOLDER_NAME/Lua/1-Init/Init_VersionInfo.lua
+CBW_Battle.VersionPublic = $PK3_RELEASE
+CBW_Battle.VersionDate = \"""$PK3_BUILDDATA_DATE""\"
+CBW_Battle.VersionTime = \"""$PK3_BUILDDATA_TIME""\"
+CBW_Battle.VersionCommit = \"""$PK3_BUILDDATA_COMMIT""\""> ../$FOLDER_NAME/Lua/1-Init/Init_VersionInfo.lua
 
 # grab newline-seperated files, seperate by newline into array $FILES
 readarray -td$'\n' FILES <<<"$(find . -type f)" # exclude directories because `zip` loves recursing through them
@@ -91,7 +96,7 @@ done
 ARGSTR=$(printf "'%s' " "${FILES[@]}") # makes a string that quotes all the filenames
 
 # make builds dir if it doesn't exist
-if [ ! -d "/path/to/dir" ]; then
+if [ ! -d "../builds" ]; then
 	mkdir ../builds
 fi
 

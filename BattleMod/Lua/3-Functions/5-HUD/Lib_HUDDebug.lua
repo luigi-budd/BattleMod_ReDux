@@ -8,9 +8,20 @@ local S = B.SkinVars
 
 B.DebugHUD = function(v, player, cam)
 	local debug = CV.Debug.value
+	
+	if (not B.VersionPublic or debug)
+		local flags = V_ALLOWLOWERCASE|V_HUDTRANS|V_SNAPTORIGHT|V_SNAPTOTOP
+		local flags2 = V_ALLOWLOWERCASE|V_HUDTRANSHALF|V_SNAPTORIGHT|V_SNAPTOTOP
+		local xx = v.width()/v.dupx()
+		local align = "small-right"
+		v.drawString(320,0,"v"..B.VersionNumber.."."..B.VersionSub.." [\x82"..B.VersionCommit.."\x80]\n",flags,align)
+		v.drawString(317,4,B.VersionDate,flags2,align)
+		v.drawString(317,8,B.VersionTime,flags2,align)
+	end
+	
 	if not(debug) then return end
 	local xoffset = 320
-	local yoffset = 1
+	local yoffset = 14
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTORIGHT|V_PERPLAYER
 	local align = "small-right"
 	local nextline = 4
@@ -132,7 +143,7 @@ B.DebugHUD = function(v, player, cam)
 			addline("state",player.actionstate)
 			addline("time",player.actiontime)
 			addline("rings",player.actionrings)
-			addline("debt",player.actiondebt)
+			--addline("debt",player.actiondebt)
 			addline("cooldown",player.actioncooldown)
 			subheader("Battle")
 			addline("sfunc",player.battle_sfunc)
