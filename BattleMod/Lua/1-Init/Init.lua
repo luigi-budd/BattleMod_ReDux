@@ -3,11 +3,6 @@ assert(not CBW_Battle, "Loaded multiple instances of BattleMod")
 rawset(_G,"CBW_Battle",{})
 local B = CBW_Battle
 
-//Version Info
-B.VersionNumber = 9
-B.VersionSub = 1
-B.VersionDate = "6/22/2021"
-
 //Sub Tables
 B.NetVars = {}
 B.ControlPoint = {}

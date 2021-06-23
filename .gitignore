@@ -1,0 +1,8 @@
+/builds
+/BattleMod/Lua/1-Init/Init_VersionInfo.lua
+*-latest.pk3
+*.lnk
+*.bak
+*.backup*
+*.dbs
+*.bat

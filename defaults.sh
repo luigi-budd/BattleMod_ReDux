@@ -1,0 +1,7 @@
+PK3_FLAGS_DEF='ZBa'
+PK3_VERSION_DEF='9'
+PK3_SUBVERSION_DEF='2'
+PK3_NAME_DEF='BattleMod'
+FOLDER_NAME_DEF='BattleMod'
+
+PK3_EXCLUDE_DEF=('.*\.dbs' '.*\.backup.*')
