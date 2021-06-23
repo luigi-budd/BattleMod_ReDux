@@ -90,7 +90,10 @@ done
 # it doesnt really matter if it has holes in it
 ARGSTR=$(printf "'%s' " "${FILES[@]}") # makes a string that quotes all the filenames
 
-mkdir ../builds
+# make builds dir if it doesn't exist
+if [ ! -d "/path/to/dir" ]; then
+	mkdir ../builds
+fi
 
 # eval kinda sucks but i've got no other option really
 eval "zip -FSr ../builds/$PK3_FULLNAME.pk3 $ARGSTR" # zip it all up!
