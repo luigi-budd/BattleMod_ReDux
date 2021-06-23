@@ -100,6 +100,6 @@ eval "zip -FSr ../builds/$PK3_FULLNAME.pk3 $ARGSTR" # zip it all up!
 
 # create syn link
 cd ..
-ln -sf builds/$PK3_FULLNAME.pk3 $PK3_FLAGS\_$PK3_NAME-latest.pk3
+ln -sf builds/$PK3_FULLNAME.pk3 $PK3_LATESTNAME.pk3
 
 echo "Build is located at builds/$PK3_FULLNAME.pk3"
