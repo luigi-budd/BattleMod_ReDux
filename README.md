@@ -4,6 +4,7 @@
 ### How to build
 - [Install MSYS2](https://www.msys2.org/)
 - Install the zip package in MSYS2 using `pacman -S zip`
+- You can build the pk3 by running build.sh in the msys2 shell
 - Optional: Create a batch file that runs build.sh. (Make sure the directory to msys2 is correct on your machine)
 `C:\msys64\msys2_shell.cmd -mingw32 -here build.sh`
 - Optional: Create a batch file that can be used to easily test in-game (Make sure the directory to msys2 is correct on your machine)
