@@ -21,28 +21,28 @@ local baseChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy
 
 /*
 B.BaseConv = function(number, base, chars)
-    if not chars then
-        chars = baseChars
-    end
+	if not chars then
+		chars = baseChars
+	end
 
-    local outstring = ""
+	local outstring = ""
 
-    if (number == 0) then
-        return "0";
-    end
+	if (number == 0) then
+		return "0";
+	end
 
-    local i = 0
+	local i = 0
 
-    while (number > 0) do
-        local index = number % base
-        outstring[i] = chars[index]
-        number = $ / base
+	while (number > 0) do
+		local index = number % base
+		outstring[i] = chars[index]
+		number = $ / base
 
-        i = i + 1
-    end
+		i = i + 1
+	end
 
-    string.reverse(outstring)
+	string.reverse(outstring)
 
-    return outstring
+	return outstring
 end
 */

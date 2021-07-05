@@ -155,7 +155,7 @@ B.BashableCollision = function(mo, other)
 	end
 	
 	//Gate for player collisions
-    if not(other.player and other.valid)
+	if not(other.player and other.valid)
 	or (other.player.spectator)
 	or (other.player.exiting)
 	or (other.player.battlespawning)
@@ -163,12 +163,12 @@ B.BashableCollision = function(mo, other)
 			B.DebugPrint("Not a player collision. End function",DF_COLLISION)
 	return end
 
-    //Height check
+	//Height check
 	if (other.z >= (mo.z + mo.height))
 	or ((other.z + P_GetPlayerHeight(other.player)) < mo.z)
 		B.DebugPrint("Denied via height check",DF_COLLISION)
 		return
-    end
+	end
 	//Gate for pushing solids
 	if not(mo.battle_atk) and (mo.flags&MF_SOLID and not(other.player.battle_atk)) then
 		mo.flags = mo.info.flags

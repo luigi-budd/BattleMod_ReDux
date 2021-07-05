@@ -44,8 +44,8 @@ states[S_COLORBOMB2] = {
 }
 
 states[S_FBOMB_EXPL2] = {
-    sprite = SPR_BARX,
-    frame = 1|FF_FULLBRIGHT,
-    tics = 2,
-    nextstate = S_FBOMB_EXPL3
+	sprite = SPR_BARX,
+	frame = 1|FF_FULLBRIGHT,
+	tics = 2,
+	nextstate = S_FBOMB_EXPL3
 }

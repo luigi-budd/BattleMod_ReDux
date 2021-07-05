@@ -26,7 +26,7 @@ mobjinfo[MT_SPARRINGDUMMY] = {
 	//$Name "Crawla Commander Sparring Dummy"
 	//$Sprite GCOMA1
 	//$Category "BattleMod Bashable Objects"
-	doomednum = 3650,           
+	doomednum = 3650,		   
 	spawnstate = S_TAILSDOLL1, 
 	spawnhealth = 1000,
 	radius = 16*FRACUNIT,

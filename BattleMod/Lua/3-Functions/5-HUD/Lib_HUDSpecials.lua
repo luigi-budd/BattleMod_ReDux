@@ -16,11 +16,11 @@ B.ActionHUD=function(v, player, cam)
 	local align = "thin"
 	
 	if player.actionallowed != true and not player.gotflag then
-        if P_PlayerInPain(player)
-        and player.mo.state == S_PLAY_PAIN
-         or player.mo.state == S_PLAY_STUN
-        and not player.isjettysyn
-        and (CV.Guard.value)
+		if P_PlayerInPain(player)
+		and player.mo.state == S_PLAY_PAIN
+		 or player.mo.state == S_PLAY_STUN
+		and not player.isjettysyn
+		and (CV.Guard.value)
 			local patch = v.cachePatch("PARRYBT")
 			local text = "Stun Break"
 			local textcolor = "\x86"

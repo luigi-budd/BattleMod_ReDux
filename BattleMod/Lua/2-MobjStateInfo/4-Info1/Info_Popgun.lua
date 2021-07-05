@@ -7,13 +7,13 @@ freeslot(
 )
 
 states[S_FANGCHAR_AIRFIRE1] = {
-        sprite = SPR_FAIR,
-        frame = A,
-        nextstate = S_FANGCHAR_AIRFIRE1
+		sprite = SPR_FAIR,
+		frame = A,
+		nextstate = S_FANGCHAR_AIRFIRE1
 }
 
 states[S_FANGCHAR_AIRFIRE2] = {
-        sprite = SPR_FAIR,
-        frame = B,
-        nextstate = S_FANGCHAR_AIRFIRE2
+		sprite = SPR_FAIR,
+		frame = B,
+		nextstate = S_FANGCHAR_AIRFIRE2
 }

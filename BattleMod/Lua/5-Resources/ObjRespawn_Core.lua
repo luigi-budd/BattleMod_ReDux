@@ -64,18 +64,18 @@ local RoverList = {}
 
 --[[ RoverRespawnQueue
 	array of tables, with fields:
-		timer | tic_t    | how long before respawning rover
-		rover | ffloor_t | rover to respawn
+		timer	| tic_t		| how long before respawning rover
+		rover	| ffloor_t	| rover to respawn
 ]]--
 local RoverRespawnQueue = {}
 
 --[[ ObjectRespawnQueue
 	array of tables, with fields:
-		timer      | tic_t      | how long before respawning object
-		spawnpoint | mapthing_t | mapthing to respawn from
-		spawnfunc  | function   | function to spawn the object
-		setupfunc  | function   | function to set up the object
-		objecttype | enum (MT_) | the actual object type to spawn
+		timer		| tic_t			| how long before respawning object
+		spawnpoint	| mapthing_t	| mapthing to respawn from
+		spawnfunc	| function		| function to spawn the object
+		setupfunc	| function		| function to set up the object
+		objecttype	| enum (MT_)	| the actual object type to spawn
 ]]--
 local ObjectRespawnQueue = {}
 
