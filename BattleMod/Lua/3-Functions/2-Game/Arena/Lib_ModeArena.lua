@@ -255,11 +255,9 @@ A.UpdateGame = function()
 		//Get FFA victor conditions
 		if not(G_GametypeHasTeams())
 			//Game must have exactly one player with the highest score in order to force end the game
-			if count == 1
+			if count == 1 and not(survival)
 				forcewin()
-			end
-			//Sudden death?
-			if count > 1
+			else //Sudden death?
 				if survival
 					A.SpawnLives = 0
 					for player in players.iterate
@@ -273,15 +271,17 @@ A.UpdateGame = function()
 						player.score = player.preservescore
 						player.lives = 1
 						if player.playerstate == PST_LIVE
-							if player.preservescore < highscore-extralives //Remove anyone below the mostlives threshold
-								P_KillMobj(player.mo)
-							else //Strip resources from remaining players
-								player.shieldstock = {}
-								P_RemoveShield(player)
-								player.powers[pw_shield] = 0
-								player.rings = 0
-								local nega = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_NEGASHIELD)
-								nega.target = player.mo
+							local nega = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_NEGASHIELD)
+							nega.target = player.mo
+							player.shieldstock = {}
+							player.rings = 0
+							P_RemoveShield(player)
+							if extralives
+								if extralives < highscore-1 or extralives == 1
+									table.insert(player.shieldstock, SH_PITY)
+								else
+									table.insert(player.shieldstock, SH_FORCE|1)
+								end
 							end
 						end
 					end
@@ -291,10 +291,9 @@ A.UpdateGame = function()
 		end
 		//Get team victor conditions
 		if G_GametypeHasTeams()
-			if bluescore != redscore then
+			if bluescore != redscore and not(survival) then
 				forcewin()
-			end
-			if bluescore == redscore then
+			else
 				if survival
 					for player in players.iterate
 						if player.spectator
