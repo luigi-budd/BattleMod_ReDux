@@ -1,3 +1,8 @@
+Version 9.2
+Gamemodes
+	Survival, Team Survival
+		All remaining players, regardless of their current life count, now participate in sudden death and are set to 1 life.
+
 2021/6/22
 Version 9.1
 Sonic
