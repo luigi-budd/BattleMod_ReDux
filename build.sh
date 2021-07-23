@@ -24,6 +24,7 @@ FOLDER_NAME=${FOLDER_NAME:-$FOLDER_NAME_DEF}
 
 PK3_BUILDDATA_DATE=$(date +"%-m/%-d/%Y")
 PK3_BUILDDATA_TIME=$(date +"%l:%M:%S %p")
+PK3_BUILDDATA_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 PK3_BUILDDATA_COMMIT=$(git rev-parse --short HEAD)
 
 if [ -z "${PK3_EXCLUDE+x}" ]; then # if no exist
@@ -79,6 +80,7 @@ CBW_Battle.VersionSub = $PK3_SUBVERSION
 CBW_Battle.VersionPublic = $PK3_RELEASE
 CBW_Battle.VersionDate = \"""$PK3_BUILDDATA_DATE""\"
 CBW_Battle.VersionTime = \"""$PK3_BUILDDATA_TIME""\"
+CBW_Battle.VersionBranch = \"""$PK3_BUILDDATA_BRANCH""\"
 CBW_Battle.VersionCommit = \"""$PK3_BUILDDATA_COMMIT""\""> ../$FOLDER_NAME/Lua/1-Init/Init_VersionInfo.lua
 
 # grab newline-seperated files, seperate by newline into array $FILES
