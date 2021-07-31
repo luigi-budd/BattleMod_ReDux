@@ -19,19 +19,11 @@ B.PlayerMovementControl = function(player)
 	local mo = player.mo
 	local skin = skins[mo.skin]
 	local grounded = P_IsObjectOnGround(mo)
-	if not(player.iseggrobo or player.isjettysyn)
-		if not(twodlevel) then
-			if not(player.dashmode > TICRATE*3) then
-				player.jumpfactor = skin.jumpfactor
-			end
-		else
-			player.jumpfactor = B.TwoDFactor(skin.jumpfactor*3/4)
-			if not(grounded or player.powers[pw_tailsfly] or player.climbing)
-				P_SetObjectMomZ(mo,-(B.TwoDFactor(FRACUNIT/2)-(FRACUNIT/2)),1)
-			end
-		end
-	end
+	
+	//In 2D!
 	if twodlevel
+		player.battleintwod = true
+		
 		//Running curve values
 		if (player.cmd.forwardmove|player.cmd.sidemove)
 			local spd = FixedHypot(player.rmomx,player.rmomy)
@@ -42,12 +34,25 @@ B.PlayerMovementControl = function(player)
  			thrust = B.FixedLerp($+2,1,min(FRACUNIT,max(0,FixedDiv(player.rmomx,maxspd))))
 			player.thrustfactor = thrust
 		end
+		
 		//Spindash speed limit
 		if player.charability2 == CA2_SPINDASH and player.pflags&PF_STARTDASH then
 			player.dashspeed = min($,B.FixedLerp(player.mindash,player.maxdash,FRACUNIT/2))
 		end
-	else
-		player.acceleration = skin.acceleration
+		
+		//Vertical movement
+		if not(player.iseggrobo or player.isjettysyn)
+			player.jumpfactor = B.TwoDFactor(skin.jumpfactor*3/4)
+			if not(grounded or player.powers[pw_tailsfly] or player.climbing)
+				P_SetObjectMomZ(mo,-(B.TwoDFactor(FRACUNIT/2)-(FRACUNIT/2)),1)
+			end
+		end
+		
+	//In 3D...
+	elseif player.battleintwod
+		player.battleintwod = false
+		player.jumpfactor = skin.jumpfactor
+		player.thrustfactor = skin.thrustfactor
 		player.runspeed = skin.runspeed
 	end
 end
