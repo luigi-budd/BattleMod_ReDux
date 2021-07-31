@@ -27,6 +27,7 @@ A.JettySynFlags = function(player,stat)
 	//Enable
 	if(stat) then
 		player.isjettysyn = true
+		player.powers[pw_carry] = -1
 		if player.mo and player.mo.valid then
 			player.mo.flags = $|MF_NOGRAVITY|MF_SLIDEME
 		end
@@ -41,6 +42,7 @@ A.JettySynFlags = function(player,stat)
 	//Disable
 	player.isjettysyn = false
 	player.revenge = false
+	player.powers[pw_carry] = 0
 	if player.mo and player.mo.valid  then
 		local skin = skins[player.mo.skin]
 		player.charflags = skin.flags
