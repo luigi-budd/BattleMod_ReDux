@@ -93,15 +93,15 @@ B.PlayerThinkFrame = function(player)
 	A.RingSpill(player)
 	B.PlayerMovementControl(player)
 	
+	//Perform Actions
+	local doaction = B.ButtonCheck(player,player.battleconfig_special)
+	B.MasterActionScript(player,doaction)
+	
 	//Air dodge, Stun Break, Guard
 	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 	B.StunBreak(player,doguard)
 	B.AirDodge(player,doguard)
 	B.Guard(player,doguard)
-	
-	//Perform Actions
-	local doaction = B.ButtonCheck(player,player.battleconfig_special)
-	B.MasterActionScript(player,doaction)
 	
 	//Abilities
 	B.HammerControl(player)
