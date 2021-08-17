@@ -17,7 +17,7 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 	if fromspectators
 		addplayers = 1
 	end
-	if gametyperules&GTR_TEAMS and not(autobalance or scramble) and #A.Fighters > 1-addplayers
+	if gametyperules&GTR_TEAMS and not(autobalance or scramble or splitscreen) and #A.Fighters > 1-addplayers
 		local red = #A.RedFighters
 		local blue = #A.BlueFighters
 		if team == 1
