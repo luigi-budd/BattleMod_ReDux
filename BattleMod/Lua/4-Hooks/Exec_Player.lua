@@ -178,8 +178,10 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	if B.BattleGametype() 
 		if not(B.PreRoundWait())
 			if not(G_GametypeUsesLives())
-				player.deadtimer = -(1+min(CV.RespawnTime.value-3,player.respawnpenalty*2))*TICRATE
-				player.respawnpenalty = $+1
+				if not(B.ArenaGametype())
+					player.deadtimer = -(1+min(CV.RespawnTime.value-3,player.respawnpenalty*2))*TICRATE
+					player.respawnpenalty = $+1
+				end
 			elseif player.lives == 1 and CV.Revenge.value
 				player.deadtimer = (2-10-(player.respawnpenalty)*2)*TICRATE
 				player.respawnpenalty = $+1
