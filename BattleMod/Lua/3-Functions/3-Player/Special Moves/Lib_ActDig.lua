@@ -312,6 +312,7 @@ B.Action.Dig=function(mo,doaction)
 		end
 	end
 	
+	grounded = P_IsObjectOnGround(player.mo)
 	//Rock blast attack
 	if (doaction == 1)
 		then
