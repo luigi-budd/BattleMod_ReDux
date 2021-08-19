@@ -10,6 +10,7 @@ Gamemodes
 		All remaining players, regardless of their current life count, now participate in sudden death and are set to 1 life.
 Maintenance
 	Fixed an issue where the Stun Break indicator would not show when the player was in S_PLAY_STUN (when slapped by an egg-robo in CEZ3)
+	Fixed an issue where Metal Sonic's dash slicer projectiles would behave differently underwater
 	Made changes to improve custom character support:
 		Fixed an issue where character action scripts could not properly affect the player's ability to guard via player.canguard
 		Fixed an issue where 2D mode stat changes were being applied every frame

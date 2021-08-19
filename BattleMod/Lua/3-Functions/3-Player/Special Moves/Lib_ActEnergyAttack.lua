@@ -282,13 +282,6 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		//Release the slicer
 		if not(player.actiontime >= TICRATE/3) then return end
 		local missile = P_SPMAngle(mo,MT_DASHSLICER,mo.angle,0)
-		/*if missile and missile.valid then
-			local spd = FixedHypot(missile.momx,missile.momy)/B.WaterFactor(mo)
-			if mo.flags2&MF2_TWOD or twodlevel then
-				spd = $/2
-			end
-			P_InstaThrust(missile,mo.angle,spd)
-		end*/
 		//Next state
 		player.actionstate = state_dashslicer+1
 		player.actiontime = 0
@@ -357,6 +350,7 @@ end
 B.DashSlicerSpawn=function(mo)
 	mo.fuse = 8
 	mo.time = 0
+	mo.donotwaterslow = true
 end
 
 B.DashSlicerThinker=function(mo)
@@ -390,6 +384,7 @@ B.DashSlicerThinker=function(mo)
 	end
 	local missile = P_SpawnXYZMissile(mo.target,mo,MT_SLASH,x,y,z)
 	if missile and missile.valid then
+		missile.donotwaterslow = true
 		missile.state = s
 		missile.scale = $*2
 	end
