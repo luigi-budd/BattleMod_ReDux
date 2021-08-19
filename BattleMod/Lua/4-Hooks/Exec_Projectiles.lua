@@ -2,6 +2,7 @@ local B = CBW_Battle
 
 //Player v player projectile
 addHook("ShouldDamage", function(target,inflictor,source,something,idk)
+	if gamestate ~= GS_LEVEL then return end -- won't work outside a level
 	if not(target.player and inflictor and inflictor.valid and source and source.valid and source.player)
 	return end
 	
