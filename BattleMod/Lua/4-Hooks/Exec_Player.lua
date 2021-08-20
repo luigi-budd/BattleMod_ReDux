@@ -208,3 +208,11 @@ addHook("TouchSpecial",function(special,pmo)
 	if special.player then return end //player collisions are excluded here
 	if (pmo.player.revenge or pmo.player.isjettysyn) then return true end //player is jettysyn
 end,MT_NULL)
+
+-- Bounce off walls during tumble
+addHook("MobjMoveBlocked", function(mo)
+    if mo.player.tumble then
+        if P_IsObjectOnGround(mo) then mo.z = $ + P_MobjFlip(mo) end
+        P_BounceMove(mo)
+    end
+end, MT_PLAYER)
