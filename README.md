@@ -1,5 +1,6 @@
 # SRB2 Battle - Created by CobaltBW
 [View full credits](https://gitlab.com/Krabs_Is_A_/battlemod/-/blob/master/Credits.md)
+
 [View full patch notes](https://gitlab.com/Krabs_Is_A_/battlemod/-/blob/master/PatchNotes.txt)
 
 ## How to build
