@@ -7,10 +7,15 @@
 - Install the zip package in MSYS2 using `pacman -S zip`
 - You can build the pk3 by running build.sh in the msys2 shell
 - Optional: Create a batch file that runs build.sh. (Make sure the directory to msys2 is correct on your machine)
-`C:\msys64\msys2_shell.cmd -mingw32 -here build.sh`
+```
+C:\msys64\msys2_shell.cmd -mingw32 -here build.sh
+```
 - Optional: Create a batch file that can be used to easily test in-game (Make sure the directory to msys2 is correct on your machine)
-`cd "[PATH TO SRB2]"`
-`Start "" srb2win.exe -file "[PATH TO THIS REPO]\ZBa_BattleMod-latest.pk3" -server -warp b0 -gametype 8 +battledebug 8 +restrictskinchange off +battle_preround 0`
+```
+cd "[PATH TO SRB2]"
+Start "" srb2win.exe -file "[PATH TO THIS REPO]\ZBa_BattleMod-latest.pk3" -server -warp b0 -gametype 8 +battledebug 8 +restrictskinchange off +battle_preround 0
+```
+
 
 After that, simply run the two batch files in order to quickly run and test the mod. The build script will automatically ignore any zone builder temporary files such as `.dbs`, and it will automatically declare version number variables based on the values in `defaults.sh`!
 
@@ -19,7 +24,10 @@ After that, simply run the two batch files in order to quickly run and test the 
 - Arch linux: `sudo pacman -S zip`
 - You can build the pk3 by running `linux_build.sh` in the current directory (via a terminal/etc.)
 - (NOTE: `linux_build.sh` is merely both `build.sh` and `defaults.sh` combined into one)
-- Optional: Similarly to above, you can create a script to quickly test in-game: `srb2 -file [PATH TO THIS REPO]/ZBa_BattleMod-latest.pk3 -server -warp b0 -gametype 8 +battledebug 8 +restrictskinchange off +battle_preround 0`
+- Optional: Similarly to above, you can create a script to quickly test in-game:
+```
+srb2 -file [PATH TO THIS REPO]/ZBa_BattleMod-latest.pk3 -server -warp b0 -gametype 8 +battledebug 8 +restrictskinchange off +battle_preround 0
+```
 
 If there are any permission issues, simply do `chmod +x [SCRIPT NAME HERE]` and then do `./[SCRIPT NAME HERE]` to run the script.
 
