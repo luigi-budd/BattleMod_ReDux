@@ -1,6 +1,8 @@
 Version 9.2 - In development
 Console
 	Added a new console variable, "battle_collisiontimer", which controls the lockout time before a player can collide with the same player again.
+Tumble
+	Players in tumble state will now bounce off walls
 Gamemodes
 	All team modes
 		Allowed splitscreen players to change teams freely
@@ -11,6 +13,8 @@ Gamemodes
 Maintenance
 	Fixed an issue where the Stun Break indicator would not show when the player was in S_PLAY_STUN (when slapped by an egg-robo in CEZ3)
 	Fixed an issue where Metal Sonic's dash slicer projectiles would behave differently underwater
+	Fixed an issue where certain moves could be performed during Game Set
+	Fixed an issue where Knuckles could perform a wall rock blast while on the ground
 	Made changes to improve custom character support:
 		Fixed an issue where character action scripts could not properly affect the player's ability to guard via player.canguard
 		Fixed an issue where 2D mode stat changes were being applied every frame
