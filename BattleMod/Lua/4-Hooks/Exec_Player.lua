@@ -62,6 +62,7 @@ addHook("JumpSpecial",function(player)
 end)
 
 addHook("SpinSpecial",function(player)
+	if B.Exiting then return true end
 	B.ChargeHammer(player)
 	if (player.powers[pw_carry]) return end
 	if not(player.buttonhistory&BT_SPIN)
@@ -70,6 +71,7 @@ addHook("SpinSpecial",function(player)
 end)
 
 addHook("JumpSpinSpecial", function(player)
+	if B.Exiting then return true end
 	if player.powers[pw_super] and player.charability == CA_THOK and player.actionstate
 		return true
 	end
@@ -80,6 +82,7 @@ addHook("PlayerThink", B.AutoSpectator)
 
 //Player against Player damage
 addHook("ShouldDamage", function(target,inflictor,source,damage,other)
+	if gamestate ~= GS_LEVEL then return end -- won't work outside a level
 	if (target.player and target.player.intangible and (source or inflictor))
 	return false end
 	if not(inflictor and inflictor.valid and inflictor.player and inflictor != target)
@@ -205,3 +208,11 @@ addHook("TouchSpecial",function(special,pmo)
 	if special.player then return end //player collisions are excluded here
 	if (pmo.player.revenge or pmo.player.isjettysyn) then return true end //player is jettysyn
 end,MT_NULL)
+
+-- Bounce off walls during tumble
+addHook("MobjMoveBlocked", function(mo)
+    if mo.player.tumble then
+        if P_IsObjectOnGround(mo) then mo.z = $ + P_MobjFlip(mo) end
+        P_BounceMove(mo)
+    end
+end, MT_PLAYER)

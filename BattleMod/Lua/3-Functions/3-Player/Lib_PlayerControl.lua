@@ -205,6 +205,7 @@ B.GetSVSprite = function(player,value)
 end
 
 B.PlayerButtonPressed = function(player,button,held,check_stasis)
+	if B.Exiting then return end
 	if not(player.cmd.buttons&button) then return false end
 	if held == true and not(player.buttonhistory&button) then return false end
 	if held == false and player.buttonhistory&button then return false end
