@@ -1,8 +1,8 @@
-## BattleMod - Created by CobaltBW
-[View full credits](https://gitlab.com/Krabs_Is_A_/battlemod/-/blob/master/BattleMod/Credits.txt)
+# SRB2 Battle - Created by CobaltBW
+[View full credits](https://gitlab.com/Krabs_Is_A_/battlemod/-/blob/master/CREDITS.md)
 
-### How to build
-# Windows
+## How to build
+### Windows
 - [Install MSYS2](https://www.msys2.org/)
 - Install the zip package in MSYS2 using `pacman -S zip`
 - You can build the pk3 by running build.sh in the msys2 shell
@@ -14,7 +14,7 @@
 
 After that, simply run the two batch files in order to quickly run and test the mod. The build script will automatically ignore any zone builder temporary files such as `.dbs`, and it will automatically declare version number variables based on the values in `defaults.sh`!
 
-# Linux
+### Linux
 - Make sure to install the `zip` package for your linux distribution.
 - Arch linux: `sudo pacman -S zip`
 - You can build the pk3 by running `linux_build.sh` in the current directory (via a terminal/etc.)
