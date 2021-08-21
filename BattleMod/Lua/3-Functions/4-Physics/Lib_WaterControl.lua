@@ -7,7 +7,7 @@ end
 
 B.UnderwaterMissile = function(mo)
 	//Set underwater physics
-	if mo.donotwaterslow return end
+	if mobjinfo[mo.type].donotwaterslow return end
 	if mo.eflags&MFE_UNDERWATER and not(mo.waterslow) then
 		mo.waterslow = true
 		P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/2)

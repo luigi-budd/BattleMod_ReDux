@@ -350,7 +350,6 @@ end
 B.DashSlicerSpawn=function(mo)
 	mo.fuse = 8
 	mo.time = 0
-	mo.donotwaterslow = true
 end
 
 B.DashSlicerThinker=function(mo)
@@ -384,7 +383,6 @@ B.DashSlicerThinker=function(mo)
 	end
 	local missile = P_SpawnXYZMissile(mo.target,mo,MT_SLASH,x,y,z)
 	if missile and missile.valid then
-		missile.donotwaterslow = true
 		missile.state = s
 		missile.scale = $*2
 	end

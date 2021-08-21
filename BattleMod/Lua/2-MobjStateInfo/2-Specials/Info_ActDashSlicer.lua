@@ -22,6 +22,7 @@ mobjinfo[MT_DASHSLICER] = {
 	damage = 0,
 	flags = MF_NOGRAVITY|MF_NOBLOCKMAP|MF_MISSILE|MF_NOCLIPTHING|MF_NOSECTOR
 }
+mobjinfo[MT_DASHSLICER].donotwaterslow = true
 
 
 //The Slashes
@@ -37,6 +38,7 @@ mobjinfo[MT_SLASH] = {
 	damage = 0,
 	flags = MF_NOGRAVITY|MF_NOBLOCKMAP|MF_MISSILE|MF_NOCLIPHEIGHT
 }
+mobjinfo[MT_SLASH].donotwaterslow = true
 
 states[S_SLASH1] = {
 	sprite = SPR_SLSH,
