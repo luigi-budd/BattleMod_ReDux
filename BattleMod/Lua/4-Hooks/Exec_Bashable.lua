@@ -58,33 +58,44 @@ end,MT_BASHBOULDER)
 
 //Game logic hooks
 
-addHook("MobjThinker",B.BashableThinker,MT_BASHBOULDER)
-addHook("MobjThinker",B.BashableThinker,MT_SPARRINGDUMMY)
-addHook("MobjThinker",B.BashableThinker,MT_SNOWMAN)
-addHook("MobjThinker",B.BashableThinker,MT_SNOWMANHAT)
-addHook("MobjThinker",B.BashableThinker,MT_CHESSKNIGHT)
-addHook("MobjThinker",B.BashableThinker,MT_CHESSKING)
-addHook("MobjThinker",B.BashableThinker,MT_CHESSQUEEN)
-addHook("MobjThinker",B.BashableThinker,MT_CHESSPAWN)
-addHook("MobjThinker",B.BashableThinker,MT_ROLLOUTROCK)
+local bashables = {
+	MT_BASHBOULDER,
+	MT_SPARRINGDUMMY,
+	MT_SNOWMAN,
+	MT_SNOWMANHAT,
+	MT_CHESSKNIGHT,
+	MT_CHESSKING,
+	MT_CHESSQUEEN,
+	MT_CHESSPAWN,
+	MT_ROLLOUTROCK
+}
 
+for _, mt in pairs(bashables) do
 
-addHook("MobjLineCollide",function(mo,line)
-	if mo.battleobject and line.flags&ML_BLOCKMONSTERS return true end
-end,MT_NULL)
+	addHook("MobjThinker", function(mo)
+		B.BashableThinker(mo)
+	end, mt)
 
+	addHook("MobjLineCollide",function(mo,line)
+		if mo.battleobject and line.flags&ML_BLOCKMONSTERS return true end
+	end, mt)
 
-addHook("MobjCollide",B.BashableCollision,MT_NULL)
+	addHook("MobjCollide", function(...)
+		return B.BashableCollision(...)
+	end, mt)
 
-addHook("MobjMoveCollide",function(mo,other)
-	if not(mo and mo.valid) or mo.flags&MF_NOTHINK then return end
-	return B.BashableCollision(mo,other)
-end,MT_NULL)
+	addHook("MobjMoveCollide",function(...)
+		return B.BashableCollision(...)
+	end, mt)
 
-addHook("TouchSpecial",function(mo,other)
-	if not(mo and mo.valid and mo.battleobject) then return end
-	B.BashableCollision(mo,other)
-	return true
-end,MT_NULL)
+	addHook("TouchSpecial",function(mo,other)
+		if not(mo and mo.valid and mo.battleobject) then return end
+		B.BashableCollision(mo,other)
+		return true
+	end, mt)
 
-addHook("ShouldDamage",B.BashableShouldDamage,MT_NULL)
+	addHook("ShouldDamage", function(...)
+		B.BashableShouldDamage(...)
+	end, mt)
+	
+end
