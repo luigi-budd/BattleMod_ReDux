@@ -581,4 +581,3 @@ CP.SphereThinker = function(mo)
 	local z = B.FixedLerp(tg.z+tg.height/2,tc.z+tc.height/2,frac)
 	P_TeleportMove(mo,x,y,z)
 end
-
