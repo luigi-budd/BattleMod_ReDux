@@ -20,6 +20,7 @@ Maintenance
 		Fixed an issue where 2D mode stat changes were being applied every frame
 		Added a pw_carry type (-1) to the revenge jetty-syn
 		Added a mobjinfo property, donotwaterslow, that disables water physics for MF_MISSILE objects
+	Refactored missile, bashable, and item bubble spawner hooks to improve performance
 
 2021/6/22
 Version 9.1
