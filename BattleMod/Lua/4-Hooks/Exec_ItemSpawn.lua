@@ -1,7 +1,7 @@
 local B = CBW_Battle
 local I = B.Item
 
-//Item Bubbles
+--Item Bubbles
 addHook("MobjSpawn",I.ItemBubbleCreate,MT_ITEM_BUBBLE)
 
 addHook("MobjRemoved",function(mo)
@@ -18,32 +18,29 @@ addHook("MobjMoveBlocked",function(mo)
 	if mo.fragile then P_RemoveMobj(mo) end
 end,MT_ITEM_BUBBLE)
 
-//Item Spawn Events
+--Item Spawn Events
 
-addHook("MobjFuse",function(mo)
-	if(mo.itemspawn_init) then
-		B.DebugPrint("Fuse triggered for item spawner "..tostring(mo),DF_ITEM)
-		I.SetSpawning(mo)
-	return true end
-end,MT_NULL)
-
-for n = MT_ITEM_SPAWN,MT_STRONGRANDOM_FLURRY
-	addHook("MobjThinker",I.SpawnThinker,n)
-end
-
-addHook("MobjSpawn",function(mo) 
-	if mo.type >= MT_ITEM_SPAWN and mo.type <= MT_STRONGRANDOM_FLURRY
-		then
+for n = MT_ITEM_SPAWN,MT_STRONGRANDOM_FLURRY do
+	addHook("MobjThinker",function(mo)
+		I.SpawnThinker(mo)
+	end, n)
+	addHook("MobjSpawn",function(mo) 
 		I.SpawnSettings(mo)
-	end
-end,MT_NULL)
+	end, n)
+	addHook("MobjFuse",function(mo)
+		if(mo.itemspawn_init) then
+			B.DebugPrint("Fuse triggered for item spawner "..tostring(mo),DF_ITEM)
+			I.SetSpawning(mo)
+		return true end
+	end, n)
+end
 
 addHook("MobjThinker",function(mo)
 	P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)*9/10)
 	mo.momz = $*9/10
 end,MT_ITEM_PRESPAWN)
 
-//Item Spawn Map Things
+--Item Spawn Map Things
 addHook("MapThingSpawn",function(mo,thing) I.StandardSpawnerSettings(mo,thing,"global") end,MT_GLOBAL_SPAWN)
 addHook("MapThingSpawn",function(mo,thing) I.StandardSpawnerSettings(mo,thing,"ring") end,MT_RING_SPAWN)
 addHook("MapThingSpawn",function(mo,thing) I.StandardSpawnerSettings(mo,thing,"superring") end,MT_SUPERRING_SPAWN)
@@ -62,7 +59,7 @@ addHook("MapThingSpawn",function(mo,thing) I.StandardSpawnerSettings(mo,thing,"h
 addHook("MapThingSpawn",function(mo,thing) I.StandardSpawnerSettings(mo,thing,"weakrandom") end,MT_WEAKRANDOM_SPAWN)
 addHook("MapThingSpawn",function(mo,thing) I.StandardSpawnerSettings(mo,thing,"strongrandom") end,MT_STRONGRANDOM_SPAWN)
 
-//Carousel Spawn Events
+--Carousel Spawn Events
 addHook("MapThingSpawn",function(mo,thing) I.CarouselSettings(mo,thing,"ring") end,MT_RING_CAROUSEL)
 addHook("MapThingSpawn",function(mo,thing) I.CarouselSettings(mo,thing,"superring") end,MT_SUPERRING_CAROUSEL)
 addHook("MapThingSpawn",function(mo,thing) I.CarouselSettings(mo,thing,"pity") end,MT_PITY_CAROUSEL)
@@ -80,7 +77,7 @@ addHook("MapThingSpawn",function(mo,thing) I.CarouselSettings(mo,thing,"hyperrou
 addHook("MapThingSpawn",function(mo,thing) I.CarouselSettings(mo,thing,"weakrandom") end,MT_WEAKRANDOM_CAROUSEL)
 addHook("MapThingSpawn",function(mo,thing) I.CarouselSettings(mo,thing,"strongrandom") end,MT_STRONGRANDOM_CAROUSEL)
 
-//Flurry Spawn Events
+--Flurry Spawn Events
 addHook("MapThingSpawn",function(mo,thing) I.FlurrySettings(mo,thing,"ring") end,MT_RING_FLURRY)
 addHook("MapThingSpawn",function(mo,thing) I.FlurrySettings(mo,thing,"superring") end,MT_SUPERRING_FLURRY)
 addHook("MapThingSpawn",function(mo,thing) I.FlurrySettings(mo,thing,"pity") end,MT_PITY_FLURRY)
