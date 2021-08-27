@@ -1,4 +1,6 @@
-Version 9.2 - In development
+2021/8/26
+Version 9.2
+
 Console
 	Added a new console variable, "battle_collisiontimer", which controls the lockout time before a player can collide with the same player again.
 Tumble
@@ -22,8 +24,11 @@ Maintenance
 		Added a mobjinfo property, donotwaterslow, that disables water physics for MF_MISSILE objects
 	Refactored missile, bashable, and item bubble spawner hooks to improve performance
 
+#
+
 2021/6/22
 Version 9.1
+
 Sonic
 	Ground pound's drop dash now transitions into a grounded spin instead of bouncing slightly
 	Ground pound's drop dash now cuts off the sound effect from the ground pound's activation
