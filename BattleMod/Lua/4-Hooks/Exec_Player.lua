@@ -47,15 +47,8 @@ addHook("ShieldSpecial", function(player)
 end)
 
 addHook("JumpSpecial",function(player)
-	if player.lockjumpframe
-		return true
-	end
-	
-	if (player.powers[pw_carry]) or player.battlespawning
-		return
-	end
-	if player.melee_state return true end
-	
+	if (player.powers[pw_carry]) or player.battlespawning return end
+
 	if not(player.buttonhistory&BT_JUMP)
 		if B.TwinSpinJump(player) return true end
 	end
@@ -78,7 +71,10 @@ addHook("JumpSpinSpecial", function(player)
 end)
 
 //aaaaaaaaaaa
-addHook("PlayerThink", B.AutoSpectator)
+addHook("PlayerThink", function(player)
+	B.AutoSpectator(player)
+	player.pflags = (player.lockjumpframe or player.melee_state) and ($ | PF_JUMPSTASIS) or ($ & ~PF_JUMPSTASIS)
+end)
 
 //Player against Player damage
 addHook("ShouldDamage", function(target,inflictor,source,damage,other)

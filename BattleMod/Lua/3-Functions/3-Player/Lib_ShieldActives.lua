@@ -12,6 +12,7 @@ B.ArmaCharge = function(player)
 		or player.playerstate != PST_LIVE
 		or P_PlayerInPain(player)
 		or (player.powers[pw_shield] & SH_NOSTACK) != SH_ARMAGEDDON)
+		or player.tumble
 		
 		player.armachargeup = nil
 		player.pflags = $ & ~PF_FULLSTASIS
