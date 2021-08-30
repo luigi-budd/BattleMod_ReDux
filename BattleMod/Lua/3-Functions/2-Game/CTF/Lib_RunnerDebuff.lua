@@ -14,6 +14,16 @@ B.GotFlagStats = function(player)
 		player.climbing = 0
 		if player.actionstate and not(player.actionsuper) then
 			player.actionstate = 0
+			player.actiontime = 0
+			player.mo.tics = 0
+			player.mo.spritexscale = FRACUNIT
+			player.mo.spriteyscale = FRACUNIT
+			-- Reset state (prevent anything that looks weird)
+			if not P_IsObjectOnGround(player.mo) then
+				player.mo.state = S_PLAY_FALL
+			else
+				player.mo.state = S_PLAY_WALK
+			end
 			local zlimit = player.jumpfactor*10
 			player.mo.momz = max(min($,zlimit),-zlimit)
 		end
