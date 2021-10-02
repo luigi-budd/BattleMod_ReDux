@@ -4,10 +4,10 @@ local CV = B.Console
 I.Spawns = {}
 I.SpawnTimer = 0
 I.GlobalChance = {0}
-I.GlobalRate = 30
-I.LocalRate = 60
-local default_globalrate = 30
-local default_localrate = 60
+I.GlobalRate = 45
+I.LocalRate = 90
+local default_globalrate = 45
+local default_localrate = 90
 
 I.GameControl = function()
 	if not(#I.Spawns) then return end
@@ -64,11 +64,11 @@ I.GetMapHeader = function(map)
 		header.battleitems_hyperroulette
 	}
 	if #search
-		for n = 1,14
+		for n = 1,14 do
 			if search[n] and search[n] != nil //Item is non-nil, non-zero
 				local count = 0
 				local item = n-1 //ring = 0, superrings = 1, etc.
-				for m = 1, search[n] // Add this item <search[battleitem]> number of times
+				for m = 1, search[n] do // Add this item <search[battleitem]> number of times
 					I.GlobalChance[#I.GlobalChance+1] = item
 					count = $+1
 				end
@@ -202,7 +202,7 @@ local oldspawncount
 
 I.DoGlobalSpawn = function()
 	local viable = {}
-	for n = 1,#I.Spawns
+	for n = 1,#I.Spawns do
 		local s = I.Spawns[n]
 		//Spawn does not exist
 		if not(s and s.valid) then
@@ -294,7 +294,7 @@ I.BubbleBurst = function(mo)
 			z = $+P_ReturnThrustY(mo,mo.angle,0)
 		end
 	end
-	for n=1,15
+	for n=1,15 do
 		blowbubble(mo,x,y,z)
 	end
 end
@@ -306,6 +306,9 @@ end
 
 I.DoSpawn = function(spawner)
 	if not(I.CheckSpawnItem(spawner)) then
+		if spawner.localized and gametyperules & GTR_LIVES
+			spawner.fusetime = $*3/2 -- Local spawns become less frequent in survival
+		end
 		spawner.spawning = 0
 		if not(leveltime==0) then
 			I.BubbleBurst(spawner)
@@ -437,7 +440,7 @@ I.SpawnSettings = function(mo,...)
 	mo.flurry = 0
 	mo.spawning = 0
 	local args = {...}
-	for n = 1,14
+	for n = 1,14 do
 		if args[n] == nil then
 			args[n] = 0
 		end
@@ -801,4 +804,15 @@ I.SpawnDebugView = function(spawner,bubble)
 	end
 end
 
+I.ItemSpawnFuse = function(mo)
+	if(mo.itemspawn_init)
+		B.DebugPrint("Fuse triggered for item spawner "..tostring(mo),DF_ITEM)
+		I.SetSpawning(mo)
+		return true 
+	end
+end
 
+I.ItemPrespawnThinker = function(mo)
+	P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)*9/10)
+	mo.momz = $*9/10
+end

@@ -11,6 +11,7 @@ B.HideTime = function()
 end
 
 B.TagCam = function(player, runner)
+	if gamestate ~= GS_LEVEL then return end
 	if (runner and runner.valid)
 		if G_TagGametype()
 		and not (runner.pflags&PF_TAGIT)
