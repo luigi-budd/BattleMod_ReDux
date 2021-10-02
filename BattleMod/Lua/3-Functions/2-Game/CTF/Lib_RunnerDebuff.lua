@@ -47,6 +47,7 @@ B.GotFlagStats = function(player)
 		player.mindash = skin.mindash*3/4
 		player.maxdash = skin.maxdash*4/5
 		player.dashmode = 0
+		player.jumpfactor = skin.jumpfactor
 		player.charflags = skins[player.mo.skin].flags & ~SF_RUNONWATER
 	end
 end

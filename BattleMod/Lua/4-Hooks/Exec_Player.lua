@@ -47,15 +47,8 @@ addHook("ShieldSpecial", function(player)
 end)
 
 addHook("JumpSpecial",function(player)
-	if player.lockjumpframe
-		return true
-	end
-	
-	if (player.powers[pw_carry]) or player.battlespawning
-		return
-	end
-	if player.melee_state return true end
-	
+	if (player.powers[pw_carry]) or player.battlespawning return end
+
 	if not(player.buttonhistory&BT_JUMP)
 		if B.TwinSpinJump(player) return true end
 	end
@@ -81,11 +74,12 @@ end)
 addHook("PlayerThink", function(player)
 	B.AutoSpectator(player)
 	-- Spring checks (Should this be dropped in `Exec_Springs.lua`?)
-	if player and player.valid and player.mo and player.mo.valid then
+	if player.mo and player.mo.valid then
 		if player.mo.eflags&MFE_SPRUNG and not (player.pflags&PF_BOUNCING) then
 			B.ResetPlayerProperties(player)
 		end
 	end
+	player.pflags = (player.lockjumpframe or player.melee_state) and ($ | PF_JUMPSTASIS) or ($ & ~PF_JUMPSTASIS)
 end)
 
 //Player against Player damage
