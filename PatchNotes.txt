@@ -1,3 +1,21 @@
+2021/10/2
+Version 9.3
+
+Maintenance
+	- Adjusted item bubble spawn rates
+		- Survival: Local item spawn rates become less frequent with each successive spawn
+	- Corrected a lua error when Fang uses combat roll against a bashable object
+	- Reset player properties if the player triggers certain events while performing an actionstate:
+		- Grabbing a CTF flag
+		- Being launched by a spring
+		- Inhaling an air bubble
+	- Tumbling a player cancels any active armageddon nuke the inflicted player is performing
+	- Readjusted jump prevention code (moved from JumpSpecial to PlayerThink)
+	- Prevented modifiers such as dashmode from permanently altering the player's jump height when a CTF flag is collected.
+	- Sudden death cancels any active armageddon nukes being performed by players.
+	- Verified player is not 'nil' when calling B.GetSkinVarsFlags	
+#
+
 2021/8/26
 Version 9.2
 
@@ -23,7 +41,6 @@ Maintenance
 		Added a pw_carry type (-1) to the revenge jetty-syn
 		Added a mobjinfo property, donotwaterslow, that disables water physics for MF_MISSILE objects
 	Refactored missile, bashable, and item bubble spawner hooks to improve performance
-
 #
 
 2021/6/22
@@ -34,6 +51,7 @@ Sonic
 	Ground pound's drop dash now cuts off the sound effect from the ground pound's activation
 Maintenance
 	Fixed an issue where Sonic's ground pound would not put him in the spring state after bouncing off of an enemy/monitor
+#
 
 2021/6/20
 Version 9.0
