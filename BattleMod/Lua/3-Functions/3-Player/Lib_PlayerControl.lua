@@ -95,6 +95,14 @@ end
 B.ResetPlayerProperties = function(player,jumped,thokked)
 	local mo = player.mo
 	if not(mo) then return end
+	if mo.eflags&MFE_SPRUNG then
+		player.actionstate = 0
+		player.actiontime = 0
+		player.mo.tics = 0
+		player.spritexscale = FRACUNIT
+		player.spriteyscale = FRACUNIT
+		player.mo.state = S_PLAY_SPRING
+	end
 	//Reset pflags
 	local pflags = player.pflags&~(PF_GLIDING|PF_BOUNCING)
 	if jumped == true then

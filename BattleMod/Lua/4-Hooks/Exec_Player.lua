@@ -73,6 +73,12 @@ end)
 //aaaaaaaaaaa
 addHook("PlayerThink", function(player)
 	B.AutoSpectator(player)
+	-- Spring checks (Should this be dropped in `Exec_Springs.lua`?)
+	if player.mo and player.mo.valid then
+		if player.mo.eflags&MFE_SPRUNG and not (player.pflags&PF_BOUNCING) then
+			B.ResetPlayerProperties(player)
+		end
+	end
 	player.pflags = (player.lockjumpframe or player.melee_state) and ($ | PF_JUMPSTASIS) or ($ & ~PF_JUMPSTASIS)
 end)
 
@@ -212,3 +218,17 @@ addHook("MobjMoveBlocked", function(mo)
         P_BounceMove(mo)
     end
 end, MT_PLAYER)
+
+-- When touching the large bubbles, *breathe*
+addHook("MobjDeath", function(bubble, inflictor, source)
+	if source and source.valid and source.player and source.player.valid then
+		local player = source.player
+		if player.airdodge > 0 then
+			player.airdodge = TICRATE
+		end
+		player.airdodge_spin = 0
+		B.ResetPlayerProperties(player)
+		-- TODO: Should we move the state change into B.ResetPlayerProperties?
+		player.mo.state = S_PLAY_GASP
+	end
+end, MT_EXTRALARGEBUBBLE)
