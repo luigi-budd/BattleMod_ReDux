@@ -24,6 +24,7 @@ B.GotFlagStats = function(player)
 			else
 				player.mo.state = S_PLAY_WALK
 			end
+			player.pflags = $ &~ (PF_JUMPED|PF_SPINNING) -- Disallow spin attack status while in fall/walk anims
 			local zlimit = player.jumpfactor*10
 			player.mo.momz = max(min($,zlimit),-zlimit)
 		end
