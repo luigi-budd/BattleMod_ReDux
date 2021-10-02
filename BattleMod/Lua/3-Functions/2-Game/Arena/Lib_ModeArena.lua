@@ -275,6 +275,7 @@ A.UpdateGame = function()
 							nega.target = player.mo
 							player.shieldstock = {}
 							player.rings = 0
+        					player.powers[pw_shield] = SH_PITY --turn any shield into pity, it's gonna be removed anyway
 							P_RemoveShield(player)
 							if extralives
 								if extralives < highscore-1 or extralives == 1

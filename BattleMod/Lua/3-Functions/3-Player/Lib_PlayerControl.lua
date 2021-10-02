@@ -153,6 +153,7 @@ B.GetSkinVars = function(player)
 end
 
 B.GetSkinVarsFlags = function(player,value)
+	if not player then return end
 	if value != nil
 	and (player.skinvars == nil or player.skinvars == -1 or S[player.skinvars] == nil)
 		return S[-1].flags
