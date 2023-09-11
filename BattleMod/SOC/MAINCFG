@@ -1,6 +1,0 @@
-State S_PLAY_FACEPLANT
-SpriteName = SPR_PLAY
-SpriteFrame = SPR2_OOF_|A
-Duration = 80
-Next = S_PLAY_FACEPLANT
-#
