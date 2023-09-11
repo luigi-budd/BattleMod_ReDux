@@ -7,27 +7,50 @@ end
 
 B.StunBreak = function(player, doguard)
 	if not (player and player.valid and player.mo and player.mo.valid)
-		or not P_PlayerInPain(player)
-		or not player.mo.state == S_PLAY_PAIN
-		or player.isjettysyn
-		or not (CV.Guard.value)
+	or player.isjettysyn
+	or not (CV.Guard.value)
+		-- easy checks
+		player.tech_timer = 0
 		return
 	end
 	local mo = player.mo
 	
-	//Input buffer
-	if mo.tics == 349//First frame of S_PLAY_PAIN
-		player.tech_bfr = false
+	-- check if we CAN stun break!
+	local break_tics
+	local break_cost
+	local canBreak = false
+	
+	local break_type
+	if (player.tumble)
+		-- let us break out of non-parried tumbles
+		canBreak = not player.tumble_nostunbreak
+		break_tics = player.tumble_time and player.tumble_time*2/3 or 0	-- half of the tumble needs to be up
+		break_cost = 10
+		
+		-- store the type of stun break
+		break_type = 2
+	else
+		-- let us break out of the pain state
+		canBreak = (P_PlayerInPain(player) and mo.state == S_PLAY_PAIN)
+		break_tics = 27
+		break_cost = 20
+		
+		-- store the type of stun break
+		break_type = 1
 	end
-	if doguard == 1
-		player.tech_bfr = true
-	end
-	if player.tech_bfr and not doguard
-		player.tech_bfr = nil
-	end
+	if not (canBreak) then player.tech_timer = 0 return end
+	
+	-- little hack to reset the tech timer if the tech type changes
+	if (player.tech_type != break_type) then player.tech_timer = 0 end
+	player.tech_type = break_type
+	
+	-- increase timer to break out
+	player.tech_timer = $+1
 	
 	//Do the stun break
-	if mo.tics <= 327 and player.tech_bfr and player.rings >= 20
+	if (player.tech_timer >= break_tics)
+	and (doguard)	-- pressing the guard button (lets us buffer since it'll be 2 for holding)
+	and (player.rings >= break_cost)
 		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
 		angle = $ + (player.cmd.angleturn << FRACBITS)
 		
@@ -35,9 +58,14 @@ B.StunBreak = function(player, doguard)
 			angle = mo.angle
 		end
 		
-		player.tech_bfr = nil
+		player.tech_timer = 0
 		
 		//State and flags
+		if (player.tumble)
+			player.tumble = nil
+			player.lockmove = false
+			S_StopSoundByID(mo, sfx_kc38)
+		end
 		B.ResetPlayerProperties(player,false,false)
 		mo.state = S_PLAY_SPRING
 		player.airdodge = -1
@@ -55,7 +83,7 @@ B.StunBreak = function(player, doguard)
 		
 		//Pay rings, cooldown
 		player.actioncooldown = max($, TICRATE)
-		player.rings = $ - 20
+		player.rings = $ - break_cost
 		
 		//Visual effects
 		local sb = P_SpawnMobjFromMobj(mo,0,0,0,MT_STUNBREAK)

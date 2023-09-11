@@ -182,7 +182,7 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 			local thrust = FRACUNIT*10
 			if twodlevel then thrust = B.TwoDFactor($) end
 			P_SetObjectMomZ(inflictor,thrust)
-			B.DoPlayerTumble(inflictor.player, 45, angle, inflictor.scale*3, true)
+			B.DoPlayerTumble(inflictor.player, 45, angle, inflictor.scale*3, true, true)	-- prevent stun break
 		else
 			P_DamageMobj(inflictor,target,target)
 		end
@@ -201,7 +201,7 @@ end
 B.BattleShieldThinker = function(mobj)
 	if not mobj.target return end
 	mobj.scale = FixedMul(skins[mobj.target.skin].shieldscale, mobj.target.scale*3/2)*2
-	P_TeleportMove(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
+	P_MoveOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
 	
 	mobj.colorized = true
 	mobj.color = SKINCOLOR_WHITE
@@ -218,7 +218,7 @@ end
 B.NegaShieldThinker = function(mobj)
 	if not mobj.target return end
 	mobj.scale = FixedMul(skins[mobj.target.skin].shieldscale, mobj.target.scale*3/2)*2
-	P_TeleportMove(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
+	P_MoveOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
 	mobj.colorized = true
 	mobj.color = SKINCOLOR_BLACK
 	mobj.flags2 = $^^MF2_DONTDRAW

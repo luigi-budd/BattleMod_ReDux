@@ -320,7 +320,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 	end
 end
 
-B.DoPlayerTumble = function(player, time, angle, thrust, force)
+B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 	player.panim = PA_PAIN
 	player.mo.state = S_PLAY_PAIN
 	player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
@@ -341,7 +341,14 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force)
 	if force == true then
 		P_InstaThrust(player.mo,angle,thrust)
 	end
+	
+	-- this'll allow us to stun break or not
+	player.tech_timer = 0	-- reset tech timer
+	player.tumble_time = time	-- store how long we'll be parried for
+	player.tumble_nostunbreak = nostunbreak	-- used for parry
 end
+
+local B = CBW_Battle
 
 B.Tumble = function(player)
 	if not (player and player.valid and player.mo and player.mo.valid)
@@ -361,7 +368,6 @@ B.Tumble = function(player)
 			player.drawangle = mo.angle
 			S_StopSoundByID(mo, sfx_kc38)
 			B.ResetPlayerProperties(player,false,false)
-		
 		//Do tumble animation
 		else
 			if mo.tumble_prevmomz == nil
@@ -390,10 +396,10 @@ B.Tumble = function(player)
 				S_StopSoundByID(mo, sfx_kc38)
 				player.panim = PA_FALL
 				B.ResetPlayerProperties(player,false,false)
-				if P_IsObjectOnGround(mo)
+				-- for some reason, it checked if the player was ON the ground before
+				if not (P_IsObjectOnGround(mo))
 					mo.state = S_PLAY_FALL
 				end
-				
 			else
 				//player.powers[pw_nocontrol] = max($, 2)
 				player.pflags = $ | PF_FULLSTASIS
