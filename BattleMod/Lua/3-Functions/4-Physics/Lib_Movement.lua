@@ -8,7 +8,7 @@ B.AngleTeleport = function(mo,coords,xyangle,zangle,distance)
 	local xthrust = P_ReturnThrustX(nil,xyangle,xythrust)
 	local ythrust = P_ReturnThrustY(nil,xyangle,xythrust)
 	local zthrust = P_ReturnThrustY(nil,zangle,distance)
-	P_TeleportMove(mo,x+xthrust,y+ythrust,z+zthrust)
+	P_MoveOrigin(mo,x+xthrust,y+ythrust,z+zthrust)
 	return {xythrust/FRACUNIT,zthrust/FRACUNIT}
 end
 

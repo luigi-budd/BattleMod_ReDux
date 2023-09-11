@@ -118,7 +118,7 @@ B.RoboMissileTransferCarry=function(player,missile)
 	if carried.player then
 		carried.player.powers[pw_carry] = CR_GENERIC
 	end
--- 	P_TeleportMove(carried,missile.x,missile.y,missile.z-carried.height)
+-- 	P_MoveOrigin(carried,missile.x,missile.y,missile.z-carried.height)
 	player.carry_id = nil
 	missile.target = carried
 	missile.carry = true

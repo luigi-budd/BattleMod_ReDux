@@ -148,7 +148,7 @@ D.Thinker = function(mo)
 				player.actioncooldown = TICRATE
 				player.gotcrystal = false
 				player.gotcrystal_time = 0
-				P_TeleportMove(mo,player.mo.x,player.mo.y,player.mo.z)
+				P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 				P_InstaThrust(mo,player.mo.angle,FRACUNIT*5)
 				P_SetObjectMomZ(mo,FRACUNIT*10)
 				player.tossdelay = TICRATE*2
@@ -207,7 +207,7 @@ D.Thinker = function(mo)
 		z = $+t.height
 		t.flags2 = $|MF2_OBJECTFLIP
 	end
-	P_TeleportMove(mo,t.x,t.y,t.z)
+	P_MoveOrigin(mo,t.x,t.y,t.z)
 -- 	P_TryMove(mo,x,y,true)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) //Do z pos while respecting level geometry

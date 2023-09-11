@@ -326,10 +326,10 @@ B.MetalAura = function(mo,target)
 	mo.scale = target.scale
 	if P_MobjFlip(target) == 1
 		mo.eflags = $&~MFE_VERTICALFLIP
-		P_TeleportMove(mo,target.x,target.y,target.z+target.height/4)
+		P_MoveOrigin(mo,target.x,target.y,target.z+target.height/4)
 	else
 		mo.eflags = $|MFE_VERTICALFLIP
-		P_TeleportMove(mo,target.x,target.y,target.z+target.height*3/4)
+		P_MoveOrigin(mo,target.x,target.y,target.z+target.height*3/4)
 	end
 end
 
@@ -344,7 +344,7 @@ B.EnergyGather = function(mo,target,xyangle,zangle)
 	local x = target.x+P_ReturnThrustX(nil,xyangle,xydist)
 	local y = target.y+P_ReturnThrustY(nil,xyangle,xydist)
 	local z = target.z+zdist+target.height/2
-	P_TeleportMove(mo,x,y,z)
+	P_MoveOrigin(mo,x,y,z)
 end
 
 B.DashSlicerSpawn=function(mo)

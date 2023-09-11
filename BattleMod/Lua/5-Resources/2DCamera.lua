@@ -277,7 +277,7 @@ addHook("MobjThinker", function(mo)
 			end
 			
 			-- Phew! That was a lot. Now set the mo to the stored cam table values this tic
-			P_TeleportMove(mo, cam.x, cam.y, cam.z)
+			P_MoveOrigin(mo, cam.x, cam.y, cam.z)
 		else -- mo.target.player is not valid or dead.
 			P_RemoveMobj(mo)
 			return

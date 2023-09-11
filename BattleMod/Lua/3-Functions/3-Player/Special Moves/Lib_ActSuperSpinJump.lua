@@ -215,7 +215,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		end
 		
 		local trail = P_SpawnGhostMobj(mo)
-		P_TeleportMove(trail, trail.x, trail.y, zheight)
+		P_MoveOrigin(trail, trail.x, trail.y, zheight)
 		trail.fuse = 30
 		trail.state = S_THOK
 		trail.frame = TR_TRANS70|A
@@ -225,7 +225,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		
 		/*if leveltime % 4 == 0
 			trail = P_SpawnGhostMobj(mo)
-			P_TeleportMove(trail, trail.x, trail.y, zheight)
+			P_MoveOrigin(trail, trail.x, trail.y, zheight)
 			trail.fuse = 30
 			trail.color = SKINCOLOR_WHITE
 			trail.state = S_THOK

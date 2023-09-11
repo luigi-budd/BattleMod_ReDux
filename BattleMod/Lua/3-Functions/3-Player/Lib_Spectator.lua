@@ -81,7 +81,7 @@ B.AutoSpectator = function(player)
 			end
 			local t = mo.spectarget.mo
 			if not(twodlevel) then
-				P_TeleportMove(mo,t.x,t.y,t.z)
+				P_MoveOrigin(mo,t.x,t.y,t.z)
 			end
 			player.spectatortime = autotime
 		end
@@ -95,7 +95,7 @@ B.AutoSpectator = function(player)
 	if not(twodlevel) then 
 		//Stay in view of target
 		if P_CheckSight(mo,t) == false and R_PointToDist2(mo.x,mo.y,t.x,t.y)+abs(t.z-mo.z) > t.scale*480
-			P_TeleportMove(mo,t.x,t.y,t.z)
+			P_MoveOrigin(mo,t.x,t.y,t.z)
 		end
 		//Adjust aim
 		mo.angle = R_PointToAngle2(mo.x,mo.y,t.x,t.y)
@@ -139,7 +139,7 @@ B.SpectatorControl = function(player)
 	local devcam = CV.DevCamera.value
 	//Set 2D start orientation/position
 	if twodlevel and not(mo.twod) and not(devcam) then
-		P_TeleportMove(mo,mo.x,mo.y-mo.scale*640,mo.z)
+		P_MoveOrigin(mo,mo.x,mo.y-mo.scale*640,mo.z)
 		B.DebugPrint("Teleported 2D spectator",DF_PLAYER)
 -- 		mo.angle = ANGLE_90
 		mo.twod = true
@@ -202,7 +202,7 @@ B.SpectatorControl = function(player)
 			P_SlideMove(mo)
 		end
 	else
-		P_TeleportMove(mo,mo.x+mo.mom[1],mo.y+mo.mom[2],mo.z)
+		P_MoveOrigin(mo,mo.x+mo.mom[1],mo.y+mo.mom[2],mo.z)
 	end
 	//More 2D garbage
 	if mo.twod 

@@ -41,7 +41,7 @@ B.DummyTeleport = function(mo)
 	local x = t.x + P_ReturnThrustX(t,a+ANGLE_180,d)
 	local y = t.y + P_ReturnThrustY(t,a+ANGLE_180,d)
 	local z = t.z
-	P_TeleportMove(mo,x,y,z)
+	P_MoveOrigin(mo,x,y,z)
 end
 
 B.SpawnTargetDummy = function(player)
@@ -123,7 +123,7 @@ B.DummyFlicky = function(mo,target)
 	end
 	mo.angle = target.angle
 	local dist = -FRACUNIT
-	P_TeleportMove(mo,
+	P_MoveOrigin(mo,
 		target.x+P_ReturnThrustX(nil,target.angle,dist),
 		target.y+P_ReturnThrustY(nil,target.angle,dist),
 		target.z)
