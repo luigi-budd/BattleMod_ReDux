@@ -25,7 +25,7 @@ B.StunBreak = function(player, doguard)
 		-- let us break out of non-parried tumbles
 		canBreak = not player.tumble_nostunbreak
 		break_tics = player.tumble_time and player.tumble_time*2/3 or 0	-- half of the tumble needs to be up
-		break_cost = 10
+		break_cost = 15
 		
 		-- store the type of stun break
 		break_type = 2
@@ -33,7 +33,7 @@ B.StunBreak = function(player, doguard)
 		-- let us break out of the pain state
 		canBreak = (P_PlayerInPain(player) and mo.state == S_PLAY_PAIN)
 		break_tics = 27
-		break_cost = 20
+		break_cost = 25
 		
 		-- store the type of stun break
 		break_type = 1

@@ -27,7 +27,7 @@ S["sonic"] = {
 	sprites = {}
 }
 S["tails"] = {
-	weight = 100,
+	weight = 90,
 	shields = 1,
 	special = Act.TailSwipe,
 	guard_frame = 2,
@@ -56,7 +56,7 @@ S["knuckles"] = {
 }
 S["amy"] = {
 	flags = SKINVARS_GUARD|SKINVARS_ROSY|SKINVARS_NOSPINSHIELD,
-	weight = 95,
+	weight = 105,
 	shields = 1,
 	special = Act.PikoSpin,
 	guard_frame = 1,
@@ -65,7 +65,7 @@ S["amy"] = {
 }
 S["fang"] = {
 	flags = SKINVARS_GUARD|SKINVARS_NOSPINSHIELD|SKINVARS_GUNSLINGER,
-	weight = 105,
+	weight = 100,
 	shields = 1,
 	special = Act.CombatRoll,
 	guard_frame = 1,

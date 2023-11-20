@@ -4,7 +4,7 @@ local CV = B.Console
 
 CV.ItemRate = CV_RegisterVar{
 	name = "item_rate",
-	defaultvalue = 2,
+	defaultvalue = 1,
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 1, MAX = 3}
 }

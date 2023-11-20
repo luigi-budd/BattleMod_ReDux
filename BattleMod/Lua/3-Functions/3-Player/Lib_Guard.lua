@@ -15,7 +15,6 @@ B.GuardControl = function(player)
 	or G_TagGametype()
 	or player.iseggrobo
 	or player.isjettysyn
-	or player.powers[pw_flashing]
 		player.canguard = false
 	return end
 

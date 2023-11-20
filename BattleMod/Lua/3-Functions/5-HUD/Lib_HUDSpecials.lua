@@ -26,11 +26,11 @@ B.ActionHUD=function(v, player, cam)
 			if (player.tumble)
 				-- let us break out of non-parried tumbles
 				canBreak = not player.tumble_nostunbreak
-				break_cost = 10
+				break_cost = 15
 			else
 				-- let us break out of the pain state
 				canBreak = (P_PlayerInPain(player) and player.mo.state == S_PLAY_PAIN)
-				break_cost = 20
+				break_cost = 25
 			end
 			if not (canBreak) then return end
 			
