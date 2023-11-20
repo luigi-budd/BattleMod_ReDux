@@ -15,17 +15,30 @@ B.ActionHUD=function(v, player, cam)
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER
 	local align = "thin"
 	
-	if player.actionallowed != true and not player.gotflag then
-		if P_PlayerInPain(player)
-		and player.mo.state == S_PLAY_PAIN
-		 or player.mo.state == S_PLAY_STUN
-		and not player.isjettysyn
+	if (player.actionallowed != true or player.tumble) 
+	and not player.gotflag
+		-- stun break
+		if not player.isjettysyn
 		and (CV.Guard.value)
+			local break_cost
+			local canBreak = false
+			
+			if (player.tumble)
+				-- let us break out of non-parried tumbles
+				canBreak = not player.tumble_nostunbreak
+				break_cost = 10
+			else
+				-- let us break out of the pain state
+				canBreak = (P_PlayerInPain(player) and player.mo.state == S_PLAY_PAIN)
+				break_cost = 20
+			end
+			if not (canBreak) then return end
+			
 			local patch = v.cachePatch("PARRYBT")
 			local text = "Stun Break"
 			local textcolor = "\x86"
 			local yoffset = hudinfo[HUD_RINGS].y+14
-			if player.rings >= 20
+			if player.rings >= break_cost
 				if leveltime % 3 == 0
 					textcolor = ""
 				elseif leveltime % 3 == 1
@@ -34,7 +47,7 @@ B.ActionHUD=function(v, player, cam)
 					textcolor = "\x87"
 				end
 			end
-			text = "\x82" .. 20 .. textcolor .. " " .. $
+			text = "\x82" .. break_cost .. textcolor .. " " .. $
 			v.draw(xoffset,yoffset,patch,flags)
 			v.drawString(xoffset+10,yoffset,text,flags,align)
 		end

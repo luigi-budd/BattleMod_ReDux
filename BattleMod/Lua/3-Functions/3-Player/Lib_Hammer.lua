@@ -12,6 +12,9 @@ local function twin(player)
 	player.pflags = $|PF_THOKKED|PF_NOJUMPDAMAGE
 	S_StartSound(player.mo,sfx_s3k42)
 	
+	//pw_strong is a new power that we use now ~JoJo
+	player.powers[pw_strong] = STR_TWINSPIN
+	
 	//Angle adjustment
 	player.drawangle = player.mo.angle
 end
@@ -120,7 +123,13 @@ B.HammerControl = function(player)
 			player.melee_state = st_idle
 			mo.state = S_PLAY_FALL
 		end
-	end
+		-- strong for the melee swing
+		if (mo.state == S_PLAY_MELEE or mo.state == S_PLAY_MELEE_FINISH)
+			player.powers[pw_strong] = STR_MELEE
+		end
+	elseif player.melee_state == st_hold
+			player.powers[pw_strong] = 0
+	end -- ~JoJo
 	
 	if player.melee_state == st_hold
 		if not(player.cmd.buttons&BT_SPIN)

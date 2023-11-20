@@ -348,8 +348,6 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 	player.tumble_nostunbreak = nostunbreak	-- used for parry
 end
 
-local B = CBW_Battle
-
 B.Tumble = function(player)
 	if not (player and player.valid and player.mo and player.mo.valid)
 		return
@@ -368,6 +366,7 @@ B.Tumble = function(player)
 			player.drawangle = mo.angle
 			S_StopSoundByID(mo, sfx_kc38)
 			B.ResetPlayerProperties(player,false,false)
+		
 		//Do tumble animation
 		else
 			if mo.tumble_prevmomz == nil
@@ -396,10 +395,10 @@ B.Tumble = function(player)
 				S_StopSoundByID(mo, sfx_kc38)
 				player.panim = PA_FALL
 				B.ResetPlayerProperties(player,false,false)
-				-- for some reason, it checked if the player was ON the ground before
 				if not (P_IsObjectOnGround(mo))
 					mo.state = S_PLAY_FALL
 				end
+				
 			else
 				//player.powers[pw_nocontrol] = max($, 2)
 				player.pflags = $ | PF_FULLSTASIS

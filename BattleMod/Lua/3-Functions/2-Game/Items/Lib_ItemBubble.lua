@@ -289,7 +289,7 @@ local bubbleoverlay = function(mo)
 	else
 		zoffset = FixedMul(mo.scale,FRACUNIT*12)+mo.height
 	end
-	P_MoveOrigin(overlay,mo.x+mo.momx,mo.y+mo.momy,mo.z+mo.momz+zoffset)
+	P_TeleportMove(overlay,mo.x+mo.momx,mo.y+mo.momy,mo.z+mo.momz+zoffset)
 	//Color
 	local i = mo.item
 	if overlaycolors[i] then
@@ -308,11 +308,11 @@ local bubblecarousel = function(mo)
 	if not(t.carouselorientation) //Standard carousel
 		local x = t.x+P_ReturnThrustX(mo,t.angle,w)
 		local y = t.y+P_ReturnThrustY(mo,t.angle,w)
-		P_MoveOrigin(mo,x,y,mo.z)
+		P_TeleportMove(mo,x,y,mo.z)
 	else //2D carousel
 		local x = t.x+P_ReturnThrustX(mo,t.angle,w)
 		local z = t.z+P_ReturnThrustY(mo,t.angle,w)
-		P_MoveOrigin(mo,x,t.y,z)
+		P_TeleportMove(mo,x,t.y,z)
 	end
 end
 

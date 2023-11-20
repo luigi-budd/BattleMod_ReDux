@@ -95,6 +95,7 @@ B.Action.PikoSpin = function(mo,doaction)
 	elseif player.actionstate == specialstate then
 		player.charability2 = CA2_MELEE
 		player.powers[pw_nocontrol] = max($,2)
+		player.powers[pw_strong] = STR_TWINSPIN
 		sparkle(mo)
 		player.drawangle = player.cmd.angleturn<<FRACBITS+ANGLE_45*(player.actiontime&7)
 		DoThrust(mo)

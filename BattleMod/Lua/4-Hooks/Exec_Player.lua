@@ -118,6 +118,9 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	B.PlayerCreditPusher(target.player,inflictor)
 	B.PlayerCreditPusher(target.player,source)
 	
+	-- reset tech timer
+	target.player.tech_timer = 0
+	
 	if inflictor and inflictor.valid
 		if inflictor.hit_sound and target and target.valid
 			S_StartSound(target, inflictor.hit_sound)
