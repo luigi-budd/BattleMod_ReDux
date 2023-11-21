@@ -192,3 +192,13 @@ B.PlayerRoboMissileCollision = function(pmo,missile,source)
 		P_KillMobj(missile)
 	return false end
 end
+
+addHook("ShouldDamage", function(targ, inf, src, dmg)
+  if    G_GametypeHasTeams() and 
+        targ and targ.valid and targ.player and 
+        src and src.valid and src.player and
+        targ.player.ctfteam == src.player.ctfteam 
+  then 
+    return false 
+  end
+end, MT_PLAYER)
