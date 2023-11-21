@@ -8,7 +8,7 @@ local testhud = 0
 local screenwidth,team_width,team_centergap
 
 //Placement suffixes
-local post = {"st","nd","rd","th","th","th","th","th","th","th"}
+local post = {"WANTED","nd","rd","th","th","th","th","th","th","th"}
 
 //Shield patches
 local shpatch = function(n)
@@ -311,7 +311,7 @@ A.HUD = function(v,player,cam)
 			local t = p.rank
 
 			if t == 1 then
-				text = "\x82"..t
+				text = "\x82"
 			elseif t == 2 then
 				text = "\x8c"..t
 			elseif t == 3 then
@@ -326,5 +326,66 @@ A.HUD = function(v,player,cam)
 			
 			v.drawString(xoffset+scorex,yoffset+scorey,text,flags,scorea)
 		end
+	end
+end
+
+A.HUD2 = function(v, player, cam)
+	if not(B.ArenaGametype()) then return end
+	if splitscreen then return end
+	if not (B.HUDMain) then return end
+	if B.PreRoundWait() then return end
+	local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
+	local xoffset = 152
+	local yoffset = 4
+	local angle
+	local cmpangle
+	local compass
+	local color
+	local pid = player.mo
+	
+	local xx = cam.x
+	local yy = cam.y
+	local zz = cam.z
+	local lookang = cam.angle
+	if (player.spectator or not cam.chase) and (player.realmo and player.realmo.valid)//Use the realmo coordinates when not using chasecam
+		xx = player.realmo.x
+		yy = player.realmo.y
+		zz = player.realmo.z
+		lookang = player.cmd.angleturn<<16
+	end
+	
+	if (pid and pid.valid and player.wanted == true) then
+				-- Use the angle based off x and z rather than x and y
+		if twodlevel then
+			angle = R_PointToAngle2(xx, zz, pid.x, pid.z) - ANGLE_90 + ANGLE_22h
+		else
+			angle = R_PointToAngle2(xx, yy, pid.x, pid.y) - lookang + ANGLE_22h
+		end
+		
+		local cmpangle = 8
+		if (angle >= 0) and (angle < ANGLE_45)
+			cmpangle = 1
+		elseif (angle >= ANGLE_45) and (angle < ANGLE_90)
+			cmpangle = 2
+		elseif (angle >= ANGLE_90) and (angle < ANGLE_135)
+			cmpangle = 3
+		elseif (angle >= ANGLE_135)// and (angle < ANGLE_180)
+			cmpangle = 4
+		elseif (angle >= ANGLE_180) and (angle < ANGLE_225)
+			cmpangle = 5
+		elseif (angle >= ANGLE_225) and (angle < ANGLE_270)
+			cmpangle = 6
+		elseif (angle >= ANGLE_270) and (angle < ANGLE_315)
+			cmpangle = 7
+		end
+		
+		compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
+		local pcol = pid.color
+		if pcol == SKINCOLOR_JET then
+			pcol = SKINCOLOR_SILVER
+		end
+		color = v.getColormap(TC_DEFAULT,pcol)
+		//Draw
+		v.draw(xoffset,yoffset,compass,flags,color)
 	end
 end

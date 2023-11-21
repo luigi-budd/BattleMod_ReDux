@@ -69,3 +69,10 @@ CV.RespawnTime = CV_RegisterVar{
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 3, MAX = 30}
 }
+
+CV.Reward = CV_RegisterVar{
+    name = "battle_wantedreward",
+    defaultvalue = 25,
+    flags = CV_NETVAR,
+    PossibleValue = {MIN = 0, MAX = 9999}
+}

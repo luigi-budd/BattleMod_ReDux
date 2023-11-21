@@ -15,9 +15,9 @@ A.GameOverControl = function(player)
 	if not(B.BattleGametype()) then return end
 	if player.playerstate == PST_DEAD and player.lives == 0 then
 		if B.Exiting == false
-			if player.deadtimer == gameovertics and not(B.Pinch or B.SuddenDeath)
-				P_RestoreMusic(player)
-			end
+			--if player.deadtimer == gameovertics and not(B.Pinch or B.SuddenDeath)
+			--	P_RestoreMusic(player)
+			--end
 		else
 			player.deadtimer = 2
 		end
@@ -147,6 +147,53 @@ A.GetRanks = function()
 				A.Placements[n] = player
 				break
 			end
+		end
+		if player.rank == 1
+			player.wanted = true
+		else
+			player.wanted = false
+		end
+	end
+end
+
+A.TeamGetRanks = function()
+	local b = A.BlueFighters
+	local r = A.RedFighters
+	//Rank players
+	for n = 1, #b
+		local bplayer = b[n]
+		if not(bplayer and bplayer.valid) then continue end
+		bplayer.brank = 1
+		//Compare with other player's scores
+		for m = 1, #b
+			local botherplayer = b[m]
+			if not(b[m].valid) then continue end //sigh
+			if bplayer.score < botherplayer.score then
+				bplayer.brank = $+1
+			end
+		end
+		if bplayer.brank == 1
+			bplayer.bwanted = true
+		else
+			bplayer.bwanted = false
+		end
+	end
+	for n = 1, #r
+		local rplayer = r[n]
+		if not(rplayer and rplayer.valid) then continue end
+		rplayer.rrank = 1
+		//Compare with other player's scores
+		for m = 1, #r
+			local rotherplayer = r[m]
+			if not(r[m].valid) then continue end //sigh
+			if rplayer.score < rotherplayer.score then
+				rplayer.rrank = $+1
+			end
+		end
+		if rplayer.rrank == 1
+			rplayer.rwanted = true
+		else
+			rplayer.rwanted = false
 		end
 	end
 end
@@ -376,3 +423,22 @@ A.KillReward = function(killer)
 		end
 	end
 end
+
+A.HitReward = function(hitter)
+	if not (hitter and hitter.valid) return end
+	if B.SuddenDeath then return end
+	local arena = B.ArenaGametype() and not G_GametypeUsesLives()
+	if not arena return end
+	
+	if hitter.mo and hitter.mo.valid and hitter.playerstate == PST_LIVE and not hitter.revenge and not G_GametypeHasTeams()
+		hitter.score = $+(#A.Fighters*CV.Reward.value)
+		S_StartSound(hitter.mo, 180, hitter)
+		print("\x89" .. hitter.name .. " earned extra points!")
+	end
+	if hitter.mo and hitter.mo.valid and hitter.playerstate == PST_LIVE and not hitter.revenge and G_GametypeHasTeams()
+		P_AddPlayerScore(hitter,((#A.Fighters*CV.Reward.value)))
+		S_StartSound(hitter.mo, 180, hitter)
+		print("\x89" .. hitter.name .. " earned extra points!")
+	end
+end
+

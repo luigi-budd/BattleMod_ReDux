@@ -110,6 +110,11 @@ end,MT_TARGETDUMMY)
 //Damage triggered
 addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	if not(target.player) then return end
+	
+	local hitter
+	local p = A.Fighters
+	if not (target.player) then return end
+	
 	//Do guarding
 	if B.GuardTrigger(target, inflictor, source, damage, damagetype) then return true end
 	//Handle damage dealt/received by revenge jettysyns
@@ -117,6 +122,25 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	//Establish enemy player as the last pusher (for hazard kills)
 	B.PlayerCreditPusher(target.player,inflictor)
 	B.PlayerCreditPusher(target.player,source)
+	 
+	 //Standard kill
+    if inflictor and inflictor.player
+        hitter = inflictor.player
+    elseif source and source.player
+        hitter = source.player
+    end
+    //Wanted System
+    if target.player.wanted == true and not G_GametypeHasTeams() then
+        A.HitReward(hitter)
+    end
+    if target.player.bwanted == true and G_GametypeHasTeams()
+    and hitter.ctfteam == 1 then
+        A.HitReward(hitter)
+    end
+    if target.player.rwanted == true and G_GametypeHasTeams()
+    and hitter.ctfteam == 2 then
+        A.HitReward(hitter)
+    end
 	
 	-- reset tech timer
 	target.player.tech_timer = 0
@@ -141,6 +165,8 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 			end
 		end
 	end
+	
+	
 	
 	local player = target.player
 	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON//no more arma revenge boom
