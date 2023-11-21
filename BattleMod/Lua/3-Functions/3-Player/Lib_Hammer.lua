@@ -179,12 +179,14 @@ B.ChargeHammer = function(player)
 		player.melee_state = st_hold
 		player.melee_charge = 0
 	end
-	
+	local momxy = FixedHypot(mo.momx,mo.momy)
 	//Jump cancel
 	if player.melee_state == st_hold and player.cmd.buttons&BT_JUMP
 		S_StartSound(mo,sfx_s3k42)
 		B.ZLaunch(mo, FRACUNIT*3, true)
-		P_Thrust(mo, mo.angle, 9*mo.scale)
+		if momxy < 22*FRACUNIT then
+			P_Thrust(mo, mo.angle, 9*mo.scale)
+		end
 		player.melee_state = st_jump
 	end	
 	
