@@ -126,3 +126,18 @@ G_AddGametype({
 	headerrightcolor = 150,
 	description = "Combine melee and special moves to capture the enemy flag while protecting your own. Master the slipstream to catch up to enemy flagrunners!"
 })
+
+freeslot('tol_bank')
+G_AddGametype({
+    name = "Bank",
+    identifier = "bank",
+    typeoflevel = TOL_BANK|TOL_CTF|TOL_BATTLECTF,
+    rules = GTR_STARTCOUNTDOWN|GTR_OVERTIME|GTR_RESPAWNDELAY|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES|GTR_TEAMFLAGS,
+    rankingtype = GT_CTF,
+	intermissiontype = int_ctf,
+	defaultpointlimit = 0,
+	defaulttimelimit = 5,
+    headerleftcolor = 37,
+    headerrightcolor = 150,
+    description = "Add rings to your base, and steal ring's from the enemy base!"
+})
