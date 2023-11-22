@@ -1,8 +1,8 @@
 local B = CBW_Battle
 local state_swipe = 1
 local state_thrust = 2
-local cooldown_swipe = TICRATE*7/5
-local cooldown_dash = TICRATE*6/5
+local cooldown_swipe = TICRATE*5/2
+local cooldown_dash = TICRATE*3/2
 local cooldown_throw = cooldown_dash
 local sideangle = ANG30 + ANG10
 local throw_strength = 30
@@ -29,9 +29,9 @@ local function domissile(mo,thrustfactor)
 	sbvars(m,mo)
 	//Thrust
 	if not(P_IsObjectOnGround(mo))
-		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*3)
+		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*5)
 	else
-		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*7)
+		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*8)
 	end
 end
 
