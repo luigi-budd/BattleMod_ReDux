@@ -11,7 +11,7 @@ local thrustpower = 16
 
 local function sbvars(m,pmo)
 	if m and m.valid then
-		m.fuse = 45
+		m.fuse = 24
 		m.momx = $ + pmo.momx/2
 		m.momy = $ + pmo.momy/2
 		S_StartSoundAtVolume(m,sfx_s3kb8,190)
@@ -29,9 +29,9 @@ local function domissile(mo,thrustfactor)
 	sbvars(m,mo)
 	//Thrust
 	if not(P_IsObjectOnGround(mo))
-		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*5)
+		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*3)
 	else
-		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*10)
+		P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor*7)
 	end
 end
 
