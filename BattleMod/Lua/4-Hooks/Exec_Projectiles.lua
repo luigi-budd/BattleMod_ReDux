@@ -79,7 +79,10 @@ addHook("MobjThinker",function(mo)
 		s.colorized = true
 		s.color = SKINCOLOR_SKY
 	end
-	P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
+    P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
+    if not mo.target or mo.target.state == S_PLAY_PAIN or mo.target.player.deadtimer then
+        P_KillMobj(mo)
+    end
 end,MT_SONICBOOM)
 
 addHook("MobjSpawn",function(mo)
