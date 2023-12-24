@@ -1,17 +1,9 @@
+# rever: this script is not meant to be executed directly
+
 # Thanks, Golden!
 if [[ "$*" == *"release"* ]]; then
 	PK3_RELEASE=1
 fi
-
-# a
-PK3_FLAGS_DEF='ZBa'
-PK3_NAME_DEF='BattleMod'
-PK3_VERSION_DEF=9
-PK3_SUBVERSION_DEF=2
-
-FOLDER_NAME_DEF='BattleMod'
-PK3_EXCLUDE_DEF=('.*\.dbs' '.*\.backup.*')
-PK3_RELEASE=0
 
 testCmd() {
 	if ! command -v $@ &> /dev/null
@@ -92,7 +84,8 @@ CBW_Battle.VersionBranch = \"""$PK3_BUILDDATA_BRANCH""\"
 CBW_Battle.VersionCommit = \"""$PK3_BUILDDATA_COMMIT""\""> ../$FOLDER_NAME/Lua/1-Init/Init_VersionInfo.lua
 
 # grab newline-seperated files, seperate by newline into array $FILES
-readarray -td$'\n' FILES <<<"$(find . -type f)" # exclude directories because `zip` loves recursing through them
+#rev: The reason this script wasn't working was because the files weren't being sorted before inserted into the array. You're welcome
+readarray -td$'\n' FILES <<<"$(find . -type f | sort -k1)" # exclude directories because `zip` loves recursing through them
 
 for exclude in "${PK3_EXCLUDE[@]}"; do # iterate the exclude regex array
 	for i in "${!FILES[@]}"; do # iterate args
@@ -111,7 +104,7 @@ if [ ! -d "../builds" ]; then
 fi
 
 # eval kinda sucks but i've got no other option really
-eval "zip -FSr ../builds/$PK3_FULLNAME.pk3 $ARGSTR" # zip it all up!
+eval "zip -FSrq ../builds/$PK3_FULLNAME.pk3 $ARGSTR" # zip it all up!
 
 # create syn link
 cd ..
