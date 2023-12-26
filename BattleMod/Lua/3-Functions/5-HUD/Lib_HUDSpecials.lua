@@ -4,7 +4,7 @@ local CV = B.Console
 B.ActionHUD=function(v, player, cam)
 	if not (B.HUDMain) then return end
 	if not hud.enabled("rings") then return end
-	if player.playerstate != PST_LIVE then return end
+	if player.playerstate ~= PST_LIVE then return end
 	if not(CV.Actions.value) then return end
 	if G_TagGametype() and (leveltime < CV_FindVar("hidetime").value*TICRATE) then return end
 	local TF_GRAY = 1
@@ -15,52 +15,35 @@ B.ActionHUD=function(v, player, cam)
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER
 	local align = "thin"
 	
-	if (player.actionallowed != true or player.tumble) 
-	and not player.gotflag
-		-- stun break
-		if not player.isjettysyn
-		and (CV.Guard.value)
-			local break_cost
-			local canBreak = false
-			
-			if (player.tumble)
-				-- let us break out of non-parried tumbles
-				canBreak = not player.tumble_nostunbreak
-				break_cost = 15
-			else
-				-- let us break out of the pain state
-				canBreak = (P_PlayerInPain(player) and player.mo.state == S_PLAY_PAIN)
-				break_cost = 25
-			end
-			if not (canBreak) then return end
-			
+	if player.actionallowed ~= true and not player.gotflag then
+		if B.StunBreakAllowed(player) then
 			local patch = v.cachePatch("PARRYBT")
 			local text = "Stun Break"
 			local textcolor = "\x86"
 			local yoffset = hudinfo[HUD_RINGS].y+14
-			if player.rings >= break_cost
-				if leveltime % 3 == 0
+			if player.rings >= 20 then
+				if leveltime % 3 == 0 then
 					textcolor = ""
-				elseif leveltime % 3 == 1
+				elseif leveltime % 3 == 1 then
 					textcolor = "\x83"
 				else
 					textcolor = "\x87"
 				end
 			end
-			text = "\x82" .. break_cost .. textcolor .. " " .. $
+			text = "\x82" .. 20 .. textcolor .. " " .. $
 			v.draw(xoffset,yoffset,patch,flags)
 			v.drawString(xoffset+10,yoffset,text,flags,align)
 		end
 		return
 	end
 	
-	//Action 1 text
+	--Action 1 text
 	local yoffset = hudinfo[HUD_RINGS].y+14 -- 42+14 = 56
 	local text = player.actiontext
 	local textflags = player.actiontextflags
 	local gotflag = player.gotflag
 	local gotcrystal = player.gotcrystal
-	//Item text
+	--Item text
 	if gotflag or gotcrystal then
 		if gotflag then
 			text = "Got flag!"
@@ -73,9 +56,9 @@ B.ActionHUD=function(v, player, cam)
 		local patch = v.cachePatch("TOSSFLAG")
 		v.draw(xoffset,yoffset,patch,flags)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
-	return end //Don't draw anything more if we're holding an item
+	return end --Don't draw anything more if we're holding an item
 	if text and not(player.actioncooldown and leveltime&1) then 
-		if player.actioncooldown or player.actionallowed != true then
+		if player.actioncooldown or player.actionallowed ~= true then
 			textflags = TF_GRAY
 			text = "Cooldown "..G_TicsToSeconds(player.actioncooldown).."."..G_TicsToCentiseconds(player.actioncooldown)
 		elseif textflags == nil then
@@ -97,14 +80,18 @@ B.ActionHUD=function(v, player, cam)
 			text = "\x80"+$
 		end
 		if player.actionrings and not(player.actioncooldown) then 
-			text = "\x82"+player.actionrings+"\x80 "+$
+			if (CV.RequireRings.value and player.rings < player.actionrings) and not player.actionstate then
+				text = "\x85"+player.actionrings+"\x80 "+$
+			else
+				text = "\x82"+player.actionrings+"\x80 "+$
+			end
 		end
-		//Draw
+		--Draw
 		local patch = v.cachePatch("THRWRING")
 		v.draw(xoffset,yoffset,patch,flags)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	end
-	//Action 2 text
+	--Action 2 text
 	text = player.action2text
 	textflags = player.action2textflags
 	if not(player.gotflag) and text and not(player.actioncooldown) then 
@@ -130,31 +117,31 @@ B.ActionHUD=function(v, player, cam)
 		if player.action2rings then 
 			text = "\x82"+player.action2rings+"\x80 "+$
 		end
-		//Draw
+		--Draw
 		local patch = v.cachePatch("TOSSFLAG")
 		v.draw(xoffset,yoffset,patch,flags)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	end
 	
-	if not CV.Guard.value
-		return
-	end
+	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1
+	if not (CV.Guard.value or guardoverride) then return end
 	
-	if not (player.mo and player.mo.valid) return end
+	if not (player.mo and player.mo.valid) then return end
 	
 	yoffset = $+10
 	local patch = v.cachePatch("PARRYBT")
 	local textcolor = 0
 	local canguard = (player.canguard and not player.actionstate)
 	local candodge = (player.canguard
-		and player.mo.state != S_PLAY_PAIN
-		and player.mo.state != S_PLAY_STUN
+		and player.mo.state ~= S_PLAY_PAIN
+		and player.mo.state ~= S_PLAY_STUN
 		and player.airdodge == 0
 		and player.playerstate == PST_LIVE
 		and not player.exiting
 		and not player.actionstate
 		and not player.climbing
 		and not player.armachargeup
+		and not player.forcestopping
 		and not player.isjettysyn
 		and not player.revenge
 		and not player.powers[pw_nocontrol]
@@ -162,13 +149,14 @@ B.ActionHUD=function(v, player, cam)
 		and not P_IsObjectOnGround(player.mo))
 	
 	textcolor = "\x80"
-	if P_IsObjectOnGround(player.mo)
-		if not canguard return end
+	if P_IsObjectOnGround(player.mo) then
+		if not (canguard or guardoverride) then return end
 		text = "Guard"
 	else
-		if not candodge return end
+		if not (candodge or guardoverride) then return end
 		text = "Air Dodge"
 	end
+	text = player.guardtext or $
 	text = textcolor .. " " .. $
 	v.draw(xoffset,yoffset,patch,flags)
 	v.drawString(xoffset+10,yoffset,text,flags,align)

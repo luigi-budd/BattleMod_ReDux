@@ -24,18 +24,18 @@ A.WaitJoinHUD = function(v, player, cam)
 	if not (dead) then return end
 	if not(CV.Revenge.value) or B.SuddenDeath then
 -- 		local t = "\x85".."You've been ELIMINATED!"
--- 		v.drawString(160,160,t,V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,"center")
+-- 		v.drawString(160,160,t,V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER,"center")
 		local t = "\x85".."Wait until next round to join"
-		v.drawString(160,yo,t,V_HUDTRANSHALF|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,"center")
+		v.drawString(160,yo,t,V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER,"center")
 	elseif CV.Revenge.value then
 		local t = "\x85".."You've been ELIMINATED!"
-		v.drawString(160,yo,t,V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,"center")
+		v.drawString(160,yo,t,V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER,"center")
 -- 		if B.SuddenDeath
 -- 			local t = "\n\x85".."Wait until next round to join"
--- 			v.drawString(160,yo,t,V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,"center")
+-- 			v.drawString(160,yo,t,V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER,"center")
 -- 		else
 			t = "\n\x80".."But you can still respawn as a \x86".."jetty-syn"
-			v.drawString(160,yo,t,V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,"center")
+			v.drawString(160,yo,t,V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER,"center")
 -- 		end
 	end	
 end

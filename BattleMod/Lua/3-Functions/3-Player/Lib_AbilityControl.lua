@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local CV = B.Console
 local S = B.SkinVars
 
 B.TailsCatchPlayer = function(player1,player2)
@@ -272,5 +273,24 @@ B.MidAirAbilityAllowed = function(player)
 	else
 		return true
 	end
+end
+
+B.StunBreakAllowed = function(player)
+	if CV.Guard.value
+	and player.mo
+	and player.mo.valid
+	and not player.actionallowed
+	and not player.isjettysyn
+	and not player.landlag
+	and ((
+		P_PlayerInPain(player)
+		and (player.mo.state == S_PLAY_PAIN or player.mo.state == S_PLAY_STUN)
+	) or (
+		player.canstunbreak
+	))
+	then
+		return true
+	end
+	return false
 end
 

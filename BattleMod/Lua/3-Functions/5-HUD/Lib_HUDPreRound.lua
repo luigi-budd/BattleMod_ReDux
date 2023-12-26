@@ -6,24 +6,23 @@ local yellow = "\x82"
 
 B.PreRoundHUD = function(v,player,cam)
 	local roulette_x = player.roulette_x
-	if (roulette_x == nil) return end
+	if (roulette_x == nil) then return end
 	
 	local lockedin = (leveltime + 17 >= CV_FindVar("hidetime").value*TICRATE)
 	if lockedin then roulette_x = 0 end
 	
-	if (B.HUDAlt) and B.PreRoundWait() and not (player.spectator) then
+	if (B.HUDAlt) and B.PreRoundWait() and player.battleconfig_charselect and not (B.Timeout or player.spectator) then
 		local x, y = 160, 72
 		local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER|V_ALLOWLOWERCASE
 		-- Display pre-round hint: We can change characters during this period.
-		if not (splitscreen) then v.drawString(x, y, gray.."Waiting for players...", flags, "thin-center") end
 		v.drawString(x, y + 8, yellow.."Select a character!", flags, "center")
 		
-		if (leveltime <= 60) return end
+		if (leveltime <= 60) then return end
 		
 		-- Display pre-round character roulette. Show previous and next characters we're gonna change into.
 		for n = -5, 5 do
 			local blink = (leveltime % 2 and leveltime + 35 >= CV_FindVar("hidetime").value*TICRATE)
-			if (n != 0 and (lockedin or blink))
+			if (n ~= 0 and (lockedin or blink))
 				continue
 			end
 			
@@ -36,20 +35,20 @@ B.PreRoundHUD = function(v,player,cam)
 			local character = (player.skin) and #skins[player.skin] or 0
 			local tocharacter = 0
 			repeat
-				if (n > 0)
+				if (n > 0) then
 					character = $+1
 					tocharacter = $+1
 					if character >= #skins then character = 0 end
-				elseif (n < 0)
+				elseif (n < 0) then
 					character = $-1
 					tocharacter = $-1
 					if character < 0 then character = #skins-1 end
-				elseif (n == 0)
+				elseif (n == 0) then
 					break
 				end
 			until tocharacter == n
 			
-			if lockedin
+			if lockedin then
 				scale = $ + max(0, ((CV_FindVar("hidetime").value*TICRATE) - leveltime - 12)*FRACUNIT/8)
 			end
 			

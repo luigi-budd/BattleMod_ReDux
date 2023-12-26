@@ -22,6 +22,7 @@ B.PinchTics = 0
 B.Arena = {}
 B.Diamond = {}
 B.CTF = {}
+B.CTF.GameState = {}
 B.GuardFunc = {}
 B.SkinVars = {}
 B.MessageText = {}

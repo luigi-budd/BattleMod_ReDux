@@ -17,9 +17,27 @@ B.GetZAngle = function(x1,y1,z1,x2,y2,z2)
 	return R_PointToAngle2(0,0,xydist,zdist)
 end
 
+--Lach
+local transLevelToQuarterTransFlag = {
+    [0] = V_70TRANS,
+    [1] = V_70TRANS,
+    [2] = V_70TRANS,
+    [3] = V_80TRANS,
+    [4] = V_80TRANS,
+    [5] = V_80TRANS,
+    [6] = V_90TRANS,
+    [7] = V_90TRANS,
+    [8] = V_90TRANS,
+    [9] = V_90TRANS,
+    [10] = V_HUDTRANS
+}
+B.GetHudQuarterTrans = function(v)
+    return transLevelToQuarterTransFlag[v.localTransFlag() >> V_ALPHASHIFT]
+end
+
 local baseChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@"
 
-/*
+--[[/*
 B.BaseConv = function(number, base, chars)
 	if not chars then
 		chars = baseChars
@@ -45,4 +63,4 @@ B.BaseConv = function(number, base, chars)
 
 	return outstring
 end
-*/
+*/]]

@@ -16,11 +16,15 @@ B.InitPlayer = function(player)
 	player.actiontime = 0
 	player.actionstate = 0
 	player.actioncooldown = TICRATE
+	player.lastcooldown = nil
+	player.prevrings = 0
+	player.ringhudflash = 0
 	player.actionallowed = true
 	player.actiontext = nil
 	player.actiontextflags = 0
 	player.action2text = nil
 	player.action2textflags = 0
+	player.guardtext = 0
 	player.charmed = false
 	player.charmedtime = 0
 	player.backdraft = 0
@@ -30,15 +34,14 @@ B.InitPlayer = function(player)
 	player.eggrobo_transforming = false
 	player.capturing = false
 	player.captureamount = 0
-	player.gotflagdebuff = false
+	--player.gotflag = 0 -- Probably bad idea? there could be a condition where player spawns with flag
+	player.gotflagdebuff = true -- This is to let Lib_RunnerDebuff refresh the player's stats
 	player.pushed_creditplr = nil
 	player.pushed_credittime = 0
-	player.bwanted = false
-    player.rwanted = false
-    player.wanted = false
 	player.shieldstock = {}
-	player.shieldmax = 2
+	player.shieldmax = 1
 	player.exhaustmeter = FRACUNIT
+	player.ledgemeter = FRACUNIT
 	player.gotcrystal = false
 	player.gotcrystal_time = 0
 	//player.lifeshards = 0
@@ -59,6 +62,11 @@ B.InitPlayer = function(player)
 	player.roulette_x = 0
 	player.roulette_prev_left = 0
 	player.roulette_prev_right = 0
+	player.landlag = 0
+	player.canstunbreak = 0
+	player.slipping = false
+	player.gradualspeed = 0
+	player.didslipbutton = 0
 	if player.respawnpenalty == nil then
 		player.respawnpenalty = 0
 	end
@@ -82,6 +90,9 @@ B.InitPlayer = function(player)
 	if player.battleconfig_autospectator == nil then
 		player.battleconfig_autospectator = true
 	end
+	if player.battleconfig_newhud == nil then
+        player.battleconfig_newhud = true
+    end
 	
 	if player.revenge == nil then
 		player.revenge = false

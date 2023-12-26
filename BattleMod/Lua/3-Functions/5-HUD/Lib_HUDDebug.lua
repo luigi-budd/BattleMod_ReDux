@@ -9,7 +9,7 @@ local S = B.SkinVars
 B.DebugHUD = function(v, player, cam)
 	local debug = CV.Debug.value
 	
-	if ((not B.VersionPublic) or debug)
+	if ((not B.VersionPublic) or debug) then
 		local flags = V_ALLOWLOWERCASE|V_HUDTRANS|V_SNAPTORIGHT|V_SNAPTOTOP
 		local flags2 = V_ALLOWLOWERCASE|V_HUDTRANSHALF|V_SNAPTORIGHT|V_SNAPTOTOP
 		local xx = v.width()/v.dupx()
@@ -25,7 +25,7 @@ B.DebugHUD = function(v, player, cam)
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTORIGHT|V_PERPLAYER
 	local align = "small-right"
 	local nextline = 4
-	//Double the scale for smaller screens (illegible otherwise)
+	--Double the scale for smaller screens (illegible otherwise)
 	if v.height() < 400 then 
 		align = "right"
 		nextline = 8
@@ -49,15 +49,15 @@ B.DebugHUD = function(v, player, cam)
 		v.drawString(xoffset,yoffset,string,flags,align)
 		yoffset = $+nextline
 	end
-	//****
-	//Execute drawing
-	//****
+	--****
+	--Execute drawing
+	--****
 	if B.ArenaGametype() then
-		//Making room for Arena's HUD
+		--Making room for Arena's HUD
 		addspace()
 		addspace()
 	end
-	//Gametypes
+	--Gametypes
 	if debug&DF_GAMETYPE then
 			addheader("Gametype")
 			addline("RedScore",B.RedScore)
@@ -67,6 +67,7 @@ B.DebugHUD = function(v, player, cam)
 			addline("SuddenDeath",B.SuddenDeath)
 			addline("PinchTics",B.PinchTics)
 			addline("Exiting",B.Exiting)
+			addline("Timeout",B.Timeout)
 			
 		if B.ArenaGametype() then
 			subheader("Arena")
@@ -78,6 +79,7 @@ B.DebugHUD = function(v, player, cam)
 			addline("BlueSurvivors",#A.BlueSurvivors)
 			addline("SpawnLives",A.SpawnLives)
 			addline("GameOvers",A.GameOvers)
+			addline("Bounty",""+A.Bounty+"("+A.Bounty.name+")")
 		end
 		
 		if B.CPGametype() then
@@ -91,9 +93,8 @@ B.DebugHUD = function(v, player, cam)
 		end
 		
 		if B.DiamondGametype() then
-			subheader("Diamond")
-			addline("Spawnpoints",#D.Spawns)
-			addline("Spawned",(D.ID != nil and D.ID.valid))
+			subheader("Ruby")
+			addline("Spawned",(D.ID ~= nil and D.ID.valid))
 			if(D.ID and D.ID.valid and D.ID.target and D.ID.target.player) then
 				addline("Holder",(D.ID.target.player.name))
 			end
@@ -103,9 +104,9 @@ B.DebugHUD = function(v, player, cam)
 		end
 	end
 	
-	//Items
+	--Items
 	
-	if debug&DF_ITEM
+	if debug&DF_ITEM then
 		addheader("Items")
 		addline("Global Spawns",#I.Spawns)
 		addline("Global Timer",I.SpawnTimer/TICRATE.."/"..(4-CV.ItemRate.value)*I.GlobalRate/2)
@@ -115,8 +116,8 @@ B.DebugHUD = function(v, player, cam)
 		addline("Item Type",CV.ItemType.value)
 	end
 	
-	//Player
-	if debug&DF_PLAYER
+	--Player
+	if debug&DF_PLAYER then
 		if player and player.valid then
 			addheader("Player")
 			addline("SkinVars",player.skinvars)
@@ -133,7 +134,6 @@ B.DebugHUD = function(v, player, cam)
 			addline("BattleSpawning",player.battlespawning)
 			addline("SpectatorTime",player.spectatortime)
 			addline("DeadTimer",player.deadtimer)
-			addline("RespawnPenalty",player.respawnpenalty)
 			addline("Intangible",player.intangible)
 			addline("AirGun",player.airgun)
 			addline("Tumble",player.tumble)
@@ -172,8 +172,8 @@ B.DebugHUD = function(v, player, cam)
 			addline("Pushed Credit",player.pushed_creditplr)
 		end
 	end
-	//Collision
-	if debug&DF_COLLISION
+	--Collision
+	if debug&DF_COLLISION then
 		addheader("Collision")
 		if player and player.valid and player.mo and player.mo.valid then
 			subheader("player.mo")

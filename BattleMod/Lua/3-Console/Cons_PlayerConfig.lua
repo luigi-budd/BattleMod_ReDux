@@ -125,3 +125,17 @@ COM_AddCommand("battleconfig_aimsight", function(player, arg)
 		CONS_Printf(player,'battleconfig_aimsight <On/Off> - Default is On')
 	return end
 end,0)
+
+COM_AddCommand("battleconfig_newhud", function(player, arg)
+    if not(player and player.valid) then
+        CONS_Printf(player,"Please wait until inside a game to use this command.")
+        return
+    end    
+    if arg == "on" or arg == "On" or arg == "1" or arg == "true" then
+        player.battleconfig_newhud = true
+    elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
+        player.battleconfig_newhud = false
+    else
+        CONS_Printf(player,'battleconfig_newhud <On/Off> - Default is On')
+    return end
+end,0)

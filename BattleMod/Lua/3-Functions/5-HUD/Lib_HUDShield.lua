@@ -1,57 +1,73 @@
 local B = CBW_Battle
 local CV = B.Console
 
+local POWERUPS_X = 274
+local POWERUPS_Y = 180
+local POWERUPS_X_OLD = 288
+local POWERUPS_Y_OLD = 176
+
+--// rev: broke it down into a table
+local shields = {
+	[SH_THUNDERCOIN] = "TVZPICON",
+	[SH_BUBBLEWRAP] = "TVBBICON",
+	[SH_FLAMEAURA] = "TVFLICON",
+	[SH_ARMAGEDDON] = "TVARICON",
+	[SH_ELEMENTAL] = "TVELICON",
+	[SH_ATTRACT] = "TVATICON",
+	[SH_WHIRLWIND] = "TVWWICON",
+	[SH_PINK] = "TVPPICON"
+}
 local function getshield(n)
-	if n==SH_THUNDERCOIN return "TVZPICON" end
-	if n==SH_BUBBLEWRAP return "TVBBICON" end
-	if n==SH_FLAMEAURA return "TVFLICON" end
-	if n==SH_ARMAGEDDON return "TVARICON" end
-	if n==SH_ELEMENTAL return "TVELICON" end
-	if n==SH_ATTRACT return "TVATICON" end
-	if n==SH_WHIRLWIND return "TVWWICON" end
-	if n==SH_PINK return "TVPPICON" end
-	if n&SH_FORCE return "TVFOICON" end
-	return "TVPIICON"	//Default
+	local icon = shields[n]
+	return icon 
+		and icon 
+		or ((n&SH_FORCE) and "TVFOICON" or "TVPIICON")
 end
 
-B.ShieldStockHUD = function(v, player, cam)
+local function drawshield(v, player, x, y, shield, scale)
+	local patch = "MPTYICON"
+	local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT|V_PERPLAYER
+	local twoforce = (shield == SH_FORCE|1)
+	local blink = not (not(P_PlayerInPain(player) or player.charmed) or leveltime&1)
+	if shield and not blink then
+		patch = getshield(shield)
+	end
+	local patch = v.cachePatch(patch)
+	if twoforce and not blink then
+		v.drawScaled(x*FRACUNIT-4*scale,y*FRACUNIT-4*scale,scale,patch,flags)
+	end
+	v.drawScaled(x*FRACUNIT,y*FRACUNIT,scale,patch,flags)
+end
+
+B.ShieldHUD = function(v, player, cam)
+	if player.battleconfig_newhud then
+		hudinfo[HUD_POWERUPS].x = POWERUPS_X
+		hudinfo[HUD_POWERUPS].y = POWERUPS_Y
+	else
+		hudinfo[HUD_POWERUPS].x = POWERUPS_X_OLD
+		hudinfo[HUD_POWERUPS].y = POWERUPS_Y_OLD
+	end
 	if not (B.HUDMain) then return end
-	if player.playerstate != PST_LIVE then return end
+	if player.playerstate ~= PST_LIVE then return end
+	if player.spectator then return end
 	if not(CV.ShieldStock.value) then return end
 	if not(gametyperules&GTR_PITYSHIELD) then return end
 	if not(player.shieldmax) then return end
-	local blink = false
-	local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT|V_PERPLAYER
-	local align = "thin"
-	local s = 4
-	local t = 2
 	
-	local xoffset = hudinfo[HUD_POWERUPS].x+18	-- 288+18 = 306
-	local yoffset = hudinfo[HUD_POWERUPS].y+6	-- 176+6 = 182
-	local text = "Sh "..#player.shieldstock.."/"..player.shieldmax
-	//Draw shield reserves
-
-	local function drawshield(n,reduce)
-		local patch = "MPTYICON"
-		if player.shieldstock[n]
-			and (not(P_PlayerInPain(player) or player.charmed) or #player.shieldstock > n or leveltime&1) //Reserve shield is about to be used (blinking)
-			then
-			patch = getshield(player.shieldstock[n])
-		end
-		v.drawScaled(xoffset<<16,yoffset<<16,FRACUNIT>>reduce,v.cachePatch(patch),flags)
+	local xoffset = hudinfo[HUD_POWERUPS].x
+	local yoffset = hudinfo[HUD_POWERUPS].y
+	
+	if player.battleconfig_newhud then
+		drawshield(v, player, xoffset, yoffset, player.powers[pw_shield], FRACUNIT>>1)
 	end
 	
+	--Draw shield reserves
 	local n = player.shieldmax
-	yoffset = $-s*n/2
-	xoffset = $+t*n/2
+	xoffset = $ + 8
+	yoffset = $ - 10
 	while n > 0 do
-		drawshield(n,2)
-		yoffset = $+s
-		xoffset = $-t
+		drawshield(v, player, xoffset, yoffset, player.shieldstock[n], FRACUNIT>>2)
+		yoffset = $-10
 		n = $-1
 	end
-	//Test string
--- 	xoffset = $-48
--- 	v.drawString(xoffset,yoffset,text,flags,align)
--- 	print("!", "shield stock", unpack(player.shieldstock),"#")
 end
