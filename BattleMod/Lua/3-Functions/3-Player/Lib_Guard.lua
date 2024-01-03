@@ -52,7 +52,7 @@ B.Guard = function(player,buttonpressed)
 		if buttonpressed == 1 then
 			player.guard = 1
 			S_StartSound(mo,sfx_cdfm39)
-			player.guardtics = 20
+			player.guardtics = TICRATE*4/7 //20
 			player.powers[pw_flashing] = 0
 			if not(player.actionsuper) then
 				player.actionstate = 0
@@ -158,7 +158,7 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 		S_StartSound(target,sfx_cdpcm9)
 		S_StartSound(target,sfx_s259)
 		target.player.guard = 2
-		target.player.guardtics = 9
+		target.player.guardtics = TICRATE/4 //9
 		B.ControlThrust(target,FRACUNIT/2)
 		//Do graphical effects
 		local sh = P_SpawnMobjFromMobj(target,0,0,0,MT_BATTLESHIELD)
@@ -170,6 +170,14 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 			source.player.powers[pw_flashing] = 0
 			local nega = P_SpawnMobjFromMobj(source,0,0,0,MT_NEGASHIELD)
 			nega.target = source
+		end
+		// Affect projectile's source if within range
+		if source and source.valid then
+		local parrytumblerange = P_GetPlayerHeight(target.player)*3
+		local parrydistance = R_PointToDist2(target.x, target.y, source.x, source.y)
+			if parrydistance <= parrytumblerange and source.z <= target.z+parrytumblerange and source.z >= target.z-parrytumblerange then
+				inflictor = source // set inflictor to the source for the rest of the parry to effect them
+			end
 		end
 		//Affect attacker
 		if inflictor.player
