@@ -121,7 +121,6 @@ B.ApplyCooldown=function(player,cooldown,applydebt)
 	if applydebt and player.rings < 0 or player.actiondebt > 0 then
 		local debt = player.actiondebt-player.rings
 		cooldown = max(TICRATE*2,$+$*debt/10)
-		player.rings = 0
 		player.actiondebt = 0
 	end
 	player.actioncooldown = cooldown
