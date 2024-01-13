@@ -47,3 +47,22 @@ COM_AddCommand("skin",function(player,name,[...])
 		CONS_Printf(player,'Skin "'..name..'" not found')
 	end
 end,0)*/
+
+CV.CoyoteTime = CV_RegisterVar{
+	name = "battle_coyotetime",
+	defaultvalue = 3,
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 1, MAX = 99}
+}
+CV.CoyoteFactor = CV_RegisterVar{
+	name = "battle_coyotefactor",
+	defaultvalue = 15,
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 0, MAX = 15}
+}
+CV.RecoveryJump = CV_RegisterVar{
+	name = "battle_recoveryjump",
+	defaultvalue = 0,
+	flags = CV_NETVAR,
+	PossibleValue = CV_OnOff
+}

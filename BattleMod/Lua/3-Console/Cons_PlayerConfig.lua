@@ -126,6 +126,48 @@ COM_AddCommand("battleconfig_aimsight", function(player, arg)
 	return end
 end,0)
 
+COM_AddCommand("battleconfig_disablevfx", function(player, arg)
+	if not(player and player.valid) then
+		CONS_Printf(player,"Please wait until inside a game to use this command.")
+		return
+	end	
+	if arg == "on" or arg == "On" or arg == "1" or arg == "true" then
+		player.novfx = true
+	elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
+		player.novfx = false
+	else
+		CONS_Printf(player,'battleconfig_disablevfx <On/Off> - Default is Off')
+	return end
+end,0)
+
+COM_AddCommand("battleconfig_charselect", function(player, arg)
+    if not(player and player.valid) then
+        CONS_Printf(player,"Please wait until inside a game to use this command.")
+        return
+    end    
+    if arg == "on" or arg == "On" or arg == "1" or arg == "true" then
+        player.battleconfig_charselect = true
+    elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
+        player.battleconfig_charselect = false
+    else
+        CONS_Printf(player,'battleconfig_charselect <On/Off> - Default is On')
+    return end
+end,0)
+
+COM_AddCommand("battleconfig_nospinshield", function(player, arg)
+    if not(player and player.valid) then
+        CONS_Printf(player,"Please wait until inside a game to use this command.")
+        return
+    end    
+    if arg == "on" or arg == "On" or arg == "1" or arg == "true" then
+        player.battleconfig_nospinshield = true
+    elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
+        player.battleconfig_nospinshield = false
+    else
+        CONS_Printf(player,'battleconfig_nospinshield <On/Off> - Default is Off')
+    return end
+end,0)
+
 COM_AddCommand("battleconfig_newhud", function(player, arg)
     if not(player and player.valid) then
         CONS_Printf(player,"Please wait until inside a game to use this command.")
@@ -138,4 +180,81 @@ COM_AddCommand("battleconfig_newhud", function(player, arg)
     else
         CONS_Printf(player,'battleconfig_newhud <On/Off> - Default is On')
     return end
+end,0)
+
+COM_AddCommand("battleconfig_minimap", function(player, arg)
+    if not(player and player.valid) then
+        CONS_Printf(player,"Please wait until inside a game to use this command.")
+        return
+    end    
+    if arg == "on" or arg == "On" or arg == "1" or arg == "true" then
+        player.battleconfig_minimap = true
+    elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
+        player.battleconfig_minimap = false
+    else
+        CONS_Printf(player,'battleconfig_minimap <On/Off> - Default is On')
+    return end
+end,0)
+
+COM_AddCommand("battleconfig_glidestrafe", function(player, arg)
+    if not(player and player.valid) then
+        CONS_Printf(player,"Please wait until inside a game to use this command.")
+        return
+    end    
+    if arg == "on" or arg == "On" or arg == "1" or arg == "true" then
+        player.battleconfig_glidestrafe = true
+    elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
+        player.battleconfig_glidestrafe = false
+    else
+    	local value = player.battleconfig_glidestrafe
+        CONS_Printf(player,'battleconfig_glidestrafe <On/Off> - Default is On - Currently '+value)
+    return end
+end,0)
+
+COM_AddCommand("battleconfig_hammerstrafe", function(player, arg)
+    if not(player and player.valid) then
+        CONS_Printf(player,"Please wait until inside a game to use this command.")
+        return
+    end    
+    if arg == "on" or arg == "On" or arg == "1" or arg == "true" then
+        player.battleconfig_hammerstrafe = true
+    elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
+        player.battleconfig_hammerstrafe = false
+    else
+        CONS_Printf(player,'battleconfig_hammerstrafe <On/Off> - Default is On')
+    return end
+end,0)
+
+COM_AddCommand("battleconfig_slipstreambutton", function(player, ...)
+	if not(player and player.valid) then
+		CONS_Printf(player,"Please wait until inside a game to use this command.")
+		return
+	end
+	local args = {...}
+	if not #args then
+		CONS_Printf(player,'battleconfig_slipstreambutton: default is "<prev/next>"')
+		print_help(player)
+	return end
+	
+	local flags = getflags(args)
+	
+	if flags != 0 then
+		player.battleconfig_slipstreambutton = flags
+	end
+end,0)
+
+COM_AddCommand("battleconfig_slipstreamstyle", function(player, arg)
+	if not(player and player.valid) then
+		CONS_Printf(player,"Please wait until inside a game to use this command.")
+		return
+	end	
+	if arg == "instant" or arg == "Instant" or arg == "0" then
+		player.battleconfig_slipstreamstyle = false
+		print("Instant")
+	elseif arg == "button" or arg == "Button" or arg == "1" then
+		player.battleconfig_slipstreamstyle = true
+		print("Button")
+	else
+		CONS_Printf(player,'battleconfig_slipstreamstyle <Instant or Button> - Default is Instant')
+	return end
 end,0)

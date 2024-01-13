@@ -5,20 +5,20 @@ local S = B.SkinVars
 local spendringwarning = false
 
 B.MasterActionScript = function(player,doaction)
-	//Set action state
+	--Set action state
 	player.actionallowed = B.CanDoAction(player)
 	player.actioncooldown = max($,player.tossdelay-TICRATE)
 
 	local mo = player.mo
-	//Player is not on the field
+	--Player is not on the field
 	if not(mo and mo.valid) then return end
-	//Tag egg robos and revenge jettysyns cannot use actions
+	--Tag egg robos and revenge jettysyns cannot use actions
 	if player.iseggrobo or player.isjettysyn then return end
-	//Actions are disallowed in ringslinger
+	--Actions are disallowed in ringslinger
 	if G_RingSlingerGametype() then return false end
-	//Actions have been disallowed by servber
+	--Actions have been disallowed by servber
 	if not(CV.Actions.value) then return false end
-	//Other checks -- set doaction value
+	--Other checks -- set doaction value
 	if doaction and (
 		player.actioncooldown
 		or player.exiting
@@ -33,7 +33,7 @@ B.MasterActionScript = function(player,doaction)
 	end
 
 	local t = player.skinvars
-	//Reset action values for this frame
+	--Reset action values for this frame
 	player.actiontext = nil
 	player.action2text = nil
 	player.actionrings = 0
@@ -41,8 +41,8 @@ B.MasterActionScript = function(player,doaction)
 	player.actiontextflags = nil
 	player.action2textflags = nil
 	player.actionsuper = false
-	//Set exhaustmeter hud (if enabled)
-	if player.exhaustmeter != FRACUNIT then
+	--Set exhaustmeter hud (if enabled)
+	if player.exhaustmeter ~= FRACUNIT then
 -- 		player.action2text = player.exhaustmeter*100/FRACUNIT.."%"
 		if player.exhaustmeter > FRACUNIT/3 or (player.exhaustmeter > 0 and leveltime&4) then
 			player.action2textflags = 0
@@ -52,10 +52,10 @@ B.MasterActionScript = function(player,doaction)
 			player.action2textflags = 3
 		end
 	end
-	//Perform action script
-	if S[t].special != nil then
+	--Perform action script
+	if S[t].special ~= nil then
 		S[t].special(mo,doaction)
-		//For custom characters
+		--For custom characters
 		if player.spendrings == 1 then
 			if not(spendringwarning) then
 				spendringwarning = true
@@ -66,7 +66,7 @@ B.MasterActionScript = function(player,doaction)
 			S_StartSound(mo,sfx_s3k8c,player)
 		end
 	end
-	//Apply debt cooldowns
+	--Apply debt cooldowns
 	if player.rings < 0 then
 		player.actiondebt = $+abs(player.rings)
 		player.rings = 0
@@ -75,13 +75,13 @@ B.MasterActionScript = function(player,doaction)
 		B.ApplyCooldown(player,player.cooldown,true)
 	end
 	
-	//Action successful
+	--Action successful
 	return true
 end
 
 B.CanDoAction=function(player)
 	if G_RingSlingerGametype() then return false end
-	if P_PlayerInPain(player) or player.playerstate != PST_LIVE then return false end
+	if P_PlayerInPain(player) or player.playerstate ~= PST_LIVE then return false end
 	if B.TagGametype() and not(player.pflags&PF_TAGIT) then return false end
 	if player.gotflag then return false end
 	if player.gotcrystal then return false end
@@ -105,7 +105,7 @@ B.PayRings=function(player,spendrings,sound)
 	if spendrings == nil then spendrings = player.actionrings end
 	if spendrings == 0 then return end
 	player.rings = $-spendrings
-	if sound != false then
+	if sound ~= false then
 		if player.rings >= 0 then
 			S_StartSound(mo,sfx_cdfm66,player)
 		else
@@ -121,6 +121,7 @@ B.ApplyCooldown=function(player,cooldown,applydebt)
 	if applydebt and player.rings < 0 or player.actiondebt > 0 then
 		local debt = player.actiondebt-player.rings
 		cooldown = max(TICRATE*2,$+$*debt/10)
+		player.rings = 0
 		player.actiondebt = 0
 	end
 	player.actioncooldown = cooldown

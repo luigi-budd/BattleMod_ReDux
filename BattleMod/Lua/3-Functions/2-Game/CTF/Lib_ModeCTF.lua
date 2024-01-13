@@ -550,7 +550,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			
 			-- then, update it based on which condition was met
 			if conditions[1] then -- flag
-				icon.frame = $|(p.ctfteam == 1 and 2 or 1) -- god damn it YOU WERE THIS CLOSE 🤏 TO BEING PERFECT!!1!1!
+				icon.frame = $|(p.ctfteam == 1 and 2 or 1) 
 				-- TODO: mobjinfo stuff for flags so we don't have to keep comparing ctfteam to fixed numbers
 			elseif conditions[2] then -- crown
 				icon.sprite = SPR_CRWN
@@ -601,6 +601,38 @@ F.RemoveOnQuit = function(p, reason)
 		P_RemoveMobj(p.mo.flag_indicator)
 		p.mo.flag_indicator = nil
 	end
+end
+
+--example
+addHook("PostThinkFrame", function()
+  if not G_GametypeHasTeams() then return end
+  for p in players.iterate do
+
+
+  end
+end)
+
+--// rev: Updates player flag captures. e.g. If a player captures a flag, their flag cap goes up by 1.
+--// NOTE: Caps reset when the map changes, in-game time resets when map changes/player spectates (see MapChange, Exec_system)
+F.UpdateCaps = function(p)
+    if not (p and p.mo) then return end
+
+    --// Keep track of whether player doesn't have flag anymore and if their team's score just went up.
+    local new_score = p.ctfteam == 1 and redscore or bluescore
+    local old_score = p.oldscore
+    local new_flag 	= p.gotflag
+    local old_flag  = p.oldflag
+
+    --// If for this singular frame, the new score is larger than before,
+    --// and the player doesn't have the flag anymore, add 1 to the player's caps.
+    if new_score > old_score and new_flag ~= old_flag then
+    	p.caps = $+1
+    end
+
+    --// Refresh old team score
+    p.oldscore = new_score
+    p.oldflag  = new_flag
+
 end
 
 --F.UpdateScore = function(mo)

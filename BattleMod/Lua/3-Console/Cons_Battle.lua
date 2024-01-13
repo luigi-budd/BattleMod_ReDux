@@ -83,3 +83,10 @@ CV.Reward = CV_RegisterVar{
     flags = CV_NETVAR,
     PossibleValue = {MIN = 0, MAX = 9999}
 }
+
+CV.Autobalance = CV_RegisterVar {
+	name = "battle_autobalance",
+	defaultvalue = 0,
+	flags = CV_NETVAR,
+	PossibleValue = CV_OnOff
+}

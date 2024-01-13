@@ -1,22 +1,26 @@
+--[[
 /*Note: See Exec_System.lua for player functions in hooks:
 	PreThinkFrame
 	ThinkFrame
 	PostThinkFrame
 */
+--]]
 
 local B = CBW_Battle
 local A = B.Arena
 local CV = B.Console
-//Handle player spawning
+local F = B.CTF
+--Handle player spawning
 addHook("PlayerSpawn",function(player) 
-	//Init vars
+	--player.gotflag = GF_BLUEFLAG
+	--Init vars
 	B.InitPlayer(player) 
 	B.InitPriority(player)
-	//Do music
+	--Do music
 	if not(B.OvertimeMusic(player)) then
 		B.PinchMusic(player)
 	end
-	//Conditional spawn settings
+	--Conditional spawn settings
 	B.SpawnWithShield(player)
 	A.StartRings(player)
 	B.RestoreColors(player)
@@ -24,15 +28,57 @@ addHook("PlayerSpawn",function(player)
 	B.PlayerBattleSpawnStart(player)
 end)
 
-//Handle player vs player collision
+--Handle player vs player collision
 addHook("TouchSpecial", B.PlayerTouch,MT_PLAYER)
 
-//Control ability usage
+--Control ability usage
 addHook("AbilitySpecial",function(player)
+	local mo = player.mo
+	if not mo and mo.valid then return true end
 	if not(B.MidAirAbilityAllowed(player)) then return true end
-	//Fix metal sonic shield stuff
-	if player.charability == CA_FLOAT
-		and ((player.mo and player.mo.valid and (player.mo.state == S_PLAY_ROLL)) or player.secondjump == UINT8_MAX)
+	--Fix metal sonic shield stuff
+	if player.charability == CA_FLOAT and (mo.state == S_PLAY_ROLL or player.secondjump == UINT8_MAX) then
+		return true
+	end
+	--Uncapped thok
+	if player.charability == CA_THOK then
+		if player.pflags&PF_THOKKED then return true end
+		local actionspd = FixedMul(mo.scale, player.actionspd) / B.WaterFactor(mo)
+		if (player.speed > player.normalspeed*3) then --already fast enough
+			P_InstaThrust(mo, mo.angle, max(actionspd,player.speed-mo.momz))
+		else
+			P_InstaThrust(mo, mo.angle, max(actionspd,player.speed))
+		end
+		
+		S_StartSound(mo, sfx_thok)
+		if player.speed > actionspd then
+			local circle = P_SpawnMobjFromMobj(mo, 0, 0, mo.scale * 24, MT_THOK)
+			circle.sprite = SPR_STAB
+			circle.frame =  TR_TRANS50|FF_PAPERSPRITE|_G["A"]
+			circle.angle = mo.angle + ANGLE_90
+			circle.fuse = 7
+			circle.scale = mo.scale / 3
+			circle.destscale = 10*mo.scale
+			circle.colorized = true
+			circle.color = mo.color
+			circle.momx = -mo.momx / 2
+			circle.momy = -mo.momy / 2
+			S_StartSound(mo, sfx_dash)
+			if (player == displayplayer) then
+				P_StartQuake(9*FRACUNIT, 2)
+			end
+		else
+			P_SpawnThokMobj(player)
+		end
+		
+		player.pflags = $|PF_THOKKED &~ PF_SPINNING
+		return true
+	end
+	if player.charability == CA_BOUNCE then
+		if player.pflags&PF_THOKKED then return true end
+		mo.state = S_PLAY_BOUNCE
+		player.pflags = $ & ~(PF_JUMPED|PF_NOJUMPDAMAGE)
+		player.pflags = $ | (PF_THOKKED|PF_BOUNCING)
 		return true
 	end
 end)
@@ -40,110 +86,96 @@ end)
 addHook("ShieldSpecial", function(player)
 	if B.CanShieldActive(player)
 		and (B.ButtonCheck(player,BT_SPIN) == 1 or (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1))
-		and not(B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)
+		and not (player.battleconfig_nospinshield or B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)
+	then
 		B.DoShieldActive(player)
 	end
 	return true
 end)
 
 addHook("JumpSpecial",function(player)
-	if (player.powers[pw_carry]) or player.battlespawning return end
+	if (player.powers[pw_carry]) or player.battlespawning then return end
 
-	if not(player.buttonhistory&BT_JUMP)
-		if B.TwinSpinJump(player) return true end
+	if not(player.buttonhistory&BT_JUMP) then
+		if B.TwinSpinJump(player) then return true end
 	end
 end)
 
 addHook("SpinSpecial",function(player)
 	if B.Exiting then return true end
 	B.ChargeHammer(player)
-	if (player.powers[pw_carry]) return end
-	if not(player.buttonhistory&BT_SPIN)
-		if B.TwinSpin(player) return true end
+	if (player.powers[pw_carry]) then return end
+	if not(player.buttonhistory&BT_SPIN) then
+		if B.TwinSpin(player) then return true end
 	end
 end)
 
 addHook("JumpSpinSpecial", function(player)
 	if B.Exiting then return true end
-	if player.powers[pw_super] and player.charability == CA_THOK and player.actionstate
+	if player.powers[pw_super] and player.charability == CA_THOK and player.actionstate then
 		return true
 	end
 end)
 
-//aaaaaaaaaaa
+--aaaaaaaaaaa
 addHook("PlayerThink", function(player)
 	B.AutoSpectator(player)
 	-- Spring checks (Should this be dropped in `Exec_Springs.lua`?)
 	if player.mo and player.mo.valid then
 		if player.mo.eflags&MFE_SPRUNG and not (player.pflags&PF_BOUNCING) then
 			B.ResetPlayerProperties(player)
+			if P_IsObjectOnGround(player.mo) and not (player.pflags&PF_SPINNING) then
+				player.mo.state = S_PLAY_WALK
+			end
 		end
 	end
 	player.pflags = (player.lockjumpframe or player.melee_state) and ($ | PF_JUMPSTASIS) or ($ & ~PF_JUMPSTASIS)
 end)
 
-//Player against Player damage
+--Player against Player damage
 addHook("ShouldDamage", function(target,inflictor,source,damage,other)
 	if gamestate ~= GS_LEVEL then return end -- won't work outside a level
-	if (target.player and target.player.intangible and (source or inflictor))
+	if (target.player and target.player.intangible and (source or inflictor)) then
 	return false end
-	if not(inflictor and inflictor.valid and inflictor.player and inflictor != target)
+	if not(inflictor and inflictor.valid and inflictor.player and inflictor ~= target) then
 	return end
-	if not(target.player and not(B.MyTeam(target.player,source.player)))
+	if not(target.player and not(B.MyTeam(target.player,source.player))) then
 	return end
-	if not(B.PlayerCanBeDamaged(target.player) or inflictor.flags2&MF2_SUPERFIRE)
+	if not(B.PlayerCanBeDamaged(target.player) or inflictor.flags2&MF2_SUPERFIRE) then
 	return end
 	return true
 end,MT_PLAYER)
 
-//Remove targetdummy false positives
+--Remove targetdummy false positives
 addHook("ShouldDamage", function(target,inflictor)
 	if inflictor and inflictor.valid and inflictor.type == MT_TARGETDUMMY then return false end
 end,MT_PLAYER)
 
-//Armaggeddon blast
+--Armaggeddon blast
 addHook("ShouldDamage", function(target,inflictor,source,damage,other)
 	B.DamageTargetDummy(target,inflictor,source,damage,other)
 	return false
 end,MT_TARGETDUMMY)
 
-//Damage triggered
+--Damage triggered
 addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	if not(target.player) then return end
-	
-	local hitter
-	local p = A.Fighters
-	if not (target.player) then return end
-	
-	//Do guarding
+	-- Don't take damage while in a zoom tube
+	if target.player.powers[pw_carry] == CR_ZOOMTUBE then return true end
+	-- Don't take damage during setup phase
+	if target.player.nodamage and target.player.nodamage>0 then return true end
+	-- Burst flag if damaged
+	if target and target.player and not(target.player.guard and target.player.guard == 1) then
+       	F.PlayerFlagBurst(target.player, 0)
+    end
+	if B.ForceStopParryTrigger(target, inflictor, source, damage, damagetype) then return true end
+	--Do guarding
 	if B.GuardTrigger(target, inflictor, source, damage, damagetype) then return true end
-	//Handle damage dealt/received by revenge jettysyns
+	--Handle damage dealt/received by revenge jettysyns
 	A.RevengeDamage(target,inflictor,source)
-	//Establish enemy player as the last pusher (for hazard kills)
+	--Establish enemy player as the last pusher (for hazard kills)
 	B.PlayerCreditPusher(target.player,inflictor)
 	B.PlayerCreditPusher(target.player,source)
-	 
-	 //Standard kill
-    if inflictor and inflictor.player
-        hitter = inflictor.player
-    elseif source and source.player
-        hitter = source.player
-    end
-    //Wanted System
-    if target.player.wanted == true and not G_GametypeHasTeams() then
-        A.HitReward(hitter)
-    end
-    if target.player.bwanted == true and G_GametypeHasTeams()
-    and hitter.ctfteam == 1 then
-        A.HitReward(hitter)
-    end
-    if target.player.rwanted == true and G_GametypeHasTeams()
-    and hitter.ctfteam == 2 then
-        A.HitReward(hitter)
-    end
-	
-	-- reset tech timer
-	target.player.tech_timer = 0
 	
 	if inflictor and inflictor.valid
 		if inflictor.hit_sound and target and target.valid
@@ -166,16 +198,14 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 		end
 	end
 	
-	
-	
 	local player = target.player
-	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON//no more arma revenge boom
+	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON--no more arma revenge boom
 		player.powers[pw_shield] = SH_PITY
 	end
 end,MT_PLAYER)
 
 addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
-	if not target and target.valid return end
+	if not target and target.valid return else S_StopSound(target, sfx_s3k87) end
 	if target.player return end
 	
 	if inflictor.hit_sound and target and target.valid
@@ -183,19 +213,24 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	end
 end)
 
-//Player death
+--Player death
 addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	local killer
 	local player = target.player
+
+	-- Drop flag if player has one
+	if target and target.player then
+       	F.PlayerFlagBurst(target.player, 0)
+    end
 	
-	//Standard kill
+	--Standard kill
 	if inflictor and inflictor.player
 		killer = inflictor.player
 	elseif source and source.player
 		killer = source.player
 	end
 	
-	//Player was pushed into a death hazard
+	--Player was pushed into a death hazard
 	if player and (damagetype == DMG_DEATHPIT or damagetype == DMG_CRUSHED)
 		and player.pushed_creditplr and player.pushed_creditplr.valid and not(B.MyTeam(player,player.pushed_creditplr))
 		then
@@ -203,41 +238,46 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		P_AddPlayerScore(player.pushed_creditplr,50)
 		B.DebugPrint(player.pushed_creditplr.name.." received 50 points for sending "..player.name.." to their demise")
 	end
-	//Player ran out of lives in Survival mode
+	--Player ran out of lives in Survival mode
 	if player.lives == 1 and B.BattleGametype() and G_GametypeUsesLives()
 		B.PrintGameFeed(player," ran out of lives!")
 		A.GameOvers = $+1
 	end
-	//Death time penalty
+	--Death time penalty
+	local numplayers = 0
+	for p in players.iterate
+		if (not p.spectator)
+			numplayers = $ + 1
+		end
+	end
 	if B.BattleGametype() 
-		if not(B.PreRoundWait())
-			if not(G_GametypeUsesLives())
-				if not(B.ArenaGametype())
-					player.deadtimer = -(1+min(CV.RespawnTime.value-3,player.respawnpenalty*2))*TICRATE
-					player.respawnpenalty = $+1
-				end
-			elseif player.lives == 1 and CV.Revenge.value
-				player.deadtimer = (2-10-(player.respawnpenalty)*2)*TICRATE
-				player.respawnpenalty = $+1
+		if not(G_GametypeUsesLives())
+			if not(B.ArenaGametype())
+				player.deadtimer = (2 - max(3, min(CV.RespawnTime.value, numplayers / 2))) * TICRATE
 			end
-		elseif B.PreRoundWait()
-			player.deadtimer = TICRATE*3
+		elseif player.lives == 1 and CV.Revenge.value
+			player.deadtimer = (2 - 5)*TICRATE
 		end
 	end
 	if not (target.player and target.player.revenge)
-		A.KillReward(killer)
+		A.KillReward(killer, target)
 	end
 	
 	player.spectatortime = player.deadtimer -TICRATE*3
+
+	if (target.player and not target.player.squashstretch)
+		target.spritexscale = FRACUNIT
+		target.spriteyscale = FRACUNIT
+	end
 end, MT_PLAYER)
 
-//Disallow revenge jettysyns and spawning players from collecting items
+--Disallow revenge jettysyns and spawning players from collecting items
 addHook("TouchSpecial",function(special,pmo)
-	if not(pmo.player) then return end //player check
-	if B.PreRoundWait() then return true end //in preround phase
-	if pmo.player.battlespawning then return true end //player is spawning
-	if special.player then return end //player collisions are excluded here
-	if (pmo.player.revenge or pmo.player.isjettysyn) then return true end //player is jettysyn
+	if not(pmo.player) then return end --player check
+	if B.PreRoundWait() then return true end --in preround phase
+	if pmo.player.battlespawning then return true end --player is spawning
+	if special.player then return end --player collisions are excluded here
+	if (pmo.player.revenge or pmo.player.isjettysyn) then return true end --player is jettysyn
 end,MT_NULL)
 
 -- Bounce off walls during tumble
@@ -246,6 +286,9 @@ addHook("MobjMoveBlocked", function(mo)
         if P_IsObjectOnGround(mo) then mo.z = $ + P_MobjFlip(mo) end
         P_BounceMove(mo)
     end
+	if mo.player then
+		mo.player.lastmoveblock = leveltime
+	end
 end, MT_PLAYER)
 
 -- When touching the large bubbles, *breathe*
@@ -261,3 +304,6 @@ addHook("MobjDeath", function(bubble, inflictor, source)
 		player.mo.state = S_PLAY_GASP
 	end
 end, MT_EXTRALARGEBUBBLE)
+
+-- CTF: remove stuff on quit
+addHook("PlayerQuit", F.PlayerFlagBurst)

@@ -5,10 +5,10 @@ local S = B.SkinVars
 B.InitPlayer = function(player)
 	B.DebugPrint("Initializing "..player.name.."'s player variables",DF_PLAYER)
 
-	//Battle related skin stats
+	--Battle related skin stats
 	B.GetSkinVars(player)
 	
-	//Battle related variables
+	--Battle related variables
 	player.actionsuper = false
 	player.actionrings = 0
 	player.action2rings = 0
@@ -44,7 +44,7 @@ B.InitPlayer = function(player)
 	player.ledgemeter = FRACUNIT
 	player.gotcrystal = false
 	player.gotcrystal_time = 0
-	//player.lifeshards = 0
+	--player.lifeshards = 0
 	player.shieldswap_cooldown = 0
 	player.airdodge = 0
 	player.tumble = 0
@@ -73,9 +73,28 @@ B.InitPlayer = function(player)
 	if player.spectatortime == nil then
 		player.spectatortime = 0
 	end
+	--// rev: used to keep track of the amount of times a player capped something (e.g. flag caps in ctf)
+	if player.caps == nil then 
+		player.caps = 0
+	end
+	--// rev: used to keep track of old team score. 
+	--// See: `B.Autobalance`. The score difference is used to detect flag captures.
+	--// This can be potentially used for other things as well if you want.
+	if player.oldscore == nil then
+		player.oldscore = 0
+	end
+	if player.oldflag == nil then
+		player.oldflag = 0
+	end
+
+	--// rev: used to keep track of overall time the player has been in game.
+	if player.ingametime == nil then
+		player.ingametime = 0
+	end
+	player.lastmoveblock = nil
 	
-	//Player Config
-	if player.battleconfig_dodgecamera == nil
+	-- Player Config
+	if player.battleconfig_dodgecamera == nil then
 		player.battleconfig_dodgecamera = true
 	end
 	if player.battleconfig_guard == nil then
@@ -90,9 +109,27 @@ B.InitPlayer = function(player)
 	if player.battleconfig_autospectator == nil then
 		player.battleconfig_autospectator = true
 	end
+	if player.battleconfig_charselect == nil then
+        player.battleconfig_charselect = true
+    end
 	if player.battleconfig_newhud == nil then
         player.battleconfig_newhud = true
     end
+	if player.battleconfig_minimap == nil then
+        player.battleconfig_minimap = true
+    end
+	if player.battleconfig_hammerstrafe == nil then
+        player.battleconfig_hammerstrafe = false
+    end
+	if player.battleconfig_glidestrafe == nil then
+        player.battleconfig_glidestrafe = false
+    end
+	if player.battleconfig_slipstreambutton == nil then
+		player.battleconfig_slipstreambutton = BT_WEAPONNEXT
+	end
+	if player.battleconfig_slipstreamstyle == nil then
+		player.battleconfig_slipstreamstyle = false
+	end	
 	
 	if player.revenge == nil then
 		player.revenge = false
@@ -117,7 +154,7 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 		player.spriteyscale = FRACUNIT
 		player.mo.state = S_PLAY_SPRING
 	end
-	//Reset pflags
+	--Reset pflags
 	local pflags = player.pflags&~(PF_GLIDING|PF_BOUNCING)
 	if jumped == true then
 		pflags = $|PF_JUMPED&~PF_STARTJUMP
@@ -141,7 +178,7 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 		pflags = $&~(PF_THOKKED|PF_SHIELDABILITY)
 	end
 	player.pflags = pflags
-	//Reset other variables
+	--Reset other variables
 	local skin = skins[mo.skin]
 	mo.flags = $&~(MF_NOCLIPTHING)
 	mo.flags2 = $&~(MF2_DONTDRAW)
@@ -157,7 +194,7 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 		player.actionstate = 0
 		player.actiontime = 0
 	end
-	//player.exhaustmeter = FRACUNIT
+	--player.exhaustmeter = FRACUNIT
 	player.otherscore = nil
 end
 
@@ -165,7 +202,7 @@ B.GetSkinVars = function(player)
 	local mo = player.mo
 	local exists = (mo and mo.valid)
 	
-	//Get player skin
+	--Get player skin
 	if not(exists) or not(S[player.mo.skin]) or player.isjettysyn or player.iseggrobo
 		player.skinvars = -1
 	else
@@ -205,20 +242,20 @@ end
 
 B.GetSVSprite = function(player,value)
 	local s = player.skinvars
-	//Return nil have skinvars undefined
+	--Return nil have skinvars undefined
 	if not(player.mo)
 	or s == -1 
 	or S[s].sprites == nil 
 		return nil
 	end
-	//Get value-defined skinvar state
+	--Get value-defined skinvar state
 	if not(value == nil)
 		if S[s].sprites[value] == nil
 			return nil
 		else
 			return S[s].sprites[value]
 		end
-	else //Get player's current skinvar state
+	else --Get player's current skinvar state
 		for n = 1, #S[s].sprites
 			if player.mo.state == S[s].sprites[n]
 				return S[s].sprites[n]
@@ -236,36 +273,36 @@ B.PlayerButtonPressed = function(player,button,held,check_stasis)
 	return true
 end
 
-B.MyTeam = function(player,myplayer) //Also accepts player.mo
-	//Check yourself before you wreck yourself
+B.MyTeam = function(player,myplayer) --Also accepts player.mo
+	--Check yourself before you wreck yourself
 	if myplayer == player then return true end
-	if (player == nil) or (myplayer == nil) //One of these is invalid!
+	if (player == nil) or (myplayer == nil) --One of these is invalid!
 		B.Warning("Attempted to use a nil argument in function MyTeam()!")
 	return end
-	//Are we using mo's instead of players? Let's fix that.
+	--Are we using mo's instead of players? Let's fix that.
 	if player.player then player = player.player end
 	if myplayer.player then myplayer = myplayer.player end
-	//FriendlyFire
+	--FriendlyFire
 	if CV_FindVar("friendlyfire").value then
 		return false
 	end
-	//CTF checks
+	--CTF checks
 	if G_GametypeHasTeams() then
 		if player.ctfteam == myplayer.ctfteam then return true
 		else return false
 		end
 	end
-	//Tag checks
+	--Tag checks
 	if B.TagGametype() then
 		if player.pflags&PF_TAGIT == myplayer.pflags&PF_TAGIT then return true
 		else return false
 		end
 	end
-	//Battle check
+	--Battle check
 	if not(gametyperules & (GTR_FRIENDLY | GTR_TEAMS)) then
 		return false
 	end
-	//default
+	--default
 	return true
 end
 
@@ -302,7 +339,7 @@ B.DrawAimLine = function(player,angle)
 			b.fuse = 1
 			b.color = B.Choose(SKINCOLOR_ORANGE,SKINCOLOR_YELLOW,SKINCOLOR_SILVER,SKINCOLOR_GREEN,SKINCOLOR_GREY,SKINCOLOR_FOREST,SKINCOLOR_PURPLE,SKINCOLOR_COBALT,SKINCOLOR_RED)
 			b.color = player.skincolor
-			//Only the user is supposed to see this
+			--Only the user is supposed to see this
 			if not(player == displayplayer or player == secondarydisplayplayer) then 
 				b.flags2 = $|MF2_DONTDRAW 
 			end
@@ -311,7 +348,7 @@ B.DrawAimLine = function(player,angle)
 end
 
 B.DoPlayerFlinch = function(player, time, angle, thrust, force)
-	//Uncurl
+	--Uncurl
 	if P_IsObjectOnGround(player.mo) then
 		player.panim = 0
 		player.mo.state = S_PLAY_SKID
@@ -322,7 +359,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 		player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 		player.secondjump = 0
 	end
-	//Apply recoil
+	--Apply recoil
 	player.powers[pw_nocontrol] = max($,min(time,TICRATE))
 	player.mo.recoilangle = angle
 	player.mo.recoilthrust = thrust
@@ -341,10 +378,10 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 	
 	player.tumble = time
 	player.airdodge_spin = 0
-	//player.powers[pw_flashing] = 0
+	--player.powers[pw_flashing] = 0
 	
-	//player.mo.recoilangle = angle
-	//player.mo.recoilthrust = thrust
+	--player.mo.recoilangle = angle
+	--player.mo.recoilthrust = thrust
 	if not(player.actionsuper) then
 		player.actionstate = 0
 	end
@@ -370,7 +407,7 @@ B.Tumble = function(player)
 	
 	if player.tumble
 		
-		//End tumble
+		--End tumble
 		if player.isjettysyn
 			or player.powers[pw_carry]
 			or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
@@ -381,7 +418,7 @@ B.Tumble = function(player)
 			S_StopSoundByID(mo, sfx_kc38)
 			B.ResetPlayerProperties(player,false,false)
 		
-		//Do tumble animation
+		--Do tumble animation
 		else
 			if mo.tumble_prevmomz == nil
 				mo.tumble_prevmomz = mo.momz
@@ -414,7 +451,7 @@ B.Tumble = function(player)
 				end
 				
 			else
-				//player.powers[pw_nocontrol] = max($, 2)
+				--player.powers[pw_nocontrol] = max($, 2)
 				player.pflags = $ | PF_FULLSTASIS
 				player.panim = PA_PAIN
 				player.mo.state = S_PLAY_PAIN
@@ -422,7 +459,7 @@ B.Tumble = function(player)
 				player.airdodge_spin = $ + ANGLE_45
 				player.drawangle = mo.angle + player.airdodge_spin
 
-				if not (player.tumble % 4)// and not P_PlayerInPain(player)
+				if not (player.tumble % 4)-- and not P_PlayerInPain(player)
 					local g = P_SpawnGhostMobj(mo)
 					g.color = SKINCOLOR_BLACK
 					g.colorized = true
@@ -432,14 +469,16 @@ B.Tumble = function(player)
 		end
 	end
 end
+--[[
 /*
 B.TestScript = function(player)
 	B.ZLaunch(player.mo, 8*FRACUNIT)
 	B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
 end*/
+--]]
 
 B.PlayerCreditPusher = function(player,source)
-	if source and source.valid and source.player
+	if source and source.valid and source.player then
 		player.pushed_creditplr = source.player
 	end
 end
@@ -449,7 +488,7 @@ B.PlayerSetupPhase = function(player)
 	local mo = player.mo
 	
 	local skinnum = #skins[mo.skin]
-	//If we're changing skins, this is the set of instructions we'll use
+	--If we're changing skins, this is the set of instructions we'll use
 	local skinchanged = false
 	local function newskin()
 		if not(R_SkinUsable(mo.player, skinnum)) then return end		
@@ -462,7 +501,7 @@ B.PlayerSetupPhase = function(player)
 		skinchanged = true
 	end
 	
-	//Roulette
+	--Roulette
 	local change = 0
 	if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE)
 		local deadzone = 20
@@ -492,7 +531,7 @@ B.PlayerSetupPhase = function(player)
 		S_StartSound(nil, sfx_s251, player)
 	end
 	
-	//Roulette scrolling (to be used by the HUD later)
+	--Roulette scrolling (to be used by the HUD later)
 	if change == 0
 		player.roulette_x = $*6/10
 		if abs(player.roulette_x) < FRACUNIT
@@ -502,19 +541,19 @@ B.PlayerSetupPhase = function(player)
 		player.roulette_x = (40*FRACUNIT*change)
 	end
 	
-	//No control
+	--No control
 	player.powers[pw_nocontrol] = 2
-	//Don't kill me
+	--Don't kill me
 	player.powers[pw_flashing] = TICRATE
 	if player.powers[pw_underwater] then
 		player.powers[pw_underwater] = max(30*TICRATE,$)
 	end
 	
-	//State
+	--State
 	if not(P_IsObjectOnGround(mo)) then
 		mo.state = S_PLAY_FALL
 	end
 	
-	//Update history
+	--Update history
 	player.buttonhistory = player.cmd.buttons
 end

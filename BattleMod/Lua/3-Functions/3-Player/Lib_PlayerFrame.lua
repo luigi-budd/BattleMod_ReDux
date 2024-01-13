@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local A = B.Arena
+local CV = B.Console
 
 B.PlayerPreThinkFrame = function(player)
 	--Initiate support mobj
@@ -21,7 +22,7 @@ B.PlayerPreThinkFrame = function(player)
 	A.GameOverControl(player)
 	
 	--Dead control unlock
-	if player.playerstate != PST_LIVE then
+	if player.playerstate ~= PST_LIVE then
 		player.lockaim = false
 		player.lockmove = false
 	end
@@ -31,11 +32,11 @@ B.PlayerPreThinkFrame = function(player)
 		--Battle spawn animation
 		local spawning = B.PlayerBattleSpawning(player) 
 		--Pre Round Setup
-		if not(spawning) and B.PreRoundWait()
+		if not(spawning) and B.PreRoundWait() then
 			B.PlayerSetupPhase(player)
 		end
 		--Post round invuln
-		if B.Exiting
+		if B.Exiting then
 			player.powers[pw_flashing] = TICRATE
 		end
 	end
@@ -47,18 +48,77 @@ end
 
 B.PlayerThinkFrame = function(player)
 	local pmo = player.mo
-	
-	if (pmo and pmo.valid) and ((not player.squashstretch) or player.playerstate != PST_LIVE)
-		pmo.spritexscale = FRACUNIT
-		pmo.spriteyscale = FRACUNIT
-		player.squashstretch = nil
+
+	--// rev: Time for which the player has been in the game.
+	--//  This resets when the player spectates/the map changes(see MapChange in Exec_system)
+	if player.spectator then 
+		player.ingametime = 0
+	else
+		player.ingametime = $+1
+	end
+
+	--// rev: Tick autobalancing timer, and perform autobalance if required
+	if CV.Autobalance.value and player.autobalancing then
+		--// if dead, do the team change instantenously
+		if player.autobalancing > 3*TICRATE or player.playerstate == PST_DEAD then
+			player.autobalancing = nil
+			local team = player.ctfteam == 1 and " blue" or " red"
+			COM_BufInsertText(server, "serverchangeteam "+#player+team)
+			player.ctfteam = player.ctfteam == 1 and 2 or 1
+			player.playerstate = PST_REBORN
+		elseif player.autobalancing <= 3*TICRATE then
+			player.autobalancing = $+1
+		end
+	elseif not CV.Autobalance.value or player.spectator then
+		player.autobalancing = nil
+	end
+
+	-- If not in pain but flashing, set it to 3*TICRATE - 1. 
+	--[[ DETAILS:
+		This is to fix the invincibility bug. The invincibility bug happens when marine deflects a cork
+		too close to an opponent. When this happens, marine hits the opponent and the deflected
+		projectile (e.g. a cork) simultaneously hits the opponent, causing them to have their
+		[pw_flashing] set to 3*TICRATE, but the 2nd collision (assuming it was e.g. a cork) 
+		"bumps" the player out of their pain state, causing them to go into e.g. a falling state.
+		As a result, the player stays with their [pw_flashing] stuck on 3*TICRATE, causing them to be invulnerable.
+
+		One solution to this would be to tell battle's bump code to prevent players from being 
+		pushed out of their pain state, as this can lead to the invincibility bug.
+	]]
+	if  player.powers[pw_flashing] == (3*TICRATE) and not (P_PlayerInPain(player) or player.playerstate) then
+		player.powers[pw_flashing] =  (3*TICRATE)-1 -- let's allow vanilla srb2 to do the ticking down itself
 	end
 	
 	--Sanity checks
 	if player.versusvars == nil then return end
-	if not(pmo and pmo.valid) or player.playerstate != PST_LIVE then return end
+	if not(pmo and pmo.valid) or player.playerstate ~= PST_LIVE then return end
 	if maptol&(TOL_NIGHTS|TOL_XMAS) then return end
 	
+	if (pmo and pmo.valid) and ((not player.squashstretch) or player.playerstate ~= PST_LIVE) then
+		pmo.spritexscale = FRACUNIT
+		pmo.spriteyscale = FRACUNIT
+		player.squashstretch = nil
+	end
+
+	-- Other
+	if (pmo and P_IsObjectOnGround(pmo)) then
+		player.noshieldactive = 0
+	elseif (player.noshieldactive and player.noshieldactive>0) then
+		player.noshieldactive = $-1
+	end
+	if (pmo and pmo.cantouchteam and pmo.cantouchteam>0) then
+		pmo.cantouchteam = $-1
+	end
+	if (player.nodamage and player.nodamage>0) then
+		player.nodamage = $-1
+	end
+	if (pmo and P_IsObjectOnGround(pmo)) then
+		player.canstunbreak = (player.canstunbreak and player.canstunbreak<-1) and $ or 0
+	elseif (player.canstunbreak and player.canstunbreak>0) then
+		player.canstunbreak = $-1
+	end
+	
+
 	--Shield Stock usage
 	B.ShieldStock(player)
 	B.ShieldMax(player) --Regulate shield capacity

@@ -1,23 +1,24 @@
 local B = CBW_Battle
 B.InputControl = function(player)
 	player.thinkmoveangle = B.GetInputAngle(player)
+	player.realbuttons = player.cmd.buttons
 	
-	if player.lockaim and player.mo then //Aim is being locked in place
+	if player.lockaim and player.mo then --Aim is being locked in place
 		player.cmd.aiming = player.aiming>>16
 		player.cmd.angleturn = player.mo.angle>>16
 	end
 	if player.pflags&PF_STASIS then
-		//Failsafe for simple controls
+		--Failsafe for simple controls
 		player.cmd.sidemove = 0
 		player.cmd.forwardmove = 0
 	end
-	if player.lockmove
+	if player.lockmove then
 		player.cmd.sidemove = 0
 		player.cmd.forwardmove = 0
 		player.cmd.buttons = 0
 	end
-	if player.melee_state
-		if player.melee_charge < FRACUNIT
+	if player.melee_state then
+		if player.melee_charge < FRACUNIT then
 			player.cmd.forwardmove = $ / 3
 			player.cmd.sidemove = $ / 3
 		else
@@ -25,25 +26,68 @@ B.InputControl = function(player)
 			player.cmd.sidemove = 0
 		end
 	end
-	if (player.mo and player.mo.valid and player.mo.state == S_PLAY_FLY_TIRED)
-		player.cmd.forwardmove = $ / 2
-		player.cmd.sidemove = $ / 2
+	if (player.mo and player.mo.valid) and (player.mo.state == S_PLAY_FLY_TIRED
+		or (player.mo.state == S_PLAY_FLY and player.cmd.buttons & BT_SPIN))
+	then
+--		player.cmd.forwardmove = $ / 2
+--		player.cmd.sidemove = $ / 2
+		if not P_IsObjectInGoop(player.mo) then
+			P_SetObjectMomZ(player.mo, -gravity/2, true)
+		end
+	end
+	if (player.powers[pw_carry] == CR_PLAYER and player.mo and player.mo.tracer) then
+		local tails = player.mo.tracer
+		local player2 = tails.player
+		player2.cmd.forwardmove = $ + (player.cmd.forwardmove / 4)
+		player2.cmd.sidemove = $ + (player.cmd.sidemove / 2)
+	
+		if player2.speed < FixedMul(player2.mo.scale, player2.normalspeed) then
+			local spd = (player.mo.scale/2)*(player.cmd.forwardmove/50)
+			P_Thrust(tails, tails.angle, spd)
+		end
+		
+		--vfx
+		if (consoleplayer == player or consoleplayer == player2) then
+			if (player.cmd.forwardmove) or (player.cmd.sidemove) then
+				local arr = P_SpawnMobj(player.mo.x, player.mo.y, player.mo.z, MT_GHOST)
+				arr.state = S_HELPARR
+				arr.color = player.mo.color
+				arr.colorized = true
+				arr.angle = B.GetInputAngle(player)
+				arr.fuse = 2
+			end
+			local btprev = (player.cmd.buttons & BT_WEAPONPREV)
+			local btnext = (player.cmd.buttons & BT_WEAPONNEXT)
+			if (btprev) or (btnext) then
+				local arr2 = P_SpawnMobj(player.mo.x, player.mo.y, player.mo.z, MT_GHOST)
+				arr2.eflags = (player.mo.eflags & MFE_VERTICALFLIP) and $|MFE_VERTICALFLIP or $&~MFE_VERTICALFLIP
+				arr2.fuse = 2
+				if (btprev) and (btnext) then
+					--arr2.state = S_THROWINDICATOR
+				elseif (btprev) then
+					arr2.state = S_FLIGHTINDICATOR
+					arr2.eflags = ($ & MFE_VERTICALFLIP) and $&~MFE_VERTICALFLIP or $|MFE_VERTICALFLIP
+				elseif (btnext) then
+					arr2.state = S_FLIGHTINDICATOR
+				end
+			end
+		end
 	end
 end
 
 B.GetInputAngle = function(player)
 	local mo = player.mo
-	if not mo
+	if not mo then
 		mo = player.truemo
 	end
 	
-	if mo and mo.valid
-		if (mo.flags2&MF2_TWOD or twodlevel)
+	if mo and mo.valid then
+		if (mo.flags2&MF2_TWOD or twodlevel) then
 			return mo.angle
 		end
 		local fw = player.cmd.forwardmove
 		local sw = player.cmd.sidemove
-		-- 	local pang = player.cmd.angleturn << 16//is this netsafe?
+		-- 	local pang = player.cmd.angleturn << 16--is this netsafe?
 		local analog = player.pflags&PF_ANALOGMODE
 
 		local pang = mo.angle
@@ -52,7 +96,7 @@ B.GetInputAngle = function(player)
 			return pang
 		end
 
-		if analog
+		if analog then
 			pang = player.cmd.angleturn<<FRACBITS
 		end
 

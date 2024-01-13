@@ -20,7 +20,8 @@ B.Overtime = false
 B.Exiting = false
 B.PinchTics = 0
 B.Arena = {}
-B.Diamond = {}
+B.Ruby = {}
+B.Diamond = B.Ruby--for compatability
 B.CTF = {}
 B.CTF.GameState = {}
 B.GuardFunc = {}
@@ -30,6 +31,7 @@ B.RedScore = 0
 B.BlueScore = 0
 B.HUDMain = true
 B.HUDAlt = true
+B.Timeout = 0
 B.HUDRoulette = {}
 
 //Flags

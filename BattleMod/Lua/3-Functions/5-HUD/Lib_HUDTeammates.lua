@@ -7,7 +7,7 @@ B.TeammateHUD = function(v, player)
 	then
 		return
 	end
-	
+
 	local flags = V_PERPLAYER|V_SNAPTOTOP
 	local sep = 9*FRACUNIT
 	local basesep = 48*FRACUNIT
@@ -16,7 +16,14 @@ B.TeammateHUD = function(v, player)
 	local rednum = 0
 	local bluenum = 0
 	
+	local player_self = nil
+	local autobalancing = nil
 	for p in players.iterate() do
+		if p.autobalancing then 
+			if p == player then player_self = true end
+			autobalancing = true
+		end
+
 		local xmult = 1
 		local doflip = 0
 		local num
@@ -64,5 +71,21 @@ B.TeammateHUD = function(v, player)
 				v.drawScaled(x + offset + offset2, y + stock_yoff, scale2, v.cachePatch("HUD_STOK"), flags | trans, playercol)
 			end
 		end
+	end
+
+	--// rev: If autobalance is happening, let's tell everyone about it
+	local ax = 120
+	local ay = 18
+	local aflags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
+
+	--// You are the player being autobalanced
+	if player_self and autobalancing then
+		local team = player.ctfteam == 1 and "\x85" or "\x84"
+		local time = 3 - (player.autobalancing/TICRATE)
+		v.drawString(ax-30, ay - 14, team+"You will be autobalanced in: "+time, aflags, "thin")
+
+	--// Someone else is being autobalanced
+	elseif not player_self and autobalancing then
+		v.drawString(ax, ay - 14, "Rebalancing teams...", aflags, "thin")
 	end
 end

@@ -1,7 +1,21 @@
 local B = CBW_Battle
+local FORCE_PARRY_ACTIVE_FRAMES = 11
+local FORCE_PARRY_TOTAL_FRAMES = 42
+
+B.teamSound = function(source, player, soundteam, soundenemy, vol, selfisenemy)
+	for otherplayer in players.iterate do
+		if player and otherplayer and B.MyTeam(player, otherplayer)
+			and not (selfisenemy and source and source.player and source.player == player)
+		then
+			S_StartSoundAtVolume(source, soundteam, vol, otherplayer)
+		else
+			S_StartSoundAtVolume(source, soundenemy, vol, otherplayer)
+		end
+	end
+end
 
 B.ArmaCharge = function(player)
-	if not player.valid or not player.mo or not player.mo.valid or not player.armachargeup
+	if not player.valid or not player.mo or not player.mo.valid or not player.armachargeup then
 		player.armachargeup = nil
 		return
 	end
@@ -9,10 +23,11 @@ B.ArmaCharge = function(player)
 	local mo = player.mo
 	
 	if (player.actionstate
-		or player.playerstate != PST_LIVE
+		or player.playerstate ~= PST_LIVE
 		or P_PlayerInPain(player)
-		or (player.powers[pw_shield] & SH_NOSTACK) != SH_ARMAGEDDON)
+		or (player.powers[pw_shield] & SH_NOSTACK) ~= SH_ARMAGEDDON)
 		or player.tumble
+	then
 		
 		player.armachargeup = nil
 		player.pflags = $ & ~PF_FULLSTASIS
@@ -23,7 +38,7 @@ B.ArmaCharge = function(player)
 	player.pflags = $ | PF_THOKKED | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
 	
 	player.armachargeup = $ + 1
-	//Speed Cap
+	--Speed Cap
 	local speed = FixedHypot(mo.momx,mo.momy)
 	if speed > mo.scale then
 		local dir = R_PointToAngle2(0,0,mo.momx,mo.momy)
@@ -31,12 +46,12 @@ B.ArmaCharge = function(player)
 	end
 	P_SetObjectMomZ(mo,0,false)
 	
-	if player.armachargeup == 14
-		S_StartSoundAtVolume(mo, sfx_s3kc4s, 200)
-		S_StartSoundAtVolume(nil, sfx_s3kc4s, 80)
+	if player.armachargeup == 14 then
+		B.teamSound(mo, player, sfx_gbeep, sfx_s3kc4s, 200, true)
+		B.teamSound(nil, player, sfx_gbeep, sfx_s3kc4s, 80, true)
 	end
 	
-	if player.armachargeup >= 27
+	if player.armachargeup >= 27 then
 		player.armachargeup = nil
 		player.pflags = $ & ~PF_FULLSTASIS
 		player.pflags = $ & ~(PF_JUMPED|PF_THOKKED)
@@ -48,6 +63,97 @@ B.ArmaCharge = function(player)
 		S_StartSoundAtVolume(nil, sfx_s3kb4, 170)
 		P_BlackOw(player)
 	end
+end
+
+B.ForceStopping = function(player)
+	if not player.valid or not player.mo or not player.mo.valid then
+		player.forcestopping = nil
+		return
+	end
+	local mo = player.mo
+	if mo.forceflash then
+		mo.colorized = false
+		mo.color = player.skincolor
+		mo.forceflash = false
+	end
+	if not player.forcestopping then return end
+	
+	if (player.actionstate
+		or player.playerstate ~= PST_LIVE
+		or P_PlayerInPain(player)
+		or ((player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) ~= SH_FORCE)
+		or player.tumble
+		or player.isjettysyn
+		or player.powers[pw_carry]
+		or P_IsObjectOnGround(mo))
+	then
+		
+		player.forcestopping = nil
+		player.landlag = 0
+		player.airdodge = 0
+		player.pflags = $ & ~PF_FULLSTASIS
+		return
+	end
+	
+	if player.forcestopping == FORCE_PARRY_ACTIVE_FRAMES then
+		player.pflags = $ & ~PF_FULLSTASIS
+		player.pflags = $ & ~(PF_JUMPED|PF_THOKKED)
+		
+		mo.state = S_PLAY_FALL
+	end
+	if player.forcestopping < FORCE_PARRY_ACTIVE_FRAMES then
+		mo.state = S_PLAY_ROLL
+		player.pflags = $ | PF_THOKKED | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
+		
+		mo.forceflash = (player.forcestopping/2)%2
+		if mo.forceflash then
+			mo.colorized = true
+			mo.color = SKINCOLOR_BUBBLEGUM
+		end
+	end
+	
+	player.forcestopping = $ + 1
+	
+	if player.forcestopping >= FORCE_PARRY_TOTAL_FRAMES then
+		player.forcestopping = 0
+		player.landlag = 0
+		player.airdodge = 0
+	else
+		player.landlag = 10
+		player.airdodge = -1
+	end
+end
+B.ForceStopParryTrigger = function(target, inflictor, source, damage, damagetype)
+	if not(target.valid and target.player and target.player.forcestopping and (target.player.forcestopping < FORCE_PARRY_ACTIVE_FRAMES) and inflictor and inflictor.valid) then return false end
+	B.ResetPlayerProperties(target.player,true,false)
+	target.player.just_fs_parried = true
+	target.player.forcestopping = nil
+	target.player.landlag = nil
+	target.player.powers[pw_flashing] = TICRATE*2/4
+	P_SetObjectMomZ(target, target.scale * 10 / B.WaterFactor(target), false)
+	target.momx = $ / 2
+	target.momy = $ / 2
+	target.state = S_PLAY_JUMP
+	
+	S_StartSound(target, sfx_cdfm28)
+	S_StartSound(target, sfx_cdpcm9)
+	S_StartSound(target, sfx_s234)
+	local sh = B.DrawVFXFromMobj(target,0,0,0,MT_BATTLESHIELD)
+	if sh then
+		sh.target = target
+		sh.scale = target.scale
+		sh.color = SKINCOLOR_PURPLE
+		sh.colorized = true
+	end
+	B.GuardDustFX(target)
+	if source and source.valid and source.health and source.player and source.player.powers[pw_flashing] then
+		source.player.powers[pw_flashing] = 0
+		local nega = B.DrawVFXFromMobj(source,0,0,0,MT_NEGASHIELD)
+		nega.target = source
+		nega.scale = source.scale
+	end
+	B.GotParried(target, inflictor, 38, inflictor.scale*9, inflictor.scale*3)
+	return true
 end
 
 local ElementalStomp = function(player)
@@ -66,8 +172,8 @@ local ArmageddonExplosion = function(player)
 	player.pflags = $ | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
 	mo.state = S_PLAY_ROLL
 
-	S_StartSoundAtVolume(mo, sfx_s3kc4s, 200)
-	S_StartSoundAtVolume(nil, sfx_s3kc4s, 100)
+	B.teamSound(mo, player, sfx_gbeep, sfx_s3kc4s, 200, true)
+	B.teamSound(nil, player, sfx_gbeep, sfx_s3kc4s, 100, true)
 end
 local WhirlwindJump = function(player)
 	P_DoJumpShield(player)
@@ -98,10 +204,18 @@ local ThunderJump = function(player)
 end
 local ForceStop = function(player)
 	local mo = player.mo
-	P_InstaThrust(mo, 0, 0*FRACUNIT)
+	player.forcestopping = 1
+	player.dashmode = 0
+	player.pflags = $ | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
+	mo.state = S_PLAY_ROLL
+	mo.momx = $ / 4
+	mo.momy = $ / 4
+	if (P_MobjFlip(mo) == 1) then
+		mo.momz = max(0, $)
+	else
+		mo.momz = min(0, $)
+	end
 	
-	player.weapondelay = 25
-	P_SetObjectMomZ(mo, 0*FRACUNIT)
 	S_StartSound(mo,sfx_ngskid)
 	player.pflags = $|PF_THOKKED|PF_SHIELDABILITY
 end
@@ -110,7 +224,7 @@ local AttractionShot = function(player)
 	local lockonshield = P_LookForEnemies(player, false, false)
 	mo.tracer = lockonshield
 	mo.target = lockonshield
-	if lockonshield and lockonshield.valid
+	if lockonshield and lockonshield.valid then
 		player.pflags = ($|PF_THOKKED|PF_JUMPED|PF_SHIELDABILITY) & ~(PF_NOJUMPDAMAGE)
 		mo.state = S_PLAY_ROLL
 		mo.angle = R_PointToAngle2(mo.x, mo.y, lockonshield.x, lockonshield.y)
@@ -133,88 +247,94 @@ B.CanShieldActive = function(player)
 		and not player.actionstate
 		and not player.powers[pw_nocontrol]
 		and not (player.pflags&PF_SHIELDABILITY)
+	then
 		return true
 	end
 	return false
 end
 
 B.DoShieldActive = function(player)
-	// The SRB2 shields.
+	-- The SRB2 shields.
 	-- Elemental Stomp.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL then
 		ElementalStomp(player)
 		return
 	end
 
 	-- Armageddon Explosion.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON then
 		ArmageddonExplosion(player)
 		return
 	end
 
 	-- Whirlwind Jump.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_WHIRLWIND
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_WHIRLWIND then
 		WhirlwindJump(player)
 		return
 	end
 
 	-- Force Stop.
-	if (player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) == SH_FORCE
+	if (player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) == SH_FORCE then
 		ForceStop(player)
 		return
 	end
 
 	-- Attraction Shot.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
 		AttractionShot(player)
 		return
 	end
 
-	// The S3K shields.
+	-- The S3K shields.
 	-- Flame Dash.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_FLAMEAURA
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_FLAMEAURA then
 		FlameDash(player)
 		return
 	end
 
 	-- Bubble Bounce.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP then
 		BubbleBounce(player)
 		return
 	end
 	
 	-- Thunder Jump.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_THUNDERCOIN
+	if (player.powers[pw_shield] & SH_NOSTACK) == SH_THUNDERCOIN then
 		ThunderJump(player)
 		return
 	end
 end
 
 B.ShieldTossFlagButton = function(player)
-	if player and player.valid and player.mo and player.mo.valid
+	if player and player.valid and player.mo and player.mo.valid then
 		player.shieldswap_cooldown = max(0, $ - 1)
+		local tossed = (player.tossdelay == 2*TICRATE - 1)
 		
 		if B.CanShieldActive(player)
 			and (B.ButtonCheck(player,BT_TOSSFLAG) == 1)
-			and not (player.tossdelay == 2*TICRATE - 1)
+			and not tossed
+		then
 			
 			local temp = player.powers[pw_shield]&SH_NOSTACK
 			local power = player.shieldstock[1]
 			
-			if temp != SH_PITY and
+			if temp ~= SH_PITY and
 				(
 					(player.pflags&PF_JUMPED)
 					and not player.powers[pw_carry]
 					and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and temp == SH_BUBBLEWRAP))
+					and not player.noshieldactive
 				)
+			then
 				B.DoShieldActive(player)
 			
 			else--Shield swap
-				if B.ButtonCheck(player,BT_TOSSFLAG) == 1
+				if B.ButtonCheck(player,BT_TOSSFLAG) == 1 then
 					if not player.shieldswap_cooldown
-					and temp
-					and power
-					and temp != power
+						and temp
+						and power
+						and temp ~= power
+					then
 						player.shieldswap_cooldown = 15
 						
 						player.powers[pw_shield] = 0
@@ -226,12 +346,14 @@ B.ShieldTossFlagButton = function(player)
 						player.shieldstock[#player.shieldstock+1] = temp
 						
 						S_StartSound(player.mo, sfx_shswap)
-					else
+					elseif not tossed then
 						S_StartSound(nil, sfx_s3k8c, player)
 					end
 				end
 			end
 		elseif B.ButtonCheck(player,BT_TOSSFLAG) == 1
+			and not tossed
+		then
 			S_StartSound(nil, sfx_s3k8c, player)
 		end
 	end
