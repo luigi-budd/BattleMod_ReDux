@@ -126,12 +126,12 @@ local flashColor = function(colormin,colormax, rate)
 end
 
 local getBase = function(player)
-	if not P_IsObjectOnGround(player.mo)
-		return 0
-	end
-	if P_PlayerTouchingSectorSpecial(player, 4, 3)
+	if not P_IsObjectOnGround(player.mo) then return 0 end
+
+	--// rev: credits to JAB, he figured this one out. This will work for both UDMF / Binary maps
+	if P_MobjTouchingSectorSpecialFlag(player.mo, SSF_REDTEAMBASE) then
 		return 1
-	elseif P_PlayerTouchingSectorSpecial(player, 4, 4)
+	elseif P_MobjTouchingSectorSpecialFlag(player.mo, SSF_BLUETEAMBASE) then
 		return 2
 	else
 		return 0
