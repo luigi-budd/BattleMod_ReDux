@@ -1,4 +1,4 @@
-mobjinfo[MT_CORK].speed = 51*FRACUNIT
+mobjinfo[MT_CORK].speed = 100*FRACUNIT
 
 freeslot(
 	"spr_fair",

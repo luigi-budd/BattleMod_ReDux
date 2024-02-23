@@ -58,9 +58,9 @@ S["amy"] = {
 	flags = SKINVARS_GUARD|SKINVARS_ROSY|SKINVARS_NOSPINSHIELD,
 	weight = 105,
 	shields = 1,
-	special = Act.PikoSpin,
+	special = Act.PikoTornado,
 	guard_frame = 1,
-	func_priority_ext = Act.PikoSpin_Priority,
+	func_priority_ext = Act.PikoTornado_Priority,
 	sprites = {}
 }
 S["fang"] = {

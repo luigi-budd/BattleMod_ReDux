@@ -3,9 +3,10 @@ local B = CBW_Battle
 local ground_special = 1
 local air_special = 10
 local cooldown = TICRATE
+local cooldown2 = TICRATE * 3/2
 local swirl1 = S_LHRT
 local swirl2 = S_LHRT
-local tornado_speed = FRACUNIT*10
+local min_tornado_speed = 6
 
 B.Action.PikoTornado_Priority = function(player)
 	if player.actionstate == ground_special or player.actionstate == air_special then
@@ -17,7 +18,8 @@ local function sparkle(mo)
 	local spark = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SPARK)
 	if spark and spark.valid then
 		B.AngleTeleport(spark,{mo.x,mo.y,mo.z},mo.player.drawangle,0,mo.scale*64)
-		end
+		spark.scale = mo.scale
+	end
 end
 
 local function spinhammer(mo)
@@ -44,7 +46,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	return end
 	player.actiontime = $+1
 	//Action Info
-	if P_IsObjectOnGround(mo) and not(player.dustdevil and player.dustdevil.valid)
+	if P_IsObjectOnGround(mo)
 		player.actiontext = "Piko Tornado"
 	else
 		player.actiontext = "Piko Spin"
@@ -72,19 +74,16 @@ B.Action.PikoTornado = function(mo,doaction)
 	end
 	//Ground Special
 	if player.actionstate == ground_special then
+		player.pflags = $|PF_JUMPSTASIS
 		spinhammer(mo)
-
-		player.powers[pw_nocontrol] = max($,2)
 		sparkle(mo)
 		if player.actiontime < 16 then
 			player.drawangle = mo.angle+ANGLE_22h*player.actiontime
-			P_Thrust(mo,mo.angle,mo.scale)
 			if player.actiontime == 8 then
 				S_StartSound(mo,sfx_s3k42)
 			end
 		else
 			player.drawangle = mo.angle+ANGLE_45*(player.actiontime&7)
-			P_Thrust(mo,mo.angle,mo.scale)
 			if player.actiontime&7 == 4 then
 				S_StartSound(mo,sfx_s3k42)
 			end
@@ -93,45 +92,49 @@ B.Action.PikoTornado = function(mo,doaction)
 		player.actionstate = $+1
 		player.actiontime = 0
 		player.drawangle = mo.angle
+		//Remove last missile, so it is replaced
+		if (player.dustdevil and player.dustdevil.valid)
+			P_RemoveMobj(player.dustdevil)
+			player.dustdevil = nil
+		end
 		//Do Missile
-		if not(player.dustdevil and player.dustdevil.valid)
-			local missile = P_SPMAngle(mo,MT_DUSTDEVIL_BASE,mo.angle)
-			if missile and missile.valid then
-				missile.color = player.skincolor
-				if not(player.mo.flags2&MF2_TWOD or twodlevel) then
-					missile.fuse = TICRATE*5
-				else
-					missile.fuse = 45
-				end
-				S_StartSound(missile,sfx_s3kb8)
-				S_StartSound(missile,sfx_s3kcfl)	
-
-				if G_GametypeHasTeams() then
-					missile.color = mo.color
-				end
--- 				if P_MobjFlip(mo) == -1 then
--- 					missile.z = $-missile.height
--- 					missile.flags2 = $|MF2_OBJECTFLIP
--- 					missile.eflags = $|MFE_VERTICALFLIP
--- 				end
-				if missile.tracer and missile.tracer.valid then
-					missile.tracer.target = player.mo
-					if P_MobjFlip(mo) == -1 then 
-						missile.tracer.z = $-missile.tracer.height
-						missile.tracer.flags2 = $|MF2_OBJECTFLIP
-						missile.tracer.eflags = $|MFE_VERTICALFLIP
-					end					
-				end
-				player.dustdevil = missile
+		local missile = P_SPMAngle(mo,MT_DUSTDEVIL_BASE,mo.angle)
+		if missile and missile.valid then
+			missile.speed = max(min_tornado_speed*mo.scale,1+player.speed/2)
+			missile.color = player.skincolor
+			if not(player.mo.flags2&MF2_TWOD or twodlevel) then
+				missile.fuse = TICRATE*4
+			else
+				missile.fuse = TICRATE*5/4
 			end
+			S_StartSound(missile,sfx_s3kb8)
+			S_StartSound(missile,sfx_s3kcfl)	
+
+			if G_GametypeHasTeams() then
+				missile.color = mo.color
+			end
+	-- 		if P_MobjFlip(mo) == -1 then
+	-- 			missile.z = $-missile.height
+	-- 			missile.flags2 = $|MF2_OBJECTFLIP
+	-- 			missile.eflags = $|MFE_VERTICALFLIP
+	-- 		end
+			if missile.tracer and missile.tracer.valid then
+				missile.tracer.target = player.mo
+				if P_MobjFlip(mo) == -1 then 
+					missile.tracer.z = $-missile.tracer.height
+					missile.tracer.flags2 = $|MF2_OBJECTFLIP|MF2_DONTDRAW
+					missile.tracer.eflags = $|MFE_VERTICALFLIP
+				end					
+			end
+			player.dustdevil = missile
 		end
 	end
 	//End lag
-	if player.actionstate == ground_special+1 
+	if player.actionstate == ground_special+1
 		player.powers[pw_nocontrol] = max($,2)
 		if player.actiontime < TICRATE return end
 		//Neutral
-		B.ApplyCooldown(player,cooldown)
+		B.ApplyCooldown(player,cooldown2)
 		player.actionstate = 0
 		player.actiontime = 0
 		mo.state = S_PLAY_WALK
@@ -168,13 +171,18 @@ B.DustDevilThinker = function(mo)
 	if not(owner and owner.valid and hurtbox and hurtbox.valid) then 
 		P_RemoveMobj(mo)
 	return end
+
+	if mo.radius < (32*FRACUNIT) then
+		mo.radius = $+FRACUNIT
+	end
 	
 	mo.angle = R_PointToAngle2(0,0,mo.momx,mo.momy)
 -- 	local p = B.GetNearestPlayer(owner,nil,-1,nil,false)
 -- 	if p then
 -- 		mo.angle = R_PointToAngle2(mo.x,mo.y,p.mo.x,p.mo.y)
 -- 	end
-	local speed = FixedMul(tornado_speed,mo.scale)/B.WaterFactor(mo)
+	if not mo.speed then mo.speed = min_tornado_speed*mo.scale end
+	local speed = FixedMul(mo.speed,mo.scale)/B.WaterFactor(mo)
 	if twodlevel or mo.flags2&MF2_TWOD then
 		speed = $/2
 	end
@@ -183,9 +191,9 @@ B.DustDevilThinker = function(mo)
 	P_Thrust(mo,mo.angle,speed)
 	B.ControlThrust(mo,FRACUNIT,speed)
 	if P_MobjFlip(mo) == 1 then
-		P_MoveOrigin(hurtbox,mo.x,mo.y,mo.z)
+		P_TeleportMove(hurtbox,mo.x,mo.y,mo.z)
 	else
-		P_MoveOrigin(hurtbox,mo.x,mo.y,mo.z+mo.height-hurtbox.height)
+		P_TeleportMove(hurtbox,mo.x,mo.y,mo.z+mo.height-hurtbox.height)
 	end
 	hurtbox.fuse = mo.fuse
 	if not(leveltime&3) then
@@ -258,7 +266,7 @@ B.SwirlThinker = function(mo)
 	else
 		z = B.FixedLerp(mo.target.height-mo.height,0,time)	
 	end
-	P_MoveOrigin(mo,mo.target.x+x,mo.target.y+y,mo.target.z+z)
+	P_TeleportMove(mo,mo.target.x+x,mo.target.y+y,mo.target.z+z)
 end
 
 B.DustDevilSpawn = function(mo)
@@ -323,6 +331,8 @@ B.DustDevilTouch = function(dustdevil,collide)
 		if collide.player.actionstate == air_special then //Air-ground combo
 			if not(S_SoundPlaying(collide,sfx_wdjump)) then
 				S_StartSound(collide,sfx_wdjump)
+				player.pflags = $|PF_STARTJUMP|PF_JUMPED
+				player.mo.state = S_PLAY_JUMP
 			end
 			P_SetObjectMomZ(collide,FRACUNIT*24/B.WaterFactor(collide),0)
 		end

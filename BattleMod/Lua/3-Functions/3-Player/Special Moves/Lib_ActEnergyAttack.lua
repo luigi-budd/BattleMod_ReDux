@@ -1,6 +1,6 @@
 local B = CBW_Battle
 
-//Charge time thresholds
+--Charge time thresholds
 local threshold1 = 6
 local threshold2 = threshold1+35
 local state_charging = 1
@@ -10,8 +10,8 @@ local cooldown_dash = TICRATE * 5/2
 local cooldown_blast = TICRATE * 5/4
 local cooldown_slice = TICRATE * 2
 local cooldown_cancel = TICRATE
-local sideangle = ANG15/4 //Horizontal spread
-local vertwidth = ANG15/2 //Vertical spread
+local sideangle = ANG15/4 --Horizontal spread
+local vertwidth = ANG15/2 --Vertical spread
 local blastcount1 = 3
 local blastcount2 = 5
 
@@ -30,13 +30,53 @@ B.Action.EnergyAttack_Priority = function(player)
 	end
 end
 
+local spawnslashes = function(player, mo)
+	--Effects
+	local x,y,z,dist,angoff
+	dist = mo.radius
+	angoff = P_RandomRange(90,270)*ANG1
+	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
+	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
+	z = mo.z
+	P_SpawnMobj(x,y,z,MT_DUST)
+	
+	--Slashes
+	local dist = 46*FRACUNIT
+	local x,y,z,s
+	local angoff = -ANGLE_90
+	z = mo.z
+	if player.actiontime&1 then
+		x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
+		y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
+		s = S_SLASH3
+	else
+		x = mo.x+P_ReturnThrustX(nil,mo.angle-angoff,dist)
+		y = mo.y+P_ReturnThrustY(nil,mo.angle-angoff,dist)
+		s = S_SLASH1
+		S_StartSound(mo,sfx_rail1)
+	end
+	local missile = P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z)
+	if missile and missile.valid then
+		missile.state = s
+		missile.scale = $*2
+	end
+end
+
 B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 	local player = mo.player
 	if P_PlayerInPain(player)
 		player.actionstate = 0
 	end
+	if player.actionstate
+		player.actionbuffer = true
+	elseif player.actionbuffer
+		if player.powers[pw_shield] == SH_WHIRLWIND
+			player.pflags = $|PF_SHIELDABILITY
+		end
+		player.actionbuffer = false
+	end
 		
-	//Action info
+	--Action info
 	player.actiontext = "Energy Attack"
 	player.actionrings = 10
 	player.actiontime = $+1
@@ -50,7 +90,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		return end
 	return end
 	
-	//Action triggers
+	--Action triggers
 	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)
 	local charging = player.exhaustmeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
 	local slashtrigger = attackready and B.PlayerButtonPressed(player,BT_SPIN,false)
@@ -67,14 +107,14 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		)
 	local chargetrigger = (player.actionstate == 0 and doaction == 1)
 	
-	//Intercepted while charging
+	--Intercepted while charging
 	if (player.actionstate == state_charging or player.actionstate == state_energyblast) and player.powers[pw_nocontrol] then
 		player.actionstate = 0
 		B.ApplyCooldown(player,cooldown_cancel)
 		return
 	end
 	
-	//Start charging blast
+	--Start charging blast
 	if chargetrigger
 		B.PayRings(player,player.actionrings)
 		player.actionstate = 1
@@ -95,9 +135,9 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		end
 	end
 	
-	//Charging Blast
+	--Charging Blast
 	if charging then
-		//Do aim sights
+		--Do aim sights
 		B.DrawAimLine(player,mo.angle)
 		if player.actiontime > threshold2
 			B.DrawAimLine(player,mo.angle+sideangle*(blastcount2>>1))
@@ -107,7 +147,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		player.pflags = $|PF_JUMPSTASIS
 		player.exhaustmeter = max(0,$-(FRACUNIT/TICRATE/2))
 		
-		//Gather spheres
+		--Gather spheres
 		local gather = P_SpawnMobj(mo.x,mo.y,mo.z+mo.height/2,MT_ENERGYGATHER)
 		if gather and gather.valid then
 			gather.target = mo
@@ -117,13 +157,13 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 			gather.scale = mo.scale/4
 		end
 		
-		//Speed Cap
+		--Speed Cap
 		local speed = FixedHypot(mo.momx,mo.momy)
 		if speed > mo.scale then
 			local dir = R_PointToAngle2(0,0,mo.momx,mo.momy)
 			P_InstaThrust(mo,dir,FixedMul(speed,mo.friction))
 		end
-		//Blast Powerup
+		--Blast Powerup
 		if chargehold then
 			if not(player.actiontime&3)
 				then
@@ -151,20 +191,24 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		end
 	end
 	
-	//Dash burst
+	--Dash burst
 	if dashtrigger then
+		local spd = player.normalspeed
+		if player.actiontime >= threshold2
+			spd = $ * 4/3
+		end
 		B.ResetPlayerProperties(player,true,true)
 -- 		player.pflags = $|PF_NOJUMPDAMAGE&~PF_JUMPDOWN
 		player.pflags = $&~PF_JUMPED
 		player.actiontime = -1
 		S_StartSound(mo,sfx_s3k54)
-		P_InstaThrust(mo,mo.angle,FixedMul(player.normalspeed,mo.scale))
+		P_InstaThrust(mo,mo.angle,FixedMul(spd,mo.scale))
 		mo.state = S_PLAY_DASH
 		B.ApplyCooldown(player,cooldown_dash)
 		player.dashmode = TICRATE*3
 	end
 	
-	//Unable to charge
+	--Unable to charge
 	if canceltrigger then
 		B.ResetPlayerProperties(player,false,false)
 		player.actiontime = -1
@@ -172,7 +216,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		B.ApplyCooldown(player,cooldown_cancel)
 	end
 	
-	//Release blast
+	--Release blast
 	if blasttrigger then
 		player.actionstate = 2
 		S_StartSound(mo,sfx_s3k54)
@@ -187,7 +231,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 			vwidth = vertwidth
 		end
 		local angle = mo.angle
-		//Projectiles
+		--Projectiles
 		for i = 1,set
 			if i > 1 and i&1 then angle = mo.angle-sideangle*(i>>1) end
 			if i > 1 and not(i&1) then angle = mo.angle+sideangle*(i>>1) end
@@ -203,36 +247,35 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 					if m == 0 then zangle = 0
 					else zangle = B.FixedLerp(-vwidth,vwidth,FRACUNIT*n/m)
 					end
-					B.InstaThrustZAim(blast,xyangle,zangle,speed,0)
+					local chargebonus = min(threshold2, player.actiontime-threshold1)
+					B.InstaThrustZAim(blast,xyangle,zangle,speed+(chargebonus*mo.scale),0)
 					if G_GametypeHasTeams() then
 						blast.colorized = true
-						blast.color = mo.color
+						blast.color = player.skincolor
 					end
 				end
 			end
 		end
-		//Apply recoil
+		--Apply recoil
 		P_InstaThrust(mo,mo.angle+ANGLE_180,6*mo.scale)
 		player.actiontime = 0
 		B.ApplyCooldown(player,cooldown_blast)
 	end
 	
-	//Update states
+	--Update states
 	if player.actionstate == state_charging then
 		mo.state = S_PLAY_WALK
--- 		player.dashmode = TICRATE*3
 		B.DrawSVSprite(player,1)
 		player.drawangle = mo.angle
 		player.pflags = ($|PF_JUMPED)&~PF_NOJUMPDAMAGE
-		P_SetObjectMomZ(mo,FRACUNIT/2,false) //Rise slowly
+		P_SetObjectMomZ(mo,FRACUNIT,false) --Rise slowly
 	elseif (player.actiontime == -1) then
 		player.actiontime = 0
 	end
 	
-	//Charge release state
+	--Charge release state
 	if player.actionstate == state_energyblast then
 		mo.state = S_PLAY_SPRING
--- 		player.pflags = $|(PF_JUMPED|PF_NOJUMPDAMAGE|PF_THOKKED)&~PF_JUMPDOWN
 		player.pflags = $&~PF_JUMPED
 		player.exhaustmeter = FRACUNIT
 		player.secondjump = 0
@@ -243,25 +286,27 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		end
 	end
 
-	//Slasher
+	--Slasher
 	if slashtrigger then
-		//Next state
+		--Next state
 		player.actionstate = state_dashslicer
+		player.exhaustmeter = FRACUNIT
+		if player.actiontime >= threshold2
+			player.actionstate = $ + 1
+		end
 		player.actiontime = 0
 		S_StartSound(mo,sfx_cdfm01)
 	end
 	
-	//Slash-dashing
-	if player.actionstate == state_dashslicer then
-		player.lockaim = true
-		player.lockmove = true
-		//player.dashmode = TICRATE*3
+	--Slash-dashing
+	if player.actionstate == state_dashslicer or player.actionstate == state_dashslicer+1 then
 		player.powers[pw_nocontrol] = max($,2)
+		player.pflags = $|PF_FULLSTASIS
 		mo.state = S_PLAY_DASH
 		mo.frame = 0
 		mo.sprite2 = SPR2_DASH
 		mo.momz = 1
--- 		mo.state = S_PLAY_ROLL
+		player.drawangle = mo.angle
 		local r = mo.radius/FRACUNIT/2
 		local x = mo.x+P_RandomRange(-r,r)*FRACUNIT
 		local y = mo.y+P_RandomRange(-r,r)*FRACUNIT
@@ -271,32 +316,51 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 			spark.scale = mo.scale
 		end
 		P_SpawnGhostMobj(mo)
-		local spd = FixedMul(player.normalspeed/B.WaterFactor(mo),mo.scale)
+		local spd = FixedMul((10 * FRACUNIT)/B.WaterFactor(mo),mo.scale)
 		if twodlevel or mo.flags2&MF2_TWOD then
 			spd = $*3/4
 		end
-		P_InstaThrust(mo,mo.angle,spd)
+		mo.momx = $ * 5/6
+		mo.momy = $ * 5/6
+		P_Thrust(mo,mo.angle,spd)
 		player.pflags = $|PF_SPINNING
 		
+		if player.actiontime >= 10
+			spawnslashes(player,mo)
+		end
 		
-		//Release the slicer
-		if not(player.actiontime >= TICRATE/3) then return end
-		local missile = P_SPMAngle(mo,MT_DASHSLICER,mo.angle,0)
-		//Next state
-		player.actionstate = state_dashslicer+1
-		player.actiontime = 0
-		B.ZLaunch(mo,FRACUNIT*24,0)
-		mo.momx = $ * 2/3
-		mo.momy = $ * 2/3
-		player.pflags = $|(PF_SPINNING|PF_JUMPED)
-		mo.state = S_PLAY_ROLL
-		S_StartSound(mo,sfx_s3ka0)
-		S_StartSound(mo,sfx_cdfm14)
+		local duration = 17
+		if player.actionstate == state_dashslicer+1
+			duration = $ + 4
+		end
+		
+		if not(player.actiontime >= duration) then return end
+		--Next state
 		B.ApplyCooldown(player,cooldown_slice)
+		if (player.realbuttons & BT_JUMP)
+			mo.momx = $ * 2/3
+			mo.momy = $ * 2/3
+			P_Thrust(mo, mo.angle, 25*mo.scale/B.WaterFactor(mo))
+			B.ZLaunch(mo,FRACUNIT*24,0)
+			player.actionstate = state_dashslicer+2
+			player.actiontime = 0
+			player.pflags = $|(PF_SPINNING|PF_JUMPED)
+			mo.state = S_PLAY_ROLL
+			S_StartSound(mo,sfx_s3ka0)
+			S_StartSound(mo,sfx_cdfm14)
+		else
+			mo.momx = $ / 3
+			mo.momy = $ / 3
+			mo.state = S_PLAY_FALL
+			player.pflags = $&~(PF_SPINNING|PF_JUMPED|PF_THOKKED)
+			player.actionstate = 0
+			player.secondjump = 0
+			S_StartSound(mo,sfx_s3k82)
+		end
 	end
 	
-	//Slash-striking
-	if player.actionstate == state_dashslicer+1 then
+	--Dash slicer jump
+	if player.actionstate == state_dashslicer+2 then
 		player.lockaim = true
 		player.lockmove = true
 		if not(player.pflags&(PF_SPINNING|PF_JUMPED)) then
@@ -306,9 +370,9 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 		end
 		player.powers[pw_nocontrol] = max($,2)
 		B.ControlThrust(mo,FRACUNIT*90/100)
-		if not(player.actiontime >= TICRATE*3/8) then return end
+		if not(player.actiontime >= 12) then return end
 		
-		//Back to neutral
+		--Back to neutral
 		player.actionstate = 0
 		mo.state = S_PLAY_SPRING
 		player.pflags = $&~(PF_SPINNING|PF_JUMPED|PF_THOKKED)
@@ -316,8 +380,7 @@ B.Action.EnergyAttack=function(mo,doaction,throwring,tossflag)
 	end
 end
 
-
-//-Metal Energy Aura-
+---Metal Energy Aura-
 B.MetalAura = function(mo,target)
 	if not(target and target.valid and target.player and target.player.actionstate == state_charging
 		and target.player.playerstate == PST_LIVE)
@@ -326,14 +389,14 @@ B.MetalAura = function(mo,target)
 	mo.scale = target.scale
 	if P_MobjFlip(target) == 1
 		mo.eflags = $&~MFE_VERTICALFLIP
-		P_MoveOrigin(mo,target.x,target.y,target.z+target.height/4)
+		P_TeleportMove(mo,target.x,target.y,target.z+target.height/4)
 	else
 		mo.eflags = $|MFE_VERTICALFLIP
-		P_MoveOrigin(mo,target.x,target.y,target.z+target.height*3/4)
+		P_TeleportMove(mo,target.x,target.y,target.z+target.height*3/4)
 	end
 end
 
-//-Metal Sonic "gather" spheres-
+---Metal Sonic "gather" spheres-
 B.EnergyGather = function(mo,target,xyangle,zangle)
 	if not(target and target.valid and target.player and target.player.actionstate == state_charging) then
 		P_RemoveMobj(mo)
@@ -344,46 +407,5 @@ B.EnergyGather = function(mo,target,xyangle,zangle)
 	local x = target.x+P_ReturnThrustX(nil,xyangle,xydist)
 	local y = target.y+P_ReturnThrustY(nil,xyangle,xydist)
 	local z = target.z+zdist+target.height/2
-	P_MoveOrigin(mo,x,y,z)
-end
-
-B.DashSlicerSpawn=function(mo)
-	mo.fuse = 8
-	mo.time = 0
-end
-
-B.DashSlicerThinker=function(mo)
-	if not(mo and mo.valid and mo.target and mo.target.valid and mo.target.health) then return end
-	mo.time = $+1
-	
-	//Effects
-	local x,y,z,dist,angoff
-	dist = mo.radius
-	angoff = P_RandomRange(90,270)*ANG1
-	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
-	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-	z = mo.z
-	P_SpawnMobj(x,y,z,MT_DUST)
-	
-	if mo.time < 3 then return end
-	//Slashes
-	local dist = mo.radius
-	local x,y,z,s
-	local angoff = ANGLE_90
-	z = mo.z
-	if mo.time&1 then
-		x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
-		y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-		s = S_SLASH3
-	else
-		x = mo.x+P_ReturnThrustX(nil,mo.angle-angoff,dist)
-		y = mo.y+P_ReturnThrustY(nil,mo.angle-angoff,dist)
-		s = S_SLASH1
-		S_StartSound(mo.target,sfx_rail1)
-	end
-	local missile = P_SpawnXYZMissile(mo.target,mo,MT_SLASH,x,y,z)
-	if missile and missile.valid then
-		missile.state = s
-		missile.scale = $*2
-	end
+	P_TeleportMove(mo,x,y,z)
 end

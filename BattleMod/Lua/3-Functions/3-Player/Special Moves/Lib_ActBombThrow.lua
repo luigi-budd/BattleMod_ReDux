@@ -1,7 +1,6 @@
 local B = CBW_Battle
 
 local state_bombthrow = 1
-local state_bombthrown = 2
 local state_bombjump = 10
 local cooldown = TICRATE
 local bombfuse = 8*TICRATE
@@ -10,7 +9,7 @@ local bjvert = FRACUNIT*16 //bomb jump vertical thrust
 //16
 //12
 
-local function throwbomb(mo)
+B.throwbomb = function(mo)
 	local player = mo.player
 	local bomb = P_SPMAngle(mo,MT_FBOMB,mo.angle,0)
 	local bombfuse
@@ -19,7 +18,6 @@ local function throwbomb(mo)
 	else
 		bombfuse = 15
 	end
-	B.ApplyCooldown(player,cooldown)
 	if bomb and bomb.valid then
 		if G_RingSlingerGametype() or B.BattleGametype() then
 			//Do skincolor
@@ -46,9 +44,6 @@ B.Action.BombThrow=function(mo,doaction,throwring,tossflag)
 	if not(B.CanDoAction(player)) then return end
 	//Action info
 	player.actiontext = "Throw Bomb"
-	if player.pflags&PF_BOUNCING
-		player.actiontext = "Drop Bomb"
-	end
 	player.actionrings = 10
 
 	player.actiontime = $+1
@@ -66,37 +61,51 @@ B.Action.BombThrow=function(mo,doaction,throwring,tossflag)
 				player.actionstate = state_bombthrow
 				player.actiontime = 0
 			else //Bomb Drop
-				local bomb = throwbomb(mo)
+				local bomb = B.throwbomb(mo)
 				if bomb and bomb.valid then
 					P_InstaThrust(bomb,mo.angle,FRACUNIT/100)
 				end
+				B.ApplyCooldown(player,cooldown)
 			end
 			B.PayRings(player,player.actionrings)
 		else return end
 	end
 	//Prep Bomb
-	if player.actionstate == state_bombthrow then		
+	if player.actionstate == state_bombthrow then
+		mo.state = S_PLAY_WALK
+		mo.frame = 3
 		player.drawangle = mo.angle
-		player.lockmove = true
-		if player.actiontime < 6
-			B.DrawSVSprite(player,1+player.actiontime/3)
-		else
-			player.actionstate = state_bombthrown
+--		player.lockmove = true
+		if player.actiontime < 3
+			B.DrawSVSprite(player,3+player.actiontime/3)
+--		else
+--			player.actionstate = state_bombthrown
+		end
+-- 		player.drawangle = mo.angle-ANGLE_135
+		if player.actiontime > 2 then
+			mo.frame = 4
+-- 			player.drawangle = mo.angle-ANGLE_90
+		end
+		if player.actiontime > 4 then
+			mo.frame = 5
+-- 			player.drawangle = mo.angle-ANGLE_45
+		end
+		if player.actiontime == 6 then
+			player.actionstate = state_bombthrow+1
 			player.actiontime = 0
 			//Throw bomb
-			throwbomb(mo)
+			B.throwbomb(mo)
+			B.ApplyCooldown(player,cooldown)
 		end
 	end
 	//Bomb thrown
-	if player.actionstate == state_bombthrown then
+	if player.actionstate == state_bombthrow+1 then
+		mo.state = S_PLAY_WALK
+		mo.frame = 6
 		player.drawangle = mo.angle
-		player.lockmove = true
-		B.DrawSVSprite(player,3)
 		if player.actiontime > 12 then
-			B.ResetPlayerProperties(player,false,true)
-			mo.state = S_PLAY_WALK
-			player.lockmove = false
-			player.pflags = $|PF_JUMPDOWN
+			player.actionstate = 0
+			player.actiontime = 0
 		end
 	return end
 	//Bomb jump
@@ -116,12 +125,13 @@ end
 
 
 B.FBombThink=function(mo)
+	if mo.radius < (24*FRACUNIT) then
+		mo.radius = $+FRACUNIT
+	end
+
 	//Bomb jump
 	if mo.state == S_FBOMB_EXPL1 and mo.tics == 1 then
-		if not(mo.target and mo.target.valid and mo.target.player)
-		or (mo.target.player.playerstate != PST_LIVE)
-		or P_PlayerInPain(mo.target.player)
-		then return end
+		if not(mo.target and mo.target.valid and mo.target.player and not mo.target.player.nobombjump) then return end
 		local dist = FixedHypot(mo.z+mo.height/2-(mo.target.z+mo.target.height/2),R_PointToDist2(mo.x,mo.y,mo.target.x,mo.target.y))
 		local radius = FRACUNIT*96
 		if dist < radius then

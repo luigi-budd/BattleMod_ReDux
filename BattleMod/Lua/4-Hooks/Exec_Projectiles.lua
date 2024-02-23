@@ -57,7 +57,6 @@ end
 --Sonic ground pound
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit00
-	mo.blockable = 1
 	mo.block_stun = 4
 	mo.block_sound = sfx_s3k49
 	mo.block_hthrust = 2
@@ -69,6 +68,16 @@ end,MT_GROUNDPOUND)
 addHook("MobjThinker",function(mo)
 	if not(mo.flags&MF_MISSILE) then return end
 	P_SpawnGhostMobj(mo)
+
+	if mo.radius < (32*FRACUNIT) then
+		mo.radius = $+FRACUNIT
+	end
+	
+	if not (mo.valid) then return end
+
+	P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
+	P_SetObjectMomZ(mo, -mo.momz/32, true)
+
 	local radius = mo.radius/FRACUNIT
 	local r = do
 		return P_RandomRange(-radius,radius)*FRACUNIT
@@ -79,10 +88,6 @@ addHook("MobjThinker",function(mo)
 		s.colorized = true
 		s.color = SKINCOLOR_SKY
 	end
-    P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
-    if not mo.target or mo.target.state == S_PLAY_PAIN or mo.target.player.deadtimer then
-        P_KillMobj(mo)
-    end
 end,MT_SONICBOOM)
 
 addHook("MobjSpawn",function(mo)
@@ -180,18 +185,36 @@ end,MT_CORK)
 
 
 --Metal Sonic
-addHook("MobjSpawn",B.DashSlicerSpawn,MT_DASHSLICER)
-addHook("MobjThinker",B.DashSlicerThinker,MT_DASHSLICER)
 addHook("MobjThinker",function(mo)
 	mo.flags2 = $^^MF2_DONTDRAW
 end,MT_SLASH)
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit02
+	mo.blendmode = AST_ADD
 end,MT_SLASH)
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit01
 end,MT_ENERGYBLAST)
 
+addHook("MobjSpawn",function(mo)
+	mo.flags2 = MF2_INVERTAIMABLE
+end,MT_BOMBSPHERE)
+
+--addHook("MobjCollide",B.BombSphereMissileCollide,MT_BOMBSPHERE)
+--addHook("TouchSpecial",B.BombSphereTouch,MT_BOMBSPHERE)
+addHook("MobjFuse",B.FBombDetonate,MT_FBOMB)
+addHook("MobjMoveCollide",B.BombCollide,MT_FBOMB)
+addHook("MobjSpawn",B.FBombSpawn,MT_FBOMB)
+addHook("MobjThinker",B.FBombThink,MT_FBOMB)
+
+--Other
+addHook("MobjThinker",B.RockBlastObject,MT_ROCKBLAST)
+addHook("MobjThinker",function(mo) if P_IsObjectOnGround(mo) then P_RemoveMobj(mo) return true end end,MT_ROCKCRUMBLE2)
+addHook("ShouldDamage", B.PlayerCorkDamage, MT_PLAYER)
+addHook("ShouldDamage", B.PlayerHeartCollision, MT_PLAYER)
+addHook("ShouldDamage", B.PlayerBombDamage,MT_PLAYER)
+addHook("ShouldDamage", B.PlayerRoboMissileCollision,MT_PLAYER)
+addHook("MobjThinker", function(mo) mo.fuse = min($, TICRATE * 4) end,MT_SPINFIRE)
 --Other
 addHook("MobjThinker",B.RockBlastObject,MT_ROCKBLAST)
 addHook("MobjThinker",function(mo) if P_IsObjectOnGround(mo) then P_RemoveMobj(mo) return true end end,MT_ROCKCRUMBLE2)

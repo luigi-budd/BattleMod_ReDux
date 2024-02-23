@@ -47,6 +47,7 @@ B.Action.CombatRoll = function(mo,doaction)
 			local speed = mo.scale*P_RandomRange(5,10)
 			P_InstaThrust(dust,angle,speed)
 		end
+		player.noshieldactive = -1
 		return
 	end
 	
@@ -71,8 +72,26 @@ B.Action.CombatRoll = function(mo,doaction)
 		player.drawangle = mo.angle
 	end
 	
+	//Drop bombs
+	if player.actionstate == 1
+	and bouncing
+	and (mo.eflags & MFE_JUSTHITFLOOR)
+		player.nobombjump = true
+		for n = 0, 4
+			local bomb = B.throwbomb(mo)
+			if bomb and bomb.valid then
+				P_InstaThrust(bomb,ANGLE_45+mo.angle+(ANGLE_90*n),mo.scale*4)
+				P_SetObjectMomZ(bomb, mo.scale*8)
+				bomb.flags = $ &~ (MF_GRENADEBOUNCE)
+				bomb.bombtype = 0
+			end
+		end
+		player.actiontime = 0
+		player.actionstate = 0
+	end
+
 	//Reset state
-	if not(drop_state or thrust_state)
+	if not(drop_state or thrust_state or (mo.eflags & MFE_SPRUNG))
 		player.actiontime = 0
 		player.actionstate = 0
 	else //Afterimage
