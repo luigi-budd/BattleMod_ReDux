@@ -1,4 +1,4 @@
-# rever: this script is not meant to be executed directly
+# rev: this script is not meant to be executed directly
 
 # Thanks, Golden!
 if [[ "$*" == *"release"* ]]; then
@@ -72,10 +72,12 @@ if [[ $PK3_RELEASE != 1 ]]; then
 	fi
 fi
 
+# Let's jump inside the folder
 cd $FOLDER_NAME
 
 # create version info lua file
-echo "CBW_Battle.VersionNumber = $PK3_VERSION
+echo "\
+CBW_Battle.VersionNumber = $PK3_VERSION
 CBW_Battle.VersionSub = $PK3_SUBVERSION
 CBW_Battle.VersionPublic = $PK3_RELEASE
 CBW_Battle.VersionDate = \"""$PK3_BUILDDATA_DATE""\"
@@ -83,31 +85,22 @@ CBW_Battle.VersionTime = \"""$PK3_BUILDDATA_TIME""\"
 CBW_Battle.VersionBranch = \"""$PK3_BUILDDATA_BRANCH""\"
 CBW_Battle.VersionCommit = \"""$PK3_BUILDDATA_COMMIT""\""> ../$FOLDER_NAME/Lua/1-Init/Init_VersionInfo.lua
 
-# grab newline-seperated files, seperate by newline into array $FILES
-#rev: The reason this script wasn't working was because the files weren't being sorted before inserted into the array. You're welcome
-readarray -td$'\n' FILES <<<"$(find . -type f | sort -k1)" # exclude directories because `zip` loves recursing through them
-
-for exclude in "${PK3_EXCLUDE[@]}"; do # iterate the exclude regex array
-	for i in "${!FILES[@]}"; do # iterate args
-		if [[ "${FILES[i]}" =~ $exclude ]]; then # if this arg matches the exclude regex
-			unset 'FILES[i]'; # unset it
-		fi
-	done
-done
-
-# it doesnt really matter if it has holes in it
-ARGSTR=$(printf "'%s' " "${FILES[@]}") # makes a string that quotes all the filenames
-
 # make builds dir if it doesn't exist
 if [ ! -d "../builds" ]; then
 	mkdir ../builds
 fi
 
-# eval kinda sucks but i've got no other option really
-eval "zip -FSrq ../builds/$PK3_FULLNAME.pk3 $ARGSTR" # zip it all up!
+# rev: Let's use linux pipes to get everything we need
+find . -type f  									| # 1. We only want files.
+grep -v $PK3_EXCLUDE_DEF 							| # 2. Let's exclude things we don't need.
+sort -f 											| # 3. Sort everything. ORDER MATTERS!
+eval "xargs -d '\n' zip -FSry ../builds/$PK3_FULLNAME.pk3"     # 4. Put everything into a zip
+# xargs -d : This only works on GNU xargs!!
+
+# Let's jump out of the folder
+cd ..
 
 # create syn link
-cd ..
 ln -sf builds/$PK3_FULLNAME.pk3 $PK3_LATESTNAME.pk3
 
 echo "Build is located at builds/$PK3_FULLNAME.pk3"
