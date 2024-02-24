@@ -15,6 +15,7 @@ testCmd() {
 
 testCmd "zip";
 testCmd "ln";
+testCmd "xargs";
 
 PK3_FLAGS=${PK3_FLAGS:-$PK3_FLAGS_DEF}
 PK3_VERSION=${PK3_VERSION:-$PK3_VERSION_DEF}
