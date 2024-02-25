@@ -83,9 +83,9 @@ local function hammerjump(player,power)
 	P_Thrust(mo,player.drawangle,h*mo.scale)
 	S_StartSound(mo,sfx_cdfm37)
 	S_StartSoundAtVolume(mo,sfx_s3ka0,power and 255 or 100)
-	player.pflags = ($ | PF_JUMPED | PF_STARTJUMP) & ~(PF_NOJUMPDAMAGE | PF_THOKKED)
-	mo.state = S_PLAY_ROLL
-	player.panim = PA_ROLL
+	player.pflags = ($ | PF_JUMPED | PF_STARTJUMP|PF_NOJUMPDAMAGE) & ~(PF_THOKKED)
+	mo.state = S_PLAY_JUMP
+	player.panim = PA_JUMP
 end
 
 //Hammer ticframe control
