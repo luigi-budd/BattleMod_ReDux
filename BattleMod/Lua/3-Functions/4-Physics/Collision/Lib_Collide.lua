@@ -13,6 +13,11 @@ B.GetInteractionType = function(smo,tmo)
 		then
 		return 0 //Still invalid
 	end
+	if (smo.player and smo.player.powers[pw_carry] == CR_PLAYER and smo.tracer == tmo)
+	or (tmo.player and tmo.player.powers[pw_carry] == CR_PLAYER and tmo.tracer == smo)
+		then
+		return 0 //Possibly valid, but colliding with eachother would cancel out their action
+	end
 	if not(smo.player or tmo.player) then //Two inanimate objects
 		return 3
 	end
@@ -219,14 +224,19 @@ B.PlayerTouch = function(smo,tmo)
 	then return true end
 	if not(B.GetInteractionType(smo,tmo)) then
 		B.TailsCatchPlayer(smo.player,tmo.player)
-	return true end //Don't bother trying to collide if nothing's going to come of it
+		if not (smo.cantouchteam or tmo.cantouchteam) then
+			return true //Don't bother trying to collide if nothing's going to come of it
+		end
+	end
 	
 	smo.pushed = tmo //'mo.pushed' will be referenced in ThinkFrame
 	tmo.pushed = smo
 	smo.flags = $&~MF_SPECIAL
 	tmo.flags = $&~MF_SPECIAL
-	tmo.player.pflags = $&~PF_CANCARRY
-	smo.player.pflags = $&~PF_CANCARRY
+	if not (smo.cantouchteam or tmo.cantouchteam)
+		tmo.player.pflags = $&~PF_CANCARRY
+		smo.player.pflags = $&~PF_CANCARRY
+	end
 	return true
 end
 

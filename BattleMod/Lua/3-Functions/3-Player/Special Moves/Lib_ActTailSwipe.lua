@@ -9,6 +9,62 @@ local throw_strength = 30
 local throw_lift = 10
 local thrustpower = 16
 
+B.Action.TailSwipe_Priority = function(player)
+	local mo = player.mo
+	if not (mo and mo.valid) return end
+	
+	if player.actionstate == state_swipe
+		B.SetPriority(player,1,1,nil,1,1,"tail swipe")
+	elseif player.actionstate == state_thrust
+		B.SetPriority(player,0,2,nil,0,2,"flight dash")
+	end
+end
+
+B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and plr[n1].valid and plr[n1].actionstate and plr[n1].playerstate == PST_LIVE
+	and (B.MyTeam(mo[n1], mo[n2]) or not (atk[n2] or def[n2]))
+		plr[n1].tailsmarker = true
+	end
+end
+
+B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if not (plr[n1] and plr[n1].tailsmarker)
+		return false
+	end
+	if ((hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2))
+	and plr[n2]
+		if plr[n1].actionstate == state_thrust
+			plr[n1].actionstate = 0
+			plr[n1].powers[pw_tailsfly] = TICRATE*5
+			mo[n1].state = S_PLAY_FLY
+			plr[n1].pflags = $ &~ (PF_JUMPED|PF_NOJUMPDAMAGE|PF_SPINNING|PF_STARTDASH)
+			plr[n1].pflags = $|PF_CANCARRY
+			P_TeleportMove(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+mo[n2].height)
+			B.CarryState(plr[n1],plr[n2])
+			P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
+			S_StartSound(mo[n1], sfx_s3ka0)
+			if not B.MyTeam(plr[n1], plr[n2])
+				plr[n2].powers[pw_nocontrol] = max($,20)
+			end
+			plr[n2].airdodge = -1
+			return true
+		elseif plr[n1].actionstate == state_swipe
+			B.DoPlayerTumble(plr[n2], 24, angle[n1], mo[n1].scale*3, true)
+			P_InstaThrust(mo[n2], angle[n2], mo[n1].scale*3)
+			P_InstaThrust(mo[n1], angle[n1], mo[n1].scale*3)
+		end
+	end
+end
+
+B.Tails_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and plr[n1].tailsmarker
+		plr[n1].tailsmarker = nil
+		if (plr[n1].pflags & PF_CANCARRY)
+			return true
+		end
+	end
+end
+
 local function sbvars(m,pmo)
 	if m and m.valid then
 		m.fuse = 24
@@ -58,6 +114,31 @@ B.Action.TailSwipe = function(mo,doaction)
 		and otherplayer.mo.tracer == mo
 		and otherplayer.powers[pw_carry] == CR_PLAYER
 			carrying = true
+			player.actioncooldown = min($,5)
+			//If not friendly
+			if not B.MyTeam(otherplayer.mo,mo)
+				//gameplay
+				otherplayer.airdodge = -1
+				otherplayer.landlag = otherplayer.powers[pw_nocontrol]
+				if not (otherplayer.actioncooldown)
+					otherplayer.airdodge = 0
+				end
+				if otherplayer.powers[pw_nocontrol]
+				and (otherplayer.cmd.buttons & BT_JUMP)
+				and not (otherplayer.buttonhistory & BT_JUMP)
+				then
+					S_StartSound(otherplayer.mo, sfx_s3kd7s)
+				end
+				//pain animation
+				otherplayer.mo.state = S_PLAY_PAIN
+				if otherplayer.followmobj
+					if otherplayer.mo.skin == "tails"
+						otherplayer.followmobj.state = S_TAILSOVERLAY_PAIN
+					elseif otherplayer.mo.skin == "tailsdoll"
+						P_SetMobjStateNF(otherplayer.followmobj,S_NULL)
+					end
+				end
+			end
 			break
 		end
 	end
@@ -171,6 +252,17 @@ B.Action.TailSwipe = function(mo,doaction)
 			partner.momx = $ + mo.momx/2
 			partner.momy = $ + mo.momy/2
 			partner.momz = throw_lift*mo.scale*P_MobjFlip(mo) + mo.momz/2
+			otherplayer.pushed_creditplr = player
+			if B.MyTeam(player, otherplayer)
+				otherplayer.tailsthrown = -1
+			else
+				otherplayer.tailsthrown = -2
+				otherplayer.airdodge = -1
+				otherplayer.actioncooldown = max($,2*TICRATE)
+				B.PlayerCreditPusher(otherplayer,player)
+			end
+			otherplayer.powers[pw_nocontrol] = 0
+			otherplayer.landlag = 0
 		end
 -- 		//Free carry ID
 -- 		player.carry_id = nil
@@ -222,6 +314,9 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	//Thrust state
 	if player.actionstate == state_thrust
+		if not player.actioncooldown then
+			player.mo.cantouchteam = 1
+		end
 		P_SetMobjStateNF(player.followmobj,S_NULL)
 		B.DrawSVSprite(player,1)
 		player.actiontime = $+1

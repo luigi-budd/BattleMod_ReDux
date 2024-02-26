@@ -32,6 +32,9 @@ S["tails"] = {
 	special = Act.TailSwipe,
 	guard_frame = 2,
 	func_priority_ext = Act.TailSwipe_Priority,
+	func_precollide = B.Tails_PreCollide,
+	func_collide = B.Tails_Collide,
+	func_postcollide = B.Tails_PostCollide,
 	sprites = {
 		S_TAILS_SWIPE
 	}

@@ -72,6 +72,10 @@ addHook("MobjThinker",function(mo)
 	if mo.radius < (32*FRACUNIT) then
 		mo.radius = $+FRACUNIT
 	end
+
+	if mo.radius < (32*FRACUNIT) then
+		mo.radius = $+FRACUNIT
+	end
 	
 	if not (mo.valid) then return end
 
