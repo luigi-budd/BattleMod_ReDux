@@ -50,6 +50,8 @@ B.Guard = function(player,buttonpressed)
 	//Neutral
 	if (player.guard == 0) then
 		if buttonpressed == 1 then
+			player.pflags = $ &~ PF_JUMPED
+			player.skidtime = 0
 			if player.powers[pw_flashing] then
 				player.powers[pw_flashing] = 0
 				player.guardbuffer = 2
