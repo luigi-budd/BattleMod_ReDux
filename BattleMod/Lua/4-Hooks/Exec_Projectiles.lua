@@ -213,7 +213,7 @@ addHook("MobjThinker",B.FBombThink,MT_FBOMB)
 
 --Other
 addHook("MobjThinker",B.RockBlastObject,MT_ROCKBLAST)
-addHook("MobjThinker",function(mo) if P_IsObjectOnGround(mo) then P_RemoveMobj(mo) return true end end,MT_ROCKCRUMBLE2)
+addHook("MobjThinker",function(mo) if P_IsObjectOnGround(mo) and mo.valid then P_RemoveMobj(mo) return true end end,MT_ROCKCRUMBLE2)
 addHook("ShouldDamage", B.PlayerCorkDamage, MT_PLAYER)
 addHook("ShouldDamage", B.PlayerHeartCollision, MT_PLAYER)
 addHook("ShouldDamage", B.PlayerBombDamage,MT_PLAYER)
@@ -221,7 +221,7 @@ addHook("ShouldDamage", B.PlayerRoboMissileCollision,MT_PLAYER)
 addHook("MobjThinker", function(mo) mo.fuse = min($, TICRATE * 4) end,MT_SPINFIRE)
 --Other
 addHook("MobjThinker",B.RockBlastObject,MT_ROCKBLAST)
-addHook("MobjThinker",function(mo) if P_IsObjectOnGround(mo) then P_RemoveMobj(mo) return true end end,MT_ROCKCRUMBLE2)
+addHook("MobjThinker",function(mo) if P_IsObjectOnGround(mo) and mo.valid then P_RemoveMobj(mo) return true end end,MT_ROCKCRUMBLE2)
 addHook("ShouldDamage", B.PlayerCorkDamage, MT_PLAYER)
 addHook("ShouldDamage", B.PlayerHeartCollision, MT_PLAYER)
 addHook("ShouldDamage", B.PlayerBombDamage,MT_PLAYER)
