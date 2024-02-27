@@ -50,6 +50,10 @@ B.Guard = function(player,buttonpressed)
 	//Neutral
 	if (player.guard == 0) then
 		if buttonpressed == 1 then
+			if player.powers[pw_flashing] then
+				player.powers[pw_flashing] = 0
+				player.guardbuffer = 2
+			end
 			player.guard = 1
 			S_StartSound(mo,sfx_cdfm39)
 			player.guardtics = TICRATE*4/7 //20
@@ -64,6 +68,9 @@ B.Guard = function(player,buttonpressed)
 		end
 	end
 	player.guardtics = $-1
+	if player.guardbuffer and player.guardbuffer>0 then
+		player.guardbuffer = $-1
+	end
 	if player.guard != 0 and (player.followmobj) then
 		P_SetMobjStateNF(player.followmobj,S_NULL)
 	end
@@ -143,6 +150,14 @@ end
 //Successful guard action
 B.GuardTrigger = function(target, inflictor, source, damage, damagetype)
 	if not(target.valid and target.player) then return false end
+	if target.player.guardbuffer then
+		B.ResetPlayerProperties(target.player,false,true)
+		target.player.guard = 0
+		S_StopSoundByID(target, sfx_cdfm39)
+		S_StartSound(target, sfx_shattr)
+		local nega = P_SpawnMobjFromMobj(target,0,0,0,MT_NEGASHIELD)
+		nega.target = target
+	end
 	if target.player.guard > 0
 		if B.SkinVars[target.player.skinvars].func_guard_trigger then
 			B.SkinVars[target.player.skinvars].func_guard_trigger(target,inflictor,source,damage,damagetype)
