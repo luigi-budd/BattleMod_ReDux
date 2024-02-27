@@ -57,7 +57,6 @@ B.Guard = function(player,buttonpressed)
 			player.guard = 1
 			S_StartSound(mo,sfx_cdfm39)
 			player.guardtics = TICRATE*4/7 //20
-			player.powers[pw_flashing] = 0
 			if not(player.actionsuper) then
 				player.actionstate = 0
 			end
