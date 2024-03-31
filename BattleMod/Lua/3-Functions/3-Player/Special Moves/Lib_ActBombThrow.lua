@@ -129,6 +129,18 @@ B.FBombThink=function(mo)
 		mo.radius = $+FRACUNIT
 	end
 
+	// add ghost objects here to prevent them from getting stuck in pending removal
+	if mo.sprite == SPR_FBOM or mo.sprite == SPR_CBOM then
+	local ghost = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_GHOST)
+		ghost.color = mo.color
+		ghost.fuse = TICRATE/4
+		ghost.state = mo.state
+		ghost.sprite = mo.sprite
+		ghost.frame =  mo.frame
+		ghost.frame = $|TR_TRANS50 
+		ghost.tics = -1
+	end
+			
 	//Bomb jump
 	if mo.state == S_FBOMB_EXPL1 and mo.tics == 1 then
 		if not(mo.target and mo.target.valid and mo.target.player and not mo.target.player.nobombjump) then return end
