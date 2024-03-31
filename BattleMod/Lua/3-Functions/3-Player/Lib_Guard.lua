@@ -214,8 +214,13 @@ B.BattleShieldThinker = function(mobj)
 	mobj.color = SKINCOLOR_WHITE
 	
 	//After-effects
-	local ghost = P_SpawnGhostMobj(mobj)
+	local ghost = P_SpawnMobj(mobj.x, mobj.y, mobj.z, MT_GHOST)
 	if ghost and ghost.valid then
+		ghost.scale = mobj.scale
+		ghost.sprite = mobj.sprite
+		ghost.fuse = TICRATE/4
+		ghost.frame = mobj.frame
+		ghost.frame = $|FF_FULLBRIGHT|TR_TRANS50
 		//Rainbow flash
 		ghost.colorized = true
 		ghost.color = B.Choose(SKINCOLOR_WHITE,SKINCOLOR_YELLOW,SKINCOLOR_ROSY,SKINCOLOR_GREEN,SKINCOLOR_ORANGE,SKINCOLOR_BLUE,SKINCOLOR_PURPLE)
