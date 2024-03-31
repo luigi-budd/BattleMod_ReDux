@@ -67,7 +67,14 @@ end,MT_GROUNDPOUND)
 --Tails Projectiles
 addHook("MobjThinker",function(mo)
 	if not(mo.flags&MF_MISSILE) then return end
-	P_SpawnGhostMobj(mo)
+	local ghost = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_GHOST)
+		ghost.color = mo.color
+		ghost.fuse = TICRATE/4
+		ghost.state = mo.state
+		ghost.sprite = mo.sprite
+		ghost.frame =  mo.frame
+		ghost.frame = $|TR_TRANS50|FF_FULLBRIGHT 
+		ghost.tics = -1
 
 	if mo.radius < (32*FRACUNIT) then
 		mo.radius = $+FRACUNIT
@@ -178,7 +185,13 @@ addHook("MobjSpawn",function(mo)
 end,MT_CORK)
 addHook("MobjThinker",function(mo)
 	if mo.flags&MF_MISSILE and mo.target and mo.target.player then
-		local ghost = P_SpawnGhostMobj(mo)
+		local ghost = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_GHOST)
+		ghost.fuse = TICRATE/4
+		ghost.state = mo.state
+		ghost.sprite = mo.sprite
+		ghost.frame =  mo.frame
+		ghost.frame = $|TR_TRANS50 
+		ghost.tics = -1
 		ghost.destscale = ghost.scale*4
 		if not(gametyperules&GTR_FRIENDLY)
 			ghost.colorized = true
