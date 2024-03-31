@@ -24,13 +24,26 @@ states[S_FANGCHAR_LOB3] = {
 	frame = C
 }
 
+//overwritting some bomb states to prevent it from using A_GhostMe
+states[S_FBOMB1] = {
+	sprite = SPR_FBOM,
+	frame = A,
+	tics = 1,
+	nextstate = S_FBOMB2
+}
+
+states[S_FBOMB2] = {
+	sprite = SPR_FBOM,
+	frame = B,
+	tics = 1,
+	nextstate = S_FBOMB1
+}
 
 //Fang's team-colored bomb
 
 states[S_COLORBOMB1] = {
 	sprite = SPR_CBOM,
 	frame = A,
-	action = A_GhostMe,
 	tics = 1,
 	nextstate = S_COLORBOMB2
 }
@@ -38,7 +51,6 @@ states[S_COLORBOMB1] = {
 states[S_COLORBOMB2] = {
 	sprite = SPR_CBOM,
 	frame = B,
-	action = A_GhostMe,
 	tics = 1,
 	nextstate = S_COLORBOMB1
 }
