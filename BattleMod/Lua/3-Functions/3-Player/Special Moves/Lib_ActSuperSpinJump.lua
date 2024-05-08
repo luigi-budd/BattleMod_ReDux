@@ -94,7 +94,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	end
 
 	//Ground pound phase 2
-	if player.actionstate == state_groundpound_fall 
+	if player.actionstate == state_groundpound_fall
+		mo.coyoteTime = 0
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
 		if mo.momz*P_MobjFlip(mo) > 0 then //If we're moving upward, then something must have interrupted us.
 			player.actionstate = (mo.eflags & MFE_SPRUNG) and $ or 0
@@ -115,9 +116,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				if player == displayplayer
 					P_StartQuake(6*FRACUNIT, 3)
 				end
-				if not (player.cmd.buttons & BT_SPIN)
-					player.powers[pw_nocontrol] = $ or 2
-				end
+				player.powers[pw_nocontrol] = $ or 2
 				
 				S_StartSound(mo,sfx_s3k5f)
 				local blastspeed = 4

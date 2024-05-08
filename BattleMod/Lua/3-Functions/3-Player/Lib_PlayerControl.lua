@@ -152,7 +152,11 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 		player.mo.tics = 0
 		player.spritexscale = FRACUNIT
 		player.spriteyscale = FRACUNIT
-		player.mo.state = S_PLAY_SPRING
+		if (player.mo.state == S_PLAY_ROLL) or (player.mo.state == S_PLAY_JUMP) then
+			player.mo.state = player.mo.state //This is necessary. Not kidding.
+		else
+			player.mo.state = S_PLAY_SPRING
+		end
 	end
 	--Reset pflags
 	local pflags = player.pflags&~(PF_GLIDING|PF_BOUNCING)

@@ -55,6 +55,44 @@ local colorsh2 = function(mo)
 	B.OverlayHide(mo,mo.target)
 end
 
+B.RestoreTailsFollowMobj = function(p, mobj) -- cry
+	if not (p and p.mo and p.mo.skin == "tails") then return end
+	if (mobj == nil) then mobj = p.followmobj end
+	if not (mobj) then return end
+
+	if p.mo.state == S_PLAY_LEDGE_GRAB 
+	or p.mo.state == S_PLAY_LEDGE_RELEASE
+        mobj.state = S_TAILSOVERLAY_PLUS60DEGREES
+		P_TeleportMove(mobj,
+		p.mo.x-P_ReturnThrustX(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustX(mobj, mobj.angle, mobj.scale),
+		p.mo.y-P_ReturnThrustY(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustY(mobj, mobj.angle, mobj.scale),
+		p.mo.z+FixedMul(4*p.mo.scale, mobj.scale)
+		)
+		mobj.angle = p.drawangle
+		return true
+    end
+
+	if mobj.state == S_INVISIBLE
+		mobj.state = S_TAILSOVERLAY_PLUS30DEGREES
+	end
+
+	if p.skidtime and p.powers[pw_nocontrol]
+	and P_IsValidSprite2(mobj,SPR2_WALK)
+		mobj.state = S_TAILSOVERLAY_PLUS30DEGREES
+		mobj.frame = 512 + min(7,1+p.speed/(p.mo.scale*2))
+		P_TeleportMove(mobj,
+		p.mo.x-P_ReturnThrustX(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustX(mobj, mobj.angle, mobj.scale),
+		p.mo.y-P_ReturnThrustY(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustY(mobj, mobj.angle, mobj.scale),
+		p.mo.z+FixedMul(2*p.mo.scale, mobj.scale)
+		)
+		mobj.angle = p.drawangle
+		if leveltime%3 == 1
+			S_StartSound(mobj,sfx_s3k7e)
+		end
+		return true
+	end
+end
+
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_CRIMSON,nil) end,MT_ELEMENTAL_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_ORANGE,SKINCOLOR_VAPOR) end,MT_ATTRACT_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_FLAME,SKINCOLOR_SKY) end,MT_WHIRLWIND_ORB)
@@ -75,3 +113,4 @@ addHook("MobjThinker",function(mo)
 		mo.color = SKINCOLOR_CERULEAN
 	end
 end,MT_PITY_ORB)
+addHook("FollowMobj", B.RestoreTailsFollowMobj)
