@@ -4,7 +4,9 @@ local cooldown2 = TICRATE * 9/4 //2.25s
 local state_superspinjump = 1
 local state_groundpound_rise = 2
 local state_groundpound_fall = 3
+local state_superspinwave = 10 // new
 local jumpthrust = 42*FRACUNIT
+local recoilthrust = 22*FRACUNIT
 local pound_startthrust = 10*FRACUNIT
 local pound_downaccel = FRACUNIT*4//4
 local jumpfriction = FRACUNIT*9/10
@@ -18,6 +20,8 @@ B.Action.SuperSpinJump_Priority = function(player)
 		B.SetPriority(player,1,1,nil,1,1,"rising ground pound")
 	elseif player.actionstate == state_groundpound_fall then
 		B.SetPriority(player,1,1,"stomp",2,2,"ground pound")
+	elseif player.actionstate == state_superspinwave then
+		B.SetPriority(player,1,1,"tails_fly",1,1,"spin wave recoil")
 	end
 end
 
@@ -35,7 +39,10 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	return end
 
 	//Action info
-	if P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB then
+	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
+			player.actiontext = "Spin Wave"
+			player.actionrings = 10
+	elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB then
 		player.actiontext = "Super Spin Jump"
 		player.actionrings = 10
 	else
@@ -54,7 +61,34 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		player.squashstretch = 0
 		if doaction == 1 then
 			B.PayRings(player)
-			if P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB then //Do high jump
+			//Do spin wave if charging a spin dash
+			if mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
+					player.actionstate = state_superspinwave
+					thrust = FixedMul((recoilthrust),player.jumpfactor)
+					P_SetObjectMomZ(mo,thrust,true) //Inherit platform momentum
+					thrust = ($/FRACUNIT)*player.mo.scale// need scale bacause thrust is dumb
+					P_Thrust(mo,(mo.angle-ANGLE_180),thrust/2)// recoil back
+					player.pflags = jumpflags
+					mo.state = S_PLAY_ROLL
+					player.secondjump = 0
+					player.canguard = false
+					player.lockmove = true
+					// wave projectile
+					 local spinwave = P_SpawnMobjFromMobj(player.mo, FixedMul(player.mo.radius, cos(player.mo.angle)),
+				 FixedMul(player.mo.radius, sin(player.mo.angle)), 0, MT_SUPERSPINWAVE)
+					spinwave.target = player.mo
+					spinwave.spawntime = 0
+					local spinwave_speed = player.dashspeed+1*FRACUNIT
+					spinwave_speed = ($/FRACUNIT)*player.mo.scale
+					spinwave.startingspeed = spinwave_speed
+					spinwave.setpostion = true
+					 spinwave.angle = player.mo.angle
+					 spinwave.color = SKINCOLOR_SKY
+					 B.ApplyCooldown(player,cooldown2)
+					 if G_GametypeHasTeams() then
+							spinwave.color = player.skincolor
+						end
+			elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB then //Do high jump
 				mo.spritexscale = FRACUNIT * 4/5
 				mo.spriteyscale = FRACUNIT * 5/4
 				
@@ -71,7 +105,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				player.canguard = false
 				B.ApplyCooldown(player,cooldown1)
 			else //Do ground pound
-				B.ApplyCooldown(player,cooldown2)
+				//B.ApplyCooldown(player,cooldown2)
 				thrust = pound_startthrust/water
 				player.actionstate = state_groundpound_rise
 				P_SetObjectMomZ(mo,thrust,false)
@@ -94,8 +128,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	end
 
 	//Ground pound phase 2
-	if player.actionstate == state_groundpound_fall
-		mo.coyoteTime = 0
+	if player.actionstate == state_groundpound_fall 
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
 		if mo.momz*P_MobjFlip(mo) > 0 then //If we're moving upward, then something must have interrupted us.
 			player.actionstate = (mo.eflags & MFE_SPRUNG) and $ or 0
@@ -112,11 +145,14 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			if mo.eflags&MFE_JUSTHITFLOOR then //We have hit a surface
 				player.lockjumpframe = 2
 				player.actionstate = 0
+				B.ApplyCooldown(player,cooldown2)//
 				
 				if player == displayplayer
 					P_StartQuake(6*FRACUNIT, 3)
 				end
-				player.powers[pw_nocontrol] = $ or 2
+				if not (player.cmd.buttons & BT_SPIN)
+					player.powers[pw_nocontrol] = $ or 2
+				end
 				
 				S_StartSound(mo,sfx_s3k5f)
 				local blastspeed = 4
@@ -159,6 +195,24 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		if P_IsObjectOnGround(mo) then
 			player.actionstate = 0
 		end
+	end
+
+	//Spin Wave state
+	if player.actionstate == state_superspinwave 
+			B.ControlThrust(mo,FRACUNIT,nil,jumpfriction,nil)
+						
+			//Go into fall frames after end-rising
+			if mo.momz*P_MobjFlip(mo) < 0 then 
+				mo.state = S_PLAY_FALL
+				player.pflags = $&~(PF_JUMPED)
+				player.lockmove = false
+				player.actionstate = 0
+			end
+			if P_IsObjectOnGround(mo) then
+				B.ApplyCooldown(player,cooldown2)
+				player.lockmove = false
+				player.actionstate = 0
+			end
 	end
 
 	//vfx
