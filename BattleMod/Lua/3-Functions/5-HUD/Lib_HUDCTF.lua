@@ -220,8 +220,6 @@ local function cctf_hud(v, p, cam)
 	drawFlagfromP(v)
 end
 
-
-
 -- Draws flag icons on top of screen, scores, etc.
 F.TeamScoreHUD = function(v, p, cam)
 	if hud.enabled("teamscores") then
@@ -334,7 +332,7 @@ end
 
 local lerpamt = FRACUNIT
 F.CapHUD = function(v)
-	if (gametype ~= GT_BATTLECTF) and not(B.DiamondGametype()) then
+	if (gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()) then
 		return
 	end
 	
@@ -351,6 +349,7 @@ F.CapHUD = function(v)
 		local red = "\x85"
 		local blue = "\x84"
 		local magenta = "\x81"
+		local green = "\x83"
 		local flagtext
 		if (team == 1) then
 			name = red + $
@@ -360,7 +359,9 @@ F.CapHUD = function(v)
 			flagtext = red+"RED FLAG"
 		end
 		if B.DiamondGametype() then
-			flagtext = magenta+"DIAMOND"
+			flagtext = green+"DIAMOND"
+		elseif B.RubyGametype() then
+			flagtext = magenta+"PHANTOM RUBY"
 		end
 		local x = 160
 		local y = B.Exiting and 160 or 66

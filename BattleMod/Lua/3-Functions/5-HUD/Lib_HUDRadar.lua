@@ -1,6 +1,7 @@
 --HUD_ScanRadar.lua originally from CBW_Chaos
 local B = CBW_Battle
 local D = B.Diamond
+local R = B.Ruby
 local F = B.CTF
 local A = B.Arena
 
@@ -86,16 +87,16 @@ B.RadarHUD = function(v, player, cam)
 		
 		--Goal
 		if r == 1 or r == 2
-			if r == 1 and D.RedGoal
-				table.insert(t, D.RedGoal)
+			if r == 1 and R.RedGoal
+				table.insert(t, R.RedGoal)
 			end
-			if r == 2 and D.BlueGoal
-				table.insert(t, D.BlueGoal)
+			if r == 2 and R.BlueGoal
+				table.insert(t, R.BlueGoal)
 			end
 			scale = FRACUNIT/6
 			
-			if (D.ID and D.ID.valid and D.ID.target and D.ID.target.valid and D.ID.target.player)
-				local runner_team = D.ID.target.player.ctfteam
+			if (R.ID and R.ID.valid and R.ID.target and R.ID.target.valid and R.ID.target.player)
+				local runner_team = R.ID.target.player.ctfteam
 				
 				if (r != runner_team)
 					if (consoleplayer and consoleplayer.spectator) or (runner_team == displayplayer.ctfteam)
@@ -141,12 +142,12 @@ B.RadarHUD = function(v, player, cam)
 		end
 		--Ruby
 		if r == 5
-			if not (D.ID and D.ID.valid) then continue end
-			table.insert(t,D.ID)
+			if not (R.ID and R.ID.valid) then continue end
+			table.insert(t,R.ID)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
 			patch = v.cachePatch("RAD_RUBY")
-			color = D.ID.color
+			color = R.ID.color
 			scale = FRACUNIT / 2
 			center = true
 		end

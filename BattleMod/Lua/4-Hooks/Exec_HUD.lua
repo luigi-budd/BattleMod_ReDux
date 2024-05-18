@@ -3,6 +3,7 @@ local CV = B.Console
 local CP = B.ControlPoint
 local A = B.Arena
 local D = B.Diamond
+local R = B.Ruby
 local F = B.CTF
 
 --Radar
@@ -20,6 +21,7 @@ hud.add(B.TimerHUD)
 --Gamemode info
 hud.add(CP.HUD)
 hud.add(D.HUD)
+hud.add(R.HUD)
 hud.add(A.AllFightersHUD,player)
 hud.add(A.MyStocksHUD,player)
 hud.add(A.BountyHUD,player)

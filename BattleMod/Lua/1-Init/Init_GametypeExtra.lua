@@ -13,6 +13,7 @@ G.TeamScoreType[GT_TEAMCP] = 0
 G.TeamScoreType[GT_DIAMOND] = 0
 G.TeamScoreType[GT_TEAMDIAMOND] = 0
 G.TeamScoreType[GT_BANK] = 0
+G.TeamScoreType[GT_RUBYRUN] = 0
 
 //Does this gametype support sudden death?
 G.SuddenDeath = {false,false,false,false,false,false,false,false}
@@ -26,6 +27,7 @@ G.SuddenDeath[GT_TEAMCP] = false
 G.SuddenDeath[GT_DIAMOND] = false
 G.SuddenDeath[GT_TEAMDIAMOND] = false
 G.SuddenDeath[GT_BANK] = false
+G.SuddenDeath[GT_RUBYRUN] = false
 
 //Does this gametype use the Battle format?
 G.Battle = {false,false,false,false,false,false,false,false}
@@ -39,6 +41,7 @@ G.Battle[GT_TEAMCP] = true
 G.Battle[GT_DIAMOND] = true
 G.Battle[GT_TEAMDIAMOND] = true
 G.Battle[GT_BANK] = true
+G.Battle[GT_RUBYRUN] = true
 
 //Does this gametype use the Control Point format?
 G.CP = {false,false,false,false,false,false,false,false}
@@ -52,6 +55,7 @@ G.CP[GT_TEAMCP] = true
 G.CP[GT_DIAMOND] = false
 G.CP[GT_TEAMDIAMOND] = false
 G.CP[GT_BANK] = false
+G.CP[GT_RUBYRUN] = false
 
 //Does this gametype use the Arena format?
 G.Arena = {false,false,false,false,false,false,false,false}
@@ -65,7 +69,7 @@ G.Arena[GT_TEAMCP] = false
 G.Arena[GT_DIAMOND] = false
 G.Arena[GT_TEAMDIAMOND] = false
 G.Arena[GT_BANK] = false
-
+G.Arena[GT_RUBYRUN] = false
 
 //Does this gametype use the Diamond format?
 G.Diamond = {false,false,false,false,false,false,false,false}
@@ -79,3 +83,18 @@ G.Diamond[GT_TEAMCP] = false
 G.Diamond[GT_DIAMOND] = true
 G.Diamond[GT_TEAMDIAMOND] = true
 G.Diamond[GT_BANK] = false
+G.Diamond[GT_RUBYRUN] = false
+
+//Does this gametype use the Ruby format?
+G.Ruby = {false,false,false,false,false,false,false,false}
+G.Ruby[GT_ARENA] = false
+G.Ruby[GT_TEAMARENA] = false
+G.Ruby[GT_SURVIVAL] = false
+G.Ruby[GT_TEAMSURVIVAL] = false
+G.Ruby[GT_BATTLECTF] = false
+G.Ruby[GT_CP] = false
+G.Ruby[GT_TEAMCP] = false
+G.Ruby[GT_DIAMOND] = false
+G.Ruby[GT_TEAMDIAMOND] = false
+G.Ruby[GT_BANK] = false
+G.Ruby[GT_RUBYRUN] = true

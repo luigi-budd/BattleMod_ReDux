@@ -421,11 +421,16 @@
 		 if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
 		 or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 1)
 		 then
-			 P_RemoveMobj(diamond)
-			 S_StartSound(nil, sfx_s3kb3)
-			 scoreincrease = CV.DiamondCaptureBonus.value
-			 teamscoreincrease = 1
-			 print(player.name.." captured a "..diamondtext.."!")--Not sure how to color this text...
+			P_RemoveMobj(diamond)
+			S_StartSound(nil, sfx_s3kb3)
+			scoreincrease = CV.DiamondCaptureBonus.value
+			teamscoreincrease = 1
+			print(player.name.." captured a "..diamondtext.."!")--Not sure how to color this text...
+
+			--Reuse CTF's capture HUD
+			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
+			B.CTF.GameState.CaptureHUDName = player.name
+			B.CTF.GameState.CaptureHUDTeam = player.ctfteam
 		 else
 			 if player.captures == nil then
 				 player.captures = 0

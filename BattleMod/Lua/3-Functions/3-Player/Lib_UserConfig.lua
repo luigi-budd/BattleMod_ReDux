@@ -1,5 +1,6 @@
 local B = CBW_Battle
 
+-- TODO: (rev:) It's been a while and we can't use `exec` with lua anymore. So this needs to be redone
 local configplayer	-- used to know when the config should be reloaded
 B.UserConfig = function()
 	if consoleplayer and consoleplayer.valid and (not configplayer or not configplayer.valid)

@@ -113,11 +113,12 @@ G_AddGametype({
 	description = 'Two teams compete for a single diamond on the field; work together to seize the crystal, or protect the diamond holder if your team already has it!'
 })
 
+-- Removed GTR_TEAMFLAGS; Battle CTF uses its own flag system
 G_AddGametype({
 	name = "Battle CTF",
 	identifier = "battlectf",
 	typeoflevel = TOL_CTF|TOL_BATTLECTF,
-	rules = GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMFLAGS|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_OVERTIME|GTR_HURTMESSAGES,
+	rules = GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_OVERTIME|GTR_HURTMESSAGES,
 	rankingtype = GT_CTF,
 	intermissiontype = int_ctf,
 	defaultpointlimit = 3,
@@ -141,4 +142,19 @@ G_AddGametype({
     headerleftcolor = 37,
     headerrightcolor = 150,
     description = "Add rings to your base, and steal ring's from the enemy base!"
+})
+
+freeslot('tol_rubyrun')
+G_AddGametype({
+    name = "Ruby Run",
+    identifier = "rubyrun",
+    typeoflevel = TOL_RUBYRUN|TOL_CTF|TOL_BATTLECTF,
+    rules = GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES|GTR_TEAMFLAGS,
+    rankingtype = GT_CTF,
+	intermissiontype = int_ctf,
+	defaultpointlimit = 0,
+	defaulttimelimit = 5,
+    headerleftcolor = 37,
+    headerrightcolor = 150,
+    description = 'Reach the goalpost with the ruby crystal in hand!'
 })

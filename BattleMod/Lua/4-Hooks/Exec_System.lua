@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local A = B.Arena
-local D = B.Ruby
+local D = B.Diamond
+local R = B.Ruby
 local F = B.CTF
 local CV = B.Console
 local CP = B.ControlPoint
@@ -18,6 +19,7 @@ addHook("MapChange",function(map)
         player.caps = 0
 	end
 	D.Reset()
+	R.Reset()
 	B.RedScore = 0
 	B.BlueScore = 0
 	B.SuddenDeath = false
@@ -56,6 +58,7 @@ addHook("ViewpointSwitch", B.TagCam)
 addHook("PreThinkFrame", function()
 	B.SparringPartnerControl()
 	D.GameControl()
+	R.GameControl()
 	I.GameControl()
 	B.PinchControl()
 	//Player control

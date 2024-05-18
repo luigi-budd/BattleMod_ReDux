@@ -26,3 +26,8 @@ B.DiamondGametype = function()
 	else return false end
 end
 
+B.RubyGametype = function()
+	if gametype and B.Gametypes.Ruby[gametype] then return true
+	else return false end
+end
+

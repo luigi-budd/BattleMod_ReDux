@@ -268,7 +268,7 @@ local function capFlag(p, flag)
 	if flag == 1 then F.RedScore = $+1 elseif flag == 2 then F.BlueScore = $+1 end
 	spawnFlag(flag == 1 and 2 or 1) --respawn opposite team flag
 	P_AddPlayerScore(p, FLG_SCORE)
-
+	
 	--sounds
 	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == p.ctfteam))
 	if friendly then S_StartSound(nil, sfx_flgcap) else S_StartSound(nil, sfx_lose) end
@@ -303,9 +303,9 @@ F.FlagPreThinker = function()
 
 			if p.gotflag and P_IsObjectOnGround(p.mo) then
 				if p.ctfteam == 1 and P_PlayerTouchingSectorSpecial(p, 4, 3) then -- Red man touching red base
-				capFlag(p,1)
+					capFlag(p,1)
 				elseif p.ctfteam == 2 and P_PlayerTouchingSectorSpecial(p, 4, 4) then -- Blue man touching Blue base
-				capFlag(p,2)
+					capFlag(p,2)
 			    end
 			end
 		end
@@ -604,6 +604,7 @@ F.RemoveOnQuit = function(p, reason)
 end
 
 --example
+--[[
 addHook("PostThinkFrame", function()
   if not G_GametypeHasTeams() then return end
   for p in players.iterate do
@@ -611,10 +612,12 @@ addHook("PostThinkFrame", function()
 
   end
 end)
+--]]
 
 --// rev: Updates player flag captures. e.g. If a player captures a flag, their flag cap goes up by 1.
 --// NOTE: Caps reset when the map changes, in-game time resets when map changes/player spectates (see MapChange, Exec_system)
 F.UpdateCaps = function(p)
+	if gametype ~= GT_BATTLECTF then return end
     if not (p and p.mo) then return end
 
     --// Keep track of whether player doesn't have flag anymore and if their team's score just went up.

@@ -290,12 +290,39 @@ A.UpdateGame = function()
 	//Score win conditions (non-survival)
 	if not(survival)
 	and (
-		(pointlimit and highscore >= pointlimit) //Score condition met
-		or (count == 1 and timelimit and timeleft <= 0) //Time condition met with one person/team in the lead
+		(pointlimit and highscore >= pointlimit) --//Score condition met
+		or (count == 1 and timelimit and timeleft <= 0) --//Time condition met with one person/team in the lead
 		)
+	then
 		forcewin()
 	return end //Exit function
 	
+	if B.Timeout and not B.Exiting then
+		for player in players.iterate do
+-- 			if player.exiting
+				player.exiting = max($, B.Timeout+2)
+-- 			end
+		end
+		B.Timeout = $-1
+		if B.Timeout == 0 then
+			for player in players.iterate do
+				player.exiting = 0
+				if player.spectator or player.playerstate != PST_LIVE
+					continue
+				end
+--				P_TeleportMove(player.mo, player.starpostx * FRACUNIT, player.starposty * FRACUNIT, player.starpostz * FRACUNIT)
+				player.playerstate = PST_REBORN
+				player.mo.angle = player.starpostangle
+-- 				player.mo.scale = player.starpostscale
+-- 				B.InitPlayer(player)
+				B.PlayerBattleSpawnStart(player)
+			end
+			if gametype == GT_RUBYRUN then
+				S_StartSound(nil, sfx_ruby4)
+			end
+		end
+	end
+
 	//Time out
 	if timelimit and timeleft == 0 then
 		B.DebugPrint("End of round check!",DF_GAMETYPE)

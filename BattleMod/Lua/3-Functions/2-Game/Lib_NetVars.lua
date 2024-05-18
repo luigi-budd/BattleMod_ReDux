@@ -3,6 +3,7 @@ local CP = B.ControlPoint
 local A = B.Arena
 local I = B.Item
 local D = B.Diamond
+local R = B.Ruby
 local F = B.CTF
 
 function B.NetVars.Sync(network)
@@ -46,6 +47,10 @@ function B.NetVars.Sync(network)
 	D.CurrentPointNum	= network($)
 	D.LastPointNum		= network($)
 	D.CapturePoints		= network($)
+	//Ruby run
+	R.ID 				= network($)
+	R.RedGoal		= network($)
+	R.BlueGoal		= network($)
 	//CTF
 	F.RedFlag 		= network($)
 	F.BlueFlag		= network($)

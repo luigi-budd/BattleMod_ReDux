@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local F = B.CTF
 
 B.ResetScore = function()
 	if not(B.BattleGametype()) then return end
@@ -43,7 +44,12 @@ B.UpdateScore = function()
 	
 	//Team Games
 	if G_GametypeHasTeams() then
-		redscore = $+B.RedScore
-		bluescore = $+B.BlueScore
+		if gametype ~= GT_BATTLECTF then
+			redscore = $+B.RedScore
+			bluescore = $+B.BlueScore
+		else
+			redscore = F.RedScore
+			bluescore = F.BlueScore
+		end
 	end
 end
