@@ -47,7 +47,7 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 			mo[n1].state = S_PLAY_FLY
 			plr[n1].pflags = $ &~ (PF_JUMPED|PF_NOJUMPDAMAGE|PF_SPINNING|PF_STARTDASH)
 			plr[n1].pflags = $|PF_CANCARRY
-			P_TeleportMove(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+mo[n2].height)
+			P_SetOrigin(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+mo[n2].height)
 			B.CarryState(plr[n1],plr[n2])
 			P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
 			S_StartSound(mo[n1], sfx_s3ka0)
@@ -527,7 +527,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				player.aircutter_distance = 1
 			end
 
-			P_TeleportMove(player.aircutter, mo.x + cut_x, mo.y + cut_y, mo.z + (mo.height/2))
+			P_SetOrigin(player.aircutter, mo.x + cut_x, mo.y + cut_y, mo.z + (mo.height/2))
 			
 		else
 			player.aircutter_distance = 0

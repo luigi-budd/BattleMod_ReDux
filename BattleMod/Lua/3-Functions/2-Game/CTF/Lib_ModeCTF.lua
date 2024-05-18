@@ -569,7 +569,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			zoffset = $+(pmo.height/3)
 		end
 		pmo.flag_indicator.eflags = (pmo.eflags&MFE_VERTICALFLIP) and $|MFE_VERTICALFLIP or $&~MFE_VERTICALFLIP
-		P_TeleportMove(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
+		P_SetOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
 		if (displayplayer and p == displayplayer and not splitscreen)

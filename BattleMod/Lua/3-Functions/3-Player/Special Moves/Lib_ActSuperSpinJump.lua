@@ -233,7 +233,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		end
 		
 		local trail = P_SpawnGhostMobj(mo)
-		P_TeleportMove(trail, trail.x, trail.y, zheight)
+		P_SetOrigin(trail, trail.x, trail.y, zheight)
 		trail.fuse = 30
 		trail.state = S_THOK
 		trail.frame = TR_TRANS70|A

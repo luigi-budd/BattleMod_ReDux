@@ -310,7 +310,7 @@ A.UpdateGame = function()
 				if player.spectator or player.playerstate != PST_LIVE
 					continue
 				end
---				P_TeleportMove(player.mo, player.starpostx * FRACUNIT, player.starposty * FRACUNIT, player.starpostz * FRACUNIT)
+--				P_SetOrigin(player.mo, player.starpostx * FRACUNIT, player.starposty * FRACUNIT, player.starpostz * FRACUNIT)
 				player.playerstate = PST_REBORN
 				player.mo.angle = player.starpostangle
 -- 				player.mo.scale = player.starpostscale

@@ -191,9 +191,9 @@ B.DustDevilThinker = function(mo)
 	P_Thrust(mo,mo.angle,speed)
 	B.ControlThrust(mo,FRACUNIT,speed)
 	if P_MobjFlip(mo) == 1 then
-		P_TeleportMove(hurtbox,mo.x,mo.y,mo.z)
+		P_SetOrigin(hurtbox,mo.x,mo.y,mo.z)
 	else
-		P_TeleportMove(hurtbox,mo.x,mo.y,mo.z+mo.height-hurtbox.height)
+		P_SetOrigin(hurtbox,mo.x,mo.y,mo.z+mo.height-hurtbox.height)
 	end
 	hurtbox.fuse = mo.fuse
 	if not(leveltime&3) then
@@ -266,7 +266,7 @@ B.SwirlThinker = function(mo)
 	else
 		z = B.FixedLerp(mo.target.height-mo.height,0,time)	
 	end
-	P_TeleportMove(mo,mo.target.x+x,mo.target.y+y,mo.target.z+z)
+	P_SetOrigin(mo,mo.target.x+x,mo.target.y+y,mo.target.z+z)
 end
 
 B.DustDevilSpawn = function(mo)

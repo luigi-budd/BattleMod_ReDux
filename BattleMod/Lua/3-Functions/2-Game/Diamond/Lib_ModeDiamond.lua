@@ -221,7 +221,7 @@
 				 player.actioncooldown = TICRATE
 				 player.gotcrystal = false
 				 player.gotcrystal_time = 0
-				 P_TeleportMove(mo,player.mo.x,player.mo.y,player.mo.z)
+				 P_SetOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 				 P_InstaThrust(mo,player.mo.angle,FRACUNIT*5)
 				 P_SetObjectMomZ(mo,FRACUNIT*10)
 				 player.tossdelay = TICRATE*2
@@ -283,7 +283,7 @@
 		 z = $+t.height
 		 t.flags2 = $|MF2_OBJECTFLIP
 	 end
-	 P_TeleportMove(mo,t.x,t.y,t.z)
+	 P_SetOrigin(mo,t.x,t.y,t.z)
 	 P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	 mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) --Do z pos while respecting level geometry
  end

@@ -440,7 +440,7 @@ B.invinciblespark = function(player)
 				player.invbarrier.color = SKINCOLOR_BONE
 			end
 			if player.invbarrier and player.invbarrier.valid then
-				P_TeleportMove(player.invbarrier, mo.x, mo.y, mo.z+20*mo.scale)
+				P_SetOrigin(player.invbarrier, mo.x, mo.y, mo.z+20*mo.scale)
 			end
 			if not S_SoundPlaying(mo, sfx_huprsa) then
 				if player ~= displayplayer and not splitscreen then

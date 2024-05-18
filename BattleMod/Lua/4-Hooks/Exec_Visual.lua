@@ -63,7 +63,7 @@ B.RestoreTailsFollowMobj = function(p, mobj) -- cry
 	if p.mo.state == S_PLAY_LEDGE_GRAB 
 	or p.mo.state == S_PLAY_LEDGE_RELEASE
         mobj.state = S_TAILSOVERLAY_PLUS60DEGREES
-		P_TeleportMove(mobj,
+		P_SetOrigin(mobj,
 		p.mo.x-P_ReturnThrustX(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustX(mobj, mobj.angle, mobj.scale),
 		p.mo.y-P_ReturnThrustY(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustY(mobj, mobj.angle, mobj.scale),
 		p.mo.z+FixedMul(4*p.mo.scale, mobj.scale)
@@ -80,7 +80,7 @@ B.RestoreTailsFollowMobj = function(p, mobj) -- cry
 	and P_IsValidSprite2(mobj,SPR2_WALK)
 		mobj.state = S_TAILSOVERLAY_PLUS30DEGREES
 		mobj.frame = 512 + min(7,1+p.speed/(p.mo.scale*2))
-		P_TeleportMove(mobj,
+		P_SetOrigin(mobj,
 		p.mo.x-P_ReturnThrustX(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustX(mobj, mobj.angle, mobj.scale),
 		p.mo.y-P_ReturnThrustY(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustY(mobj, mobj.angle, mobj.scale),
 		p.mo.z+FixedMul(2*p.mo.scale, mobj.scale)
