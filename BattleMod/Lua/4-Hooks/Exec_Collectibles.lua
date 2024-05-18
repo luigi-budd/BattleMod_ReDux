@@ -12,10 +12,12 @@ addHook("TouchSpecial",function(...) return F.TouchFlag(...) end, MT_CBLUEFLAG)
 
 -- Remove the hardcoded flags
 local removeflags = function(mo)
-	if gametype != GT_CTF then
+	if (gametype == GT_BANK) then return end -- don't do anything if bank TOL
+
+	if (gametype ~= GT_CTF) then
 		mo.flags2 = $ | MF2_DONTDRAW
 		mo.flags = $ & ~MF_SPECIAL
-		if mo.type == MT_REDFLAG
+		if mo.type == MT_REDFLAG then
 			R.RedGoal = mo
 		else
 			R.BlueGoal = mo
