@@ -44,10 +44,11 @@ B.GotFlagStats = function(player)
 		player.normalspeed = skin.normalspeed*4/5
 		player.acceleration = skin.acceleration*5/6
 		player.runspeed = skin.runspeed*4/5
-		player.mindash = skin.mindash*3/4
-		player.maxdash = skin.maxdash*4/5
+		player.mindash = 15*3/4*FRACUNIT
+		player.maxdash = 70*4/5*FRACUNIT
 		player.dashmode = 0
 		player.jumpfactor = skin.jumpfactor
 		player.charflags = skins[player.mo.skin].flags & ~SF_RUNONWATER
+		player.powers[pw_strong] = $&~STR_METAL
 	end
 end

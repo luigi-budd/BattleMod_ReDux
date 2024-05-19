@@ -1,6 +1,31 @@
 local B = CBW_Battle
 local CV = B.Console
 
+B.FireTrailRingDrain = function(target, inflictor, source, damage, damagetype)
+	if not (inflictor and inflictor.valid) return end
+	if inflictor.type ~= MT_SPINFIRE then return end
+
+	local player = target.player
+	if (player.powers[pw_shield] & SH_PROTECTFIRE) then return false end
+	if (player.powers[pw_flashing]) then return false end
+
+	local ringdrain = 1
+
+	if player.rings > 1 then
+		player.rings = $ - 1
+		if not S_SoundPlaying(target, sfx_fire) then	
+			S_StartSound(target, sfx_antiri, player)
+			S_StartSound(target, sfx_fire)
+		end
+	end
+
+	if player.rings <= ringdrain then
+		return true
+	end
+	P_RemoveMobj(inflictor)
+	return false 
+end
+
 B.TeamFireTrail = function(mo)
 	mo.fuse = min($, TICRATE * 4)
 	if not(G_GametypeHasTeams() and mo.target and mo.target.valid and mo.target.player) then return end
