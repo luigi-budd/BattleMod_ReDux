@@ -25,7 +25,7 @@ B.Action.TailSwipe_Priority = function(player)
 		B.SetPriority(player,0,0,nil,0,0,"tail swipe chargeup")
 	elseif player.actionstate == state_swipe
 		B.SetPriority(player,0,0,nil,0,0,"tail swipe")
-	elseif player.actionstate == state_dash
+	elseif player.actionstate == state_dash or player.actionstate == state_didthrow
 		B.SetPriority(player,0,1,nil,0,1,"flight dash")
 	end
 end
@@ -59,7 +59,7 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 	if not (plr[n1] and plr[n1].tailsmarker)
 		return false
 	end
-	if  plr[n2]
+	if plr[n2]
 		if plr[n1].actionstate == state_dash
 			plr[n1].actionstate = 0
 			plr[n1].powers[pw_tailsfly] = TICRATE*5
