@@ -67,21 +67,23 @@ end,MT_GROUNDPOUND)
 --Tails Projectiles
 addHook("MobjThinker",function(mo)
 	if not(mo.flags&MF_MISSILE) then return end
-	local ghost = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_GHOST)
-		ghost.color = mo.color
-		ghost.fuse = TICRATE/4
-		ghost.state = mo.state
-		ghost.sprite = mo.sprite
-		ghost.frame =  mo.frame
-		ghost.frame = $|TR_TRANS50|FF_FULLBRIGHT 
-		ghost.tics = -1
-
-	if mo.radius < (32*FRACUNIT) then
-		mo.radius = $+FRACUNIT
+	local ghostcolor = SKINCOLOR_SKY
+	if mo.target and not(mo.target.color == SKINCOLOR_ORANGE) then
+		ghostcolor = mo.target.color
 	end
 
+	local ghost = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_GHOST)
+	ghost.colorized = true
+	ghost.color = ghostcolor
+	ghost.fuse = TICRATE/4
+	ghost.state = mo.state
+	ghost.sprite = mo.sprite
+	ghost.frame =  mo.frame
+	ghost.frame = $|TR_TRANS50|FF_FULLBRIGHT 
+	ghost.tics = -1
+
 	if mo.radius < (32*FRACUNIT) then
-		mo.radius = $+FRACUNIT
+		mo.radius = $+FRACUNIT*2
 	end
 	
 	if not (mo.valid) then return end
@@ -97,7 +99,7 @@ addHook("MobjThinker",function(mo)
 	s.scale = $*3/4
 	if P_RandomRange(0,1) then
 		s.colorized = true
-		s.color = SKINCOLOR_SKY
+		s.color = ghostcolor
 	end
 end,MT_SONICBOOM)
 

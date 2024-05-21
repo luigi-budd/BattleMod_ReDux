@@ -228,7 +228,12 @@ B.PlayerTouch = function(smo,tmo)
 			return true //Don't bother trying to collide if nothing's going to come of it
 		end
 	end
-	
+	if (smo.player.tailsthrown and smo.player.tailsthrown == tmo.player)
+	or (tmo.player.tailsthrown and tmo.player.tailsthrown == smo.player)
+	then
+		return true
+	end
+
 	smo.pushed = tmo //'mo.pushed' will be referenced in ThinkFrame
 	tmo.pushed = smo
 	smo.flags = $&~MF_SPECIAL

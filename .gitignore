@@ -6,3 +6,5 @@
 *.backup*
 *.dbs
 *.bat
+.SRB2C_ARGS
+SRB2C.py

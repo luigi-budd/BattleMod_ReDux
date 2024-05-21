@@ -1,10 +1,11 @@
 //Add checks to kill thokked flag for swipe post phase
 
 local B = CBW_Battle
-local state_charging = 3
 local state_swipe = 1
 local state_dash = 2
-local cooldown_swipe = TICRATE*3 //1.4s
+local state_charging = 3
+local state_didthrow = 4
+local cooldown_swipe = TICRATE*7/5 --1.4s
 local cooldown_dash = TICRATE*2
 local cooldown_throw = cooldown_dash
 local cooldown_cancel = TICRATE
@@ -24,8 +25,26 @@ B.Action.TailSwipe_Priority = function(player)
 		B.SetPriority(player,0,0,nil,0,0,"tail swipe chargeup")
 	elseif player.actionstate == state_swipe
 		B.SetPriority(player,0,0,nil,0,0,"tail swipe")
-	elseif player.actionstate == state_dash
+	elseif player.actionstate == state_dash or player.actionstate == state_didthrow
 		B.SetPriority(player,0,1,nil,0,1,"flight dash")
+	end
+end
+
+B.cutterattract = function(mo, dimension)
+	local followmo = mo.followmo
+	local speed = mo.speed or followmo.scale
+	if followmo[dimension] > mo[dimension] then
+		if mo["mom" .. dimension] > followmo["mom" .. dimension] then
+		   mo["mom" .. dimension] = $ + speed/2
+		else
+		   mo["mom" .. dimension] = $ + speed*2
+		end
+	elseif followmo[dimension] < mo[dimension] then
+		if mo["mom" .. dimension] < followmo["mom" .. dimension] then
+		   mo["mom" .. dimension] = $ - speed/2
+		else
+		   mo["mom" .. dimension] = $ - speed*2
+		end
 	end
 end
 
@@ -40,7 +59,7 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 	if not (plr[n1] and plr[n1].tailsmarker)
 		return false
 	end
-	if  plr[n2]
+	if plr[n2]
 		if plr[n1].actionstate == state_dash
 			plr[n1].actionstate = 0
 			plr[n1].powers[pw_tailsfly] = TICRATE*5
@@ -390,8 +409,9 @@ B.Action.TailSwipe = function(mo,doaction)
 		--domissile(mo,thrustfactor)
 		doaircutter(mo, 0)
 		if player.aircutter and player.aircutter.valid then
-			player.aircutter.momx = 0
-			player.aircutter.momy = 0
+			--player.aircutter.momx = 0
+			--player.aircutter.momy = 0
+			player.aircutter.speed = mo.scale*25
 			player.aircutter_distance = 0
 			player.aircutter.scale = 5*mo.scale/4
 			--local aircutter_speed = 50*mo.scale
@@ -462,21 +482,19 @@ B.Action.TailSwipe = function(mo,doaction)
 			)
 				continue
 			end
+			otherplayer.pushed_creditplr = player
+			otherplayer.tailsthrown = player
+			otherplayer.powers[pw_carry] = 0
+			otherplayer.pflags = $|PF_SPINNING|PF_THOKKED
 			local partner = otherplayer.mo
 			partner.tracer = nil
-			otherplayer.powers[pw_carry] = 0
 			partner.state = S_PLAY_ROLL
-			otherplayer.pflags = $|PF_SPINNING|PF_THOKKED
 			local spd = max(throw_strength,1+player.speed/FRACUNIT)
 			P_InstaThrust(partner,mo.angle,thrustfactor*spd)
 			partner.momx = $ + mo.momx/2
 			partner.momy = $ + mo.momy/2
 			partner.momz = throw_lift*mo.scale*P_MobjFlip(mo) + mo.momz/2
-			otherplayer.pushed_creditplr = player
-			if B.MyTeam(player, otherplayer)
-				otherplayer.tailsthrown = -1
-			else
-				otherplayer.tailsthrown = -2
+			if B.MyTeam(player, otherplayer) == false
 				otherplayer.airdodge = -1
 				otherplayer.actioncooldown = max($,2*TICRATE)
 				B.PlayerCreditPusher(otherplayer,player)
@@ -498,7 +516,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	//Swipe state
 	if player.actionstate == state_swipe then
-
+		B.analogkill(player, 2)
 		player.laststate = state_swipe
 		--if P_IsObjectOnGround(mo)
 			--player.lockaim = true
@@ -527,7 +545,13 @@ B.Action.TailSwipe = function(mo,doaction)
 				player.aircutter_distance = 1
 			end
 
-			P_SetOrigin(player.aircutter, mo.x + cut_x, mo.y + cut_y, mo.z + (mo.height/2))
+			local refmobj = P_SpawnMobj(0,0,0,MT_THOK)
+			refmobj.flags2 = $ | MF2_DONTDRAW
+			P_SetOrigin(refmobj, mo.x + cut_x, mo.y + cut_y, mo.z + (mo.height/2))
+			player.aircutter.followmo = refmobj
+			B.cutterattract(player.aircutter, "x")
+			B.cutterattract(player.aircutter, "y")
+			P_MoveOrigin(player.aircutter, player.aircutter.x, player.aircutter.y, mo.z + (mo.height/2))
 			
 		else
 			player.aircutter_distance = 0
@@ -630,6 +654,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	//Thrust state
 	if player.actionstate == state_dash or player.actionstate == state_didthrow
+		B.analogkill(player, 2)
 		if player.actionstate == state_dash
 			player.mo.cantouchteam = 1
 		end

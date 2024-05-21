@@ -21,7 +21,12 @@ B.StunBreak = function(player, doguard)
 	local canBreak = false
 	
 	local break_type
-	if (player.tumble)
+	if player.canstunbreak then
+		-- support for custom stunbreak conditions
+		canBreak = (player.canstunbreak > 0) -- allows prevention of stunbreak by setting this to a negative value
+		break_tics = player.customstunbreaktics
+		break_cost = player.customstunbreakcost
+	elseif (player.tumble)
 		-- let us break out of non-parried tumbles
 		canBreak = not player.tumble_nostunbreak
 		break_tics = player.tumble_time and player.tumble_time*2/3 or 0	-- half of the tumble needs to be up
@@ -51,6 +56,8 @@ B.StunBreak = function(player, doguard)
 	if (player.tech_timer >= break_tics)
 	and (doguard)	-- pressing the guard button (lets us buffer since it'll be 2 for holding)
 	and (player.rings >= break_cost)
+		player.canstunbreak = 0
+		player.tailsthrown = nil
 		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
 		angle = $ + (player.cmd.angleturn << FRACBITS)
 		
