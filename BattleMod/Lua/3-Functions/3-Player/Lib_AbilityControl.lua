@@ -337,30 +337,24 @@ end
 
 B.tailsthrow = function(player)
 	if not player.tailsthrown then return end
-	local mo = player.mo
 
 	player.landlag = max(0,$-1)
 	player.canstunbreak = max($,2)
+	player.customstunbreaktics = 20
+	player.customstunbreakcost = 20
 	player.actionallowed = false
 	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 	B.StunBreak(player, doguard) --this shouldn't have been necessary
-	
-	if player.tailsthrown > 0 then
-		player.tailsthrown = $-1
-	end
 
-	if (not mo)
-		or (player.speed-mo.momz < mo.scale*FRACUNIT*8)
-		or (P_IsObjectOnGround(mo))
-	then
+	local mo = player.mo
+	if (not mo) or (P_IsObjectOnGround(mo)) then
 		player.tailsthrown = 0
 		return
 	end
 
 	if player.lastmoveblock
 		and player.lastmoveblock == leveltime
-		and player.pushed_creditplr
-		and B.MyTeam(mo,player.pushed_creditplr) == false
+		and (B.MyTeam(mo,player.tailsthrown) == false)
 	then
 		local vfx = P_SpawnMobjFromMobj(mo, 0, 0, mo.height/2, MT_SPINDUST)
 		if vfx.valid then
@@ -372,8 +366,9 @@ B.tailsthrow = function(player)
 		end
 		S_StartSound(vfx,sfx_s3k9b)
 		P_StartQuake(14 * FRACUNIT, 5)
-		P_DamageMobj(mo, player.pushed_creditplr.mo, player.pushed_creditplr.mo)
+		P_DamageMobj(mo, player.tailsthrown.mo, player.tailsthrown.mo)
 		--P_DamageMobj(mo, nil, player.pushed_creditplr.mo) --THIS SIGSEGV'S THE GAME WHAT
+		player.tailsthrown = 0
 	end
 
 	local radius = mo.radius/FRACUNIT
