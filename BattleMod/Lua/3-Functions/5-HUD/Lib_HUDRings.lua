@@ -81,15 +81,16 @@ B.RingsHUD = function(v, player, cam)
 				if player.actionstate then
 					text = "\x82" + $
 				else
-					local requirerings = (CV.RequireRings.value and player.rings < player.actionrings)
-					if requirerings or not B.CanDoAction(player) then
+					if not B.CanDoAction(player) then
 						text = "\x86" + $
 					end
 					if player.actionrings and not(player.actioncooldown) then
 						if not B.CanDoAction(player) then
-							text = $ + "  " + player.actionrings
-						elseif requirerings then
-							text = $ + "  \x85" + player.actionrings
+							if (CV.RequireRings.value and player.rings < player.actionrings) then
+								text = $ + "  \x85" + player.actionrings
+							else
+								text = $ + "  " + player.actionrings
+							end
 						else
 							text = $ + "  \x82" + player.actionrings
 						end

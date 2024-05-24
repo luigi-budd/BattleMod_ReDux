@@ -251,7 +251,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Action triggers
 	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)
 	--local charging = ((not(attackready)) and player.actionstate == state_charging)
-	local swipetrigger = attackready and (player.actiontime > threshold2*2 or not(doaction))
+	local swipetrigger = attackready and (player.actiontime > threshold2*2 or B.ButtonCheck(player,player.battleconfig_special) == 0)
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local canceltrigger =
 		not swipetrigger
