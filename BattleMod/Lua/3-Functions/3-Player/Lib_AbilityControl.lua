@@ -340,8 +340,8 @@ B.tailsthrow = function(player)
 
 	player.landlag = max(0,$-1)
 	player.canstunbreak = max($,2)
-	player.customstunbreaktics = 20
-	player.customstunbreakcost = 20
+	player.customstunbreaktics = TICRATE
+	player.customstunbreakcost = $ or 35
 	player.actionallowed = false
 	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 	B.StunBreak(player, doguard) --this shouldn't have been necessary
@@ -495,18 +495,19 @@ B.MidAirAbilityAllowed = function(player)
 end
 
 B.StunBreakAllowed = function(player)
-	if CV.Guard.value
-	and player.mo
-	and player.mo.valid
-	and not player.actionallowed
-	and not player.isjettysyn
+	if not (player and player.valid and player.mo and player.mo.valid)
+	or player.isjettysyn
+	or not (CV.Guard.value)
+	then
+		return false --same as in lib_stunbreak.lua
+	end
+	if player.canstunbreak then
+		return player.canstunbreak > 0
+	end
+	if not player.actionallowed
 	and not player.landlag
-	and ((
-		P_PlayerInPain(player)
-		and (player.mo.state == S_PLAY_PAIN or player.mo.state == S_PLAY_STUN)
-	) or (
-		player.canstunbreak
-	))
+	and P_PlayerInPain(player)
+	and (player.mo.state == S_PLAY_PAIN or player.mo.state == S_PLAY_STUN)
 	then
 		return true
 	end

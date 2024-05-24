@@ -1,7 +1,5 @@
-//Add checks to kill thokked flag for swipe post phase
-
 local B = CBW_Battle
-local state_swipe = 1
+local state_sweep = 1
 local state_dash = 2
 local state_charging = 3
 local state_didthrow = 4
@@ -13,18 +11,18 @@ local sideangle = ANG30 + ANG10
 local throw_strength = 30
 local throw_lift = 10
 local thrustpower = 16
-local threshold1 = 10
-local threshold2 = threshold1+55
-local swipe_thrust = 15
+local threshold1 = TICRATE/3 --0.3s
+local threshold2 = threshold1+(TICRATE*3/2) --minimum charging time + 1.5s
+--local swipe_thrust = 15
 
 B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 	
 	if player.actionstate == state_charging
-		B.SetPriority(player,0,0,nil,0,0,"tail swipe chargeup")
-	elseif player.actionstate == state_swipe
-		B.SetPriority(player,0,0,nil,0,0,"tail swipe")
+		B.SetPriority(player,0,0,nil,0,0,"tail sweep chargeup")
+	elseif player.actionstate == state_sweep
+		B.SetPriority(player,0,0,nil,0,0,"tail sweep")
 	elseif player.actionstate == state_dash or player.actionstate == state_didthrow
 		B.SetPriority(player,0,1,nil,0,1,"flight dash")
 	end
@@ -32,7 +30,7 @@ end
 
 B.cutterattract = function(mo, dimension)
 	local followmo = mo.followmo
-	local speed = mo.speed or followmo.scale
+	local speed = mo.cutterspeed or followmo.scale
 	if followmo[dimension] > mo[dimension] then
 		if mo["mom" .. dimension] > followmo["mom" .. dimension] then
 		   mo["mom" .. dimension] = $ + speed/2
@@ -71,11 +69,13 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 			P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
 			S_StartSound(mo[n1], sfx_s3ka0)
 			if not B.MyTeam(plr[n1], plr[n2])
-				plr[n2].powers[pw_nocontrol] = max($,20)
+				plr[n2].customstunbreaktics = TICRATE
+				plr[n2].customstunbreakcost = 35
 			end
+			plr[n2].powers[pw_nocontrol] = max($,TICRATE/7)
 			plr[n2].airdodge = -1
 			return true
-		elseif plr[n1].actionstate == state_swipe
+		elseif plr[n1].actionstate == state_sweep
 			P_InstaThrust(mo[n2], angle[n2], mo[n1].scale*3)
 			P_InstaThrust(mo[n1], angle[n1], mo[n1].scale*3)
 		end
@@ -94,12 +94,13 @@ end
 local function sbvars(m,pmo)
 	if m and m.valid then
 		local chargepercentage = min(100,pmo.player.actiontime*100/threshold2)
-		local chargefactor = max(1,(10-chargepercentage/10))
+		--local chargefactor = max(1,(10-chargepercentage/10))
 		local thrustX = P_ReturnThrustX(m,pmo.angle,pmo.player.speed*3/2)
 		local thrustY = P_ReturnThrustY(m,pmo.angle,pmo.player.speed*3/2)
-		m.fuse = 17
-		m.momx = ($/4) + ($/chargefactor)
-		m.momy = ($/4) + ($/chargefactor)
+		m.fuse = (threshold1/2)+(pmo.player.actiontime/5)
+		m.cutterspeed = pmo.scale*(chargepercentage/2)
+		--m.momx = ($/4) + ($/chargefactor)
+		--m.momy = ($/4) + ($/chargefactor)
 		S_StartSoundAtVolume(m,sfx_s3kb8,190)
 	end
 end
@@ -139,8 +140,8 @@ end
 local function doaircutter(mo,thrustfactor)
 	--Projectile
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
-	mo.player.aircutter = m
 	sbvars(m,mo)
+	mo.player.aircutter = m
 	--Thrust
 	--if not(P_IsObjectOnGround(mo)) then
 		--P_InstaThrust(mo,mo.angle+ANGLE_180,thrustfactor)
@@ -177,7 +178,6 @@ B.Action.TailSwipe = function(mo,doaction)
 	and player.actionstate
 		uncolorize(mo)
 		B.ResetPlayerProperties(player,true,false)
-		player.postjumprestore = 2 --why is this necessary??
 		return
 	end
 
@@ -191,37 +191,55 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	local flying = player.panim == PA_ABILITY
 	local carrying = false
-	for otherplayer in players.iterate
-		if otherplayer.mo and otherplayer.mo.valid
-		and otherplayer.mo.tracer == mo
-		and otherplayer.powers[pw_carry] == CR_PLAYER
-			carrying = true
-			player.actioncooldown = min($,5)
-			//If not friendly
-			if not B.MyTeam(otherplayer.mo,mo)
-				//gameplay
-				otherplayer.airdodge = -1
-				otherplayer.landlag = otherplayer.powers[pw_nocontrol]
-				if not (otherplayer.actioncooldown)
-					otherplayer.airdodge = 0
-				end
-				if otherplayer.powers[pw_nocontrol]
-				and (otherplayer.cmd.buttons & BT_JUMP)
-				and not (otherplayer.buttonhistory & BT_JUMP)
-				then
-					S_StartSound(otherplayer.mo, sfx_s3kd7s)
-				end
-				//pain animation
-				otherplayer.mo.state = S_PLAY_PAIN
-				if otherplayer.followmobj
-					if otherplayer.mo.skin == "tails"
-						otherplayer.followmobj.state = S_TAILSOVERLAY_PAIN
-					elseif otherplayer.mo.skin == "tailsdoll"
-						P_SetMobjStateNF(otherplayer.followmobj,S_NULL)
+	--[[
+		!! IMPORTANT NOTE ABOUT OPTIMIZATION:
+		basically, the for block below makes every tails run through every single player
+		in every single frame JUST to check which player is being grabbed by him.
+		sounds pretty bad, right? but then consider the fact that we're also doing several
+		IF statements in each one of them.
+		with this in mind, this can be optimized in a number of ways. have this checklist:
+		- [x] only run the search function at all that if he's flying (can't be carrying otherwise)
+		- [x] change the order of the if statements by how rare they are, so it checks less on average
+		- [ ] use a searchblockmap function instead of iterating through all players
+		thank you for your attention
+		~lumyni
+		]]
+	if flying
+		--carrying = tailspartnerdetect(mo) --maybe we can move the block below to a separate function?
+		for otherplayer in players.iterate
+			if otherplayer.powers[pw_carry] == CR_PLAYER
+			and otherplayer.mo and otherplayer.mo.valid
+			and otherplayer.mo.tracer == mo
+				carrying = true
+				player.actioncooldown = min($,cooldown_cancel)
+				//If not friendly
+				if not B.MyTeam(otherplayer.mo,mo)
+					//gameplay
+					otherplayer.airdodge = -1
+					otherplayer.jumpstasistimer = 2 --because giving PF_JUMPSTASIS doesnt work apparently
+					otherplayer.landlag = otherplayer.powers[pw_nocontrol]
+					if (otherplayer.realbuttons & BT_JUMP)
+					and not (otherplayer.powers[pw_nocontrol] or (player.buttonhistory & BT_JUMP))
+					then
+						S_StartSound(otherplayer.mo, sfx_s3kd7s)
+						otherplayer.customstunbreakcost = max(0,$-5)
+						otherplayer.powers[pw_nocontrol] = max($,TICRATE/2)
+						otherplayer.canstunbreak = 0
+					else
+						otherplayer.canstunbreak = max($,2)
 					end
+					//pain animation
+					if otherplayer.followmobj
+						if otherplayer.mo.skin == "tails"
+							otherplayer.followmobj.state = S_TAILSOVERLAY_PAIN
+						elseif otherplayer.mo.skin == "tailsdoll"
+							P_SetMobjStateNF(otherplayer.followmobj,S_NULL)
+						end
+					end
+					otherplayer.mo.state = S_PLAY_PAIN
 				end
+				break
 			end
-			break
 		end
 	end
 	
@@ -232,8 +250,8 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	//Action triggers
 	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)
-	local charging = ((not(attackready)) and player.actionstate == state_charging)
-	local swipetrigger = attackready 
+	--local charging = ((not(attackready)) and player.actionstate == state_charging)
+	local swipetrigger = attackready and (player.actiontime > threshold2*2 or not(doaction))
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local canceltrigger =
 		not swipetrigger
@@ -257,7 +275,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	player.actionrings = 10
 	if not(flying or player.actionstate == state_dash) then
-		player.actiontext = "Tail Swipe"
+		player.actiontext = "Tail Sweep"
 	elseif not(carrying)
 		player.actiontext = "Flight Dash"
 	else
@@ -273,7 +291,9 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.actiontime = 0
 		player.actionbuffer = false
 		uncolorize(mo)
-		player.pflags = $ &~ PF_JUMPED
+		if P_IsObjectOnGround(mo) then
+			player.pflags = $ &~ PF_JUMPED
+		end
 		if player.powers[pw_shield] == SH_WHIRLWIND
 		and not player.powers[pw_tailsfly]
 			player.pflags = $|PF_SHIELDABILITY
@@ -281,7 +301,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	
 	//Intercepted while charging
-	if (player.actionstate == state_charging or player.actionstate == state_swipe) and player.powers[pw_nocontrol] then
+	if (player.actionstate == state_charging or player.actionstate == state_sweep) and player.powers[pw_nocontrol] then
 		player.actionstate = 0
 		B.ApplyCooldown(player,cooldown_cancel)
 		uncolorize(mo)
@@ -304,14 +324,14 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	
 	//Charging attack
-	if charging then
+	if charging or chargehold then
 		local ang = (1+chargepercentage*ANG1)/3
 		local spdrange = (1+player.speed)/(3*mo.scale)
 		local chargerange = (1+chargepercentage)/16
 		local range = spdrange + chargerange
 		//Do aim sights
 		player.canguard = false
-		player.pflags = $|PF_JUMPSTASIS|PF_SPINDOWN
+		player.pflags = $&~(PF_SPINNING)
 		--player.exhaustmeter = max(0,$-(FRACUNIT/TICRATE/2))
 
 		//Speed Cap
@@ -361,6 +381,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				end
 			end
 		end
+		player.actionsuper = true
 	end
 	
 	//Unable to charge
@@ -376,7 +397,8 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Charging frame
 	if player.actionstate == state_charging then
 		mo.state = S_PLAY_EDGE
-		player.pflags = ($|PF_JUMPED)&~PF_NOJUMPDAMAGE
+		player.pflags = $|PF_SPINDOWN|PF_THOKKED&~PF_NOJUMPDAMAGE
+		player.actionsuper = true
 		if not (P_IsObjectOnGround(mo) or B.WaterFactor(mo) > 1) then
 			P_SetObjectMomZ(mo,gravity/2,true) //Low grav
 		end
@@ -401,17 +423,16 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Activate swipe
 	if swipetrigger then
 		--Set state
-		player.actionstate = state_swipe
-		player.actiontime = 0
+		player.actionstate = state_sweep
 		--player.pflags = $&~(PF_THOKKED)
 		--player.pflags = $&~(PF_SPINNING)
 		--Missile attack
 		--domissile(mo,thrustfactor)
 		doaircutter(mo, 0)
+		player.actiontime = 0
 		if player.aircutter and player.aircutter.valid then
 			--player.aircutter.momx = 0
 			--player.aircutter.momy = 0
-			player.aircutter.speed = mo.scale*25
 			player.aircutter_distance = 0
 			player.aircutter.scale = 5*mo.scale/4
 			--local aircutter_speed = 50*mo.scale
@@ -423,6 +444,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			--P_SetObjectMomZ(mo,FRACUNIT*5,false)
 		--end
 		--Effects
+		uncolorize(mo)
 		P_SpawnParaloop(mo.x,mo.y,mo.z,mo.scale*64,12,MT_DUST,ANGLE_90,nil,true)
 		--if P_IsObjectOnGround(mo) then
 			--P_Thrust(mo, mo.angle, swipe_thrust*mo.scale)
@@ -498,6 +520,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				otherplayer.airdodge = -1
 				otherplayer.actioncooldown = max($,2*TICRATE)
 				B.PlayerCreditPusher(otherplayer,player)
+				otherplayer.customstunbreakcost = $ and min($+15,35) or 35
 			end
 			otherplayer.powers[pw_nocontrol] = 0
 			otherplayer.landlag = 0
@@ -515,46 +538,40 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	
 	//Swipe state
-	if player.actionstate == state_swipe then
+	if player.actionstate == state_sweep then
 		B.analogkill(player, 2)
-		player.laststate = state_swipe
+		player.laststate = state_sweep
 		--if P_IsObjectOnGround(mo)
 			--player.lockaim = true
 		--end
 		--player.lockmove = true
-		player.pflags = $|PF_THOKKED|PF_JUMPED|PF_JUMPSTASIS
+		player.pflags = $|PF_THOKKED|PF_SPINDOWN
 		player.pflags = $&~(PF_SPINNING)
 		player.charability2 = CA2_NONE
 		--S_StopSoundByID(mo, sfx_spin)
 
 		-- aircutter circling thingy
 		if player.aircutter and player.aircutter.valid then
-			player.aircutter_distance = $ + player.actiontime
-			local maxtime = 11*FRACUNIT
-			local distscale = FixedDiv(min(player.actiontime*FRACUNIT, maxtime), maxtime)
-			local distance = FixedMul(distscale, 110*mo.scale)
-			local angle = -mo.angle - ANGLE_45 * player.actiontime
-			local cut_x = FixedMul(distance, cos(angle))
-			local cut_y = FixedMul(distance, sin(angle))
-
-			-- test stuff
-			local direction = R_PointToAngle2(mo.x, mo.y, player.aircutter.x, player.aircutter.y)
-			local dist = R_PointToDist2(mo.x, mo.y, player.aircutter.x, player.aircutter.y)
-			local cutter_dist = 200*mo.scale
-			if dist >= cutter_dist then
-				player.aircutter_distance = 1
+			player.pflags = $ | PF_STASIS
+			local distancescaling = player.aircutter.cutterspeed/2
+			local boomerangtime = max(6,distancescaling*2/3/FRACUNIT)
+			--this is taking into account that swipe actiontime lasts like 22 frames
+			if player.actiontime > boomerangtime then
+				player.aircutter_distance = max(1,$-distancescaling)
+			else
+				player.aircutter_distance = $+distancescaling
 			end
-
+			local angle = ANGLE_45 * player.actiontime
+			local cut_x = FixedMul(player.aircutter_distance, cos(angle))
+			local cut_y = FixedMul(player.aircutter_distance, sin(angle))
 			local refmobj = P_SpawnMobj(0,0,0,MT_THOK)
 			refmobj.flags2 = $ | MF2_DONTDRAW
 			P_SetOrigin(refmobj, mo.x + cut_x, mo.y + cut_y, mo.z + (mo.height/2))
 			player.aircutter.followmo = refmobj
 			B.cutterattract(player.aircutter, "x")
 			B.cutterattract(player.aircutter, "y")
+			player.aircutter.momz = 0
 			P_MoveOrigin(player.aircutter, player.aircutter.x, player.aircutter.y, mo.z + (mo.height/2))
-			
-		else
-			player.aircutter_distance = 0
 		end
 
 -- 		player.powers[pw_nocontrol] = $|2
@@ -600,7 +617,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		-- if we were interrupted mid swipe, we can actually reset our values
 		-- they otherwise would be stuck, because we no longer were in the swipe state, 
 		-- the code resetting the player's flags doesn't get called
-		if player.laststate == state_swipe and player.actionstate ~= state_swipe then
+		if player.laststate == state_sweep and player.actionstate ~= state_sweep then
 			player.laststate = 0
 			player.pflags = $ & ~(PF_THOKKED)
 			--player.pflags = $ & ~(PF_FULLSTASIS)
@@ -625,22 +642,19 @@ B.Action.TailSwipe = function(mo,doaction)
 		
 		--Reset to neutral
 		if player.actiontime >= 22 then
-			player.pflags = $ & ~(PF_THOKKED)
-			--player.pflags = $ & ~(PF_FULLSTASIS)
-			--player.pflags = $&~(PF_SPINNING)
-			if P_IsObjectOnGround(mo) then
-				player.pflags = $&~(PF_JUMPED|PF_THOKKED)
-			end
-
-			player.pflags = $&~(PF_SPINNING)
+			player.pflags = $&~(PF_THOKKED|PF_SPINNING)
+			--player.pflags = $&~PF_FULLSTASIS
 			player.drawangle = mo.angle
-			--mo.state = S_PLAY_WALK
 			mo.frame = 0
 			if P_IsObjectOnGround(mo) then
 				player.actionstate = 0
 				player.drawangle = mo.angle
 				mo.state = S_PLAY_WALK
 				mo.frame = 0
+				player.pflags = $&~PF_JUMPED
+			else
+				mo.state = S_PLAY_SPRING
+				player.pflags = $|PF_JUMPED
 			end
 			player.actionstate = 0
 			player.laststate = 0

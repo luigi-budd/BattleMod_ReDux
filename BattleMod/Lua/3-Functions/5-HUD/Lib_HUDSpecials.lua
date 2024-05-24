@@ -19,9 +19,10 @@ B.ActionHUD=function(v, player, cam)
 		if B.StunBreakAllowed(player) then
 			local patch = v.cachePatch("PARRYBT")
 			local text = "Stun Break"
+			local cost = player.stunbreakcosttext
 			local textcolor = "\x86"
 			local yoffset = hudinfo[HUD_RINGS].y+14
-			if player.rings >= 20 then
+			if cost and player.rings >= cost then
 				if leveltime % 3 == 0 then
 					textcolor = ""
 				elseif leveltime % 3 == 1 then
@@ -30,7 +31,10 @@ B.ActionHUD=function(v, player, cam)
 					textcolor = "\x87"
 				end
 			end
-			text = "\x82" .. 20 .. textcolor .. " " .. $
+			if not(cost) then
+				cost = ""
+			end
+			text = "\x82" .. cost .. textcolor .. " " .. $
 			v.draw(xoffset,yoffset,patch,flags)
 			v.drawString(xoffset+10,yoffset,text,flags,align)
 		end

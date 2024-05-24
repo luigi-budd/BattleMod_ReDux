@@ -49,7 +49,8 @@ B.RingsHUD = function(v, player, cam)
 	--Actions
 	if B.StunBreakAllowed(player) then
 		local text = "Stun Break"
-		if player.rings >= 20 then
+		local cost = player.stunbreakcosttext
+		if cost and player.rings >= cost then
 			if leveltime % 3 == 0 then
 				text = "\x82" + $
 			elseif leveltime % 3 == 1 then
@@ -57,9 +58,9 @@ B.RingsHUD = function(v, player, cam)
 			else
 				text = "\x87" + $
 			end
-			text = $ + " \x82 20"
+			text = $ + " \x82 "..cost
 		else
-			text = "\x86" + $ + " \x85 20"
+			text = "\x86" + $ + " \x85 "--..cost
 		end
 		v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
 	else
