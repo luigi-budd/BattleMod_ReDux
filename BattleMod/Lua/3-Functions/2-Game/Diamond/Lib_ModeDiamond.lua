@@ -551,6 +551,11 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			teamscoreincrease = 1
 			print(player.name.." captured a "..diamondtext.."!")--Not sure how to color this text...
 			B.DoFirework(player.mo)
+
+			--Reuse CTF's capture HUD
+			B.CTF.GameState.CaptureHUDTimer = 2*TICRATE
+			B.CTF.GameState.CaptureHUDName = player.name
+			B.CTF.GameState.CaptureHUDTeam = player.ctfteam
 		else
 			if player.captures == nil then
 				player.captures = 0
