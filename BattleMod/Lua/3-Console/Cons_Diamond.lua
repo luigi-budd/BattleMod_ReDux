@@ -58,6 +58,13 @@ CV.DiamondDisableStealing = CV_RegisterVar{
 
 CV.DiamondIndicator = CV_RegisterVar{
 	name = "diamond_indicator",
+	defaultvalue = 1,
+	flags = CV_NETVAR,
+	PossibleValue = {Off = 0, On = 1}
+}
+
+CV.DiamondTumbleAfterCap = CV_RegisterVar{
+	name = "diamond_tumble_after_cap",
 	defaultvalue = 0,
 	flags = CV_NETVAR,
 	PossibleValue = {Off = 0, On = 1}
