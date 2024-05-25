@@ -47,6 +47,7 @@ function B.NetVars.Sync(network)
 	D.CurrentPointNum	= network($)
 	D.LastPointNum		= network($)
 	D.CapturePoints		= network($)
+	D.DiamondIndicator	= network($)
 	//Ruby run
 	R.ID 				= network($)
 	R.RedGoal		= network($)

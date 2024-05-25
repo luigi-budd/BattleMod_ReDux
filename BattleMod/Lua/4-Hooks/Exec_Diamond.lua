@@ -17,5 +17,5 @@ addHook("ThinkFrame", D.GameControl)
 
 addHook("MapChange", D.Reset)
 addHook("MapLoad", D.GenerateSpawns)
-addHook("PlayerThink", D.SpawnDiamondIndicator)
-addHook("PostThinkFrame", D.DiamondIndicator)
+--addHook("PlayerThink", D.SpawnDiamondIndicator)
+addHook("PostThinkFrame", D.DiamondIndicatorThinker)

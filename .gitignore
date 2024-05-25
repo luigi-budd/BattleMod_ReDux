@@ -8,3 +8,5 @@
 *.bat
 .SRB2C_ARGS
 SRB2C.py
+linux_build.sh
+run.sh
