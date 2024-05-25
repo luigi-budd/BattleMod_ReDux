@@ -2,11 +2,6 @@ local B = CBW_Battle
 local G = B.GuardFunc
 local CV = B.Console
 
-local guardtics = 20
-local guard_cooldown = TICRATE/2
-local guard_iframe_time = TICRATE
-local projectile_ignore_time = TICRATE
-
 local nearground = function(mo,flip)
 	if flip == 1
 		return (mo.z-mo.floorz < mo.scale*8)
@@ -20,7 +15,6 @@ B.GuardControl = function(player)
 	or G_TagGametype()
 	or player.iseggrobo
 	or player.isjettysyn
-	or (player.powers[pw_flashing] and P_IsObjectOnGround(player.mo))
 		player.canguard = false
 	return end
 
@@ -32,15 +26,8 @@ B.GuardControl = function(player)
 end
 
 B.Guard = function(player,buttonpressed)
-	if not CV.parrytoggle.value return end
 	local mo = player.mo
 	local flip = P_MobjFlip(mo)
-	local grounded = P_IsObjectOnGround(mo) or (player.guard and nearground(mo,flip))
-	local latency = 0; -- Default to 0 for EXEs without cmd.latency. Thanks Lumyni.
-	pcall(function()
-		latency = player.cmd.latency;
-	end);
-	local latency2 = latency
 	if mo and mo.valid and mo.guardflash then
 		mo.colorized = false
 		mo.color = player.skincolor
@@ -48,55 +35,43 @@ B.Guard = function(player,buttonpressed)
 	end
 	if not(player.playerstate == PST_LIVE) or (player.spectator) then return end
 	if P_PlayerInPain(player)
-	or not grounded
+	or not(P_IsObjectOnGround(mo) or (player.guard and nearground(mo,flip)))
 	or not(player.canguard)
 	or player.tumble
-	or player.actionstate then
+	or player.actionstate
 		if player.guard != 0 then
 			if not(P_PlayerInPain(player)) and not(player.pflags&(PF_JUMPED|PF_SPINNING)) then
 				mo.state = S_PLAY_FALL
-				if player.shieldmobj ~= nil and player.shieldmobj.valid then
-					P_RemoveMobj(player.shieldmobj)
-				end
 			end
 			player.guard = 0
 		end
 		return
 	end
-
-	if player.guardcooldown == nil then
-		player.guardcooldown = 0
-	end
-
-	if player.projectileignoretime == nil then
-		player.projectileignoretime = 0
-	end
-
-	--Neutral
+	//Neutral
 	if (player.guard == 0) then
-		player.guardcooldown = max(0, $ - 1)
-		player.projectileignoretime = max(0, $ - 1)
-		if buttonpressed == 1 and player.guardcooldown == 0 then
+		if buttonpressed == 1 then
+			player.pflags = $ &~ PF_JUMPED
+			player.skidtime = 0
+			if player.powers[pw_flashing] then
+				player.powers[pw_flashing] = 0
+				player.guardbuffer = 2
+			end
 			player.guard = 1
-			-- play shield sound
-			S_StartSoundAtVolume(mo,sfx_guard1, 100)
-			player.guardtics = guardtics
-			player.powers[pw_flashing] = 0
+			S_StartSound(mo,sfx_cdfm39)
+			player.guardtics = TICRATE*4/7 //20
 			if not(player.actionsuper) then
 				player.actionstate = 0
 			end
-			local i = P_SpawnMobj(mo.x,mo.y,mo.z-FRACUNIT,MT_INSTASHIELD)
-			i.fuse = guardtics - 1
-			i.scale = 5*mo.scale/4
-			i.colorized = true
-			i.color = player.skincolor
-			if i and i.valid then
+			local i = P_SpawnMobj(mo.x,mo.y,mo.z,MT_INSTASHIELD)
+			if i and i.valid
 				i.target = mo
 			end
-			player.shieldmobj = i	
 		end
 	end
 	player.guardtics = $-1
+	if player.guardbuffer and player.guardbuffer>0 then
+		player.guardbuffer = $-1
+	end
 	if player.guard != 0 and (player.followmobj) then
 		P_SetMobjStateNF(player.followmobj,S_NULL)
 	end
@@ -121,11 +96,7 @@ B.Guard = function(player,buttonpressed)
 		mo.frame = guardframe
 		player.powers[pw_nocontrol] = 2
 		if player.guardtics < 1 then
-			if latency < 10 then
-				player.guardtics = 25 - (latency2*2)
-			else
-				player.guardtics = 25
-			end
+			player.guardtics = 20
 			player.guard = -1
 		else
 			mo.guardflash = player.guardtics&2
@@ -135,21 +106,17 @@ B.Guard = function(player,buttonpressed)
 			end
 		end
 	end
-
-	if player.guard <= -1 then
-		mo.frame = 0
+	if player.guard <= -1
 		mo.state = S_PLAY_STND
-		--mo.sprite2 = SPR2_TRNS
-		--mo.frame = guardframe
-		--player.powers[pw_nocontrol] = 2		
-		mo.sprite2 = SPR2_STND
-
-		--if player.guardtics < 1 then
-		player.guard = 0
-		player.guardcooldown = guard_cooldown
-		--end
+		mo.sprite2 = SPR2_TRNS
+		mo.frame = guardframe
+		player.powers[pw_nocontrol] = 2		
+		if player.guardtics < 1 then
+			player.guard = 0
+			mo.sprite2 = SPR2_STND
+			mo.frame = 0
+		end
 	end
-
 	if player.guard == 2 then
 -- 		mo.state = S_PLAY_STND
 		player.powers[pw_nocontrol] = 0
@@ -162,7 +129,7 @@ B.Guard = function(player,buttonpressed)
 -- 			mo.sprite2 = SPR2_STAND
 -- 			mo.frame = 0
 -- 		end
-		if player.guardtics < 1 then
+		if player.guardtics < 1 
 			player.guard = 0
 			mo.frame = 0
 			mo.state = S_PLAY_STND
@@ -181,9 +148,17 @@ local fx = function(mo)
 end
 
 
---Successful guard action
+//Successful guard action
 B.GuardTrigger = function(target, inflictor, source, damage, damagetype)
 	if not(target.valid and target.player) then return false end
+	if target.player.guardbuffer then
+		B.ResetPlayerProperties(target.player,false,true)
+		target.player.guard = 0
+		S_StopSoundByID(target, sfx_cdfm39)
+		S_StartSound(target, sfx_shattr)
+		local nega = P_SpawnMobjFromMobj(target,0,0,0,MT_NEGASHIELD)
+		nega.target = target
+	end
 	if target.player.guard > 0
 		if B.SkinVars[target.player.skinvars].func_guard_trigger then
 			B.SkinVars[target.player.skinvars].func_guard_trigger(target,inflictor,source,damage,damagetype)
@@ -193,64 +168,44 @@ B.GuardTrigger = function(target, inflictor, source, damage, damagetype)
 	return true end
 end
 
---Standard parry trigger action
+//Standard parry trigger action
 G.Parry = function(target, inflictor, source, damage, damagetype)
-	if target.player.guard == 1 and inflictor and inflictor.valid then
-
-		S_StartSound(target,sfx_rflct)
+	if target.player.guard == 1 and inflictor and inflictor.valid 
+		S_StartSound(target,sfx_cdpcm9)
 		S_StartSound(target,sfx_s259)
 		target.player.guard = 2
-		target.player.guardtics = 9
-		target.player.powers[pw_flashing] = guard_iframe_time
-		--B.ControlThrust(target,FRACUNIT/2)
-		--Do graphical effects
+		target.player.guardtics = TICRATE/4 //9
+		B.ControlThrust(target,FRACUNIT/2)
+		//Do graphical effects
 		local sh = P_SpawnMobjFromMobj(target,0,0,0,MT_BATTLESHIELD)
 		sh.target = target
 		fx(target)
-
-		target.player.guard = 0
-		target.player.guardcooldown = guard_cooldown/2
-		target.player.projectileignoretime = projectile_ignore_time
-
-		--P_SpawnMobjFromMobj(inflictor,0,0,0,MT_EXPLODE)
-		--Affect source
-		if source and source.valid and source.health and source.player and source.player.powers[pw_flashing] then
+		P_SpawnMobjFromMobj(inflictor,0,0,0,MT_EXPLODE)
+		//Affect source
+		if source and source.valid and source.health and source.player and source.player.powers[pw_flashing]
 			source.player.powers[pw_flashing] = 0
 			local nega = P_SpawnMobjFromMobj(source,0,0,0,MT_NEGASHIELD)
 			nega.target = source
 		end
-
-		--Affect attacker
-		if inflictor.player then
-			if inflictor.player.powers[pw_invulnerability] then
+		// Affect projectile's source if within range
+		if source and source.valid then
+		local parrytumblerange = P_GetPlayerHeight(target.player)*3
+		local parrydistance = R_PointToDist2(target.x, target.y, source.x, source.y)
+			if parrydistance <= parrytumblerange and source.z <= target.z+parrytumblerange and source.z >= target.z-parrytumblerange then
+				inflictor = source // set inflictor to the source for the rest of the parry to effect them
+			end
+		end
+		//Affect attacker
+		if inflictor.player
+			if inflictor.player.powers[pw_invulnerability]
 				inflictor.player.powers[pw_invulnerability] = 0
 				P_RestoreMusic(inflictor.player)
 			end
 			local angle = R_PointToAngle2(target.x-target.momx,target.y-target.momy,inflictor.x-inflictor.momx,inflictor.y-inflictor.momy)
-			local thrust = max(inflictor.player.speed/2, 17*inflictor.scale)
-			if not P_IsObjectOnGround(inflictor) then
-				inflictor.player.pflags = $|PF_THOKKED
-			end
-			--local zthrust = inflictor.momz/3
-			----local thrust = FRACUNIT*10
-			--if twodlevel then thrust = B.TwoDFactor($) end
-
-			--P_Thrust(inflictor, angle, thrust)
-
-			--P_SetObjectMomZ(inflictor,zthrust)
-
-			--local speedpriority = B.GetSpeedPriority(inflictor.player)
-			--if (inflictor.player.battle_atk > 2) or (inflictor.player.battle_satk > 2) then
-			--if (inflictor.player.battle_atk > 2 and speedpriority == 2) or (inflictor.player.battle_satk > 2 and speedpriority == 2) then
-				--B.DoPlayerTumble(inflictor.player, 40, angle, inflictor.scale*3, true, true)	-- prevent stun break
-			--else
-				B.DoPlayerInteract(inflictor, target)
-				--if CV.GuardStun.value == 1 then
-					--B.DoPlayerFlinch(inflictor.player, 5, thrust)
-					--B.DoPlayerFlinch(inflictor.player, ((inflictor.player.speed*2)/(inflictor.scale*4)),thrust)
-				--end
-				P_Thrust(inflictor, angle, thrust)
-			--end
+			local thrust = FRACUNIT*10
+			if twodlevel then thrust = B.TwoDFactor($) end
+			P_SetObjectMomZ(inflictor,thrust)
+			B.DoPlayerTumble(inflictor.player, 45, angle, inflictor.scale*3, true, true)	-- prevent stun break
 		else
 			P_DamageMobj(inflictor,target,target)
 		end
@@ -258,7 +213,7 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 end
 
 
---flip instashield stuff if the player is flipped
+//flip instashield stuff if the player is flipped
 
 B.InstaFlip = function(inst)
 	if inst.target
@@ -269,15 +224,20 @@ end
 B.BattleShieldThinker = function(mobj)
 	if not mobj.target return end
 	mobj.scale = FixedMul(skins[mobj.target.skin].shieldscale, mobj.target.scale*3/2)*2
-	P_TeleportMove(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
+	P_MoveOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
 	
 	mobj.colorized = true
 	mobj.color = SKINCOLOR_WHITE
 	
-	--After-effects
-	local ghost = P_SpawnGhostMobj(mobj)
+	//After-effects
+	local ghost = P_SpawnMobj(mobj.x, mobj.y, mobj.z, MT_GHOST)
 	if ghost and ghost.valid then
-		--Rainbow flash
+		ghost.scale = mobj.scale
+		ghost.sprite = mobj.sprite
+		ghost.fuse = TICRATE/4
+		ghost.frame = mobj.frame
+		ghost.frame = $|FF_FULLBRIGHT|TR_TRANS50
+		//Rainbow flash
 		ghost.colorized = true
 		ghost.color = B.Choose(SKINCOLOR_WHITE,SKINCOLOR_YELLOW,SKINCOLOR_ROSY,SKINCOLOR_GREEN,SKINCOLOR_ORANGE,SKINCOLOR_BLUE,SKINCOLOR_PURPLE)
 	end
@@ -286,7 +246,7 @@ end
 B.NegaShieldThinker = function(mobj)
 	if not mobj.target return end
 	mobj.scale = FixedMul(skins[mobj.target.skin].shieldscale, mobj.target.scale*3/2)*2
-	P_TeleportMove(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
+	P_MoveOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
 	mobj.colorized = true
 	mobj.color = SKINCOLOR_BLACK
 	mobj.flags2 = $^^MF2_DONTDRAW
