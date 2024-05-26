@@ -77,7 +77,7 @@ B.RestoreTailsFollowMobj = function(p, mobj) -- cry
 	end
 
 	if p.skidtime and p.powers[pw_nocontrol]
-	and P_IsValidSprite2(mobj,SPR2_WALK)
+--	and P_IsValidSprite2(mobj,SPR2_WALK)
 		mobj.state = S_TAILSOVERLAY_PLUS30DEGREES
 		mobj.frame = 512 + min(7,1+p.speed/(p.mo.scale*2))
 		P_SetOrigin(mobj,
@@ -113,4 +113,4 @@ addHook("MobjThinker",function(mo)
 		mo.color = SKINCOLOR_CERULEAN
 	end
 end,MT_PITY_ORB)
-addHook("FollowMobj", B.RestoreTailsFollowMobj)
+addHook("FollowMobj", B.RestoreTailsFollowMobj, MT_TAILSOVERLAY)

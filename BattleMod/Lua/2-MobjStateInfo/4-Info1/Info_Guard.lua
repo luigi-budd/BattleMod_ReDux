@@ -3,7 +3,9 @@ freeslot(
 	"mt_battleshield",
 	"mt_negashield",
 	"s_battle_shield",
-	"spr_sbsh"
+	"spr_sbsh",
+	"sfx_guard1",
+	"sfx_rflct"
 )
 
 mobjinfo[MT_BATTLESHIELD] = {

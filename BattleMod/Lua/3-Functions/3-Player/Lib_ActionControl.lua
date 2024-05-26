@@ -80,6 +80,7 @@ B.MasterActionScript = function(player,doaction)
 end
 
 B.CanDoAction=function(player)
+	if CV.RequireRings.value and player.rings < player.actionrings then return false end
 	if G_RingSlingerGametype() then return false end
 	if P_PlayerInPain(player) or player.playerstate ~= PST_LIVE then return false end
 	if B.TagGametype() and not(player.pflags&PF_TAGIT) then return false end

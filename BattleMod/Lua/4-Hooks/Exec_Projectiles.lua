@@ -91,6 +91,11 @@ addHook("MobjThinker",function(mo)
 	P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
 	P_SetObjectMomZ(mo, -mo.momz/32, true)
 
+	if mo.fuse < 10 then
+		mo.destscale = 0
+		mo.scalespeed = FRACUNIT/10
+	end
+
 	local radius = mo.radius/FRACUNIT
 	local r = do
 		return P_RandomRange(-radius,radius)*FRACUNIT

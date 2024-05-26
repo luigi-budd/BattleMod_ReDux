@@ -43,6 +43,7 @@ B.StunBreak = function(player, doguard)
 		-- store the type of stun break
 		break_type = 1
 	end
+	player.stunbreakcosttext = break_cost -- yet another little hack
 	if not (canBreak) then player.tech_timer = 0 return end
 	
 	-- little hack to reset the tech timer if the tech type changes
@@ -104,6 +105,15 @@ B.StunBreak = function(player, doguard)
 		//Screenshake
 		if player == consoleplayer
 			P_StartQuake(12 * FRACUNIT, 4)
+		end
+
+		//Troll tails players
+		if player.powers[pw_carry] == CR_PLAYER and player.mo.tracer and player.mo.tracer.player then
+			local tails = player.mo.tracer
+			player.mo.tracer = nil
+			player.powers[pw_carry] = 0
+			P_SetObjectMomZ(tails, mo.scale*10)
+			B.DoPlayerTumble(tails.player, 45, mo.angle, mo.scale*3, true, true) --prevent stunbreak
 		end
 	end
 end

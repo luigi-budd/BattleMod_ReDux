@@ -35,43 +35,9 @@ B.InputControl = function(player)
 			P_SetObjectMomZ(player.mo, -gravity/2, true)
 		end
 	end
-	if (player.powers[pw_carry] == CR_PLAYER and player.mo and player.mo.tracer) then
-		local tails = player.mo.tracer
-		local player2 = tails.player
-		player2.cmd.forwardmove = $ + (player.cmd.forwardmove / 4)
-		player2.cmd.sidemove = $ + (player.cmd.sidemove / 2)
-	
-		if player2.speed < FixedMul(player2.mo.scale, player2.normalspeed) then
-			local spd = (player.mo.scale/2)*(player.cmd.forwardmove/50)
-			P_Thrust(tails, tails.angle, spd)
-		end
-		
-		--vfx
-		if (consoleplayer == player or consoleplayer == player2) then
-			if (player.cmd.forwardmove) or (player.cmd.sidemove) then
-				local arr = P_SpawnMobj(player.mo.x, player.mo.y, player.mo.z, MT_GHOST)
-				arr.state = S_HELPARR
-				arr.color = player.mo.color
-				arr.colorized = true
-				arr.angle = B.GetInputAngle(player)
-				arr.fuse = 2
-			end
-			local btprev = (player.cmd.buttons & BT_WEAPONPREV)
-			local btnext = (player.cmd.buttons & BT_WEAPONNEXT)
-			if (btprev) or (btnext) then
-				local arr2 = P_SpawnMobj(player.mo.x, player.mo.y, player.mo.z, MT_GHOST)
-				arr2.eflags = (player.mo.eflags & MFE_VERTICALFLIP) and $|MFE_VERTICALFLIP or $&~MFE_VERTICALFLIP
-				arr2.fuse = 2
-				if (btprev) and (btnext) then
-					--arr2.state = S_THROWINDICATOR
-				elseif (btprev) then
-					arr2.state = S_FLIGHTINDICATOR
-					arr2.eflags = ($ & MFE_VERTICALFLIP) and $&~MFE_VERTICALFLIP or $|MFE_VERTICALFLIP
-				elseif (btnext) then
-					arr2.state = S_FLIGHTINDICATOR
-				end
-			end
-		end
+	if player.jumpstasistimer then
+		player.jumpstasistimer = $-1
+		player.cmd.buttons = $ &~ BT_JUMP
 	end
 end
 

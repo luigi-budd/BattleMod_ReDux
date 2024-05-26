@@ -49,7 +49,8 @@ B.RingsHUD = function(v, player, cam)
 	--Actions
 	if B.StunBreakAllowed(player) then
 		local text = "Stun Break"
-		if player.rings >= 20 then
+		local cost = player.stunbreakcosttext
+		if cost and player.rings >= cost then
 			if leveltime % 3 == 0 then
 				text = "\x82" + $
 			elseif leveltime % 3 == 1 then
@@ -57,9 +58,9 @@ B.RingsHUD = function(v, player, cam)
 			else
 				text = "\x87" + $
 			end
-			text = $ + " \x82 20"
+			text = $ + " \x82 "..cost
 		else
-			text = "\x86" + $ + " \x85 20"
+			text = "\x86" + $ + " \x85 "--..cost
 		end
 		v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
 	else
@@ -80,15 +81,16 @@ B.RingsHUD = function(v, player, cam)
 				if player.actionstate then
 					text = "\x82" + $
 				else
-					local requirerings = (CV.RequireRings.value and player.rings < player.actionrings)
-					if requirerings or not B.CanDoAction(player) then
+					if not B.CanDoAction(player) then
 						text = "\x86" + $
 					end
 					if player.actionrings and not(player.actioncooldown) then
 						if not B.CanDoAction(player) then
-							text = $ + "  " + player.actionrings
-						elseif requirerings then
-							text = $ + "  \x85" + player.actionrings
+							if (CV.RequireRings.value and player.rings < player.actionrings) then
+								text = $ + "  \x85" + player.actionrings
+							else
+								text = $ + "  " + player.actionrings
+							end
 						else
 							text = $ + "  \x82" + player.actionrings
 						end
