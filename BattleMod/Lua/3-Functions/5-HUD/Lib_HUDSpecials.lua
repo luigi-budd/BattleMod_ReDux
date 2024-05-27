@@ -22,7 +22,7 @@ B.ActionHUD=function(v, player, cam)
 			local cost = player.stunbreakcosttext
 			local textcolor = "\x86"
 			local yoffset = hudinfo[HUD_RINGS].y+14
-			if cost and player.rings >= cost then
+			if cost != nil and player.rings >= cost then
 				if leveltime % 3 == 0 then
 					textcolor = ""
 				elseif leveltime % 3 == 1 then

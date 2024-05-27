@@ -76,16 +76,17 @@ B.RestoreTailsFollowMobj = function(p, mobj) -- cry
 		mobj.state = S_TAILSOVERLAY_PLUS30DEGREES
 	end
 
-	if p.skidtime and p.powers[pw_nocontrol]
---	and P_IsValidSprite2(mobj,SPR2_WALK)
+	if (p.skidtime or mobj.restorebuffer)
+	and P_IsValidSprite2(mobj, SPR2_WALK)
 		mobj.state = S_TAILSOVERLAY_PLUS30DEGREES
 		mobj.frame = 512 + min(7,1+p.speed/(p.mo.scale*2))
-		P_SetOrigin(mobj,
+		P_MoveOrigin(mobj,
 		p.mo.x-P_ReturnThrustX(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustX(mobj, mobj.angle, mobj.scale),
 		p.mo.y-P_ReturnThrustY(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustY(mobj, mobj.angle, mobj.scale),
 		p.mo.z+FixedMul(2*p.mo.scale, mobj.scale)
 		)
 		mobj.angle = p.drawangle
+		mobj.restorebuffer = p.skidtime --+1 frame
 		if leveltime%3 == 1
 			S_StartSound(mobj,sfx_s3k7e)
 		end

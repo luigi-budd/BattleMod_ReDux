@@ -69,7 +69,7 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 			P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
 			S_StartSound(mo[n1], sfx_s3ka0)
 			if not B.MyTeam(plr[n1], plr[n2])
-				plr[n2].customstunbreaktics = TICRATE
+				plr[n2].customstunbreaktics = 5
 				plr[n2].customstunbreakcost = 35
 			end
 			plr[n2].powers[pw_nocontrol] = max($,TICRATE/7)
@@ -225,8 +225,16 @@ B.Action.TailSwipe = function(mo,doaction)
 						otherplayer.customstunbreakcost = max(0,$-5)
 						otherplayer.powers[pw_nocontrol] = max($,TICRATE/2)
 						otherplayer.canstunbreak = 0
+						otherplayer.mo.hitstun_tics = otherplayer.powers[pw_nocontrol]
+						local shake = P_SpawnMobjFromMobj(otherplayer.mo, 0, 0, 0, MT_THOK)
+						shake.state = S_SHAKE
+						otherplayer.shakemobj = shake
 					else
 						otherplayer.canstunbreak = max($,2)
+					end
+					//shake vfx follows
+					if otherplayer.shakemobj and otherplayer.shakemobj.valid then
+						P_MoveOrigin(otherplayer.shakemobj, otherplayer.mo.x, otherplayer.mo.y, otherplayer.mo.z + (otherplayer.mo.height/2))
 					end
 					//pain animation
 					if otherplayer.followmobj
