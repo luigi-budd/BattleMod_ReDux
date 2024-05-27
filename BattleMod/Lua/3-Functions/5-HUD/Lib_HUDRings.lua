@@ -63,6 +63,7 @@ B.RingsHUD = function(v, player, cam)
 			end
 			text = $ + " \x82 "..cost
 		else
+			cost = ""
 			text = "\x86" + $ + " \x85 "..cost
 		end
 		v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")

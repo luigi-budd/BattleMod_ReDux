@@ -25,7 +25,9 @@ B.StunBreak = function(player, doguard)
 		-- support for custom stunbreak conditions
 		canBreak = (player.canstunbreak > 0) -- allows prevention of stunbreak by setting this to a negative value
 		break_tics = player.customstunbreaktics
+		if break_tics == nil then break_tics = 0 end
 		break_cost = player.customstunbreakcost
+		if break_cost == nil then break_cost = 0 end
 	elseif (player.tumble)
 		-- let us break out of non-parried tumbles
 		canBreak = not player.tumble_nostunbreak

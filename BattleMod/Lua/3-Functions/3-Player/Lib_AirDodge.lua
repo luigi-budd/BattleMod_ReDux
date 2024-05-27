@@ -65,6 +65,7 @@ B.AirDodge = function(player)
 			end
 			partner.tracer = nil
 			otherplayer.powers[pw_carry] = 0
+			B.ResetPlayerProperties(otherplayer, true, false)
 		end
 		
 		//Launch

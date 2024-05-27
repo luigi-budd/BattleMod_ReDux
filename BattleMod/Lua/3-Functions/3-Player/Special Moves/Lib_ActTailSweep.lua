@@ -71,9 +71,13 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 			if not B.MyTeam(plr[n1], plr[n2])
 				plr[n2].customstunbreaktics = 5
 				plr[n2].customstunbreakcost = 35
+				plr[n2].airdodge = -1
+				B.ApplyCooldown(plr[n1], cooldown_dash)
+			else
+				plr[n1].actioncooldown = cooldown_cancel
 			end
 			plr[n2].powers[pw_nocontrol] = max($,TICRATE/7)
-			plr[n2].airdodge = -1
+			plr[n2].jumpstasistimer = TICRATE/7 --prevent accidental jumps
 			return true
 		elseif plr[n1].actionstate == state_sweep
 			P_InstaThrust(mo[n2], angle[n2], mo[n1].scale*3)
@@ -211,7 +215,6 @@ B.Action.TailSwipe = function(mo,doaction)
 			and otherplayer.mo and otherplayer.mo.valid
 			and otherplayer.mo.tracer == mo
 				carrying = true
-				player.actioncooldown = min($,cooldown_cancel)
 				//If not friendly
 				if not B.MyTeam(otherplayer.mo,mo)
 					//gameplay
@@ -392,9 +395,10 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.actionsuper = true
 	end
 	
-	//Unable to charge
+	//Oops
 	if canceltrigger then
 		B.ResetPlayerProperties(player,false,false)
+		player.actionstate = 0
 		player.actiontime = -1
 		S_StartSound(mo,sfx_s3k7d)
 		B.ApplyCooldown(player,cooldown_cancel)
@@ -707,6 +711,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		if P_IsObjectOnGround(mo)
 		or B.PlayerButtonPressed(player,player.battleconfig_guard,false)
 		then
+			local throwed = player.actionstate == state_didthrow
 			player.actionstate = 0
 			player.drawangle = mo.angle
 			player.pflags = $|PF_JUMPSTASIS
@@ -717,7 +722,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				B.ResetPlayerProperties(player,false,false)
 				player.airdodgebuffer = true
 				P_SpawnGhostMobj(mo)
-			else
+			elseif not(throwed) then
 				B.ApplyCooldown(player,cooldown_dash)
 			end
 		end
