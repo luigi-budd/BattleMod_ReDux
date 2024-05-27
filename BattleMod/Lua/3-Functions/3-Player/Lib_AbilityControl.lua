@@ -281,7 +281,7 @@ B.exhaust = function(player)
 	
 	--Refill meter
 	if (P_IsObjectOnGround(mo) or P_PlayerInPain(player)) and not player.actionstate and not override then
-		player.exhaustmeter = FRACUNIT
+		player.exhaustmeter = (G_GametypeUsesLives() and B.ArenaGametype()) and FRACUNIT or FRACUNIT*2
 		player.ledgemeter = FRACUNIT
 	end
 	
