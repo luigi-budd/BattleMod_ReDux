@@ -149,4 +149,18 @@ B.RingsHUD = function(v, player, cam)
 	end
 	
 	v.drawNum(x + num_offsetx, y + num_offsety, player.rings, flags_hudtrans)
+
+	--Sweat
+	local warningtic = FRACUNIT/3
+	if player.exhaustmeter < warningtic then
+		local frame = 0
+		if player.exhaustmeter == 0 then
+			frame = 1
+		elseif not(leveltime % 7) then
+			return
+		end
+		x = $+12
+		y = $-12
+		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, v.getSpritePatch("SWET", frame), flags_hudtrans)
+	end
 end
