@@ -285,32 +285,21 @@ B.exhaust = function(player)
 		player.ledgemeter = FRACUNIT
 	end
 	
-	--Exhaust warning / color
-	if mo.exhaustcolor == nil then
-		mo.exhaustcolor = false
-	end
-	if mo.exhaustcolor == true and player.exhaustmeter == FRACUNIT then
-		mo.colorized = false
-		mo.color = player.skincolor
-		mo.exhaustcolor = false
-	end
-	local colorflip = false
-	if player.exhaustmeter < warningtic and not(player.exhaustmeter == 0) then
+	--Exhaust warning
+	if player.exhaustmeter < warningtic and player.exhaustmeter != 0 then
+		local sweatheight = mo.height * 3/2
 		if not(leveltime&7) then
-			S_StartSound(mo,sfx_s3kbb,player)
+			S_StartSound(mo, sfx_s3kbb, player)
+			local sweat = P_SpawnMobjFromMobj(mo, 0, 0, sweatheight * P_MobjFlip(mo), MT_THOK) --we got a local sweat in our area
+			sweat.spritexoffset = $ - (mo.radius*2)
+			sweat.state = S_SWEAT
+			sweat.target = mo
+			B.InstaFlip(sweat)
+			player.sweatobj = sweat
 		end
-		if (leveltime&4) then
-			colorflip = true
+		if player.sweatobj and player.sweatobj.valid then
+			P_MoveOrigin(player.sweatobj, player.mo.x, player.mo.y, player.mo.z + sweatheight)
 		end
-	end
-	if colorflip == true then
-		mo.exhaustcolor = true
-		mo.colorized = true
-		mo.color = SKINCOLOR_BRONZE
-	elseif mo.exhaustcolor == true then
-		mo.exhaustcolor = false
-		mo.colorized = false
-		mo.color = player.skincolor
 	end
 end
 
@@ -337,6 +326,7 @@ end
 
 B.tailsthrow = function(player)
 	if not player.tailsthrown then return end
+	local tails = player.tailsthrown.mo
 
 	player.landlag = max(0,$-1)
 	player.canstunbreak = max($,2)
@@ -357,6 +347,9 @@ B.tailsthrow = function(player)
 		and (B.MyTeam(mo,player.tailsthrown) == false)
 	then
 		local vfx = P_SpawnMobjFromMobj(mo, 0, 0, mo.height/2, MT_SPINDUST)
+		local audiosource = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
+		audiosource.tics = TICRATE*2
+		audiosource.flags2 = $ | MF2_DONTDRAW
 		if vfx.valid then
 			vfx.scale = mo.scale * 6/5
 			vfx.destscale = vfx.scale * 3
@@ -364,9 +357,9 @@ B.tailsthrow = function(player)
 			vfx.color = SKINCOLOR_WHITE
 			vfx.state = S_BCEBOOM
 		end
-		S_StartSound(vfx,sfx_s3k9b)
+		S_StartSound(audiosource, sfx_s3k9b)
 		P_StartQuake(14 * FRACUNIT, 5)
-		P_DamageMobj(mo, player.tailsthrown.mo, player.tailsthrown.mo)
+		P_DamageMobj(mo, tails, tails)
 		--P_DamageMobj(mo, nil, player.pushed_creditplr.mo) --THIS SIGSEGV'S THE GAME WHAT
 		player.tailsthrown = 0
 	end
@@ -378,8 +371,8 @@ B.tailsthrow = function(player)
 	local s = P_SpawnMobjFromMobj(mo,r(),r(),0,MT_SPARK)
 	s.scale = $*3/4
 	if P_RandomRange(0,1) then
+		s.color = (tails and tails.valid and tails.color != SKINCOLOR_ORANGE) and tails.color or SKINCOLOR_SKY
 		s.colorized = true
-		s.color = SKINCOLOR_SKY
 	end
 end
 
@@ -396,68 +389,60 @@ B.dashmodesound = function(player)
 end
 
 B.sneakertrail = function(player)
-	if player.powers[pw_sneakers]
-		and player.mo
-		and player.speed > 30*player.mo.scale
-	then
-    	if leveltime%3 then
-			local color = player.mo.color
-			if player.slipping then color = SKINCOLOR_BONE end
-
-			local speedtrail = P_SpawnGhostMobj(player.mo)
-			speedtrail.colorized = true
-			speedtrail.color = color
-			speedtrail.fuse = 3
-			if not player.slipping then speedtrail.blendmode = AST_ADD end
-			if speedtrail.tracer then
-				speedtrail.tracer.colorized = true
-				speedtrail.tracer.color = color
-				speedtrail.tracer.fuse = 3
-				if not player.slipping then speedtrail.tracer.blendmode = AST_ADD end
-			end
-    	end
-  	end
+	if player.powers[pw_sneakers] and player.mo and player.speed > 30*player.mo.scale and leveltime%3 then
+		local color = player.slipping and player.mo.color or SKINCOLOR_BONE
+		local speedtrail = P_SpawnGhostMobj(player.mo)
+		if speedtrail.tracer then
+			speedtrail.tracer.colorized = true
+			speedtrail.tracer.color = color
+			speedtrail.tracer.fuse = 3
+			speedtrail.tracer.blendmode = player.slipping and AST_TRANSLUCENT or AST_ADD
+		end
+		speedtrail.colorized = true
+		speedtrail.color = color
+		speedtrail.fuse = 3
+		speedtrail.blendmode = player.slipping and AST_TRANSLUCENT or AST_ADD
+    end
 end
 
 B.invinciblespark = function(player)
 	local mo = player.mo
-	if mo and mo.valid then
-		if player.powers[pw_invulnerability] then
-			if player.powers[pw_invulnerability] == 20*TICRATE-1
-				and not (player.invbarrier and player.invbarrier.valid)
-			then
-				player.invbarrier = P_SpawnMobjFromMobj(mo, 0,0,20*mo.scale, MT_INVINCIBLE_LIGHT)
-				player.invbarrier.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
-				player.invbarrier.blendmode = AST_ADD
-				player.invbarrier.target = mo
-				player.invbarrier.scale = mo.scale-(mo.scale/4)
-				player.invbarrier.colorized = true
-				player.invbarrier.color = SKINCOLOR_BONE
-			end
-			if player.invbarrier and player.invbarrier.valid then
-				P_SetOrigin(player.invbarrier, mo.x, mo.y, mo.z+20*mo.scale)
-			end
-			if not S_SoundPlaying(mo, sfx_huprsa) then
-				if player ~= displayplayer and not splitscreen then
-					S_StartSound(mo, sfx_huprsa)
-				end
-			end
-		else 
-			if player.invbarrier and player.invbarrier.valid then
-				P_RemoveMobj(player.invbarrier)
-				mo.renderflags = $&~RF_FULLBRIGHT
-				S_StopSound(mo, sfx_huprsa)
-				return
+	if not(mo and mo.valid) then
+		return
+	end
+	if player.powers[pw_invulnerability] then
+		if player.powers[pw_invulnerability] == 20*TICRATE-1 and not (player.invbarrier and player.invbarrier.valid) then
+			player.invbarrier = P_SpawnMobjFromMobj(mo, 0,0,20*mo.scale, MT_INVINCIBLE_LIGHT)
+			player.invbarrier.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
+			player.invbarrier.blendmode = AST_ADD
+			player.invbarrier.target = mo
+			player.invbarrier.scale = mo.scale-(mo.scale/4)
+			player.invbarrier.colorized = true
+			player.invbarrier.color = SKINCOLOR_BONE
+		end
+		if player.invbarrier and player.invbarrier.valid then
+			P_SetOrigin(player.invbarrier, mo.x, mo.y, mo.z+20*mo.scale)
+		end
+		if not S_SoundPlaying(mo, sfx_huprsa) then
+			if player ~= displayplayer and not splitscreen then
+				S_StartSound(mo, sfx_huprsa)
 			end
 		end
+	elseif player.invbarrier and player.invbarrier.valid then
+		P_RemoveMobj(player.invbarrier)
+		mo.renderflags = $&~RF_FULLBRIGHT
+		S_StopSound(mo, sfx_huprsa)
+		return
 	end
 end
 
 B.semisuper = function(player)
 	local mo = player.mo
-	if not mo and mo.valid then return end
+	if not(mo and mo.valid) then
+		return
+	end
 	
-	if player.powers[pw_sneakers] and player.powers[pw_invulnerability] then
+	if player.powers[pw_sneakers] and player.powers[pw_invulnerability] and S[player.skinvars].supersprites then
 		mo.semisuper = true
 		mo.eflags = $|MFE_FORCESUPER
 	elseif mo.semisuper then

@@ -16,7 +16,8 @@ S[-1] = {
 	func_collide = nil,
 	func_postcollide = nil,
 	func_exhaust = nil,
-	sprites = {}
+	sprites = {},
+	supersprites = false
 }
 S["sonic"] = {
 	weight = 100,
@@ -24,7 +25,8 @@ S["sonic"] = {
 	special = Act.SuperSpinJump,
 	guard_frame = 2,
 	func_priority_ext = Act.SuperSpinJump_Priority,
-	sprites = {}
+	sprites = {},
+	supersprites = true
 }
 S["tails"] = {
 	weight = 90,
