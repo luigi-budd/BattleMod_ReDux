@@ -37,7 +37,7 @@ B.PlayerPreThinkFrame = function(player)
 		end
 		--Post round invuln
 		if B.Exiting then
-			player.powers[pw_flashing] = TICRATE
+			player.nodamage = TICRATE
 		end
 	end
 	
@@ -85,9 +85,11 @@ B.PlayerThinkFrame = function(player)
 		One solution to this would be to tell battle's bump code to prevent players from being 
 		pushed out of their pain state, as this can lead to the invincibility bug.
 	]]
+	--[[
 	if  player.powers[pw_flashing] == (3*TICRATE) and not (P_PlayerInPain(player) or player.playerstate) then
 		player.powers[pw_flashing] =  (3*TICRATE)-1 -- let's allow vanilla srb2 to do the ticking down itself
 	end
+	]] --hey dude this is already fixed in B.flashingnerf lmao ~lu
 	
 	--Sanity checks
 	if player.versusvars == nil then return end

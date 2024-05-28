@@ -304,10 +304,9 @@ B.exhaust = function(player)
 end
 
 B.flashingnerf = function(player)
-	if not B.BattleGametype() then return end
-	if player.powers[pw_flashing] < (3 * TICRATE - 1) then
+	if B.BattleGametype() and player.powers[pw_flashing] < (3 * TICRATE - 1) then
 		player.powers[pw_flashing] = min($, 2*TICRATE)
-	elseif not P_PlayerInPain(player) then
+	elseif not(P_PlayerInPain(player) or player.playerstate) then
 		player.powers[pw_flashing] = $-1
 	end
 end

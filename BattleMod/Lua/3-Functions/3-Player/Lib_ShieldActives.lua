@@ -138,7 +138,7 @@ B.ForceStopParryTrigger = function(target, inflictor, source, damage, damagetype
 	S_StartSound(target, sfx_cdfm28)
 	S_StartSound(target, sfx_cdpcm9)
 	S_StartSound(target, sfx_s234)
-	local sh = B.DrawVFXFromMobj(target,0,0,0,MT_BATTLESHIELD)
+	local sh = P_SpawnMobjFromMobj(target,0,0,0,MT_BATTLESHIELD)
 	if sh then
 		sh.target = target
 		sh.scale = target.scale
@@ -148,7 +148,7 @@ B.ForceStopParryTrigger = function(target, inflictor, source, damage, damagetype
 	B.GuardDustFX(target)
 	if source and source.valid and source.health and source.player and source.player.powers[pw_flashing] then
 		source.player.powers[pw_flashing] = 0
-		local nega = B.DrawVFXFromMobj(source,0,0,0,MT_NEGASHIELD)
+		local nega = P_SpawnMobjFromMobj(source,0,0,0,MT_NEGASHIELD)
 		nega.target = source
 		nega.scale = source.scale
 	end

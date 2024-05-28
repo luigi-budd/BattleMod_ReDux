@@ -719,8 +719,8 @@ B.Action.TailSwipe = function(mo,doaction)
 			mo.frame = 0
 			if not P_IsObjectOnGround(mo) then
 				S_StartSound(mo,sfx_s251)
+				player.buttonhistory = $ | player.battleconfig_guard
 				B.ResetPlayerProperties(player,false,false)
-				player.airdodgebuffer = true
 				P_SpawnGhostMobj(mo)
 			elseif not(throwed) then
 				B.ApplyCooldown(player,cooldown_dash)

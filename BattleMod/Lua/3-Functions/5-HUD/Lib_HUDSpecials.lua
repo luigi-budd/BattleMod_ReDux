@@ -153,14 +153,16 @@ B.ActionHUD=function(v, player, cam)
 		and not P_IsObjectOnGround(player.mo))
 	
 	textcolor = "\x80"
-	if P_IsObjectOnGround(player.mo) then
-		if not (canguard or guardoverride) then return end
+	if guardoverride then
+		text = player.guardtext
+	elseif P_IsObjectOnGround(player.mo) and canguard then
 		text = "Guard"
-	else
-		if not (candodge or guardoverride) then return end
+	elseif candodge then
 		text = "Air Dodge"
 	end
-	text = player.guardtext or $
+	if not(text) then
+		return
+	end
 	text = textcolor .. " " .. $
 	v.draw(xoffset,yoffset,patch,flags)
 	v.drawString(xoffset+10,yoffset,text,flags,align)

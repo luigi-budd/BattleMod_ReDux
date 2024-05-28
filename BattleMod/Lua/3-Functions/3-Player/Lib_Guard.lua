@@ -42,6 +42,7 @@ B.Guard = function(player,buttonpressed)
 		if player.guard != 0 then
 			if not(P_PlayerInPain(player)) and not(player.pflags&(PF_JUMPED|PF_SPINNING)) then
 				mo.state = S_PLAY_FALL
+				mo.coyoteTime = 0
 			end
 			player.guard = 0
 		end

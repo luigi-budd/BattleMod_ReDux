@@ -67,6 +67,7 @@ B.InitPlayer = function(player)
 	player.slipping = false
 	player.gradualspeed = 0
 	player.didslipbutton = 0
+	player.nodamage = 0
 	if player.respawnpenalty == nil then
 		player.respawnpenalty = 0
 	end
@@ -548,7 +549,7 @@ B.PlayerSetupPhase = function(player)
 	--No control
 	player.powers[pw_nocontrol] = 2
 	--Don't kill me
-	player.powers[pw_flashing] = TICRATE
+	player.nodamage = TICRATE
 	if player.powers[pw_underwater] then
 		player.powers[pw_underwater] = max(30*TICRATE,$)
 	end
