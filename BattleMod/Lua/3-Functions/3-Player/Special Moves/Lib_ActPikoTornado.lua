@@ -195,7 +195,9 @@ B.DustDevilThinker = function(mo)
 	else
 		P_SetOrigin(hurtbox,mo.x,mo.y,mo.z+mo.height-hurtbox.height)
 	end
-	hurtbox.fuse = mo.fuse
+	if hurtbox and hurtbox.valid then
+		hurtbox.fuse = mo.fuse
+	end
 	if not(leveltime&3) then
 		for n = 1, 4
 			local swirl = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SWIRL)
