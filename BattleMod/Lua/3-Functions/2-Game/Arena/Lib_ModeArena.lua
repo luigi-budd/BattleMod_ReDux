@@ -156,6 +156,7 @@ A.GetRanks = function()
 	end
 end
 
+--[[
 A.TeamGetRanks = function()
 	local b = A.BlueFighters
 	local r = A.RedFighters
@@ -197,6 +198,7 @@ A.TeamGetRanks = function()
 		end
 	end
 end
+]]
 
 local function forcewin()
 	local doexit = false
@@ -259,7 +261,6 @@ A.UpdateGame = function()
 	B.UpdateScore()
 	A.UpdateScore()
 	
-	//****
 	//End of round conditions
 	local timelimit = 60*TICRATE*CV_FindVar("timelimit").value
 	local timeleft = timelimit-leveltime
@@ -401,9 +402,55 @@ A.UpdateGame = function()
 			forcewin()
 		return end
 	end
+	//Bounty system
+	if B.ArenaGametype() then
+		if (A.Bounty and not(A.Bounty.valid)) then
+			A.Bounty = nil
+		end
+		if #A.Survivors <= 2 then
+			A.Bounty = nil
+			return //Not enough players to begin bounty system
+		end
+		//Disallow bounty in survival until someone gets a lifeshard
+		if survival and not(A.Bounty) then
+			local survivalbounty = false
+			for n = 1, #A.Survivors
+				local p = A.Survivors[n]
+				if p.lifeshards then
+					survivalbounty = true
+					break
+				end
+			end
+			if not(survivalbounty) then
+				return
+			end
+		end
+		//Assign bounty to the player with highest lives or score
+		for n = 1, #A.Survivors
+			local p = A.Survivors[n]
+			if not(A.Bounty) then
+				A.Bounty = p
+			end
+			if survival then
+				local shards = p.lifeshards or 0
+				local shards2 = A.Bounty.lifeshards or 0
+				local lifescore1 = (p.lives*10)+shards
+				local lifescore2 = (A.Bounty.lives*10)+shards2
+				if lifescore1 > lifescore2 then
+					A.Bounty = p
+				elseif lifescore1 == lifescore2 and not(p == A.Bounty) then
+					A.Bounty = nil //Tie
+				end
+			else
+				if p.score > A.Bounty.score then
+					A.Bounty = p
+				end
+			end
+		end
+	end
 end
 
-A.KillReward = function(killer)
+A.KillReward = function(killer, target)
 	if not (killer and killer.valid) return end
 	if B.SuddenDeath then return end
 	local survival = G_GametypeUsesLives() and B.ArenaGametype()
@@ -415,13 +462,18 @@ A.KillReward = function(killer)
 	S_StartSound(nil, sfx_s249, killer)
 	
 	if killer.mo and killer.mo.valid and killer.playerstate == PST_LIVE and not killer.revenge
+		local killedbounty = CV.Bounty.value and target and target.player and target.player == A.Bounty
+		local ringbonus = killedbounty and 50 or 20
+		local lifeshardbonus = killedbounty and 3 or 1
+
 		if killer.lives >= CV.SurvivalStock.value or not survival
 			killer.lifeshards = 0
+			P_AddPlayerScore(killer, 200)
 		else
-			killer.lifeshards = $ + 1
+			killer.lifeshards = $ + lifeshardbonus
 		end
 		
-		killer.rings = $ + 20
+		killer.rings = $ + ringbonus
 		S_StartSound(killer.mo, sfx_itemup, killer)
 		S_StartSound(killer.mo, sfx_s249, killer)
 		
@@ -433,12 +485,12 @@ A.KillReward = function(killer)
 		elseif killer.lifeshards == 2
 			S_StartSound(nil, sfx_s243a, killer)
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 12, MT_NIGHTSPARKLE, ANGLE_90)
-		elseif killer.lifeshards == 3
+		elseif killer.lifeshards >= 3
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 15, MT_NIGHTSPARKLE, ANGLE_90)
 		end
 		
-		if (killer.lifeshards == 3) and survival
-			killer.lifeshards = 0
+		if (killer.lifeshards >= 3) and survival
+			killer.lifeshards = $-3
 			killer.lives = $ + 1
 			P_PlayLivesJingle(killer)
 			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_1UP_ICON)
@@ -451,6 +503,7 @@ A.KillReward = function(killer)
 	end
 end
 
+--[[
 A.HitReward = function(hitter)
 	if not (hitter and hitter.valid) return end
 	if B.SuddenDeath then return end
@@ -468,4 +521,4 @@ A.HitReward = function(hitter)
 		print("\x89" .. hitter.name .. " earned extra points!")
 	end
 end
-
+]]

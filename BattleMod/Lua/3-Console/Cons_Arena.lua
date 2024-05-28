@@ -24,3 +24,9 @@ CV.SuddenDeath = CV_RegisterVar{
 	flags = CV_NETVAR,
 	PossibleValue = CV_OnOff
 }
+CV.Bounty = CV_RegisterVar{
+	name = "survival_bounty",
+	defaultvalue = 1,
+	flags = CV_NETVAR,
+	PossibleValue = CV_OnOff
+}

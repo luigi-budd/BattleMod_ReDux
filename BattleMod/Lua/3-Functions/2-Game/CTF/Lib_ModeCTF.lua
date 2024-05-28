@@ -554,8 +554,8 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 				-- TODO: mobjinfo stuff for flags so we don't have to keep comparing ctfteam to fixed numbers
 			elseif conditions[2] then -- crown
 				icon.sprite = SPR_CRWN
-				icon.spritexoffset = $+(pmo.scale*6)
-				icon.spriteyoffset = $+pmo.height
+				icon.spritexoffset = $-(pmo.radius/2) --boi wat da hell boi
+				icon.spriteyoffset = $+(pmo.height/2)
 			else -- what
 				icon.sprite = SPR_UNKN
 			end
@@ -564,12 +564,14 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		end
 
 		-- finally, update the indicator's position
-		local zoffset = pmo.height * P_MobjFlip(pmo)
+		local zfloatintensity = pmo.scale*6 --lets make things nore lively, why not?
+		local zfloat = FixedMul(zfloatintensity, sin(leveltime*(ANG1*2)))
+		local zoffset = (pmo.height * P_MobjFlip(pmo)) + zfloatintensity + zfloat
 		if (pmo.eflags&MFE_VERTICALFLIP) then -- not sure why this is necessary, but if it works it works
 			zoffset = $+(pmo.height/3)
 		end
 		pmo.flag_indicator.eflags = (pmo.eflags&MFE_VERTICALFLIP) and $|MFE_VERTICALFLIP or $&~MFE_VERTICALFLIP
-		P_SetOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
+		P_MoveOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
 		if (displayplayer and p == displayplayer and not splitscreen)
