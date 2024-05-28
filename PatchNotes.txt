@@ -1,4 +1,194 @@
 pee pee test 2
+(in development)
+Version 10
+
+Modding features
+	- A player's guard can be set to -1 to effectively disable it
+	- Added new buffer variables so cancelled actions don't immediately trigger guards: player.guardbuffer, player.airdodgebuffer
+	- It is now possible to apply mo.cantouchteam (timer) on player objects for their next collision
+	- Returning "true" in func_postcollide will override collision effects, like returning "true" in func_collide overrides physics
+	- Carrying players will no longer collide with their partner, unless mo.cantouchteam is used
+	- New player variable: player.guardtext (Similar to player.action2text)
+	- Guard text will always show up if player.canguard is set to a value higher than 1
+	- New player variable: player.realbuttons (provides access to the player's buttons even if they have pw_nocontrol)
+	- New player variable: player.lastmoveblock (Updates to leveltime whenever the hook "MobjMoveBlocked" is called)
+	- New player variable: player.ledgemeter (emergency exhaust, player.exhaustmeter can't exceed it when grabbing a ledge)
+	- New player variable: player.ledgegrabcooldown
+	- New player variable: player.landlag (puts the player in recoil as they touch the floor)
+	- New player variable: player.nodamage (prevents the player from taking damage with no indication)
+	- New function: B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
+	- New timer: player.noshieldactive (Also resets to 0 on land)
+	- New timer: player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state)
+Major gameplay changes
+	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_newhud to "off"
+	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
+	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
+	- Players being carried can now signal and slightly influence the trajectory
+	- If the player's defense is higher than a blockable projectile's priority, the knockback and stun are severely weakened
+	- Characters will enter a curled jump state when landing on a spring during actionstate (customizable via the console variable battle_actionsprings)
+	- Slipstream leniency, range and thrust intensity increased based on other player's speed
+	- Removed respawn time penalty for multiple deaths
+	- Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
+	- Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
+	- Added a rejoin lockout timer when entering spectator mode
+Minor gameplay changes
+	- Lower default battle_collisiontimer (12 -> 5)
+	- Collisions will no longer occur between two players that are both standing completely still
+	- Added a 3 frame window (customizable via the console variable battle_coyotetime) where players can still jump from walking off a ledge/slope
+	- Players are now able to hold the guard button to perform guard actions as soon as they are available
+	- Added new VFX flair for invulnerability, sneakers and slipstream
+Guard
+	- Added a small momentum cut when entering guard
+	- Added a small momentum cut when sliding off an edge during guard
+	- Guard is once again possible during flashing frames
+	- Decreased flashing frames obtained from a successful guard (26 -> 17)
+Force Shield
+	- The Force Stop ability has been replaced with a new ability, Force Guard. This is an air parry that tumbles enemy players and destroys projectiles.
+	- On a successful parry, the user bounces upwards and can use jump abilities
+	- Unsuccessful parries suffer landing lag
+Survival, Team Survival, Arena, Team Arena
+	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable survival_bounty)
+	- The highest rank player can always be located with the radar or compass
+Battle CTF
+	- Flag debuff now also applies a fixed jumpfactor of 100%
+	- Holding a flag no longer hinders acceleration
+	- CTF flags can't be touched by players that are in guard or airdodge
+	- Playes cannot lose i-frames when in contact with flags
+	- Tossing the flag manually does not apply intangible time to it
+	- Flag toss now has a more horizontal angle
+	- Audio and visual cue for flag toss
+	- Returning flags grants 200 points
+	- Adjusted got flag indicator
+Diamond, Team Diamond
+	- The Diamond has been replaced by the Phantom Ruby, including new sprites, sounds, and visual effects
+	- Diamond has been renamed to Ruby Control
+	- Team Diamond has been renamed to Team Ruby Control
+New mode: Ruby Run
+	- This brand new game mode combines CTF and Ruby gameplay - a Ruby will spawn at the center of the map, and each team must try to bring the ruby to the enemy base!
+	- Added support for Ruby Run to all vanilla CTF maps.
+Sonic
+	Speed Thok
+		- Thok will now always use the highest speed available (player's current speed or actionspd)
+		- Maximum speed of actionspd times 2
+		- Different vfx and sfx if the player's current speed was higher than actionspd
+	Super Spin Jump
+		- Removed sweetspot angle (constant priority: 2/2)
+		- After the move ends, Sonic remains in the jump state and can use abilities
+	Ground Pound
+		- Sweetspot angle made more lenient: (<45 -> <22.5)
+		- Shockwave projectiles are no longer blockable
+		- Shockwave projectiles no longer bounce off walls or other objects
+		- Change shockwave projectile sprite
+		- Lesser vertical momentum when colliding with inanimate objects, regains jump ability
+		- Removed Sonic's options to perform a bounce or a drop dash when Ground Pound hits the floor
+Tails
+	Decreased weight (100 -> 90)
+	Fly
+		- Increased actionspd (115 -> 130)
+		- No longer restrains controls when tired
+		- Descends much faster when tired or when holding the spin button
+		- Exhausts faster with player speed (F spinfly meta)
+	Tail Swipe
+		- Projectiles also decelerate vertically
+		- Projectiles can slide up slopes
+		- Projectiles are more influenced by the player's angle and speed
+		- Added a wind-up state which must happen for at least 0.33s before the attack happens, but can be charged for more than a second for a more powerful attack
+		- Lower player gravity during wind-up
+		- Projectiles have much lower speed, spread and duration when not charged
+	Flight Dash
+		- Decreased attack (1 -> 0)
+		- Reverted defense (1 -> 2)
+		- When colliding with a teammate or a player that does not have any atk or def, Tails begins to carry them and his cooldown resets.
+			- If the player he collided with was an enemy, that player cannot escape the carry for a short duration, but can stunbreak immediately.
+		- Reverted cooldown increase depending on Tails's exhaustion level
+		- Can be cancelled by pressing the guard button
+	Partner Throw
+		- Renamed to Power Throw
+		- More influenced by player speed
+		- Thrown players have (2/1) priority
+		- Thrown opponents cannot airdodge, can damage their own teammates, and will take damage if they slam into a wall with enough speed
+Knuckles
+	Increased actionspd (28 -> 34)
+	Glide
+		- More lenient angle sweetspot (45 -> 90)
+	Drill dive
+		- Regains ability when colliding with inanimate objects
+		- New priority: (1/0) with a (2/1) sweetspot on the bottom
+	Rising drill
+		- New priority: (0/0) with a (1/1) sweetspot on the top
+		- No longer regains ability after the move ends
+	Dig
+		- Can start to move faster after burrow (17 -> 10)
+		- Can glide again after cancelling
+	Rock blast
+		- Rock formation is more condensed to the player's angle when moving forward
+Amy
+	- Reverted abilities to piko tornado and piko jump
+	- Piko wave sets action cooldown to a minimum of 0.5s
+	- Hammerjump thrusts the player horizontally instead of vertically, unless the jump button is being held without the spin button
+	- No longer curls on uncharged hammerjump
+	- When curled, swinging the hammer spawns projectiles
+	- Increased thrustfactor by 3 when in the air
+	Tornado
+		- Increased cooldown (1s -> 1.5s)
+		- Lower duration when not in 2D (5s -> 4s)
+		- No longer restrains Amy's controls when winding up
+		- Projectile speed is depending on what Amy's speed was when launching the projectile (minimum of 6 fracunits)
+Fang
+	- Decreased weapondelay (11 -> 7)
+	Tail Bounce
+		- Removed momentum cut when starting and ending the pogo state
+	Spring drop
+		- Drops 4 bombs when landing
+Metal Sonic
+	Energy Attack
+		Added a full charge bonus for all moves, not just Energy Blast
+		Energy blast
+			- Projectiles now move faster depending on how much time the ability was charged for
+		Dash slicer
+			- Full charge bonus: More slashes, longer dash
+			- Can now be steered during movement
+			- Slash projectiles now spawn directly behind Metal Sonic with no delay
+			- The jump at the end of the dash is now optional, and is activated by holding the jump button
+			- Added some forwards momentum to the jump, and reduced the jump's momentum cut
+		Dash burst
+			- Full charge bonus: Faster initial thrust
+Maintenance
+	- Fixed permanent flashing frames (player's flashing frames now always count down in battle gametypes, even if it is higher than SRB2's default)
+	- Fixed some flag debuff stats persisting after death
+	- Sonic can no longer perform a frame perfect jump when touching the floor during a ground pound
+	- Tails's tail swipes can no longer spawn inside of walls
+	- Tails no longer automatically attacks when landing after getting tail swipe interrupted by taking damage
+	- Knuckles can no longer glide-skid and guard at the same time
+	- Amy can't perfect-frame spin+jump to build up speed
+	- Amy's tornado jump no longer temporarily sets legacy controls
+	- Fang can no longer fire and guard at the same time
+	- Fang can no longer potentially trigger thunder shield infinitely
+	- Metal Sonic can no longer potentially trigger whirlwind shield infinitely
+	- The guard button will not be suggested for tumbling players
+	- Fixed visual bugs involving Tails's tails (e.g. recoil)
+	- Fixed visual bugs involving players being reset on springs (e.g. forcing walk/fall frames)
+	- Fixed sometimes not being able to jump after no longer being a jettysyn
+	- Fixed spectators being able to bypass respawn timer
+	- Players cannot take damage while in a zoomtube
+	- Golden monitors no longer have gravity
+	- Players no longer visually flash during the pre-round character select period
+	- Fixed a bug where rings collected during a special's charge period would be set back to 0 on release if the player suffered ring debt
+	- Bots can no longer collect item bubbles
+Console
+	Added variables and commands
+		battle_actionsprings
+		battle_coyotetime
+		battle_coyotefactor
+		battle_recoveryjump
+		battle_requirerings
+		survival_bounty
+		battleconfig_charselect
+		battleconfig_nospinshield
+		battleconfig_radar
+		battleconfig_glidestrafe
+		battleconfig_hammerstrafe
+#
 
 
 
