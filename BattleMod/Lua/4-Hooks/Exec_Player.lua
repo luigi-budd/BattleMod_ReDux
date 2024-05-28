@@ -168,7 +168,6 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	if target and target.player and not(target.player.guard and target.player.guard == 1) then
        	F.PlayerFlagBurst(target.player, 0)
     end
-	if B.ForceStopParryTrigger(target, inflictor, source, damage, damagetype) then return true end
 	--Do guarding
 	if B.GuardTrigger(target, inflictor, source, damage, damagetype) then return true end
 	--Handle damage dealt/received by revenge jettysyns

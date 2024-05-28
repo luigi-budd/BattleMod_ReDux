@@ -37,7 +37,6 @@ F.TouchFlag = function(mo, pmo)
 	end
 	if player.guard
 	or player.airdodge > 0
-	or player.forcestopping
 		if P_IsObjectOnGround(mo) and not mo.jostletimer
 			mo.jostletimer = 16
 			S_StartSound(mo, sfx_s3k6d)

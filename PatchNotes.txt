@@ -45,10 +45,6 @@ Minor gameplay changes
 	- Added new VFX flair for invulnerability, sneakers and slipstream
 Guard
 	- Guard is once again possible during flashing frames
-Force Shield
-	- [!] The Force Stop ability has been replaced with a new ability, Force Guard. This is an air parry that tumbles enemy players and destroys projectiles.
-	- [!] On a successful parry, the user bounces upwards and can use jump abilities
-	- [!] Unsuccessful parries suffer landing lag
 Survival, Team Survival, Arena, Team Arena
 	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable survival_bounty)
 	- The highest rank player can always be located with the radar or compass

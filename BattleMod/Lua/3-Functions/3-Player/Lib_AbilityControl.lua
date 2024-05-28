@@ -452,7 +452,6 @@ end
 
 B.CharAbilityControl = function(player)
 	B.ArmaCharge(player)
-	B.ForceStopping(player)
 	B.glide(player)
 	B.homingthok(player)
 	B.popgun(player)

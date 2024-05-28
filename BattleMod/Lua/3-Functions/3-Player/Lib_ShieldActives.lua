@@ -65,97 +65,6 @@ B.ArmaCharge = function(player)
 	end
 end
 
-B.ForceStopping = function(player)
-	if not player.valid or not player.mo or not player.mo.valid then
-		player.forcestopping = nil
-		return
-	end
-	local mo = player.mo
-	if mo.forceflash then
-		mo.colorized = false
-		mo.color = player.skincolor
-		mo.forceflash = false
-	end
-	if not player.forcestopping then return end
-	
-	if (player.actionstate
-		or player.playerstate ~= PST_LIVE
-		or P_PlayerInPain(player)
-		or ((player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) ~= SH_FORCE)
-		or player.tumble
-		or player.isjettysyn
-		or player.powers[pw_carry]
-		or P_IsObjectOnGround(mo))
-	then
-		
-		player.forcestopping = nil
-		player.landlag = 0
-		player.airdodge = 0
-		player.pflags = $ & ~PF_FULLSTASIS
-		return
-	end
-	
-	if player.forcestopping == FORCE_PARRY_ACTIVE_FRAMES then
-		player.pflags = $ & ~PF_FULLSTASIS
-		player.pflags = $ & ~(PF_JUMPED|PF_THOKKED)
-		
-		mo.state = S_PLAY_FALL
-	end
-	if player.forcestopping < FORCE_PARRY_ACTIVE_FRAMES then
-		mo.state = S_PLAY_ROLL
-		player.pflags = $ | PF_THOKKED | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
-		
-		mo.forceflash = (player.forcestopping/2)%2
-		if mo.forceflash then
-			mo.colorized = true
-			mo.color = SKINCOLOR_BUBBLEGUM
-		end
-	end
-	
-	player.forcestopping = $ + 1
-	
-	if player.forcestopping >= FORCE_PARRY_TOTAL_FRAMES then
-		player.forcestopping = 0
-		player.landlag = 0
-		player.airdodge = 0
-	else
-		player.landlag = 10
-		player.airdodge = -1
-	end
-end
-B.ForceStopParryTrigger = function(target, inflictor, source, damage, damagetype)
-	if not(target.valid and target.player and target.player.forcestopping and (target.player.forcestopping < FORCE_PARRY_ACTIVE_FRAMES) and inflictor and inflictor.valid) then return false end
-	B.ResetPlayerProperties(target.player,true,false)
-	target.player.just_fs_parried = true
-	target.player.forcestopping = nil
-	target.player.landlag = nil
-	target.player.powers[pw_flashing] = TICRATE*2/4
-	P_SetObjectMomZ(target, target.scale * 10 / B.WaterFactor(target), false)
-	target.momx = $ / 2
-	target.momy = $ / 2
-	target.state = S_PLAY_JUMP
-	
-	S_StartSound(target, sfx_cdfm28)
-	S_StartSound(target, sfx_cdpcm9)
-	S_StartSound(target, sfx_s234)
-	local sh = P_SpawnMobjFromMobj(target,0,0,0,MT_BATTLESHIELD)
-	if sh then
-		sh.target = target
-		sh.scale = target.scale
-		sh.color = SKINCOLOR_PURPLE
-		sh.colorized = true
-	end
-	B.GuardDustFX(target)
-	if source and source.valid and source.health and source.player and source.player.powers[pw_flashing] then
-		source.player.powers[pw_flashing] = 0
-		local nega = P_SpawnMobjFromMobj(source,0,0,0,MT_NEGASHIELD)
-		nega.target = source
-		nega.scale = source.scale
-	end
-	B.GotParried(target, inflictor, 38, inflictor.scale*9, inflictor.scale*3)
-	return true
-end
-
 local ElementalStomp = function(player)
 	local mo = player.mo
 	mo.state = S_PLAY_ROLL
@@ -204,7 +113,6 @@ local ThunderJump = function(player)
 end
 local ForceStop = function(player)
 	local mo = player.mo
-	player.forcestopping = 1
 	player.dashmode = 0
 	player.pflags = $ | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
 	mo.state = S_PLAY_ROLL

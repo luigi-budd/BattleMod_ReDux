@@ -145,7 +145,6 @@ B.ActionHUD=function(v, player, cam)
 		and not player.actionstate
 		and not player.climbing
 		and not player.armachargeup
-		and not player.forcestopping
 		and not player.isjettysyn
 		and not player.revenge
 		and not player.powers[pw_nocontrol]
