@@ -2,15 +2,16 @@ pee pee test 2
 (in development)
 Version 10
 
-NOTE FOR DEVS:
+NOTE FOR DEVS
 	- EVERY FEATURE MARKED WITH [!] MUST BE CHECKED IF IT'S SUPPOSED TO BE EITHER IMPLEMENTED OR DELETED FROM THE PATCH NOTES
+	Needs noting:
+		- [Metal Sonic] (Mari0shi's changes)
+		- [Ring Bank] (Explanation of new gamemode)
+		- yadda yadda... (pls help i have terrible memory)
+	Was already noted:
+		- [Major gameplay changes] The exhaustmeter is doubled in non-survival gamemodes
+		- [Sonic] Spinwave
 
-Other
-	- [TODO] Also list here every new feature that wasn't part of legacy 9.4 so we can sort it later
-	- [Major gameplay changes?] The exhaustmeter is doubled in non-survival gamemodes
-	- [Metal Sonic] (Mari0shi's changes)
-	- [Ring Bank] (Explanation of new gamemode)
-	- yadda yadda... (pls help i have terrible memory)
 Modding features
 	- A player's guard can be set to -1 before they take damage to represent guard breaks / whiffed guards
 	- It is now possible to apply mo.cantouchteam (timer) on player objects for their next collision
@@ -33,6 +34,7 @@ Major gameplay changes
 	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
+	- Characters will take twice as long to exhaust in non-survival gametypes
 	- [!] Removed respawn time penalty for multiple deaths
 	- [!] Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
 	- [!] Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
@@ -67,19 +69,23 @@ New mode: Ruby Run
 	- [!] Added support for Ruby Run to all vanilla CTF maps.
 Sonic
 	Speed Thok
-		- [!] Thok will now always use the highest speed available (player's current speed or actionspd)
-		- [!] Maximum speed of actionspd times 2
-		- [!] Different vfx and sfx if the player's current speed was higher than actionspd
+		- Thok will now always use the highest speed available (player's current speed or actionspd)
+		- Maximum speed of actionspd times 2
+		- Different vfx and sfx if the player's current speed was higher than actionspd
 	Super Spin Jump
-		- [!] Removed sweetspot angle (constant priority: 2/2)
-		- [!] After the move ends, Sonic remains in the jump state and can use abilities
+		- Removed sweetspot angle (constant priority: 2/2)
+		- After the move ends, Sonic remains in the jump state and can use abilities
 	Ground Pound
-		- [!] Sweetspot angle made more lenient: (<45 -> <22.5)
-		- [!] Shockwave projectiles are no longer blockable
-		- [!] Shockwave projectiles no longer bounce off walls or other objects
-		- [!] Change shockwave projectile sprite
-		- [!] Lesser vertical momentum when colliding with inanimate objects, regains jump ability
+		- Sweetspot angle made more lenient: (<45 -> <22.5)
+		- Shockwave projectiles are no longer blockable
+		- Shockwave projectiles no longer bounce off walls or other objects
+		- Changed shockwave projectile sprite
+		- Lesser vertical momentum when colliding with inanimate objects, regains jump ability
 		- Removed Sonic's options to perform a bounce or a drop dash when Ground Pound hits the floor
+	New ability: Spin Wave
+		- Available after spindash has been charged at least 60%
+		- A projectile move that will shoot forward in a straight line and send Sonic backwards in recoil
+		- Has the same cost and cooldown as Ground Pound
 Tails
 	Decreased weight (100 -> 90)
 	Fly
@@ -127,7 +133,7 @@ Metal Sonic
 Maintenance
 	- Fixed permanent flashing frames (player's flashing frames now always count down in battle gametypes, even if it is higher than SRB2's default)
 	- Fixed some flag debuff stats persisting after death
-	- [TODO: IMPLEMENT] Sonic can no longer perform a frame perfect jump when touching the floor during a ground pound
+	- Sonic can no longer perform a frame perfect jump when touching the floor during a ground pound
 	- Tails's tail swipes can no longer spawn inside of walls
 	- Tails no longer automatically attacks when landing after taking damage during an attack
 	- Knuckles can no longer glide-skid and guard at the same time

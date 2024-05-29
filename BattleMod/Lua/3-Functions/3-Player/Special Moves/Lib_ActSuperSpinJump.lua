@@ -130,6 +130,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	//Ground pound phase 2
 	if player.actionstate == state_groundpound_fall 
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
+		mo.coyoteTime = 0
 		if mo.momz*P_MobjFlip(mo) > 0 then //If we're moving upward, then something must have interrupted us.
 			player.actionstate = (mo.eflags & MFE_SPRUNG) and $ or 0
 			if mo.pushed_last then
