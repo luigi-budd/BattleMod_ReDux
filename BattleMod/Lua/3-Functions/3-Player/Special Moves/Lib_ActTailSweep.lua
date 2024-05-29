@@ -47,42 +47,58 @@ B.cutterattract = function(mo, dimension)
 end
 
 B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and plr[n1].valid and plr[n1].actionstate and plr[n1].playerstate == PST_LIVE
-	and (B.MyTeam(mo[n1], mo[n2]) or not (atk[n2] > 2 or def[n2] > 2)) 
+	if (pain[n1] or pain[n2]) or not(plr[n1] and plr[n1].valid) then
+		return
+	end
+	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < 2))
 		plr[n1].tailsmarker = true
+	elseif plr[n1].actionstate
+		local shake1 = P_SpawnMobjFromMobj(mo[n1], 0, 0, mo[n1].height/2, MT_THOK)
+		local shake2 = P_SpawnMobjFromMobj(mo[n2], 0, 0, mo[n1].height/2, MT_THOK)
+		shake1.state = S_SHAKE
+		shake2.state = S_SHAKE
+		mo[n1].hitstun_tics = TICRATE/3
+		mo[n2].hitstun_tics = TICRATE/3
+		--B.DoPlayerFlinch(plr[n1], 12+mo[n1].hitstun_tics, angle, -plr[n1].speed/2,false)
+		if P_IsObjectOnGround(mo[n1]) then
+			P_InstaThrust(mo[n1], mo[n1].angle, 0)
+			mo[n1].momz = P_MobjFlip(mo[n1])
+		end
+		if plr[n2] then
+			B.DoPlayerFlinch(plr[n2], 12+mo[n2].hitstun_tics, angle, plr[n2].speed/2,false)
+		end
+		S_StartSound(mo[n1], sfx_s3kd7s)
 	end
 end
 
 B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if not (plr[n1] and plr[n1].tailsmarker)
+	if not (plr[n1] and plr[n1].tailsmarker and plr[n2])
 		return false
 	end
-	if plr[n2]
-		if plr[n1].actionstate == state_dash
-			plr[n1].actionstate = 0
-			plr[n1].powers[pw_tailsfly] = TICRATE*5
-			mo[n1].state = S_PLAY_FLY
-			plr[n1].pflags = $ &~ (PF_JUMPED|PF_NOJUMPDAMAGE|PF_SPINNING|PF_STARTDASH)
-			plr[n1].pflags = $|PF_CANCARRY
-			P_SetOrigin(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+mo[n2].height)
-			B.CarryState(plr[n1],plr[n2])
-			P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
-			S_StartSound(mo[n1], sfx_s3ka0)
-			if not B.MyTeam(plr[n1], plr[n2])
-				plr[n2].customstunbreaktics = 5
-				plr[n2].customstunbreakcost = 35
-				plr[n2].airdodge = -1
-				B.ApplyCooldown(plr[n1], cooldown_dash)
-			else
-				plr[n1].actioncooldown = cooldown_cancel
-			end
-			plr[n2].powers[pw_nocontrol] = max($,TICRATE/7)
-			plr[n2].jumpstasistimer = TICRATE/7 --prevent accidental jumps
-			return true
-		elseif plr[n1].actionstate == state_sweep
-			P_InstaThrust(mo[n2], angle[n2], mo[n1].scale*3)
-			P_InstaThrust(mo[n1], angle[n1], mo[n1].scale*3)
+	if plr[n1].actionstate == state_dash
+		plr[n1].actionstate = 0
+		plr[n1].powers[pw_tailsfly] = TICRATE*8
+		mo[n1].state = S_PLAY_FLY
+		plr[n1].pflags = $ &~ (PF_JUMPED|PF_NOJUMPDAMAGE|PF_SPINNING|PF_STARTDASH)
+		plr[n1].pflags = $|PF_CANCARRY
+		P_SetOrigin(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+mo[n2].height)
+		B.CarryState(plr[n1],plr[n2])
+		P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
+		S_StartSound(mo[n1], sfx_s3ka0)
+		if not B.MyTeam(plr[n1], plr[n2])
+			plr[n2].customstunbreaktics = 5
+			plr[n2].customstunbreakcost = 35
+			plr[n2].airdodge = -1
+			B.ApplyCooldown(plr[n1], cooldown_dash)
+		else
+			plr[n1].actioncooldown = cooldown_cancel
 		end
+		plr[n2].powers[pw_nocontrol] = max($,TICRATE/7)
+		plr[n2].jumpstasistimer = TICRATE/7 --prevent accidental jumps
+		return true
+	elseif plr[n1].actionstate == state_sweep
+		P_InstaThrust(mo[n2], angle[n2], mo[n1].scale*3)
+		P_InstaThrust(mo[n1], angle[n1], mo[n1].scale*3)
 	end
 end
 
@@ -164,16 +180,37 @@ local function uncolorize(mo)
 	end
 end
 
-addHook("PlayerThink", function(player)
-	local mo = player.mo
-	if not mo or not mo.valid then return end
-	if mo.skin ~= "tails" then return end
-
-	if player.gotflag or player.gotcrystal then
-		player.actionstate = 0
-		player.charability2 = CA2_SPINDASH
+local function carrystun(otherplayer)
+	//gameplay
+	otherplayer.airdodge = -1
+	otherplayer.jumpstasistimer = 2 --because giving PF_JUMPSTASIS doesnt work apparently
+	otherplayer.landlag = otherplayer.powers[pw_nocontrol]
+	if (otherplayer.realbuttons & BT_JUMP) and not(otherplayer.powers[pw_nocontrol])
+		S_StartSound(otherplayer.mo, sfx_s3kd7s)
+		otherplayer.customstunbreakcost = max(0,$-5)
+		otherplayer.powers[pw_nocontrol] = max($,TICRATE/2)
+		otherplayer.canstunbreak = 0
+		otherplayer.mo.hitstun_tics = otherplayer.powers[pw_nocontrol]
+		local shake = P_SpawnMobjFromMobj(otherplayer.mo, 0, 0, 0, MT_THOK)
+		shake.state = S_SHAKE
+		otherplayer.shakemobj = shake
+	else
+		otherplayer.canstunbreak = max($,2)
 	end
-end)
+	//shake vfx follows
+	if otherplayer.shakemobj and otherplayer.shakemobj.valid then
+		P_MoveOrigin(otherplayer.shakemobj, otherplayer.mo.x, otherplayer.mo.y, otherplayer.mo.z + (otherplayer.mo.height/2))
+	end
+	//pain animation
+	if otherplayer.followmobj
+		if otherplayer.mo.skin == "tails"
+			otherplayer.followmobj.state = S_TAILSOVERLAY_PAIN
+		elseif otherplayer.mo.skin == "tailsdoll"
+			P_SetMobjStateNF(otherplayer.followmobj,S_NULL)
+		end
+	end
+	otherplayer.mo.state = S_PLAY_PAIN
+end
 
 B.Action.TailSwipe = function(mo,doaction)
 	local player = mo.player
@@ -181,7 +218,6 @@ B.Action.TailSwipe = function(mo,doaction)
 	if (mo.eflags & MFE_SPRUNG)
 	and player.actionstate
 		uncolorize(mo)
-		B.ResetPlayerProperties(player,true,false)
 		return
 	end
 
@@ -209,54 +245,25 @@ B.Action.TailSwipe = function(mo,doaction)
 		~lumyni
 		]]
 	if flying
-		--carrying = tailspartnerdetect(mo) --maybe we can move the block below to a separate function?
 		for otherplayer in players.iterate
-			if otherplayer.powers[pw_carry] == CR_PLAYER
+			if not(otherplayer.powers[pw_carry] == CR_PLAYER
 			and otherplayer.mo and otherplayer.mo.valid
-			and otherplayer.mo.tracer == mo
-				carrying = true
-				//If not friendly
-				if not B.MyTeam(otherplayer.mo,mo)
-					//gameplay
-					otherplayer.airdodge = -1
-					otherplayer.jumpstasistimer = 2 --because giving PF_JUMPSTASIS doesnt work apparently
-					otherplayer.landlag = otherplayer.powers[pw_nocontrol]
-					if (otherplayer.realbuttons & BT_JUMP)
-					and not (otherplayer.powers[pw_nocontrol] or (player.buttonhistory & BT_JUMP))
-					then
-						S_StartSound(otherplayer.mo, sfx_s3kd7s)
-						otherplayer.customstunbreakcost = max(0,$-5)
-						otherplayer.powers[pw_nocontrol] = max($,TICRATE/2)
-						otherplayer.canstunbreak = 0
-						otherplayer.mo.hitstun_tics = otherplayer.powers[pw_nocontrol]
-						local shake = P_SpawnMobjFromMobj(otherplayer.mo, 0, 0, 0, MT_THOK)
-						shake.state = S_SHAKE
-						otherplayer.shakemobj = shake
-					else
-						otherplayer.canstunbreak = max($,2)
-					end
-					//shake vfx follows
-					if otherplayer.shakemobj and otherplayer.shakemobj.valid then
-						P_MoveOrigin(otherplayer.shakemobj, otherplayer.mo.x, otherplayer.mo.y, otherplayer.mo.z + (otherplayer.mo.height/2))
-					end
-					//pain animation
-					if otherplayer.followmobj
-						if otherplayer.mo.skin == "tails"
-							otherplayer.followmobj.state = S_TAILSOVERLAY_PAIN
-						elseif otherplayer.mo.skin == "tailsdoll"
-							P_SetMobjStateNF(otherplayer.followmobj,S_NULL)
-						end
-					end
-					otherplayer.mo.state = S_PLAY_PAIN
-				end
-				break
+			and otherplayer.mo.tracer == mo)
+			then //skip until we find someone that passes all of the conditions
+				continue
 			end
+			if not B.MyTeam(otherplayer.mo, mo)
+				carrystun(otherplayer)
+			end
+			carrying = true 
+			break //we carrying, dont even bother checking other players
 		end
 	end
 	
 	local chargepercentage = min(100,player.actiontime*100/threshold2)
+	local exhaust = max(0,200-(player.actiontime*100/threshold2))
 	if player.actionstate == state_charging
-		player.action2text = "Preparing attack "..chargepercentage.."%"
+		player.action2text = "Exhaust "..exhaust.."%"
 	end
 	
 	//Action triggers
@@ -267,7 +274,6 @@ B.Action.TailSwipe = function(mo,doaction)
 	local canceltrigger =
 		not swipetrigger
 		and player.actionstate == state_charging
-		and doaction == 2
 		and B.PlayerButtonPressed(player,player.battleconfig_guard,false)
 	--local swipetrigger = (player.actionstate == 0 and doaction == 1 and not(flying or carrying))
 	local thrusttrigger = (player.actionstate == 0 and doaction == 1 and flying and not(carrying))
@@ -324,10 +330,10 @@ B.Action.TailSwipe = function(mo,doaction)
 		B.PayRings(player,player.actionrings)
 		player.actionstate = state_charging
 		player.actiontime = 0
-		--player.exhaustmeter = FRACUNIT
+		player.ledgemeter = (FRACUNIT*2) - (FRACUNIT/5)
 		player.pflags = $&~(PF_SPINNING|PF_SHIELDABILITY)
 		player.canguard = false
-	--	S_StartSound(mo,sfx_charge)
+		S_StartSound(mo,sfx_charge)
 		if not(P_IsObjectOnGround(mo))
 			P_SetObjectMomZ(mo,mo.momz-(mo.momz/3),false)
 		end
@@ -340,10 +346,12 @@ B.Action.TailSwipe = function(mo,doaction)
 		local spdrange = (1+player.speed)/(3*mo.scale)
 		local chargerange = (1+chargepercentage)/16
 		local range = spdrange + chargerange
-		//Do aim sights
 		player.canguard = false
 		player.pflags = $&~(PF_SPINNING)
-		--player.exhaustmeter = max(0,$-(FRACUNIT/TICRATE/2))
+		if player.ledgemeter then
+			player.ledgemeter = max(0,$-(FRACUNIT*2/(threshold2*2)))
+			player.exhaustmeter = min($,player.ledgemeter)
+		end
 
 		//Speed Cap
 		local speed = FixedHypot(mo.momx,mo.momy)
@@ -392,7 +400,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				end
 			end
 		end
-		player.actionsuper = true
+		--player.actionsuper = true
 	end
 	
 	//Oops
@@ -403,14 +411,14 @@ B.Action.TailSwipe = function(mo,doaction)
 		S_StartSound(mo,sfx_s3k7d)
 		B.ApplyCooldown(player,cooldown_cancel)
 		uncolorize(mo)
-		player.guardbuffer = -1
+		player.buttonhistory = $ | player.battleconfig_guard
 	end
 	
 	//Charging frame
 	if player.actionstate == state_charging then
 		mo.state = S_PLAY_EDGE
 		player.pflags = $|PF_SPINDOWN|PF_THOKKED&~PF_NOJUMPDAMAGE
-		player.actionsuper = true
+		--player.actionsuper = true
 		if not (P_IsObjectOnGround(mo) or B.WaterFactor(mo) > 1) then
 			P_SetObjectMomZ(mo,gravity/2,true) //Low grav
 		end
@@ -532,7 +540,11 @@ B.Action.TailSwipe = function(mo,doaction)
 				otherplayer.airdodge = -1
 				otherplayer.actioncooldown = max($,2*TICRATE)
 				B.PlayerCreditPusher(otherplayer,player)
-				otherplayer.customstunbreakcost = $ and min($+15,35) or 35
+				if otherplayer.customstunbreakcost == nil then
+					otherplayer.customstunbreakcost = 35 
+				else
+					otherplayer.customstunbreakcost = min($+15,35)
+				end
 			end
 			otherplayer.powers[pw_nocontrol] = 0
 			otherplayer.landlag = 0

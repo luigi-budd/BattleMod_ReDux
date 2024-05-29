@@ -93,7 +93,7 @@ Tails
 		- Descends much faster when tired or when holding the spin button
 		- Exhausts faster with player speed (F spinfly meta)
 	Tail Swipe -> Tail Sweep
-		A disjoint area attack that is tiny and brief, but can be charged for more distance
+		A disjoint area attack that is tiny and brief, but can be charged for more distance and duration
 		- Decreased actionstate ATK and DEF to 0
 		- Added a wind-up state which must happen for at least 0.33s before the attack happens, but can be charged for an additional 1.5s
 		- Lower player gravity during wind-up
@@ -104,7 +104,7 @@ Tails
 		- Can be cancelled by pressing the guard button
 		- When colliding with a teammate or a player that does not have any atk or def, Tails begins to carry them
 			- If the player he collided with was an enemy, that player cannot escape the carry, but can stunbreak immediately for 35 rings initially
-			- Every time the enemy tries to jump away, the stunbreak cost will decrease by 5, but if they are thrown, it will increase back by 15, 35 if at zero
+			- Every time the enemy tries to jump away, the stunbreak cost will decrease by 5, but if they are thrown, it will increase back by 15
 			- The stunbreak cost will always have a minimum of 0 rings and a maximum of 35 rings
 	Partner Throw -> Power Throw
 		- More influenced by player speed

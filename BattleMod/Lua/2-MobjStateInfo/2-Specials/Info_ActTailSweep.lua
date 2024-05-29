@@ -49,3 +49,5 @@ states[S_SONICBOOM4] = {
 	tics = 1,
 	nextstate = S_SONICBOOM1
 }
+freeslot('sfx_charge')
+sfxinfo[sfx_charge].caption = "Preparing attack"

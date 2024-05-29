@@ -330,7 +330,9 @@ B.tailsthrow = function(player)
 	player.landlag = max(0,$-1)
 	player.canstunbreak = max($,2)
 	player.customstunbreaktics = TICRATE
-	player.customstunbreakcost = $ or 35
+	if player.customstunbreakcost == nil then
+		player.customstunbreakcost = 35
+	end
 	player.actionallowed = false
 	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 	B.StunBreak(player, doguard) --this shouldn't have been necessary
@@ -360,6 +362,13 @@ B.tailsthrow = function(player)
 		P_StartQuake(14 * FRACUNIT, 5)
 		P_DamageMobj(mo, tails, tails)
 		--P_DamageMobj(mo, nil, player.pushed_creditplr.mo) --THIS SIGSEGV'S THE GAME WHAT
+		if not(player.playerstate) then
+			P_Thrust(mo, mo.angle, -mo.scale*12)
+			player.drawangle = mo.angle
+		end
+		local omg = TICRATE/5
+		mo.hitstun_tics = omg
+		P_FlashPal(player, PAL_INVERT, omg)
 		player.tailsthrown = 0
 	end
 
