@@ -3,6 +3,7 @@ LevelName = Training
 SelectHeading = Training
 Music = TUTORL
 Skynum = 99
+TypeOfLevel = Arena,Survival
 NextLevel = B0
 LevelSelect = 1
 Lua.BattleItems_LocalRate = 10
