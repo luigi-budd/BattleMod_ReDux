@@ -31,6 +31,8 @@ B.RingsHUD = function(v, player, cam)
 		num_offsetx = $ + 8
 	elseif player.rings >= 10 then
 		num_offsetx = $ + 4
+	else
+		num_offsetx = $ + 1
 	end
 	
 	--Face
@@ -46,6 +48,17 @@ B.RingsHUD = function(v, player, cam)
 	v.draw(x + 3 + facepos, 200, facepatch, flags | V_HUDTRANSHALF, v.getColormap(TC_BLINK, SKINCOLOR_PITCHBLACK))
 	v.draw(x + 2 + facepos, 201, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
 	
+	--Rings
+	local scale = FRACUNIT + (player.ringhudflash * FRACUNIT/50)
+	local ringpatchname = "HUD_RING"
+	if (player.rings == 0 and (leveltime/5 & 1)) then
+		ringpatchname = "HUD_RINGR"
+	elseif player.rings < player.actionrings then
+		ringpatchname = "HUD_RINGG"
+	end
+	local ringpatch = v.cachePatch(ringpatchname)
+	v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
+
 	--Actions
 	if B.StunBreakAllowed(player) then
 		local text = "Stun Break"
@@ -69,16 +82,35 @@ B.RingsHUD = function(v, player, cam)
 		v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
 	else
 		if (player.actioncooldown) then
+			local lastcooldown = player.lastcooldown or 1
+			local scale_factor = 1000
+			local scaled_ratio = (player.actioncooldown * scale_factor) / lastcooldown
+			local angles = scaled_ratio * 360 / scale_factor
+			for n=1, angles do
+				local p = v.getSpritePatch("CDBR", 0, 0, n*ANG1)
+				v.draw(x, y-9, p, flags_hudtrans)
+			end
+			--[[
 			local barpatch = v.cachePatch("HUD_CDBAR"+(leveltime/2 % 4))
-			local prev = player.lastcooldown or player.actioncooldown
 			local barlength = 80 * player.actioncooldown / prev
+			local prev = player.lastcooldown or player.actioncooldown
 			if barlength then
 				for i = 0, barlength do
 					v.draw(x + action_offsetx + cooldownbar_offsetx + i, y + action_offsety, barpatch, flags_hudtrans)
 				end
 			end
-			local text = G_TicsToSeconds(player.actioncooldown) + "." + G_TicsToCentiseconds(player.actioncooldown)
-			v.drawString(x + action_offsetx + cooldownbar_offsetx + cooldownnum_offsetx + barlength, y + action_offsety, text, flags_hudtrans, "thin")
+			]]
+			local function roundToMultipleOf5(num)
+				local remainder = num % 5
+				if remainder >= 3 then
+					return num + (5 - remainder)
+				else
+					return num - remainder
+				end
+			end
+			local text = "\x86" + G_TicsToSeconds(player.actioncooldown) + "." + roundToMultipleOf5(G_TicsToCentiseconds(player.actioncooldown))
+			--v.drawString(x + action_offsetx + cooldownbar_offsetx + cooldownnum_offsetx + barlength, y + action_offsety, text, flags_hudtrans, "thin")
+			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
 			if (player.actiontext) then
 				local text = player.actiontext
@@ -121,17 +153,7 @@ B.RingsHUD = function(v, player, cam)
 		end
 	end
 	
-	--Rings
-	local scale = FRACUNIT + (player.ringhudflash * FRACUNIT/50)
-	local ringpatchname = "HUD_RING"
-	if (player.rings == 0 and (leveltime/5 & 1)) then
-		ringpatchname = "HUD_RINGR"
-	elseif player.rings < player.actionrings then
-		ringpatchname = "HUD_RINGG"
-	end
-	local ringpatch = v.cachePatch(ringpatchname)
-	v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
-	
+	--Number
 	if player.ringhudflash ~= 0 then
 		local flashpatch
 		if player.ringhudflash > 0 then

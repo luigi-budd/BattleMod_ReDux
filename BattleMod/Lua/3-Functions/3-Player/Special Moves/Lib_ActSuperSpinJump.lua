@@ -42,7 +42,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
 			player.actiontext = "Spin Wave"
 			player.actionrings = 10
-	elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB then
+	elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB or player.actionstate == state_superspinjump then
 		player.actiontext = "Super Spin Jump"
 		player.actionrings = 10
 	else
@@ -103,7 +103,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				mo.state = S_PLAY_ROLL
 				player.secondjump = 0
 				player.canguard = false
-				B.ApplyCooldown(player,cooldown1)
+				--B.ApplyCooldown(player,cooldown1)
 			else //Do ground pound
 				//B.ApplyCooldown(player,cooldown2)
 				thrust = pound_startthrust/water
