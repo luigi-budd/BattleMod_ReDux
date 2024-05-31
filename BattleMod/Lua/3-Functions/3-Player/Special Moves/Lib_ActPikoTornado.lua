@@ -2,11 +2,16 @@ local B = CBW_Battle
 
 local ground_special = 1
 local air_special = 10
-local cooldown = TICRATE
-local cooldown2 = TICRATE * 3/2
+local piko_special = 11
+local cooldown = TICRATE * 3/2
 local swirl1 = S_LHRT
 local swirl2 = S_LHRT
 local min_tornado_speed = 6
+
+local st_idle = 0
+local st_hold = 1
+local st_release = 2
+local st_jump = 3
 
 B.Action.PikoTornado_Priority = function(player)
 	if player.actionstate == ground_special or player.actionstate == air_special then
@@ -45,32 +50,45 @@ B.Action.PikoTornado = function(mo,doaction)
 		end
 	return end
 	player.actiontime = $+1
+	player.actionrings = 10
 	//Action Info
-	if P_IsObjectOnGround(mo)
+	if player.actionstate == piko_special
+	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT*6/10)
+		player.actiontext = "Piko Wave"
+		player.actionrings = 5
+	elseif player.melee_state == st_release
+		return
+	elseif P_IsObjectOnGround(mo)
 		player.actiontext = "Piko Tornado"
 	else
-		player.actiontext = "Piko Spin"
-	end
-	player.actionrings = 10
-	//Neutral
-	if player.actionstate == 0
-		//Trigger
-		if (doaction == 1) then
-			if not(P_IsObjectOnGround(mo)) //Air
-				B.PayRings(player)
-				player.actionstate = air_special
-				player.pflags = $|PF_THOKKED
-				P_SetObjectMomZ(mo,FixedMul(player.jumpfactor,FRACUNIT*10/B.WaterFactor(mo)),0)
-				player.actiontime = 0
-				S_StartSound(mo,sfx_s3ka0)
-			else //Ground
-				B.PayRings(player)
-				player.actionstate = ground_special
-				B.ControlThrust(mo,mo.scale/4)
-				player.actiontime = 0
-				S_StartSound(mo,sfx_s3ka0)
-			end
+		player.actiontext = "Tornado Jump"
+		if mo.tornadocollide and mo.tornadocollide == leveltime
+			local colors = {[0]="\x81", [1]="\x89", [2]="\x8E"} --magenta, purple, rosy
+			player.actiontext = colors[leveltime % 3] .. $
 		end
+	end
+	//Trigger
+	if player.actionstate == 0 and (doaction == 1) then
+		B.PayRings(player)
+		player.actiontime = 0
+		if player.melee_state == st_hold and player.melee_charge >= FRACUNIT*6/10 then
+			if player.melee_charge < FRACUNIT then
+				B.hammerchargevfx(mo)
+			end
+			player.actionstate = piko_special
+			player.cmd.buttons = $ &~ BT_SPIN
+		elseif not(P_IsObjectOnGround(mo)) then
+			player.actionstate = air_special
+			player.pflags = $|PF_THOKKED
+			P_SetObjectMomZ(mo,FixedMul(player.jumpfactor,FRACUNIT*10/B.WaterFactor(mo)),0)
+			S_StartSound(mo,sfx_s3ka0)
+		else //Ground
+			player.actionstate = ground_special
+			B.ControlThrust(mo,mo.scale/4)
+			S_StartSound(mo,sfx_s3ka0)
+			player.melee_state = st_idle
+		end
+		player.melee_charge = 0
 	end
 	//Ground Special
 	if player.actionstate == ground_special then
@@ -134,10 +152,11 @@ B.Action.PikoTornado = function(mo,doaction)
 		player.powers[pw_nocontrol] = max($,2)
 		if player.actiontime < TICRATE return end
 		//Neutral
-		B.ApplyCooldown(player,cooldown2)
+		B.ApplyCooldown(player,cooldown)
 		player.actionstate = 0
 		player.actiontime = 0
 		mo.state = S_PLAY_WALK
+		return
 	end
 	//Air Special
 	if player.actionstate == air_special then
@@ -151,18 +170,56 @@ B.Action.PikoTornado = function(mo,doaction)
 		if player.pflags&PF_JUMPDOWN then
 			P_SetObjectMomZ(mo,FRACUNIT/8,1)
 		end
+		//Extra Projectiles
+		if not(player.pflags&PF_NOJUMPDAMAGE) then
+			player.pflags = $ | PF_NOJUMPDAMAGE
+			if mo.tornadocollide and mo.tornadocollide == leveltime then
+				for n = 1,8 do
+					B.SpawnWave(player, n*ANGLE_45, n>1)
+				end
+			else
+				for n = 1,8 do
+					local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
+					if msl and msl.valid then
+						msl.target = mo
+						msl.extravalue2 = FRACUNIT*95/100
+						msl.fuse = 15
+						msl.flags = $
+						local speed = mo.scale * 20
+						local xyangle = n*ANGLE_45
+						local zangle = 0
+						B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
+						msl.momx = $ + mo.momx
+						msl.momy = $ + mo.momy
+						msl.momz = $ + mo.momz	
+					end
+				end
+			end
+			S_StartSound(msl, sfx_hoop1)
+		end
 		//Neutral
-		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*3/2 
-		or mo.z+mo.momz < mo.floorz
+		local nearground = P_IsObjectOnGround(mo) or mo.z+mo.momz < mo.floorz
+		if nearground or player.actiontime > TICRATE*3/2 then
+			if nearground or doaction
+			or (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
 			then
-			mo.state = S_PLAY_FALL
+				player.melee_state = st_release
+				mo.state = S_PLAY_MELEE
+			else
+				mo.state = S_PLAY_FALL
+			end
 			player.actionstate = 0
 			player.actiontime = 0
 			B.ApplyCooldown(player,cooldown)
 			player.drawangle = player.mo.angle
 		end
+		return
 	end
-
+	--[[
+	if player.actionstate == piko_special and P_IsObjectOnGround(mo) then
+		--handled in Lib_Hammer
+	end
+	]]
 end
 
 B.DustDevilThinker = function(mo)
@@ -330,6 +387,7 @@ B.DustDevilTouch = function(dustdevil,collide)
 -- 	print("\x83 "..hurtheight*100/dustdevil.height.."%..."..w*100/dustdevil.radius.."%..."..dist/FRACUNIT)
 	//Self collision
 	if dustdevil.target == collide and player
+		collide.tornadocollide = leveltime
 		if collide.player.actionstate == air_special then //Air-ground combo
 			if not(S_SoundPlaying(collide,sfx_wdjump)) then
 				S_StartSound(collide,sfx_wdjump)

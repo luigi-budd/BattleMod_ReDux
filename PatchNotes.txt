@@ -113,21 +113,29 @@ Knuckles
 	[TODO ?]
 Amy
 	- Reverted abilities to piko tornado and piko jump
-	- [!] Piko wave sets action cooldown to a minimum of 0.5s
-	- [!] Hammerjump thrusts the player horizontally instead of vertically, unless the jump button is being held without the spin button
-	- [!] No longer curls on uncharged hammerjump
-	- [!] When curled, swinging the hammer spawns an arc of heart projectiles
-	- [!] Increased thrustfactor by 3 when in the air
-	Tornado
+	- Hammer jump turns into piko launch when holding down the spin button, which works essentially the same but horizontally
+	- No longer curls on uncharged hammerjump
+	- When curled, swinging the hammer spawns an arc of heart projectiles
+	- Increased thrustfactor by 3 when in the air
+	Piko Tornado
 		- Increased cooldown (1s -> 1.5s)
 		- Lower duration when not in 2D (5s -> 4s)
 		- No longer restrains Amy's controls when winding up
 		- Projectile speed is depending on what Amy's speed was when launching the projectile (minimum of 6 fracunits)
+	Piko Jump -> Tornado Jump
+		- Increased cooldown (1s -> 1.5s)
+		- When colliding with the tornado, the action text will flash to indicate that a tornado jump is available
+		- Will result in a hammer strike when landing or when running out while holding jump/spin/special
+		- If curled, will spawn a ring of heart projectiles
+		- If curled and boosted by a tornado, will spawn a ring of piko wave projectiles
+	Piko Wave
+		- Is now a battle special, available after charging at least 60% of the hammer Attack
+		- Costs 5 rings and applies 1s of cooldown on use
 Fang
 	Tail Bounce
 		- Removed momentum cut when starting and ending the pogo state
 	Spring drop
-		- [!] Drops 4 bombs when landing
+		- Drops 4 bombs when landing
 Metal Sonic
 	[TODO]
 Maintenance
@@ -138,8 +146,9 @@ Maintenance
 	- Tails no longer automatically attacks when landing after taking damage during an attack
 	- Knuckles can no longer glide-skid and guard at the same time
 	- Amy's tornado jump no longer temporarily sets legacy controls
-	- [!] Fang can no longer fire and guard at the same time
-	- [TODO: IMPLEMENT - B.GuardControl] The guard button will not be suggested for tumbling players
+	- Amy no longer triggers twin spin automatically after a hammer-jump
+	- [TODO: IMPLEMENT AFTER GUARD CHANGES - B.Guard] Fang can no longer fire and guard at the same time
+	- [TODO: IMPLEMENT AFTER GUARD CHANGES - B.GuardControl] The guard button will not be suggested for tumbling players
 	- Fixed visual bugs involving Tails's tails (e.g. recoil)
 	- Fixed visual bugs involving players being reset on springs (e.g. forcing walk/fall frames)
 	- Fixed sometimes not being able to jump after no longer being a jettysyn

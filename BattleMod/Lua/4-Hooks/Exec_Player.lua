@@ -95,19 +95,14 @@ end)
 
 addHook("JumpSpecial",function(player)
 	if (player.powers[pw_carry]) or player.battlespawning then return end
-
-	if not(player.buttonhistory&BT_JUMP) then
-		if B.TwinSpinJump(player) then return true end
-	end
+	if B.TwinSpinJump(player) then return true end
 end)
 
 addHook("SpinSpecial",function(player)
 	if B.Exiting then return true end
 	B.ChargeHammer(player)
 	if (player.powers[pw_carry]) then return end
-	if not(player.buttonhistory&BT_SPIN) then
-		if B.TwinSpin(player) then return true end
-	end
+	if B.TwinSpin(player) then return true end
 end)
 
 addHook("JumpSpinSpecial", function(player)

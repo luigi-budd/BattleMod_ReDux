@@ -6,17 +6,42 @@ local st_release = 2
 local st_jump = 3
 
 local function twin(player)
+	local pflags = player.pflags
 	player.panim = PA_ABILITY
 	player.mo.state = S_PLAY_TWINSPIN
 	player.frame = 0
 	player.pflags = $|PF_THOKKED|PF_NOJUMPDAMAGE
 	S_StartSound(player.mo,sfx_s3k42)
-	
+
 	//pw_strong is a new power that we use now ~JoJo
 	player.powers[pw_strong] = STR_TWINSPIN
-	
+
+	//Extra projectiles
+	if not(pflags&PF_NOJUMPDAMAGE)
+		local mo = player.mo
+		for n = -2,2 do
+			local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
+			if msl and msl.valid
+				msl.target = mo
+				msl.extravalue2 = FRACUNIT*95/100
+				msl.fuse = 15
+				msl.flags = $
+				local speed = mo.scale * 20
+				local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
+				local zangle = n*ANG1*5
+				B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
+				msl.momx = $ + mo.momx
+				msl.momy = $ + mo.momy
+				msl.momz = $ + mo.momz	
+			end
+		end
+		S_StartSound(msl, sfx_hoop1)
+	end
+
 	//Angle adjustment
-	player.drawangle = player.mo.angle
+	if player.battleconfig_hammerstrafe then
+		player.drawangle = player.mo.angle
+	end
 end
 
 B.TwinSpinJump = function(player) //Double jump function
@@ -26,10 +51,12 @@ B.TwinSpinJump = function(player) //Double jump function
 	or player.gotflagdebuff
 		return
 	end
+
+	if player.buttonhistory&BT_JUMP then
+		return true
+	end
 	
 	local mo = player.mo
-	mo.momx = $ * 2/3
-	mo.momy = $ * 2/3
 	
 	local jumpthrust = FRACUNIT*39/4
 	B.ZLaunch(mo,jumpthrust,false)
@@ -48,13 +75,17 @@ B.TwinSpin = function(player)
 	or not(player.pflags&PF_JUMPED)
 		return
 	end
+
+	if player.buttonhistory&BT_SPIN then
+		return true
+	end
 	
 	twin(player)
 	return true
 end
 
-//Wave spawning function
-local function SpawnWave(player,angle_offset,mute)
+//Wave spawning
+B.SpawnWave = function(player,angle_offset,mute)
 	local mo = player.mo
 	local wave = P_SPMAngle(mo,MT_PIKOWAVE,player.drawangle + angle_offset)
 	if wave and wave.valid
@@ -73,19 +104,30 @@ local function SpawnWave(player,angle_offset,mute)
 	end
 end
 
-local function hammerjump(player,power)
+B.hammerjump = function(player,power)
 	local h = power and 6 or 2
 	local v = power and 13 or 10
 		
+	if (player.cmd.buttons & BT_SPIN)
+	or (power and not(player.cmd.buttons & BT_JUMP))
+		h = $*8
+		v = $*2/3
+	end
+
 	local mo = player.mo
 	//P_DoJump(player,false)
 	B.ZLaunch(mo,FRACUNIT*v,true)
 	P_Thrust(mo,player.drawangle,h*mo.scale)
 	S_StartSound(mo,sfx_cdfm37)
 	S_StartSoundAtVolume(mo,sfx_s3ka0,power and 255 or 100)
-	player.pflags = ($ | PF_JUMPED | PF_STARTJUMP|PF_NOJUMPDAMAGE) & ~(PF_THOKKED)
-	mo.state = S_PLAY_JUMP
-	player.panim = PA_JUMP
+	if not power
+		player.pflags = ($ | PF_JUMPED | PF_STARTJUMP | PF_NOJUMPDAMAGE ) &~(PF_THOKKED)
+	else
+--		P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<6,16,MT_LHRT,ANGLE_90,nil,0)
+		player.pflags = ($ | PF_JUMPED | PF_STARTJUMP ) &~(PF_THOKKED|PF_NOJUMPDAMAGE)
+	end
+	mo.state = power and S_PLAY_ROLL or S_PLAY_JUMP
+	player.panim = power and PA_ROLL or PA_JUMP
 end
 
 //Hammer ticframe control
@@ -102,10 +144,11 @@ B.HammerControl = function(player)
 		return
 	end
 	
-	if mo.state == S_PLAY_TWINSPIN
-		//Angle adjustment
+	//Angle adjustment
+	if player.battleconfig_hammerstrafe
+	and ((player.melee_state and P_IsObjectOnGround(mo)) or mo.state == S_PLAY_TWINSPIN)
+	and not (mo.eflags & MFE_JUSTHITFLOOR)
 		player.drawangle = mo.angle
-		return
 	end
 	
 	player.charability2 = CA2_MELEE
@@ -128,7 +171,7 @@ B.HammerControl = function(player)
 			player.powers[pw_strong] = STR_MELEE
 		end
 	elseif player.melee_state == st_hold
-			player.powers[pw_strong] = 0
+		player.powers[pw_strong] = 0
 	end -- ~JoJo
 	
 	if player.melee_state == st_hold
@@ -139,27 +182,57 @@ B.HammerControl = function(player)
 			else
 				B.ZLaunch(mo, FRACUNIT*3, true)
 			end
-			P_Thrust(mo, mo.angle, 9*mo.scale)
+			P_Thrust(mo, player.drawangle, 9*mo.scale)
 			player.melee_state = st_release
 			mo.state = S_PLAY_MELEE
 		elseif player.melee_charge >= FRACUNIT
-			B.DrawAimLine(player, mo.angle)
+			B.DrawAimLine(player, player.drawangle)
 		end
 	end
 	
 	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and P_IsObjectOnGround(mo)
-		if player.melee_state == st_jump or player.cmd.buttons&BT_JUMP
-			//Hammer jump
-			if player.melee_charge >= FRACUNIT
-				hammerjump(player,true)
-			else
-				hammerjump(player,false)
-			end
-		elseif player.melee_charge >= FRACUNIT
-			SpawnWave(player,0,false)
+		local spin = player.melee_charge >= FRACUNIT
+		player.buttonhistory = $ | BT_JUMP | BT_SPIN
+		local piko_special = 11
+		local cooldown = TICRATE * 3/2
+		if player.actionstate == piko_special and P_IsObjectOnGround(mo) then
+			B.ApplyCooldown(player,cooldown)
+			B.SpawnWave(player, 0, false)
+			player.actionstate = 0
+		elseif (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin then
+			B.hammerjump(player, spin)
 		end
 		player.melee_state = st_idle
 	end
+end
+
+B.hammerchargevfx = function(mo)
+	S_StartSound(mo,sfx_hamrc)
+	local z = mo.z
+	if P_MobjFlip(mo) == -1
+		z = $+mo.height-mobjinfo[MT_SUPERSPARK].height
+	end
+	//P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<6,8,MT_SPARK,ANGLE_90,nil,1)
+	local offset_angle = mo.angle + ANGLE_180
+	local offset_dist = mo.radius*3
+	local range = 8
+	local offset_x = P_ReturnThrustX(nil,offset_angle,offset_dist) + P_RandomRange(-range,range)*FRACUNIT
+	local offset_y = P_ReturnThrustY(nil,offset_angle,offset_dist) + P_RandomRange(-range,range)*FRACUNIT
+	local offset_z = mo.height/2 + P_RandomRange(-range,range)*FRACUNIT * P_MobjFlip(mo)
+	offset_x = FixedMul($, mo.scale)
+	offset_y = FixedMul($, mo.scale)
+	offset_z = FixedMul($, mo.scale)
+	local spark = P_SpawnMobj(
+		mo.x+offset_x,
+		mo.y+offset_y,
+		mo.z+offset_z - (mo.scale*10),
+		MT_SUPERSPARK
+	)
+	spark.scale = mo.scale * 5/3
+	spark.destscale = 0
+	spark.color = SKINCOLOR_ROSY
+	spark.colorized = true
+	P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<8,16,MT_NIGHTSPARKLE,ANGLE_90,nil,1)
 end
 
 B.ChargeHammer = function(player)	
@@ -167,26 +240,27 @@ B.ChargeHammer = function(player)
 	
 	if not(B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
 	or player.melee_state > 1
+	or player.actionstate
 	or not(P_IsObjectOnGround(mo))
 	or not(player.melee_state or not(player.pflags&PF_USEDOWN))
 	return end
 	
 	//Angle adjustment
-	player.drawangle = mo.angle
+	if (player.battleconfig_hammerstrafe) and not (mo.eflags & MFE_JUSTHITFLOOR)
+		player.drawangle = mo.angle
+	end
 
 	//Start Charge
 	if player.melee_state == st_idle
 		player.melee_state = st_hold
 		player.melee_charge = 0
 	end
-	local momxy = FixedHypot(mo.momx,mo.momy)
+	
 	//Jump cancel
 	if player.melee_state == st_hold and player.cmd.buttons&BT_JUMP
 		S_StartSound(mo,sfx_s3k42)
 		B.ZLaunch(mo, FRACUNIT*3, true)
-		if momxy < 22*FRACUNIT then
-			P_Thrust(mo, mo.angle, 9*mo.scale)
-		end
+--		P_Thrust(mo, mo.angle, 9*mo.scale)
 		player.melee_state = st_jump
 	end	
 	
@@ -194,12 +268,13 @@ B.ChargeHammer = function(player)
 	if leveltime%3 == 1 and player.speed > 3*mo.scale then
 		S_StartSound(mo,sfx_s3k7e,player)
 		local r = mo.radius/FRACUNIT
-		P_SpawnMobj(
+		local dust = P_SpawnMobj(
 			P_RandomRange(-r,r)*FRACUNIT+mo.x,
 			P_RandomRange(-r,r)*FRACUNIT+mo.y,
 			mo.z,
 			MT_DUST
 		)
+		if dust and dust.valid then dust.scale = mo.scale end
 	end
 	
 	//Hold Charge
@@ -218,33 +293,18 @@ B.ChargeHammer = function(player)
 		offset_z = FixedMul($, mo.scale)
 		if not(leveltime&3)
 			//Do Sparkle
-			P_SpawnMobj(
+			local spark = P_SpawnMobj(
 				mo.x+offset_x,
 				mo.y+offset_y,
 				mo.z+offset_z,
 				MT_SPARK
 			)
+			spark.scale = mo.scale
 		end
 		//Get Charged FX
 		if player.melee_charge >= FRACUNIT
-			S_StartSound(mo,sfx_hamrc)
 			player.melee_charge = FRACUNIT
-			local z = mo.z
-			if P_MobjFlip(mo) == -1
-				z = $+mo.height-mobjinfo[MT_SUPERSPARK].height
-			end
-			//P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<6,8,MT_SPARK,ANGLE_90,nil,1)
-			local spark = P_SpawnMobj(
-				mo.x+offset_x,
-				mo.y+offset_y,
-				mo.z+offset_z - (mo.scale*10),
-				MT_SUPERSPARK
-			)
-			spark.scale = mo.scale * 5/3
-			spark.destscale = 0
-			spark.color = SKINCOLOR_ROSY
-			spark.colorized = true
-			P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<8,16,MT_NIGHTSPARKLE,ANGLE_90,nil,1)
+			B.hammerchargevfx(mo)
 		end
 	end
 	//Visual
