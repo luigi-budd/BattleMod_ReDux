@@ -312,7 +312,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			player.pflags = $ &~ PF_JUMPED
 		end
 		if player.powers[pw_shield] == SH_WHIRLWIND
-		and not player.powers[pw_tailsfly]
+		and not (player.powers[pw_tailsfly] or P_IsObjectOnGround(mo))
 			player.pflags = $|PF_SHIELDABILITY
 		end
 	end

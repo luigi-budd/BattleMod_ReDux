@@ -65,7 +65,7 @@ local itemroulette = function(mo)
 end
 
 I.ItemReward = function(mo,player)
-	if player.isjettysyn or B.PreRoundWait() then return end
+	if player.isjettysyn or B.PreRoundWait() or (player.bot == BOT_2PAI or player.bot == BOT_2PHUMAN) then return end
 	
 	//"Monitor bounce" but weaker
 	if not P_PlayerInPain(player)

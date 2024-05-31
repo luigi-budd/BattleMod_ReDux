@@ -155,8 +155,7 @@ Maintenance
 	- Players cannot take damage while in a zoomtube
 	- Golden monitors no longer have gravity
 	- Players no longer visually flash during PreRound and GAME SET
-	- [TODO: IMPLEMENT] Fixed a bug where rings collected during a special's actionstate would be set back to 0 on release if the player suffered ring debt
-	- [TODO: IMPLEMENT] Bots can no longer collect item bubbles
+	- Player 2 bots can no longer collect item bubbles
 Console
 	Added variables and commands
 		battle_coyotetime
@@ -172,6 +171,8 @@ Console
 #
 
 ??? (Implemented in one of the versions below. Pls someone actually write what each ver. did):
+	- Roulette banskin stuff
+	- Actiondebt no longer deletes all rings when exiting actionstate
 	- Amy can't perfect-frame spin+jump to build up speed
 	- Fang can no longer spam thunder shield
 	- Metal can no longer spam whirlwind shield

@@ -398,18 +398,17 @@ end
 
 B.sneakertrail = function(player)
 	if player.powers[pw_sneakers] and player.mo and player.speed > 30*player.mo.scale and leveltime%3 then
-		local color = player.slipping and player.mo.color or SKINCOLOR_BONE
 		local speedtrail = P_SpawnGhostMobj(player.mo)
 		if speedtrail.tracer then
 			speedtrail.tracer.colorized = true
-			speedtrail.tracer.color = color
+			speedtrail.tracer.color = player.mo.color
 			speedtrail.tracer.fuse = 3
-			speedtrail.tracer.blendmode = player.slipping and AST_TRANSLUCENT or AST_ADD
+			speedtrail.tracer.blendmode = AST_ADD
 		end
 		speedtrail.colorized = true
-		speedtrail.color = color
+		speedtrail.color = player.mo.color
 		speedtrail.fuse = 3
-		speedtrail.blendmode = player.slipping and AST_TRANSLUCENT or AST_ADD
+		speedtrail.blendmode = AST_ADD
     end
 end
 
