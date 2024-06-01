@@ -60,6 +60,7 @@ local resetdashmode = function(p)
 	p.dashmode = 0
 	p.normalspeed = skins[p.skin].normalspeed
 	p.jumpfactor = skins[p.skin].jumpfactor
+	print(p.jumpfactor)
 end
 
 local spawnslashes = function(player, mo)
@@ -92,34 +93,6 @@ local spawnslashes = function(player, mo)
 		--applyflip(mo, missile)
 		missile.state = s
 		missile.scale = FixedMul($*2, mo.scale)
-	end
-end
-
-B.Action.EnergyAttack_Priority = function(player)
-	if player.actionstate == state_charging then
-		B.SetPriority(player,1,1,nil,1,1,"energy charge aura")
-	end
-	if player.actionstate == state_dashslicer then
-		B.SetPriority(player,3,3,nil,3,3,"dash slicer")
-	end
-	
-	if player.actionstate == state_ringsparkprep then
-		--Vulnerable, but can't just be bump cancelled
-		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] then
-			player.actionstate = 0
-		else
-			player.actionsuper = true
-		end
-	end
-	
-	if player.actionstate == state_ringspark then
-		--Bump blockable projectiles
-		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] then
-			player.actionstate = 0
-		else
-			player.actionsuper = true
-			B.SetPriority(player,2,3,nil,2,3,"ring spark field") --Hatin'
-		end
 	end
 end
 
@@ -174,11 +147,12 @@ local boolToBin = function(bool) --abstraction part 2
 	end
 end
 
-local resetVars = function(player)
+local resetvars = function(player)
 	player.energyattack_chargebuffer = 0
 	player.energyattack_counter = 0
 	player.energyattack_charged = 0
 	player.energyattack_chargemeter = 0
+	player.energyattack_ringsparktimer = 0
 end
 
 
@@ -233,7 +207,7 @@ local stallOrFall = function(mo, player, cooldown)
 		chargestall(mo, player)
 	else
 		chargefall(player)
-		resetVars(player)
+		resetvars(player)
 		if cooldown then
 			B.ApplyCooldown(player,cooldown)
 		end
@@ -308,20 +282,20 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	local player = mo.player
 	
 	--print(cam_simplespeed)
-	
-	if P_PlayerInPain(player)
-		player.actionstate = 0
-	end
+
 		
 	//Action info
-	if not player.actionstate then --Only display charge text if we're not doing anything
+	if (player.actionstate) then --Only display charge text if we're not doing anything
+		if P_PlayerInPain(player) or player.gotflagdebuff or player.powers[pw_carry] then
+			B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
+			B.ApplyCooldown(player, cooldown_cancel)
+			resetdashmode(player)
+			resetvars(player)
+			player.actiontime = 0
+			player.actionstate = 0
+		end
+	else
 		player.actiontext = "Energy Charge"
-	end
-	
-	if (mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
-		applyflip(mo, mo.energyattack_sparkaura) --Flip if needed
-		mo.energyattack_sparkaura.scale = mo.scale
-		P_MoveOrigin(mo.energyattack_sparkaura, mo.x, mo.y, overlayZ(mo, mo.energyattack_sparkaura.type, (mo.flags2 & MF2_OBJECTFLIP)))
 	end
 	
 	player.energyattack_chargemeter = max(0, ($ or 1))
@@ -358,7 +332,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if not(B.CanDoAction(player) or player.actionstate >= state_dashslicer) then
 		if B.GetSVSprite(player) then
 			B.ResetPlayerProperties(player,false,false)
-			resetVars(player)
+			resetvars(player)
 			return 
 		end
 		return 
@@ -383,7 +357,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if (player.actionstate == state_charging or player.actionstate == state_energyblast) and player.powers[pw_nocontrol] then
 		player.actionstate = 0
 		B.ApplyCooldown(player,cooldown_cancel)
-		resetVars(player)
+		resetvars(player)
 		return
 	end
 
@@ -474,7 +448,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Unable to charge
 	if canceltrigger then
 		B.ResetPlayerProperties(player,false,false)
-		resetVars(player)
+		resetvars(player)
 		player.actiontime = -1
 		S_StartSound(mo,sfx_s3k7d)
 		B.ApplyCooldown(player,cooldown_cancel)
@@ -539,11 +513,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					else
 						stallOrFall(mo, player, cooldown_blast)
 					end
-					--resetVars(player)
+					--resetvars(player)
 				end
 			else
 				stallOrFall(mo, player, cooldown_blast)
-				--resetVars(player)
+				--resetvars(player)
 			end
 		else
 			stallOrFall(mo, player, cooldown_blast)
@@ -638,6 +612,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				end
 				player.dashmode = 0 --Normal
 				player.jumpfactor = 0 --No Jumping
+				print(player.jumpfactor)
 				player.pflags = $ & ~(PF_SPINNING|PF_STARTDASH) --No Spinning
 				player.skidtime = 0 --No skidding
 				player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK --We can attack enemies
@@ -646,14 +621,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.actiontime = 0
 				resetdashmode(player)
 				B.ApplyCooldown(player,cooldown_ringspark)
-				resetVars(player)
+				resetvars(player)
 			end
 		else
 			player.actionstate = 0
 			player.actiontime = 0
 			resetdashmode(player)
 			B.ApplyCooldown(player,cooldown_ringspark)
-			resetVars(player)
+			resetvars(player)
 		end
 	end
 	
@@ -734,7 +709,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		if not(player.actiontime >= duration) then return end
 		--Next state
 		B.ApplyCooldown(player,cooldown_slice)
-		resetVars(player)
+		resetvars(player)
 		if (player.realbuttons & BT_JUMP)
 			mo.momx = $ * 2/3
 			mo.momy = $ * 2/3
@@ -777,5 +752,41 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		local flags = PF_SPINNING|PF_JUMPED|PF_THOKKED --For simultaneous removal
 		player.pflags = $&~(flags)
 		player.secondjump = 0
+	end
+end
+
+B.Action.EnergyAttack_Priority = function(player)
+	if player.actionstate == state_charging then
+		B.SetPriority(player,1,1,nil,1,1,"energy charge aura")
+	end
+	if player.actionstate == state_dashslicer then
+		B.SetPriority(player,3,3,nil,3,3,"dash slicer")
+	end
+	
+	if player.actionstate == state_ringsparkprep then
+		--Vulnerable, but can't just be bump cancelled
+		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
+			player.actiontime = 0
+			player.actionstate = 0
+			resetvars(player)
+			resetdashmode(player)
+			B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
+		else
+			player.actionsuper = true
+		end
+	end
+	
+	if player.actionstate == state_ringspark then
+		--Bump blockable projectiles
+		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
+			player.actionstate = 0
+			player.actiontime = 0
+			resetvars(player)
+			resetdashmode(player)
+			B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
+		else
+			player.actionsuper = true
+			B.SetPriority(player,2,3,nil,2,3,"ring spark field") --Hatin'
+		end
 	end
 end
