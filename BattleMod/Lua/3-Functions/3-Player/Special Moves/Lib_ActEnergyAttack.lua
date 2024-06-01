@@ -60,7 +60,7 @@ local resetdashmode = function(p)
 	p.dashmode = 0
 	p.normalspeed = skins[p.skin].normalspeed
 	p.jumpfactor = skins[p.skin].jumpfactor
-	print(p.jumpfactor)
+	--print(p.jumpfactor)
 end
 
 local spawnslashes = function(player, mo)
@@ -612,7 +612,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				end
 				player.dashmode = 0 --Normal
 				player.jumpfactor = 0 --No Jumping
-				print(player.jumpfactor)
+				--print(player.jumpfactor)
 				player.pflags = $ & ~(PF_SPINNING|PF_STARTDASH) --No Spinning
 				player.skidtime = 0 --No skidding
 				player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK --We can attack enemies
