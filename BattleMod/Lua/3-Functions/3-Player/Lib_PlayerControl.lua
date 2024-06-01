@@ -17,6 +17,7 @@ B.InitPlayer = function(player)
 	player.actionstate = 0
 	player.actioncooldown = TICRATE
 	player.lastcooldown = nil
+	player.spentrings = 0
 	player.prevrings = 0
 	player.ringhudflash = 0
 	player.actionallowed = true
