@@ -23,11 +23,13 @@
 - Inazuma: Stun Break
 - MotorRoach: Tails special move
 - Panthonas: Original Tails Doll
+- Clone Fighter: Ring Spark Field
 
 ## Resources used:
 - Kays - Object respawning scripts
 - Flame - 2D camera script
 - TehRealSalt - Original Fang popgun aim/fire re-emulation script
+- Clone Fighter - Ring Spark Field (Modified)
 
 ## Map design:
 - CobaltBW - Layouts
