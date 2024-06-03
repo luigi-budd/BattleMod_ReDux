@@ -158,6 +158,7 @@ Metal Sonic
 Maintenance
 	- Fixed permanent flashing frames (player's flashing frames now always count down in battle gametypes, even if it is higher than SRB2's default)
 	- Fixed some flag debuff stats persisting after death
+	- By default, tumbles can't last longer than 3 seconds
 	- Sonic can no longer perform a frame perfect jump when touching the floor during a ground pound
 	- Tails's tail swipes can no longer spawn inside of walls
 	- Tails no longer automatically attacks when landing after taking damage during an attack

@@ -402,6 +402,7 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 	-- this'll allow us to stun break or not
 	player.tech_timer = 0	-- reset tech timer
 	player.tumble_time = time	-- store how long we'll be parried for
+	player.max_tumble_time = 3*TICRATE	-- failsafe
 	player.tumble_nostunbreak = nostunbreak	-- used for parry
 end
 
@@ -412,11 +413,20 @@ B.Tumble = function(player)
 	local mo = player.mo
 	
 	if player.tumble
+
+		local endtumble = false
+		if player.max_tumble_time
+			player.max_tumble_time = $-1
+			if not player.max_tumble_time
+				endtumble = true
+			end
+		end
 		
 		--End tumble
 		if player.isjettysyn
 			or player.powers[pw_carry]
 			or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
+			or endtumble
 			
 			player.tumble = nil
 			player.lockmove = false
