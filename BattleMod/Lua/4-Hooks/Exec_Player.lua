@@ -103,6 +103,7 @@ addHook("SpinSpecial",function(player)
 	B.ChargeHammer(player)
 	if (player.powers[pw_carry]) then return end
 	if B.TwinSpin(player) then return true end
+	if B.RingSparkCheck(player) then return true end
 end)
 
 addHook("JumpSpinSpecial", function(player)
