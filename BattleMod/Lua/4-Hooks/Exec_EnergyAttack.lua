@@ -3,7 +3,7 @@ addHook("MobjCollide", function(spike, pmo)
 	if not (pmo.player and pmo.player.valid) then return end
 	if pmo.z+pmo.height < spike.z or spike.z+spike.height < pmo.z then return end
 	
-	if player.energyattack_ringsparktimer then
+	if pmo.energyattack_ringsparktimer then
 		P_KillMobj(spike, pmo, pmo)
 	end
 end, MT_SPIKE)
