@@ -280,10 +280,7 @@ end
 
 B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	local player = mo.player
-	
-	--print(cam_simplespeed)
 
-		
 	//Action info
 	if (player.actionstate) then --Only display charge text if we're not doing anything
 		if P_PlayerInPain(player) or player.gotflagdebuff or player.powers[pw_carry] then
@@ -549,6 +546,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		
 		player.pflags = $&~(PF_STARTDASH|PF_SPINNING|PF_JUMPED) --his ass is NOT spindashing
 		player.secondjump = 2 --No Floating allowed
+		player.skidtime = 0
 		if (player.actiontime > preptime_ringspark) then--If it's been 17 tics
 			player.actiontime = 0
 			player.actionstate = state_ringspark --Ring Sparkin' time
@@ -558,6 +556,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if player.actionstate == state_ringspark then
 	
 		if player.exhaustmeter > 1 then
+
+			player.skidtime = 0
 		
 			if player.actiontime <= forcetime_ringspark then
 				player.airdodge = -1
@@ -789,4 +789,10 @@ B.Action.EnergyAttack_Priority = function(player)
 			B.SetPriority(player,2,3,nil,2,3,"ring spark field") --Hatin'
 		end
 	end
+end
+
+B.RingSparkCheck = function(player)
+	if not player.mo and player.mo.valid then return false end
+	local mo = player.mo
+	--return rawget(B.SkinVars, mo.skin) and (B.SkinVars[mo.skin].special == B.Action.EnergyAttack) and ((player.actiosntate == state_ringsparkprep) or player.actionstate == state_ringspark)
 end
