@@ -40,6 +40,7 @@ B.AirDodge = function(player)
 			angle = mo.angle
 		end
 		
+		player.airdodge_speedreset = true
 		player.airdodge = 1
 		player.airdodge_spin = ANGLE_90 + ANG10
 		if not(player.dodgecooldown)
@@ -175,8 +176,11 @@ B.AirDodge = function(player)
 		player.thrustfactor = skin.thrustfactor+5
 		player.normalspeed = skin.normalspeed/2
 	else
-		player.intangible = false
-		player.thrustfactor = skin.thrustfactor
-		player.normalspeed = skin.normalspeed
+		if (player.airdodge_speedreset) then
+			player.intangible = false
+			player.thrustfactor = skin.thrustfactor
+			player.normalspeed = skin.normalspeed
+			player.airdodge_speedreset = false
+		end
 	end
 end
