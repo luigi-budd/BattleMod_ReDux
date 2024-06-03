@@ -44,8 +44,10 @@ B.GotFlagStats = function(player)
 		player.normalspeed = skin.normalspeed*4/5
 		player.acceleration = skin.acceleration*5/6
 		player.runspeed = skin.runspeed*4/5
-		player.mindash = 15*3/4*FRACUNIT
-		player.maxdash = 70*4/5*FRACUNIT
+		if not(B.GetSkinVarsFlags(player) & SKINVARS_ROSY) then
+			player.mindash = 15*3/4*FRACUNIT
+			player.maxdash = 70*4/5*FRACUNIT
+		end
 		player.dashmode = 0
 		player.jumpfactor = skin.jumpfactor
 		player.charflags = skins[player.mo.skin].flags & ~SF_RUNONWATER
