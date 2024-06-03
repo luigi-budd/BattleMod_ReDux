@@ -230,7 +230,7 @@ B.DustDevilThinker = function(mo)
 	return end
 
 	if mo.radius < (32*FRACUNIT) then
-		mo.radius = $+FRACUNIT
+		mo.radius = $+(FRACUNIT*2)
 	end
 	
 	mo.angle = R_PointToAngle2(0,0,mo.momx,mo.momy)
