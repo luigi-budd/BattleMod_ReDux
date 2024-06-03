@@ -18,6 +18,7 @@ local directories = {
             "Info_2DCam",
             "Info_Arena",
             "Info_CP",
+            "Info_Crown",
             "Info_CTF",
             "Info_Diamond",
             "Info_RevengeGunner",
@@ -135,7 +136,6 @@ local directories = {
     {
         folder = "3-Functions/2-Game/Arena",
         files = { 
-            "Lib_Crown",
             "Lib_ModeArena",
             "Lib_Revenge"
         },
