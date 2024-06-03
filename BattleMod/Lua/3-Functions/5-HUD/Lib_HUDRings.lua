@@ -77,9 +77,10 @@ B.RingsHUD = function(v, player, cam)
 	--Rings
 	local scale = FRACUNIT + (player.ringhudflash * FRACUNIT/50)
 	local ringpatchname = "HUD_RING"
+	local actionrings = player.actionrings or player.lastactionrings or 0
 	if (player.rings == 0 and (leveltime/5 & 1)) then
 		ringpatchname = "HUD_RINGR"
-	elseif player.rings < player.actionrings then
+	elseif player.rings < actionrings then
 		ringpatchname = "HUD_RINGG"
 	end
 	local ringpatch = v.cachePatch(ringpatchname)
@@ -141,8 +142,8 @@ B.RingsHUD = function(v, player, cam)
 			--v.drawString(x + action_offsetx + cooldownbar_offsetx + cooldownnum_offsetx + barlength, y + action_offsety, text, flags_hudtrans, "thin")
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
-			if (player.actiontext) then
-				local text = player.actiontext
+			local text = player.actiontext or player.lastactiontext or 0
+			if text then
 				if player.actionstate then
 					text = "\x82" + $
 				else
@@ -210,9 +211,7 @@ B.RingsHUD = function(v, player, cam)
 		elseif not(leveltime % 7) then
 			return
 		end
-		x = $+12
-		y = $-12
-		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, v.getSpritePatch("SWET", frame), flags_hudtrans)
+		v.drawScaled((x+12)*FRACUNIT + FRACUNIT/2, (y-14)*FRACUNIT, scale, v.getSpritePatch("SWET", frame), flags_hudtrans)
 	end
 
 	--Ring spent effect
@@ -221,4 +220,72 @@ B.RingsHUD = function(v, player, cam)
 		local transrights = B.TIMETRANS(player.spentrings * 6) or 0
 		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale2, ringpatch, flags|transrights)
 	end
+
+	--GUARD
+	local mo = player.mo
+	if not (mo and mo.valid) then return end
+	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1
+
+	x = $+20
+	y = $+10
+	
+	local canguard = (player.canguard
+		and CV.Guard.value
+		and P_IsObjectOnGround(mo)
+		and not player.actionstate
+		and not guardoverride
+		and not P_PlayerInPain(player)
+		and not player.guard
+		and not player.tumble
+		and not player.actionstate
+		and not (player.skidtime and player.powers[pw_nocontrol])
+		and not (mo.eflags & MFE_JUSTHITFLOOR)
+		and not (player.weapondelay and mo.state == S_PLAY_FIRE)
+		and leveltime > TICRATE*5/4
+	)
+	local candodge = (player.canguard
+		and CV.airtoggle.value
+		and mo.state ~= S_PLAY_PAIN
+		and mo.state ~= S_PLAY_STUN
+		--and player.airdodge == 0
+		and player.playerstate == PST_LIVE
+		and not player.exiting
+		and not player.actionstate
+		and not player.climbing
+		and not player.armachargeup
+		and not player.isjettysyn
+		and not player.revenge
+		--and not player.powers[pw_nocontrol]
+		--and not player.powers[pw_carry]
+		--and not P_IsObjectOnGround(mo)
+		and leveltime>TICRATE*5/4
+	)
+	
+	local guardtext = guardoverride and player.guardtext or "\x82Guard"
+	local patch = v.cachePatch("PARRYBT")
+	if canguard or guardoverride then
+		v.draw(x-10,y-1,patch,flags)
+		v.drawString(x,y,guardtext,flags,"thin")
+	end
+
+	--AIR DODGE
+	if candodge then
+		if player.dodgecooldown then
+			local maxcooldown = CV.dodgetime.value*TICRATE or 1
+			local scale_factor = 1000
+			local scaled_ratio = (player.dodgecooldown * scale_factor) / maxcooldown
+			local spacing = 4 --maybe this makes it more performant?
+			local angles = scaled_ratio * (360/spacing) / scale_factor
+			local tiny = 4 -- 0 for not tiny
+			for n=1, angles do
+				local p = v.getSpritePatch("CDBR", tiny+(leveltime/4 % 4), 0, n*ANG1*spacing)
+				v.draw(x, y-18, p, flags_hudtrans)
+			end
+		else
+			patch = v.cachePatch("DODGEBT")
+			v.draw(x-5,y-18,patch,flags)
+		end
+	end
+
+	--hi
 end

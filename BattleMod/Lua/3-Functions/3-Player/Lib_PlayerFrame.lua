@@ -161,6 +161,12 @@ B.PlayerThinkFrame = function(player)
 	if player.spentrings then
 		player.spentrings = max(0,$-1)
 	end
+	if player.actionrings then
+		player.lastactionrings = player.actionrings
+	end
+	if player.actiontext then
+		player.lastactiontext = player.actiontext
+	end
 	B.DoBackdraft(player)
 	
 
