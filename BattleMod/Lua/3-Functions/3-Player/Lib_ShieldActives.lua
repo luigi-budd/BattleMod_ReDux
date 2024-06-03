@@ -213,6 +213,13 @@ B.DoShieldActive = function(player)
 	end
 end
 
+local cycleTable = function(t)
+	if #t > 0 then
+		table.insert(t, table.remove(t, 1))
+	end
+	return t
+end
+
 B.ShieldTossFlagButton = function(player)
 	if player and player.valid and player.mo and player.mo.valid then
 		player.shieldswap_cooldown = max(0, $ - 1)
@@ -238,6 +245,10 @@ B.ShieldTossFlagButton = function(player)
 			
 			else--Shield swap
 				if B.ButtonCheck(player,BT_TOSSFLAG) == 1 then
+					if temp and temp == power then
+						player.shieldstock = cycleTable($)
+					end
+
 					if not player.shieldswap_cooldown
 						and temp
 						and power

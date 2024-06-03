@@ -64,10 +64,10 @@ B.ShieldHUD = function(v, player, cam)
 	--Draw shield reserves
 	local n = player.shieldmax
 	xoffset = $ + 8
-	yoffset = $ - 10
+	yoffset = $ - (10*n)
 	while n > 0 do
 		drawshield(v, player, xoffset, yoffset, player.shieldstock[n], FRACUNIT>>2)
-		yoffset = $-10
+		yoffset = $+10
 		n = $-1
 	end
 end
