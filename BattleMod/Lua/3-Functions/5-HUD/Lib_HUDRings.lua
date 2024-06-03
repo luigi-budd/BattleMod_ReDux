@@ -35,12 +35,12 @@ B.RingsHUD = function(v, player, cam)
 	local x = 40
 	local y = 180
 	local shake = 0
-	if P_PlayerInPain(player) then
+	if (not player.playerstate) and P_PlayerInPain(player) then --p_playerinpain crashes w/ playerstate :v
 		shake = 5
 	elseif player.tumble then
 		shake = 2
 	end
-	if shake and not paused then
+	if shake and not (paused or player.playerstate) then
 		x = $ + v.RandomRange(-shake,shake)
 		y = $ + v.RandomRange(-shake,shake)
 	end
