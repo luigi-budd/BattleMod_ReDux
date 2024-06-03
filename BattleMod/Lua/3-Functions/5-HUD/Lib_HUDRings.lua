@@ -34,6 +34,16 @@ B.RingsHUD = function(v, player, cam)
 	local flags_hudtrans = V_PERPLAYER|V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTOLEFT
 	local x = 40
 	local y = 180
+	local shake = 0
+	if P_PlayerInPain(player) then
+		shake = 5
+	elseif player.tumble then
+		shake = 2
+	end
+	if shake and not paused then
+		x = $ + v.RandomRange(-shake,shake)
+		y = $ + v.RandomRange(-shake,shake)
+	end
 	local num_offsetx = 4
 	local num_offsety = -5
 	local action_offsetx = 15
@@ -57,12 +67,12 @@ B.RingsHUD = function(v, player, cam)
 	if B.SkinVars[skins[player.skin].name] then
 		facepos = B.SkinVars[skins[player.skin].name].hud_facepos or 0
 	end
-	local col = player.skincolor
-	if player.rings == 0 then
+	local col = G_GametypeHasTeams() and player.skincolor or SKINCOLOR_PITCHBLACK
+	if player.rings == 0 and (leveltime/5 & 1) then
 		col = SKINCOLOR_PITCHBLACK
 	end
-	v.draw(x + 3 + facepos, 200, facepatch, flags | V_HUDTRANSHALF, v.getColormap(TC_BLINK, SKINCOLOR_PITCHBLACK))
-	v.draw(x + 2 + facepos, 201, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
+	v.draw(x + 3 + facepos, 200, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
+	--v.draw(x + 2 + facepos, 201, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
 	
 	--Rings
 	local scale = FRACUNIT + (player.ringhudflash * FRACUNIT/50)
