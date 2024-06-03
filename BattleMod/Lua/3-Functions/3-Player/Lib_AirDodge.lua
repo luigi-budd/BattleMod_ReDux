@@ -1,21 +1,20 @@
 local B = CBW_Battle
 local CV = B.Console
 
-local intangible_time = 14
-local intangible_time_gotflag = 9
+local intangible_time = TICRATE*4/5
 local dodge_endlag = TICRATE
 local dodge_momz = 5
 local dodge_thrust = 15
 
 B.AirDodge = function(player)
-	if not (player and player.valid and player.mo and player.mo.valid)
+	if not (CV.airtoggle.value and player and player.valid and player.mo and player.mo.valid)
 		return
 	end
 	local mo = player.mo
 	
 	local intangible_time_real = intangible_time
-	if player.gotflagdebuff
-		intangible_time_real = intangible_time_gotflag
+	if not player.safedodge then
+		intangible_time_real = intangible_time/2
 	end
 	
 	if B.ButtonCheck(player, player.battleconfig_guard) == 1
@@ -43,6 +42,12 @@ B.AirDodge = function(player)
 		
 		player.airdodge = 1
 		player.airdodge_spin = ANGLE_90 + ANG10
+		if not(player.dodgecooldown)
+			player.safedodge = true
+		else
+			player.safedodge = false
+		end
+		player.dodgecooldown = CV.dodgetime.value*TICRATE
 		
 		//State and flags
 		B.ResetPlayerProperties(player,false,false)
@@ -108,6 +113,7 @@ B.AirDodge = function(player)
 	
 	//Airdodge is in progress
 	if player.airdodge != 0
+		B.analogkill(player, 2)
 		if player.isjettysyn
 			or player.powers[pw_carry]
 			or P_PlayerInPain(player)
@@ -115,28 +121,32 @@ B.AirDodge = function(player)
 			
 			player.airdodge = 0
 			player.pflags = $ & ~PF_FULLSTASIS
-			//player.lockmove = false
-			
+
 		elseif player.airdodge > 0
-			player.pflags = $ | PF_FULLSTASIS
-			//player.lockmove = true
 			player.airdodge = $ + 1
+			if not player.safedodge then
+				player.pflags = $ | PF_FULLSTASIS
+			end
 			if player.airdodge <= intangible_time_real
 				if (player.airdodge % 4) == 3
 					mo.colorized = true
 					mo.color = SKINCOLOR_WHITE
 					mo.airdodgecolor = true
-					local g = P_SpawnGhostMobj(mo)
-					if AST_ADD
-						g.blendmode = AST_ADD
+					if player.safedodge then
+						local g = P_SpawnGhostMobj(mo)
+						if AST_ADD
+							g.blendmode = AST_ADD
+						end
 					end
 				elseif (player.airdodge % 4) != 1
 					mo.colorized = true
 					mo.color = SKINCOLOR_SILVER
+					if player.followmobj then player.followmobj.color = mo.color end
 					mo.airdodgecolor = true
 				else
 					mo.colorized = false
 					mo.color = player.skincolor
+					if player.followmobj then player.followmobj.color = mo.color end
 					mo.airdodgecolor = false
 				end
 			else
@@ -159,9 +169,14 @@ B.AirDodge = function(player)
 		mo.airdodgecolor = false
 	end
 	
+	local skin = skins[player.mo.skin]
 	if (player.airdodge > 0 and player.airdodge <= intangible_time_real)
 		player.intangible = true
+		player.thrustfactor = skin.thrustfactor+5
+		player.normalspeed = skin.normalspeed/2
 	else
 		player.intangible = false
+		player.thrustfactor = skin.thrustfactor
+		player.normalspeed = skin.normalspeed
 	end
 end

@@ -202,13 +202,8 @@ B.exhaust = function(player)
 		end
 	end
 	if (P_IsObjectOnGround(mo) or mo.eflags & MFE_JUSTHITFLOOR)
-		and (
-			(player.airdodge and player.airdodge > 0)
-			or player.landlag
-		)
-		and not (
-			mo.player.resistrecoil
-		)
+		and (player.landlag or (player.airdodge and player.airdodge > 0 and not player.safedodge))
+		and not (mo.player.resistrecoil)
 	then
 		local ang = R_PointToAngle2(0,0,-player.mo.momx,-player.mo.momy)
 		B.DoPlayerFlinch(player, player.landlag or 12, ang, -player.speed/2,false)

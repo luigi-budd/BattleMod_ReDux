@@ -98,4 +98,16 @@ CV.parrytoggle = CV_RegisterVar{
 	PossibleValue = {Off = 0, On = 1}
 }
 
+CV.airtoggle = CV_RegisterVar{
+	name = "battle_airdodge",
+	defaultvalue = 1,
+	flags = CV_NETVAR,
+	PossibleValue = {Off = 0, On = 1}
+}
 
+CV.dodgetime = CV_RegisterVar{
+	name = "battle_dodgecooldown",
+	defaultvalue = 5,
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 0, MAX = 10}
+}

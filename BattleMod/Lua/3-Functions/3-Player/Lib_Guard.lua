@@ -15,6 +15,7 @@ B.GuardControl = function(player)
 	or G_TagGametype()
 	or player.iseggrobo
 	or player.isjettysyn
+	or player.tumble
 		player.canguard = false
 	return end
 
@@ -39,6 +40,9 @@ B.Guard = function(player,buttonpressed)
 	or not(player.canguard)
 	or player.tumble
 	or player.actionstate
+	or (player.skidtime and player.powers[pw_nocontrol])
+	or (mo.eflags & MFE_JUSTHITFLOOR)
+	or (player.weapondelay and mo.state == S_PLAY_FIRE)
 		if player.guard != 0 then
 			if not(P_PlayerInPain(player)) and not(player.pflags&(PF_JUMPED|PF_SPINNING)) then
 				mo.state = S_PLAY_FALL

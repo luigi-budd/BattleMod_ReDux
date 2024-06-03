@@ -34,18 +34,28 @@ Major gameplay changes
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
 	- Characters will take twice as long to exhaust in non-survival gametypes
-	- [!] Removed respawn time penalty for multiple deaths
-	- [!] Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
-	- [!] Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
-	- [!] Added a rejoin lockout timer when entering spectator mode
+	Guard [TODO: Double-Check after Ket's guard is implemented]
+		- Guard is once again possible during flashing frames, but will result in a guard break when frame-perfect-parrying this way (for example, if you're standing inside a hazard)
+		- Players can no longer guard during heavy bumps (pw_nocontrol + skidtime)
+	Air dodge
+		- Removed air dodge intantible time penalty from players suffering from flag debuff
+		- Doubled air dodge intangible time (0.4s -> 0.8s)
+		- Removed movement stasis from air dodge (in fact, severely increased handling/thrustfactor during it)
+		- Indicated by red HUD and lack of after-images, air dodging again after no more than 5 seconds (configurable with battle_dodgecooldown) will result in:
+			- Full stasis
+			- Landing lag
+			- Half of the usual intangibility time
+	[!] Respawn timers
+		- Removed respawn time penalty for multiple deaths
+		- Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
+		- [TODO: Double-Check] Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
+		- [TODO: Implement?] Added a rejoin lockout timer when entering spectator mode
 Minor gameplay changes
 	- [!] Lower default battle_collisiontimer (12 -> 5)
 	- Collisions will no longer occur between players during PreRound
 	- Added a 3 frame window (customizable via the console variable battle_coyotetime) where players can still jump from walking off a ledge/slope
 	- [!] Players are now able to hold the guard button to perform guard actions as soon as they are available
 	- Added new VFX flair for invulnerability, sneakers and slipstream
-Guard
-	- Guard is once again possible during flashing frames
 Survival, Team Survival, Arena, Team Arena
 	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable survival_bounty)
 	- The highest rank player can always be located with the radar or compass
@@ -109,8 +119,9 @@ Tails
 		- More influenced by player speed
 		- Thrown opponents have (2/1) priority, cannot airdodge, can damage their own teammates, and will take damage if they slam into a wall with enough speed
 Knuckles
-	[TODO ?]
+	- While battleconfig_glidestrafe is enabled (it's enabled by default), is allowed to always face the camera while gliding
 Amy
+	- While battleconfig_hammerstrafe is disabled (it's disabled by default), is no longer forced to always attack towards the camera
 	- Reverted abilities to piko tornado and piko jump
 	- Hammer jump turns into piko launch when holding down the spin button, which works essentially the same but horizontally
 	- No longer curls on uncharged hammerjump
@@ -165,8 +176,8 @@ Maintenance
 	- Knuckles can no longer glide-skid and guard at the same time
 	- Amy's tornado jump no longer temporarily sets legacy controls
 	- Amy no longer triggers twin spin automatically after a hammer-jump
-	- [TODO: IMPLEMENT AFTER GUARD CHANGES - B.Guard] Fang can no longer fire and guard at the same time
-	- [TODO: IMPLEMENT AFTER GUARD CHANGES - B.GuardControl] The guard button will not be suggested for tumbling players
+	- [TODO: Double-Check after Ket's guard is implemented] Fang can no longer fire and guard at the same time
+	- [TODO: Double-Check after Ket's guard is implemented] The guard button will not be suggested for tumbling players
 	- Fixed visual bugs involving Tails's tails (e.g. recoil)
 	- Fixed visual bugs involving players being reset on springs (e.g. forcing walk/fall frames)
 	- Fixed sometimes not being able to jump after no longer being a jettysyn
@@ -176,6 +187,8 @@ Maintenance
 	- Player 2 bots can no longer collect item bubbles
 Console
 	Added variables and commands
+		battle_airdodge
+		battle_dodgecooldown
 		battle_coyotetime
 		battle_coyotefactor
 		battle_recoveryjump

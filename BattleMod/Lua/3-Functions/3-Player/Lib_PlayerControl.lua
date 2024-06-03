@@ -48,6 +48,7 @@ B.InitPlayer = function(player)
 	--player.lifeshards = 0
 	player.shieldswap_cooldown = 0
 	player.airdodge = 0
+	player.dodgecooldown = 0
 	player.tumble = 0
 	player.melee_state = 0
 	player.thinkmoveangle = 0

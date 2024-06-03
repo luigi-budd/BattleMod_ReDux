@@ -147,6 +147,7 @@ B.PlayerThinkFrame = function(player)
 	--Update timers/stats
 	B.GotFlagStats(player)
 	player.charmedtime = max(0,$-1)
+	player.dodgecooldown = max(0,$-1)
 	if player.actioncooldown > 0 then
 		if player.lastcooldown == nil or player.lastcooldown < player.actioncooldown then
 			player.lastcooldown = player.actioncooldown
@@ -160,7 +161,6 @@ B.PlayerThinkFrame = function(player)
 	if player.spentrings then
 		player.spentrings = max(0,$-1)
 	end
-	--player.actioncooldown = max(0,$-1)
 	B.DoBackdraft(player)
 	
 

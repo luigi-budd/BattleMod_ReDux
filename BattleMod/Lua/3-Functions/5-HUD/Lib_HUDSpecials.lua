@@ -137,6 +137,7 @@ B.ActionHUD=function(v, player, cam)
 	local textcolor = 0
 	local canguard = (player.canguard and not player.actionstate)
 	local candodge = (player.canguard
+		and CV.airtoggle.value
 		and player.mo.state ~= S_PLAY_PAIN
 		and player.mo.state ~= S_PLAY_STUN
 		and player.airdodge == 0
@@ -158,6 +159,15 @@ B.ActionHUD=function(v, player, cam)
 		text = "Guard"
 	elseif candodge then
 		text = "Air Dodge"
+		if player.dodgecooldown then
+			if player.dodgecooldown > CV.dodgetime.value*TICRATE/2 then
+				textcolor = "\x85"
+			elseif player.dodgecooldown > CV.dodgetime.value*TICRATE/3 then
+				textcolor = "\x87"
+			else
+				textcolor = "\x82"
+			end
+		end
 	end
 	if not(text) then
 		return
