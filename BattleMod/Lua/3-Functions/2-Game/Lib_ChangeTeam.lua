@@ -7,6 +7,19 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 	if player.spectatortime == nil then
 		player.spectatortime = 0
 	end
+	if team == 0 then //Penalty for abandoning the team
+		if player.mo and player.mo.valid then
+			local vfx = P_SpawnMobj(player.mo.x,player.mo.y,player.mo.z,MT_THOK)
+			if vfx and vfx.valid then
+				vfx.state = S_XPLD1
+				S_StartSound(vfx,sfx_pop)
+				S_StartSound(nil,sfx_jshard)
+			end
+		end
+		player.spectator = true
+		player.spectatortime = -10*TICRATE
+		return true
+	end
 	if not(player.spectatortime >= 0) and team != 0 then //Player join time cannot preceed assigned respawn delay
 		CONS_Printf(player,"Please wait "..-player.spectatortime/TICRATE.."s to rejoin")
 		return false

@@ -49,7 +49,7 @@ Major gameplay changes
 		- Removed respawn time penalty for multiple deaths
 		- Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
 		- [TODO: Double-Check] Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
-		- [TODO: Implement?] Added a rejoin lockout timer when entering spectator mode
+		- Added a rejoin lockout timer when entering spectator mode
 Minor gameplay changes
 	- [!] Lower default battle_collisiontimer (12 -> 5)
 	- Collisions will no longer occur between players during PreRound
