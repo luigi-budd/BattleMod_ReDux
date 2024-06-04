@@ -294,7 +294,7 @@ B.exhaust = function(player)
 			S_StartSound(mo, sfx_s3kbb, player)
 			local sweat = P_SpawnMobjFromMobj(mo, 0, 0, sweatheight * P_MobjFlip(mo), MT_THOK) --we got a local sweat in our area
 			sweat.spritexoffset = $ - (mo.radius*2)
-			sweat.state = S_SWEAT
+			sweat.state = (player.charflags & SF_MACHINE) and S_SPARK or S_SWEAT
 			sweat.target = mo
 			B.InstaFlip(sweat)
 			player.sweatobj = sweat

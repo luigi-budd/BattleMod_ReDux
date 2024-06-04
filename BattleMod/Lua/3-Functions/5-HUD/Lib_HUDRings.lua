@@ -206,12 +206,16 @@ B.RingsHUD = function(v, player, cam)
 	local warningtic = FRACUNIT/3
 	if player.exhaustmeter < warningtic then
 		local frame = 0
+		local sprite = (player.charflags & SF_MACHINE) and "SPAK" or "SWET"
+		local nodraw = false
 		if player.exhaustmeter == 0 then
 			frame = 1
 		elseif not(leveltime % 7) then
-			return
+			nodraw = true
 		end
-		v.drawScaled((x+12)*FRACUNIT + FRACUNIT/2, (y-14)*FRACUNIT, scale, v.getSpritePatch("SWET", frame), flags_hudtrans)
+		if not nodraw then
+			v.drawScaled((x+12)*FRACUNIT + FRACUNIT/2, (y-14)*FRACUNIT, scale, v.getSpritePatch(sprite, frame), flags_hudtrans)
+		end
 	end
 
 	--Ring spent effect
