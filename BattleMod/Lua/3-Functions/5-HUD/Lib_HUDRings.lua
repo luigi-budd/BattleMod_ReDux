@@ -285,6 +285,9 @@ B.RingsHUD = function(v, player, cam)
 				local p = v.getSpritePatch("CDBR", tiny+(leveltime/4 % 4), 0, n*ANG1*spacing)
 				v.draw(x, y-18, p, flags_hudtrans)
 			end
+			if player.dodgecooldown > maxcooldown and (leveltime/5 & 1) then
+				v.drawString(x,y-18,"\x85!",flags,"thin")
+			end
 		else
 			patch = v.cachePatch("DODGEBT")
 			v.draw(x-5,y-18,patch,flags)

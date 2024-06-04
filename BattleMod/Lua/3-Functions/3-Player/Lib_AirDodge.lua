@@ -13,8 +13,11 @@ B.AirDodge = function(player)
 	local mo = player.mo
 	
 	local intangible_time_real = intangible_time
-	if not player.safedodge then
+	local safe_dodge = player.safedodge and player.safedodge > 0
+	local unsafe_dodge = player.safedodge and player.safedodge < 0
+	if not (safe_dodge) then
 		intangible_time_real = intangible_time/2
+		--if unsafe_dodge is true, intangible_time won't do anything
 	end
 	
 	if B.ButtonCheck(player, player.battleconfig_guard) == 1
@@ -44,11 +47,15 @@ B.AirDodge = function(player)
 		player.airdodge = 1
 		player.airdodge_spin = ANGLE_90 + ANG10
 		if not(player.dodgecooldown)
-			player.safedodge = true
+			player.safedodge = 1
+			player.dodgecooldown = CV.dodgetime.value*TICRATE
 		else
-			player.safedodge = false
+			player.safedodge = 0
+			if player.dodgecooldown > CV.dodgetime.value*TICRATE then
+				player.safedodge = -1
+			end
+			player.dodgecooldown = min($+CV.dodgetime.value*TICRATE,CV.dodgetime.value*TICRATE*3/2)
 		end
-		player.dodgecooldown = CV.dodgetime.value*TICRATE
 		
 		//State and flags
 		B.ResetPlayerProperties(player,false,false)
@@ -125,7 +132,7 @@ B.AirDodge = function(player)
 
 		elseif player.airdodge > 0
 			player.airdodge = $ + 1
-			if not player.safedodge then
+			if not safe_dodge then
 				player.pflags = $ | PF_FULLSTASIS
 			end
 			if player.airdodge <= intangible_time_real
@@ -133,13 +140,13 @@ B.AirDodge = function(player)
 					mo.colorized = true
 					mo.color = SKINCOLOR_WHITE
 					mo.airdodgecolor = true
-					if player.safedodge then
+					if safe_dodge then
 						local g = P_SpawnGhostMobj(mo)
 						if AST_ADD
 							g.blendmode = AST_ADD
 						end
 					end
-				elseif (player.airdodge % 4) != 1
+				elseif ((player.airdodge % 4) != 1) and not unsafe_dodge
 					mo.colorized = true
 					mo.color = SKINCOLOR_SILVER
 					if player.followmobj then player.followmobj.color = mo.color end
@@ -172,7 +179,7 @@ B.AirDodge = function(player)
 	
 	local skin = skins[player.mo.skin]
 	if (player.airdodge > 0 and player.airdodge <= intangible_time_real)
-		player.intangible = true
+		player.intangible = (not unsafe_dodge)
 		player.thrustfactor = skin.thrustfactor+5
 		player.normalspeed = skin.normalspeed/2
 	else

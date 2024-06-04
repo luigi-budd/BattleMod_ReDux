@@ -41,10 +41,12 @@ Major gameplay changes
 		- Removed air dodge intantible time penalty from players suffering from flag debuff
 		- Doubled air dodge intangible time (0.4s -> 0.8s)
 		- Removed movement stasis from air dodge (in fact, severely increased handling/thrustfactor during it)
-		- Indicated by red HUD and lack of after-images, air dodging again after no more than 5 seconds (configurable with battle_dodgecooldown) will result in:
+		- Indicated by HUD timer and lack of after-images, air dodging in the next 5 seconds (configurable with battle_dodgecooldown) will result in:
 			- Full stasis
+			- Less intangibility time
 			- Landing lag
-			- Half of the usual intangibility time
+			- Extend your dodge timer even further (An exclamation mark will show up in the HUD timer)
+			- If you dodge for a third time while the exclamation mark is up, the landlag will increase and no intangibility will be gained
 	[!] Respawn timers
 		- Removed respawn time penalty for multiple deaths
 		- Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
