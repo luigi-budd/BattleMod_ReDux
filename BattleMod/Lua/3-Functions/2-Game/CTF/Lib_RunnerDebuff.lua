@@ -38,18 +38,19 @@ B.GotFlagStats = function(player)
 		player.mindash = skin.mindash
 		player.maxdash = skin.maxdash
 		player.charflags = skins[player.mo.skin].flags
+		player.jumpfactor = skin.jumpfactor
 	end
 	//Apply debuff
 	if player.gotflagdebuff
-		player.normalspeed = skin.normalspeed*4/5
-		player.acceleration = skin.acceleration*5/6
-		player.runspeed = skin.runspeed*4/5
+		--player.normalspeed = skin.normalspeed*4/5
+		--player.acceleration = skin.acceleration*5/6
+		--player.runspeed = skin.runspeed*4/5
 		if not(B.GetSkinVarsFlags(player) & SKINVARS_ROSY) then
 			player.mindash = 15*3/4*FRACUNIT
 			player.maxdash = 70*4/5*FRACUNIT
 		end
 		player.dashmode = 0
-		player.jumpfactor = skin.jumpfactor
+		player.jumpfactor = FRACUNIT
 		player.charflags = skins[player.mo.skin].flags & ~SF_RUNONWATER
 		player.powers[pw_strong] = $&~STR_METAL
 	end

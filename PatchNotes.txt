@@ -62,8 +62,8 @@ Survival, Team Survival, Arena, Team Arena
 	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable survival_bounty)
 	- The highest rank player can always be located with the radar or compass
 Battle CTF
-	- [!] Flag debuff now also applies a fixed jumpfactor of 100%
-	- [!] Holding a flag no longer hinders acceleration
+	- Flag debuff now also applies a fixed jumpfactor of 100%
+	- Holding a flag no longer hinders acceleration and top speed
 	- CTF flags can't be touched by players that are in guard or airdodge
 	- Playes cannot lose i-frames when in contact with flags
 	- Tossing the flag manually does not apply intangible time to it
