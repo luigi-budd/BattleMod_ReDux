@@ -136,9 +136,13 @@ B.AirDodge = function(player)
 				player.pflags = $ | PF_FULLSTASIS
 			end
 			if player.airdodge <= intangible_time_real
-				if (player.airdodge % 4) == 3
+				if (player.airdodge % 4) == 3 and not unsafe_dodge
 					mo.colorized = true
 					mo.color = SKINCOLOR_WHITE
+					if player.followmobj then
+						player.followmobj.colorized = mo.colorized
+						player.followmobj.color = mo.color
+					end
 					mo.airdodgecolor = true
 					if safe_dodge then
 						local g = P_SpawnGhostMobj(mo)
@@ -149,17 +153,27 @@ B.AirDodge = function(player)
 				elseif ((player.airdodge % 4) != 1) and not unsafe_dodge
 					mo.colorized = true
 					mo.color = SKINCOLOR_SILVER
-					if player.followmobj then player.followmobj.color = mo.color end
+					if player.followmobj then
+						player.followmobj.colorized = mo.colorized
+						player.followmobj.color = mo.color
+					end
 					mo.airdodgecolor = true
 				else
 					mo.colorized = false
 					mo.color = player.skincolor
-					if player.followmobj then player.followmobj.color = mo.color end
+					if player.followmobj then
+						player.followmobj.colorized = mo.colorized
+						player.followmobj.color = mo.color
+					end
 					mo.airdodgecolor = false
 				end
 			else
 				mo.colorized = false
 				mo.color = player.skincolor
+				if player.followmobj then
+					player.followmobj.colorized = mo.colorized
+					player.followmobj.color = mo.color
+				end
 				mo.airdodgecolor = false
 			end
 			if player.airdodge > dodge_endlag
@@ -174,6 +188,10 @@ B.AirDodge = function(player)
 	elseif mo.airdodgecolor
 		mo.colorized = false
 		mo.color = player.skincolor
+		if player.followmobj then
+			player.followmobj.colorized = mo.colorized
+			player.followmobj.color = mo.color
+		end
 		mo.airdodgecolor = false
 	end
 	

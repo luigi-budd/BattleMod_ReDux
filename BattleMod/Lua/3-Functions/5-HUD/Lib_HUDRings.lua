@@ -285,8 +285,15 @@ B.RingsHUD = function(v, player, cam)
 				local p = v.getSpritePatch("CDBR", tiny+(leveltime/4 % 4), 0, n*ANG1*spacing)
 				v.draw(x, y-18, p, flags_hudtrans)
 			end
-			if player.dodgecooldown > maxcooldown and (leveltime/5 & 1) then
-				v.drawString(x,y-18,"\x85!",flags,"thin")
+			local unsafe_dodge = (player.safedodge and player.safedodge < 0)
+			if player.dodgecooldown > maxcooldown and (unsafe_dodge or (leveltime/5 & 1)) then
+				local color = "\x85"
+				if unsafe_dodge then
+					color = (leveltime/5 & 1) and $ or "\x8F"
+					x = $ + v.RandomRange(-1,1)
+					y = $ + v.RandomRange(-1,1)
+				end
+				v.drawString(x-1,y-19,color+"!",flags,"thin")
 			end
 		else
 			patch = v.cachePatch("DODGEBT")
