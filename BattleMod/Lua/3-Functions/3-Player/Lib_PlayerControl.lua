@@ -97,42 +97,14 @@ B.InitPlayer = function(player)
 	player.lastmoveblock = nil
 	
 	-- Player Config
-	if player.battleconfig_dodgecamera == nil then
-		player.battleconfig_dodgecamera = true
+	for wtf, battleconfig in ipairs(CV.BattleConfigs) do 
+		local config = battleconfig[1]
+		local defaultvalue = battleconfig[2]
+		if player[config] == nil then
+			print("when the "..config.." is "..defaultvalue)
+			player[config] = defaultvalue
+		end
 	end
-	if player.battleconfig_guard == nil then
-		player.battleconfig_guard = BT_FIRENORMAL
-	end
-	if player.battleconfig_special == nil then
-		player.battleconfig_special = BT_ATTACK
-	end
-	if player.battleconfig_aimsight == nil then
-		player.battleconfig_aimsight = true
-	end
-	if player.battleconfig_autospectator == nil then
-		player.battleconfig_autospectator = true
-	end
-	if player.battleconfig_charselect == nil then
-        player.battleconfig_charselect = true
-    end
-	if player.battleconfig_newhud == nil then
-        player.battleconfig_newhud = true
-    end
-	if player.battleconfig_minimap == nil then
-        player.battleconfig_minimap = true
-    end
-	if player.battleconfig_hammerstrafe == nil then
-        player.battleconfig_hammerstrafe = false
-    end
-	if player.battleconfig_glidestrafe == nil then
-        player.battleconfig_glidestrafe = true
-    end
-	if player.battleconfig_slipstreambutton == nil then
-		player.battleconfig_slipstreambutton = BT_WEAPONNEXT
-	end
-	if player.battleconfig_slipstreamstyle == nil then
-		player.battleconfig_slipstreamstyle = false
-	end	
 	
 	if player.revenge == nil then
 		player.revenge = false

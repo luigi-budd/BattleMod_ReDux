@@ -2,9 +2,17 @@
 local directories = {
 
     {
+        folder = "0-OVERRIDES",
+        files = { 
+            "COM_BufInsertText"
+        },
+    },
+    
+
+    {
         folder = "1-Init",
         files = { 
-            "Init",
+            "Init_Battle",
             "Init_Gametype",
             "Init_GametypeExtra",
             "Init_VersionInfo"
@@ -214,8 +222,7 @@ local directories = {
             "Lib_ShieldActives",
             "Lib_ShieldControl",
             "Lib_Spectator",
-            "Lib_StunBreak",
-            "Lib_UserConfig"
+            "Lib_StunBreak"
         },
     },
         

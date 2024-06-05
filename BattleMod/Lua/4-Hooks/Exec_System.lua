@@ -71,7 +71,6 @@ end)
 
 addHook("ThinkFrame",function()	
 	//Player control
-	B.UserConfig()
 	for player in players.iterate
 		B.PlayerThinkFrame(player)
 		F.UpdateCaps(player)
@@ -94,3 +93,11 @@ addHook("PostThinkFrame",function()
 end)
 
 addHook("IntermissionThinker",B.Intermission)
+
+B.AutoLoad = function(player)
+	if not player.battleconfigloaded then
+		player.battleconfigloaded = true
+    	COM_BufInsertText(player, "battleconfig load silent")
+	end
+end
+addHook("PlayerThink", B.AutoLoad) --i wish this was a "PlayerJoin" hook instead but idk how to use it so here it goes!!

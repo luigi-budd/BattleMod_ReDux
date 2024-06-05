@@ -2,9 +2,12 @@ local B = CBW_Battle
 local CV = B.Console
 
 COM_AddCommand("battleversioninfo",function(player)
+	local vn = B.VersionNumber or "Unknown"
+	local vs = B.VersionSub or "Unknown"
+	local vd = CBW_Battle.VersionDate or "Unknown"
 	CONS_Printf(player,
-		"\x82".."BattleMod ("..B.VersionNumber.."."..B.VersionSub..
-		") \x80 written by CobaltBW. Last updated "..CBW_Battle.VersionDate.."\n"..
+		"\x82".."BattleMod ("..vn.."."..vs..
+		") \x80 written by CobaltBW. Last updated "..vd.."\n"..
 		"Maps created by CobaltBW, FlareBlade93, and Krabs.\n"..
 		"Please visit the mb.SRB2.org topic or review this pk3's Credits.txt and PatchNotes.txt for full credits & changelog."
 	)

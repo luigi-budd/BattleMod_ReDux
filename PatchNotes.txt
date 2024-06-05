@@ -8,6 +8,7 @@ NOTE FOR DEVS
 		- [Ring Bank] (Explanation of new gamemode)
 		- yadda yadda... (pls help i have terrible memory)
 	Was already noted:
+		- Marioshi's Metal Sonic
 		- [Major gameplay changes] The exhaustmeter is doubled in non-survival gamemodes
 		- [Sonic] Spinwave
 
@@ -23,11 +24,12 @@ Modding features
 	- New player variable: player.ledgemeter (emergency exhaust, player.exhaustmeter can't exceed it when grabbing a ledge)
 	- New player variable: player.ledgegrabcooldown
 	- New player variable: player.landlag (puts the player in recoil as they touch the floor)
-	- New player variable: player.nodamage (prevents the player from taking damage with no indication)
-	- New function: B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
-	- New timer: player.noshieldactive (Also resets to 0 on land)
-	- New timer: player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state. If below 0, prevents stunbreak)
 	- New player variables: player.customstunbreaktics, player.customstunbreakcost (only works with player.canstunbreak)
+	- New player timer: player.nodamage (prevents the player from taking damage with no indication - used in PreRound and GAME SET)
+	- New player timer: player.noshieldactive (Also resets to 0 on land)
+	- New player timer: player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state. If below 0, prevents stunbreak)
+	- New function: B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
+	- New function: B.Console.AddBattleConfig(configname, func, defaultvalue)
 Major gameplay changes
 	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_newhud to "off"
 	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
@@ -171,6 +173,7 @@ Metal Sonic
 Maintenance
 	- Fixed permanent flashing frames (player's flashing frames now always count down in battle gametypes, even if it is higher than SRB2's default)
 	- Fixed some flag debuff stats persisting after death
+	- Severely reworked battleconfig saving and loading system
 	- Shields in the shield stock are rendered in the correct swapping order
 	- Fixed shield swapping not working when there's two of the same shield in a row
 	- By default, tumbles can't last longer than 3 seconds
@@ -198,11 +201,12 @@ Console
 		battle_recoveryjump
 		battle_requirerings
 		survival_bounty
+		battleconfig
 		battleconfig_charselect
 		battleconfig_nospinshield
-		battleconfig_radar
 		battleconfig_glidestrafe
 		battleconfig_hammerstrafe
+		battleconfig_slipstreambutton
 #
 
 ??? (Implemented in one of the versions below. Pls someone actually write what each ver. did):

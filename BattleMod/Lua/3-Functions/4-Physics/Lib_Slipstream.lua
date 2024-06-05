@@ -74,7 +74,7 @@ B.DoBackdraft = function(player)
 
 	if player.gradualspeed and nearest and nearest.valid then
 		--print(player.dashmode)
-		if player.battleconfig_slipstreamstyle == true then
+		if player.battleconfig_useslipstreambutton == true then
 			if player.didslipbutton == 1 then
 				
 				if nearest.speed > 54*FRACUNIT 
@@ -105,7 +105,7 @@ B.DoBackdraft = function(player)
 				player.normalspeed = skins[player.mo.skin].normalspeed
 				player.slipping = false
 			end
-		elseif not player.battleconfig_slipstreamstyle then
+		elseif not player.battleconfig_useslipstreambutton then
 			if nearest.speed > 54*FRACUNIT 
 				or nearest.powers[pw_sneakers] 
 				and not player.dashmode

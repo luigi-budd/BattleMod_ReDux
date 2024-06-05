@@ -14,9 +14,13 @@ B.DebugHUD = function(v, player, cam)
 		local flags2 = V_ALLOWLOWERCASE|V_HUDTRANSHALF|V_SNAPTORIGHT|V_SNAPTOTOP
 		local xx = v.width()/v.dupx()
 		local align = "small-right"
-		v.drawString(320,0,"v"..B.VersionNumber.."."..B.VersionSub.." [\x82"..B.VersionCommit.."\x80]\n",flags,align)
-		v.drawString(317,4,B.VersionBranch,flags2,align)
-		v.drawString(317,8,B.VersionDate.." ["..B.VersionTime.."]",flags2,align)
+		if B.VersionNumber then
+			v.drawString(320,0,"v"..B.VersionNumber.."."..B.VersionSub.." [\x82"..B.VersionCommit.."\x80]\n",flags,align)
+			v.drawString(317,4,B.VersionBranch,flags2,align)
+			v.drawString(317,8,B.VersionDate.." ["..B.VersionTime.."]",flags2,align)
+		else
+			v.drawString(320,0,"\x85".."PIRATE",flags2,align)
+		end
 	end
 	
 	if not(debug) then return end
