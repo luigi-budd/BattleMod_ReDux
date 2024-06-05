@@ -1,5 +1,5 @@
 local CV = CBW_Battle.Console
-CV.ConfigPath = "battleconfig.cfg"
+CV.ConfigPath = "client/battleconfig.cfg"
 CV.BattleConfigs = {}
 
 -- holy moly.. maybe we should use pcall() to prevent ppl from causing warnings? ~lu

@@ -97,11 +97,10 @@ B.InitPlayer = function(player)
 	player.lastmoveblock = nil
 	
 	-- Player Config
-	for wtf, battleconfig in ipairs(CV.BattleConfigs) do 
+	for _, battleconfig in ipairs(CV.BattleConfigs) do 
 		local config = battleconfig[1]
 		local defaultvalue = battleconfig[2]
 		if player[config] == nil then
-			print("when the "..config.." is "..defaultvalue)
 			player[config] = defaultvalue
 		end
 	end
