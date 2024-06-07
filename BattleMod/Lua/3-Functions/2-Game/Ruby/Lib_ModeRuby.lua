@@ -418,12 +418,12 @@ R.Thinker = function(mo)
 		if not P_IsObjectOnGround(t)
 			return
 		end
-		if player.ctfteam == 1 and P_PlayerTouchingSectorSpecial(player, 4, 4)
+		if player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_BLUETEAMBASE)
 			redscore = $+1
 			capture(mo, player)
 			S_StartSound(nil, sfx_ruby0)
 			timeout()
-		elseif player.ctfteam == 2 and P_PlayerTouchingSectorSpecial(player, 4, 3)
+		elseif player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_REDTEAMBASE)
 			bluescore = $+1
 			capture(mo, player)
 			S_StartSound(nil, sfx_ruby0)
