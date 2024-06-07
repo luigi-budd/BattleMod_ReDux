@@ -266,7 +266,6 @@ R.Thinker = function(mo)
 	
 	local sector = P_MobjTouchingSectorSpecialFlag(mo, 0) or mo.subsector.sector --P_ThingOnSpecial3DFloor(mo) or mo.subsector.sector
 	-- Checkpoint sector
-	if mo.target and mo.target.valid and GetSecSpecial(sector.special, 4) == 1
 -- 		B.DebugGhost(mo, R.CheckPoint)
 		if not (R.CheckPoint and R.CheckPoint.valid)
 			R.CheckPoint = P_SpawnMobjFromMobj(mo.target, 0, 0, 0, 1)
@@ -283,8 +282,8 @@ R.Thinker = function(mo)
 	
 	-- Remove object if on "remove ctf flag" sector type
 	if not(mo.target and mo.target.valid) and P_IsObjectOnGround(mo)
-	and GetSecSpecial(sector.special, 4) == 2
-	or mo.target and mo.target.valid and P_PlayerTouchingSectorSpecial(mo.target.player, 4, 2)
+	and GetSecSpecial(sector.special, SSF_RETURNFLAG) == 2
+	or mo.target and mo.target.valid and P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG)
 -- 		print('fell into removal sector')
 		if mo.target and mo.target.valid
 			P_DoPlayerPain(mo.target.player)
