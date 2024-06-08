@@ -91,7 +91,7 @@ local function tostring2(value)
 end
 
 CV.AddBattleConfig = function(configname, func, defaultvalue)
-	if not(configname and func and defaultvalue) then
+	if (configname == nil or func == nil or defaultvalue == nil) then
 		assert(false, "AHH!! AAAHHHHHHH!!\n".."One of these values is nil! "..tostring2(configname).." "..tostring2(func).." "..tostring2(defaultvalue)) --panic
 	end
 	COM_AddCommand(configname, func, 0)
@@ -104,9 +104,13 @@ CV.ConfigFunc = function(player, arg, silent)
     local CONS_Printl = function(text)
         if not silent then CONS_Printf(player, text) end
     end
+	local L_StartSound = function(sound)
+        if not silent then S_StartSound(nil, sound, player) end
+    end
     if (silent and silent != "silent") or not (arg == "load" or arg == "reset" or arg == "truereset") then
         CONS_Printl(color.."battleconfig <load/reset/truereset>: Load from or wipe BattleMod's configuration file, or wipe and return to the default values.")
-    elseif (arg == "load") then
+		L_StartSound(sfx_s25a)
+	elseif (arg == "load") then
         local file = io.openlocal(CV.ConfigPath, "r")
         if file then
             local firstline = true
@@ -119,28 +123,34 @@ CV.ConfigFunc = function(player, arg, silent)
             end
             file:close()
             CONS_Printl(color.."Configuration has been loaded!")
+			L_StartSound(sfx_addfil)
         else
             CONS_Printl(color.."Failed to access (luafiles/"..CV.ConfigPath.."). Perhaps it is missing?")
-        end
+			L_StartSound(sfx_adderr)
+		end
     elseif (arg == "save") then
         CONS_Printl(color.."Nuh uh! Saving already happens automatically whenever you modify a battleconfig.")
-    elseif (arg == "reset" or arg == "truereset") then
-		if (arg == "truereset") then
-        	for _, battleconfig in ipairs(CV.BattleConfigs) do 
-				local config = battleconfig[1]
-				local defaultvalue = battleconfig[2]
-				CONS_Printl(color.."Executing: "..config.." "..defaultvalue)
-				COM_BufInsertText(player, config.." "..defaultvalue)
-			end
-		end
+		L_StartSound(sfx_zelda)
+	elseif (arg == "reset")
 		local file = io.openlocal(CV.ConfigPath, "w")
-        if file then
-            file:close()
-            CONS_Printl(color.."Configuration has been reset!")
-        else
-            CONS_Printl(color.."Failed to find (luafiles/"..CV.ConfigPath.."). Success, I guess?")
-        end
-    end
+		if file then
+			file:close()
+			CONS_Printl(color.."Configuration has been reset!")
+		else
+			CONS_Printl(color.."Failed to find (luafiles/"..CV.ConfigPath.."). Success, I guess?")
+		end
+		L_StartSound(sfx_notadd)
+	elseif (arg == "truereset") then
+        for _, battleconfig in ipairs(CV.BattleConfigs) do 
+			local config = tostring(battleconfig[1])
+			local defaultvalue = tostring(battleconfig[2])
+			CONS_Printl(color.."Executing: "..config.." "..defaultvalue)
+			COM_BufInsertText(player, config.." "..defaultvalue)
+		end
+		local command = "battleconfig reset"
+		CONS_Printl(color.."Executing: "..command)
+		COM_BufInsertText(player, command)
+	end
 end
 CV.Config = COM_AddCommand("battleconfig", CV.ConfigFunc, COM_LOCAL)
 
@@ -235,8 +245,11 @@ CV.SetYesNo = function(player, arg, config, defaultvalue, silent)
 		["false"] = false, ["0"] = false, ["off"] = false, ["no"] = false,
 	}
 	local yesno = options[arg]
+	local currenttxt = player[config] and "On" or "Off"
+	local defaulttxt = defaultvalue and "On" or "Off"
 	if yesno == nil and not silent then
-		CONS_Printf(player,config.." <On/Off>: Currently \135"..tostring2(player[config]).."\x80 - Default is \135"..defaultvalue)
+		S_StartSound(nil, sfx_s25a, player)
+		CONS_Printf(player,config.." <On/Off>: Currently \135"..currenttxt.."\x80 - Default is \135"..defaulttxt)
 	else
 		player[config] = yesno
 		CV.SaveConfig(player, config, yesno)
@@ -255,6 +268,7 @@ CV.SetButton = function(player, args, config, defaultvalue, silent)
 	flags = args and getflags(args) or 0
 	
 	if flags == 0 or not #args then
+		S_StartSound(nil, sfx_s25a, player)
 		CONS_Printf(player,config.." <Button>: Currently \135"..btn2str[player[config]].."\x80 - Default is \135"..btn2str[defaultvalue])
 		print_help(player)
 	else
@@ -267,10 +281,10 @@ end
 --TODO: maybe merge CV.SetYesNo and CV.SetButton by using the default value to determine what to do, would make implementation easier but maybe less performant?
 local cfg, default = {}, {} --by the way, this is only necessary because we are adding them in bulk (so it doesnt print different commands later)
 
-cfg[1], default[1] = "battleconfig_dodgecamera", "On"
+cfg[1], default[1] = "battleconfig_dodgecamera", true
 CV.AddBattleConfig(cfg[1], function(player, arg) CV.SetYesNo(player, arg, cfg[1], default[1]) end, default[1])
 
-cfg[2], default[2] = "battleconfig_autospectator", "On"
+cfg[2], default[2] = "battleconfig_autospectator", true
 CV.AddBattleConfig(cfg[2], function(player, arg) CV.SetYesNo(player, arg, cfg[2], default[2]) end, default[2])
 
 cfg[3], default[3] = "battleconfig_special", BT_ATTACK
@@ -279,29 +293,29 @@ CV.AddBattleConfig(cfg[3], function(player, ...) CV.SetButton(player, {...}, cfg
 cfg[4], default[4] = "battleconfig_guard", BT_FIRENORMAL
 CV.AddBattleConfig(cfg[4], function(player, ...) CV.SetButton(player, {...}, cfg[4], default[4]) end, default[4])
 
-cfg[5], default[5] = "battleconfig_aimsight", "On"
+cfg[5], default[5] = "battleconfig_aimsight", true
 CV.AddBattleConfig(cfg[5], function(player, arg) CV.SetYesNo(player, arg, cfg[5], default[5]) end, default[5])
 
-cfg[6], default[6] = "battleconfig_charselect", "On"
+cfg[6], default[6] = "battleconfig_charselect", true
 CV.AddBattleConfig(cfg[6], function(player, arg) CV.SetYesNo(player, arg, cfg[6], default[6]) end, default[6])
 
-cfg[7], default[7] = "battleconfig_nospinshield", "Off"
+cfg[7], default[7] = "battleconfig_nospinshield", false
 CV.AddBattleConfig(cfg[7], function(player, arg) CV.SetYesNo(player, arg, cfg[7], default[7]) end, default[7])
 
-cfg[8], default[8] = "battleconfig_newhud", "On"
+cfg[8], default[8] = "battleconfig_newhud", true
 CV.AddBattleConfig(cfg[8], function(player, arg) CV.SetYesNo(player, arg, cfg[8], default[8]) end, default[8])
 
-cfg[9], default[9] = "battleconfig_minimap", "On"
+cfg[9], default[9] = "battleconfig_minimap", true
 CV.AddBattleConfig(cfg[9], function(player, arg) CV.SetYesNo(player, arg, cfg[9], default[9]) end, default[9])
 
-cfg[10], default[10] = "battleconfig_glidestrafe", "On"
+cfg[10], default[10] = "battleconfig_glidestrafe", true
 CV.AddBattleConfig(cfg[10], function(player, arg) CV.SetYesNo(player, arg, cfg[10], default[10]) end, default[10])
 
-cfg[11], default[11] = "battleconfig_hammerstrafe", "Off"
+cfg[11], default[11] = "battleconfig_hammerstrafe", false
 CV.AddBattleConfig(cfg[11], function(player, arg) CV.SetYesNo(player, arg, cfg[11], default[11]) end, default[11])
 
 cfg[12], default[12] = "battleconfig_slipstreambutton", BT_WEAPONNEXT
 CV.AddBattleConfig(cfg[12], function(player, ...) CV.SetButton(player, {...}, cfg[12], default[12]) end, default[12])
 
-cfg[13], default[13] = "battleconfig_useslipstreambutton", "Off"
+cfg[13], default[13] = "battleconfig_useslipstreambutton", false
 CV.AddBattleConfig(cfg[13], function(player, arg) CV.SetYesNo(player, arg, cfg[13], default[13]) end, default[13])

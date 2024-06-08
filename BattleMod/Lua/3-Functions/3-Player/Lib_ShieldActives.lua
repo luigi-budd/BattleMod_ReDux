@@ -113,17 +113,10 @@ local ThunderJump = function(player)
 end
 local ForceStop = function(player)
 	local mo = player.mo
-	player.dashmode = 0
-	player.pflags = $ | PF_SHIELDABILITY | PF_FULLSTASIS | PF_JUMPED & ~PF_NOJUMPDAMAGE
-	mo.state = S_PLAY_ROLL
-	mo.momx = $ / 4
-	mo.momy = $ / 4
-	if (P_MobjFlip(mo) == 1) then
-		mo.momz = max(0, $)
-	else
-		mo.momz = min(0, $)
-	end
+	P_InstaThrust(mo, 0, 0*FRACUNIT)
 	
+	player.weapondelay = 25
+	P_SetObjectMomZ(mo, 0*FRACUNIT)
 	S_StartSound(mo,sfx_ngskid)
 	player.pflags = $|PF_THOKKED|PF_SHIELDABILITY
 end
