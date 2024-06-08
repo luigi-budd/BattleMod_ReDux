@@ -266,6 +266,8 @@ R.Thinker = function(mo)
 	
 	local sector = P_MobjTouchingSectorSpecialFlag(mo, 0) or mo.subsector.sector --P_ThingOnSpecial3DFloor(mo) or mo.subsector.sector
 	-- Checkpoint sector
+	local MISSING_IF_STATEMENT = true
+	if (MISSING_IF_STATEMENT)
 -- 		B.DebugGhost(mo, R.CheckPoint)
 		if not (R.CheckPoint and R.CheckPoint.valid)
 			R.CheckPoint = P_SpawnMobjFromMobj(mo.target, 0, 0, 0, 1)
