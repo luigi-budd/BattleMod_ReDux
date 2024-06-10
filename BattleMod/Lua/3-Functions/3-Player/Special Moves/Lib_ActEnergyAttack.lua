@@ -321,6 +321,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	player.actiontime = $+1 --Timer
 	player.energyattack_chargebuffer = max(0, ($ or 1))
 	player.energyattack_chargebuffer = $-1
+	player.ringsparkclock = $ or 0
 	--print(player.energyattack_chargebuffer)
 	if player.energyattack_chargemeter < FRACUNIT and player.actionstate == state_charging then
 		player.action2text = "Charge "..100-(100*player.energyattack_chargemeter/FRACUNIT).."%"
@@ -558,6 +559,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		if player.exhaustmeter > 1 then
 
 			player.skidtime = 0
+
+			player.ringsparkclock = $+1 
 		
 			if player.actiontime <= forcetime_ringspark then
 				player.airdodge = -1
@@ -591,12 +594,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				
 				if player.energyattack_ringsparktimer < 15 then --If we just started
 					player.normalspeed = speed_ringspark --Slow
-					if (leveltime % 12) == 0 then --Drain rings
+					if (player.ringsparkclock % 12) == 0 then --Drain rings
 						drainSpark(player)
 					end
 				else --if it's been a bit
 					player.normalspeed = speed_ringspark+(speed_ringspark/2) --A bit faster
-					if (leveltime % 8) == 0 then --Drain Faster
+					if (player.ringsparkclock % 8) == 0 then --Drain Faster
 						drainSpark(player)
 					end
 				end
@@ -617,6 +620,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.skidtime = 0 --No skidding
 				player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK --We can attack enemies
 			else --If we let go, reset
+				player.ringsparkclock = 0
 				player.actionstate = 0
 				player.actiontime = 0
 				resetdashmode(player)
@@ -624,6 +628,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				resetvars(player)
 			end
 		else
+			player.ringsparkclock = 0
 			player.actionstate = 0
 			player.actiontime = 0
 			resetdashmode(player)
@@ -794,5 +799,5 @@ end
 B.RingSparkCheck = function(player)
 	if not player.mo and player.mo.valid then return false end
 	local mo = player.mo
-	--return rawget(B.SkinVars, mo.skin) and (B.SkinVars[mo.skin].special == B.Action.EnergyAttack) and ((player.actiosntate == state_ringsparkprep) or player.actionstate == state_ringspark)
+	return rawget(B.SkinVars, mo.skin) and (B.SkinVars[mo.skin].special == B.Action.EnergyAttack) and ((player.actiosntate == state_ringsparkprep) or player.actionstate == state_ringspark)
 end
