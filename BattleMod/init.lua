@@ -325,6 +325,7 @@ local directories = {
             "2DCamera",
             "L_JumpLeniency",
             "L_LedgeGrab",
+            "L_PrettyShield",
             "MetalBugFix",
             "ObjRespawn_Core",
             "ObjRespawn_Types"
