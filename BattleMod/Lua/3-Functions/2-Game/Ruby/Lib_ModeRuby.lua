@@ -203,7 +203,7 @@ R.PreThinker = function()
 					player.actioncooldown = TICRATE
 					player.gotcrystal = false
 					player.gotcrystal_time = 0
-					P_SetOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
+					P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 					B.ZLaunch(mo,player.mo.scale*6)
 					P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
 					player.tossdelay = TICRATE*2
@@ -271,7 +271,7 @@ R.Thinker = function(mo)
 			R.CheckPoint = P_SpawnMobjFromMobj(mo.target, 0, 0, 0, 1)
 			R.CheckPoint.flags2 = $|MF2_SHADOW
 		else
-			P_SetOrigin(R.CheckPoint, mo.target.x, mo.target.y, mo.target.z)
+			P_MoveOrigin(R.CheckPoint, mo.target.x, mo.target.y, mo.target.z)
 		end
 		if mo.target.player.ctfteam == 1
 			R.CheckPoint.state = S_SHRD1
@@ -406,7 +406,7 @@ R.Thinker = function(mo)
 -- 		z = $+t.height
 		mo.flags2 = $|MF2_OBJECTFLIP
 	end
-	P_SetOrigin(mo,t.x,t.y,t.z)
+	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
 	
