@@ -90,6 +90,11 @@ B.PlayerThinkFrame = function(player)
 		player.powers[pw_flashing] =  (3*TICRATE)-1 -- let's allow vanilla srb2 to do the ticking down itself
 	end
 	]] --hey dude this is already fixed in B.flashingnerf lmao ~lu
+
+	--gotta put this before the sanity checks...
+	if player.spentrings then
+		player.spentrings = max(0,$-1)
+	end
 	
 	--Sanity checks
 	if player.versusvars == nil then return end
@@ -158,14 +163,16 @@ B.PlayerThinkFrame = function(player)
 			S_StartSound(nil, sfx_cddone, player)
 		end
 	end
-	if player.spentrings then
-		player.spentrings = max(0,$-1)
-	end
-	if player.actionrings then
-		player.lastactionrings = player.actionrings
-	end
-	if player.actiontext then
-		player.lastactiontext = player.actiontext
+	if B.SkinVars[player.skinvars].special then
+		if player.actionrings then
+			player.lastactionrings = player.actionrings
+		end
+		if player.actiontext then
+			player.lastactiontext = player.actiontext
+		end
+	else
+		player.lastactionrings = nil
+		player.lastactiontext = nil
 	end
 	B.DoBackdraft(player)
 	
