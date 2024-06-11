@@ -28,8 +28,9 @@ end
 
 B.TeamFireTrail = function(mo)
 	mo.fuse = min($, TICRATE * 4)
-	if not(G_GametypeHasTeams() and mo.target and mo.target.valid and mo.target.player) then return end
-	if not(mo.ctfteam) then
+	--if not(G_GametypeHasTeams() and mo.target and mo.target.valid and mo.target.player) then return end
+	--if not(mo.ctfteam) then
+	if (mo.target and mo.target.valid and mo.target.player) then
 		local player = mo.target.player
 		mo.ctfteam = player.ctfteam
 		mo.color = player.skincolor
