@@ -205,7 +205,7 @@ B.exhaust = function(player)
 		and (player.landlag or (player.airdodge and player.airdodge > 0 and not (player.safedodge and player.safedodge > 0)))
 		and not (mo.player.resistrecoil)
 	then
-		local dodge_landlag = player.safedodge < 0 and 12 or 6 
+		local dodge_landlag = (player.safedodge and player.safedodge < 0) and 12 or 6 
 		local ang = R_PointToAngle2(0,0,-player.mo.momx,-player.mo.momy)
 		B.DoPlayerFlinch(player, player.landlag or dodge_landlag, ang, -player.speed/2,false)
 		S_StartSound(mo,sfx_s3k4c)
