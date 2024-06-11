@@ -62,8 +62,8 @@ local dash_overlayOn = function(player, overlay, colorize, bool) --Choose to ena
             end
         else --if not
             if player.mo.dashmode_mobj and player.mo.dashmode_mobj.valid --If we have an overlay
-                P_RemoveMobj(player.mo.dashmode_mobj) --Remove overlay
-                player.mo.dashmode_mobj = nil --Clear variable
+               -- P_RemoveMobj(player.mo.dashmode_mobj) --Remove overlay
+               -- player.mo.dashmode_mobj = nil --Clear variable
                 return --That's all folks
             end
         end
@@ -80,8 +80,8 @@ local dash_overlayOff = function(player, overlay, colorize) --Only disable what 
             if player.dashmode >= DASHMODE_THRESHOLD then --If we're still in dashmode
                 dash_overlayVars(player.mo.dashmode_mobj, player) --Set Attributes and position
             else --if not
-                P_RemoveMobj(player.mo.dashmode_mobj) --Remove overlay
-                player.mo.dashmode_mobj = nil --Clear variable
+                --P_RemoveMobj(player.mo.dashmode_mobj) --Remove overlay
+                --player.mo.dashmode_mobj = nil --Clear variable
                 return --That's all folks
             end
         end
@@ -95,17 +95,11 @@ local dash_destscale = FRACUNIT+(FRACUNIT/8) --Biggest scale for overlay
 local dash_scalespeed = FRACUNIT/45 --Scale speed for overlay (using spritexscale & spriteyscale)
 
 local dash_pulseFunc = function(mo) --This function creates values that are added to the object's vars
-	mo.metalsonic_dashpulse = $ or 0
-	
-	if mo.metalsonic_dashpulse == dash_destscale then
-		mo.metalsonic_dashpulse = dash_initscale
-	else
-		mo.metalsonic_dashpulse = $+dash_scalespeed
-	end
-	
-	mo.spritexscale = $+mo.metalsonic_dashpulse
-	mo.spriteyscale = $+mo.metalsonic_dashpulse
-	mo.spriteyoffset = $-(mo.metalsonic_dashpulse*12)
+	local eq = FRACUNIT*2 + sin(leveltime*ANG1*(FRACUNIT))*1
+	mo.scale = eq
+	--mo.spriteyoffset = -(mo.scale-FRACUNIT)
+	mo.spriteyoffset = -(FRACUNIT + (abs(eq)+mo.scale))
+	mo.blendmode = AST_ADD
 end
 
 local dash_overlayThink = function(mo) --MobjThinker
