@@ -28,9 +28,13 @@ B.DebugHUD = function(v, player, cam)
 	local yoffset = 14
 	local left_xoffset = 0
 	local left_yoffset = 0
+	local center_xoffset = (xoffset+left_xoffset)/2
+	local center_yoffset = 32
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTORIGHT|V_PERPLAYER
+	local center_flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
 	local left_flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER
 	local align = "small-right"
+	local center_align = "small-center"
 	local left_align = "small"
 	local nextline = 4
 	local boolstring = function(string2)
@@ -44,6 +48,7 @@ B.DebugHUD = function(v, player, cam)
 	--Double the scale for smaller screens (illegible otherwise)
 	if v.height() < 400 then 
 		align = "right"
+		center_align = "center"
 		left_align = nil
 		nextline = 8
 	end
@@ -86,6 +91,35 @@ B.DebugHUD = function(v, player, cam)
 		string = "\x88"+string
 		v.drawString(left_xoffset,left_yoffset,string,left_flags,left_align)
 		left_yoffset = $+nextline
+	end
+	local center_addline = function(string,string2)
+		if not (v.height() < 400) then
+			left_addline(string, string2)
+			return
+		end
+		string2 = boolstring(string2)
+		string = "\x86"+tostring($)+": \x80"+tostring(string2)
+		v.drawString(center_xoffset,center_yoffset,string,center_flags,center_align)
+		center_yoffset = $+nextline
+	end
+	local center_addheader = function(string)
+		if not (v.height() < 400) then
+			left_addheader(string)
+			return
+		end
+		center_yoffset = $+nextline
+		string = "\x82"+string
+		v.drawString(center_xoffset,center_yoffset,string,center_flags,center_align)
+		center_yoffset = $+nextline
+	end
+	local center_subheader = function(string)
+		if not (v.height() < 400) then
+			left_subheader(string)
+			return
+		end
+		string = "\x88"+string
+		v.drawString(center_xoffset,center_yoffset,string,center_flags,center_align)
+		center_yoffset = $+nextline
 	end
 	--****
 	--Execute drawing
@@ -159,12 +193,27 @@ B.DebugHUD = function(v, player, cam)
 		if player and player.valid then
 			addheader("PLAYER")
 			addline("SkinVars",player.skinvars)
-			addline("SkinVars.flags",B.GetSkinVarsFlags(player))
+			addline("SkinFlags",B.GetSkinVarsFlags(player))
 			addline("PreserveScore",player.preservescore)
+			subheader("EXHAUST")
 			addline("Exhaust",player.exhaustmeter*100/FRACUNIT.."%")
 			addline("LedgeExhaust",player.ledgemeter*100/FRACUNIT.."%")
-			addline("Tumble",player.tumble)
 			--addline("LandLag",player.landlag)
+			subheader("SPECTATOR")
+			addline("BattleSpawning",player.battlespawning)
+			addline("SpectatorTime",player.spectatortime)
+			addline("DeadTimer",player.deadtimer)
+			if B.ArenaGametype() then
+				subheader("ARENA STATS")
+				addline("Rank",player.rank)
+				addline("Revenge",player.revenge)
+				addline("LifeShards",player.lifeshards)
+				addline("IsEggRobo",player.iseggrobo)
+				addline("IsJettySyn",player.isjettysyn)
+			end
+			if not(v.width() < 400) then
+				left_addheader("PLAYER (EXT)")
+			end
 			left_subheader("ACTION")
 			left_addline("Allowed",player.actionallowed)
 			left_addline("Rings",player.actionrings)
@@ -178,25 +227,23 @@ B.DebugHUD = function(v, player, cam)
 			left_addline("Atk/Def",player.battle_atk.."\x86/\x80"..player.battle_def)
 			left_addline("SAtk/SDef",player.battle_satk.."\x86/\x80"..player.battle_sdef)
 			left_addline("Text",player.battle_hurttxt)
-			left_subheader("GUARD / DODGE")
+			left_subheader("GUARD")
 			left_addline("CanGuard",player.canguard)
 			left_addline("Guard",player.guard)
 			left_addline("GuardTics",player.guardtics)
+			left_subheader("AIR DODGE")
 			left_addline("Dodge",player.safedodge)
 			left_addline("Intangible",player.intangible)
 			left_addline("Stale",player.dodgecooldown)
-			subheader("SPECTATOR")
-			addline("BattleSpawning",player.battlespawning)
-			addline("SpectatorTime",player.spectatortime)
-			addline("DeadTimer",player.deadtimer)
-			if B.ArenaGametype() then
-				subheader("ARENA STATS")
-				addline("Rank",player.rank)
-				addline("Revenge",player.revenge)
-				addline("LifeShards",player.lifeshards)
-				addline("IsEggRobo",player.iseggrobo)
-				addline("IsJettySyn",player.isjettysyn)
-			end
+			center_subheader("TUMBLE")
+			center_addline("Tumble",player.tumble)
+			center_addline("Limit",player.max_tumble_time)
+			center_addline("Breakable",(not player.tumble_nostunbreak))
+			center_subheader("STUNBREAK")
+			center_addline("Can Break",player.canstunbreak)
+			center_addline("Cost",player.stunbreakcosttext)
+			center_addline("Type",player.tech_type)
+			center_addline("Timer",player.tech_timer)
 		end
 		if player and player.valid and player.mo and player.mo.valid then
 			local flags = S[player.mo.skin] and S[player.mo.skin].flags or S[-1].flags
@@ -212,7 +259,7 @@ B.DebugHUD = function(v, player, cam)
 			end
 			if (player.charability2 == CA2_SPINDASH) then
 				left_subheader("SPINDASH")
-				left_addline("Min/Max speed",player.mindash/FRACUNIT.."\x86/\x80"..player.maxdash/FRACUNIT)
+				--left_addline("Min/Max speed",player.mindash/FRACUNIT.."\x86/\x80"..player.maxdash/FRACUNIT)
 				left_addline("Charge",player.dashspeed*100/player.maxdash.."%")
 			end
 			subheader("GENERAL")
@@ -222,7 +269,7 @@ B.DebugHUD = function(v, player, cam)
 			addline("Carry",player.powers[pw_carry])
 			addline("Flashing",player.powers[pw_flashing])
 			addline("NoControl",player.powers[pw_nocontrol])
-			addline("JumpFactor",player.jumpfactor)
+			addline("JumpFactor",player.jumpfactor*100/FRACUNIT.."%")
 			addline("ThrustFactor",player.thrustfactor)
 			addline("Lock Aim/Move",boolstring(player.lockaim).."\x86/\x80"..boolstring(player.lockmove))
 			addline("Pushed Credit",player.pushed_creditplr)
