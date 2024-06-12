@@ -161,7 +161,7 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	-- Don't take damage during setup phase
 	if target.player.nodamage and target.player.nodamage>0 then return true end
 	-- Burst flag if damaged
-	if target and target.player and not(target.player.guard and target.player.guard == 1) then
+	if target and target.player and not(target.player.guardtics > 0 or (target.player.guard and target.player.guard == 1)) then
        	F.PlayerFlagBurst(target.player, 0)
     end
 	--Do guarding
