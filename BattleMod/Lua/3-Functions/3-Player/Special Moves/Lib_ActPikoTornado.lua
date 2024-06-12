@@ -171,7 +171,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			P_SetObjectMomZ(mo,FRACUNIT/8,1)
 		end
 		//Extra Projectiles
-		if not(player.pflags&PF_NOJUMPDAMAGE) then
+		if player.pflags&PF_JUMPED and not(player.pflags&PF_NOJUMPDAMAGE) then
 			player.pflags = $ | PF_NOJUMPDAMAGE
 			if mo.tornadocollide and mo.tornadocollide == leveltime then
 				for n = 1,8 do
