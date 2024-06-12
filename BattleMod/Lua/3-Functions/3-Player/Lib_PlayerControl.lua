@@ -405,6 +405,9 @@ B.Tumble = function(player)
 			player.drawangle = mo.angle
 			S_StopSoundByID(mo, sfx_kc38)
 			B.ResetPlayerProperties(player,false,false)
+			if not P_IsObjectOnGround(mo)
+				mo.state = S_PLAY_FALL
+			end
 		
 		--Do tumble animation
 		else
@@ -421,6 +424,8 @@ B.Tumble = function(player)
 				elseif mo.momz * P_MobjFlip(mo) > 13 * FRACUNIT
 					mo.momz = 13 * FRACUNIT * P_MobjFlip(mo)
 				end
+
+				mo.state = S_PLAY_FALL
 			end
 			
 			mo.tumble_prevmomz = mo.momz
