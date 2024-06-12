@@ -460,7 +460,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		if player.cmd.forwardmove or player.cmd.sidemove then 
 			P_Thrust(mo, B.GetInputAngle(player), 15*mo.scale)
 		end
-		if P_IsObjectOnGround(mo) and player.cmd.buttons & BT_JUMP then
+		if player.cmd.buttons & BT_JUMP and not P_IsObjectOnGround(mo) then
 			local guh = P_MobjFlip(mo) > 0 and max or min
 			local momz = guh(mo.momz*P_MobjFlip(mo),mo.scale*5)
 			P_SetObjectMomZ(mo,momz,false)
