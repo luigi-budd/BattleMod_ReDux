@@ -3,17 +3,16 @@ local state_sweep = 1
 local state_dash = 2
 local state_charging = 3
 local state_didthrow = 4
-local cooldown_swipe = TICRATE*7/5 --1.4s
+local cooldown_sweep = TICRATE*7/5 --1.4s
 local cooldown_dash = TICRATE*2
 local cooldown_throw = cooldown_dash
 local cooldown_cancel = TICRATE
-local sideangle = ANG30 + ANG10
+local sideangle = ANG30
 local throw_strength = 30
 local throw_lift = 10
 local thrustpower = 16
 local threshold1 = TICRATE/3 --0.3s
 local threshold2 = threshold1+(TICRATE*3/2) --minimum charging time + 1.5s
---local swipe_thrust = 15
 
 B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
@@ -111,36 +110,31 @@ B.Tails_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angl
 	end
 end
 
-local function sbvars(m,pmo)
+local function sbvars_swipe(m,pmo)
 	if m and m.valid then
-		local chargepercentage = min(100,pmo.player.actiontime*100/threshold2)
-		--local chargefactor = max(1,(10-chargepercentage/10))
-		local thrustX = P_ReturnThrustX(m,pmo.angle,pmo.player.speed*3/2)
-		local thrustY = P_ReturnThrustY(m,pmo.angle,pmo.player.speed*3/2)
-		m.fuse = (threshold1/2)+(pmo.player.actiontime/5)
-		m.cutterspeed = pmo.scale*(chargepercentage/2)
-		--m.momx = ($/4) + ($/chargefactor)
-		--m.momy = ($/4) + ($/chargefactor)
+		m.fuse = TICRATE*3/4
+		m.flags = $ &~ MF_MISSILE
 		S_StartSoundAtVolume(m,sfx_s3kb8,190)
 	end
 end
 
-local function domissile(mo,thrustfactor)
+local function sbvars_sweep(m, pmo)
+	local chargepercentage = min(100,pmo.player.actiontime*100/threshold2)
+	m.fuse = (threshold1/2)+(pmo.player.actiontime/5)
+	m.cutterspeed = pmo.scale*(chargepercentage/2)
+	m.flags = $ &~ MF_MISSILE
+	S_StartSound(m,sfx_s3kb8)
+end
+
+local function domissiles(mo,thrustfactor)
 	//Projectile
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
-	sbvars(m,mo)
+	sbvars_swipe(m,mo)
 	//Do Side Projectiles
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle-sideangle,0)
-	sbvars(m,mo)
+	sbvars_swipe(m,mo)
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle+sideangle,0)
-	sbvars(m,mo)
-	//Do Extra Projectiles
-	if mo.player.actiontime > threshold2
-		local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle-sideangle/2,0)
-		sbvars(m,mo)
-		local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle+sideangle/2,0)
-		sbvars(m,mo)
-	end
+	sbvars_swipe(m,mo)
 	//Thrust
 	if not(P_IsObjectOnGround(mo))
 		P_InstaThrust(mo,mo.angle+ANGLE_180,thrustfactor*5)
@@ -157,17 +151,10 @@ local function dodust(mo)
 	end
 end
 
-local function doaircutter(mo,thrustfactor)
-	--Projectile
+local function dosweep(mo,thrustfactor)
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
-	sbvars(m,mo)
+	sbvars_sweep(m,mo)
 	mo.player.aircutter = m
-	--Thrust
-	--if not(P_IsObjectOnGround(mo)) then
-		--P_InstaThrust(mo,mo.angle+ANGLE_180,thrustfactor)
-	--else
-		--P_Thrust(mo,mo.angle+ANGLE_180,thrustfactor)
-	--end
 end
 
 local function uncolorize(mo)
@@ -267,15 +254,15 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	
 	//Action triggers
-	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)
+	local swipetrigger = (player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) and player.actionstate == 0 and doaction == 1 and not(flying or carrying))
+	local attackready = (not swipetrigger) and (player.actiontime >= threshold1 and player.actionstate == state_charging)
 	--local charging = ((not(attackready)) and player.actionstate == state_charging)
-	local swipetrigger = attackready and (player.actiontime > threshold2*2 or B.ButtonCheck(player,player.battleconfig_special) == 0)
+	local sweeptrigger = attackready and (player.actiontime > threshold2*2 or B.ButtonCheck(player,player.battleconfig_special) == 0)
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local canceltrigger =
-		not swipetrigger
+		not sweeptrigger
 		and player.actionstate == state_charging
 		and B.PlayerButtonPressed(player,player.battleconfig_guard,false)
-	--local swipetrigger = (player.actionstate == 0 and doaction == 1 and not(flying or carrying))
 	local thrusttrigger = (player.actionstate == 0 and doaction == 1 and flying and not(carrying))
 	local throwtrigger = (player.actionstate == 0 and doaction == 1 and carrying)
 	local chargetrigger = (player.actionstate == 0 and doaction == 1 and not (flying or carrying))
@@ -291,8 +278,10 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	
 	player.actionrings = 10
-	if not(flying or player.actionstate == state_dash) then
-		player.actiontext = "Tail Sweep"
+	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
+		player.actiontext = "Tail Swipe"
+	elseif not(flying or player.actionstate == state_dash) then
+		player.actiontext = player.actionstate and "Tail Swipe" or "Tail Sweep"
 	elseif not(carrying)
 		player.actiontext = "Flight Dash"
 	else
@@ -442,38 +431,46 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	//Activate swipe
 	if swipetrigger then
+		B.PayRings(player)
+
 		--Set state
 		player.actionstate = state_sweep
-		--player.pflags = $&~(PF_THOKKED)
-		--player.pflags = $&~(PF_SPINNING)
+		player.actiontime = 0
+		player.pflags = $&~(PF_SPINNING|PF_JUMPED)
+
 		--Missile attack
-		--domissile(mo,thrustfactor)
-		doaircutter(mo, 0)
+		domissiles(mo,thrustfactor)
+		
+		--Effects
+		P_SpawnParaloop(mo.x,mo.y,mo.z,mo.scale*64,12,MT_DUST,ANGLE_90,nil,true)
+		S_StartSound(mo,sfx_spdpad)
+	elseif sweeptrigger then
+		--Set state
+		player.actionstate = state_sweep
+
+		--Missile attack
+		dosweep(mo, 0)
 		player.actiontime = 0
 		if player.aircutter and player.aircutter.valid then
-			--player.aircutter.momx = 0
-			--player.aircutter.momy = 0
 			player.aircutter_distance = 0
 			player.aircutter.scale = 5*mo.scale/4
-			--local aircutter_speed = 50*mo.scale
-			--P_Thrust(player.aircutter, mo.angle, aircutter_speed)
 		end
 		
 		--Physics
-		--if not(P_IsObjectOnGround(mo))
-			--P_SetObjectMomZ(mo,FRACUNIT*5,false)
-		--end
+		if player.cmd.forwardmove or player.cmd.sidemove then 
+			P_Thrust(mo, B.GetInputAngle(player), 15*mo.scale)
+		end
+		if P_IsObjectOnGround(mo) and player.cmd.buttons & BT_JUMP then
+			local guh = P_MobjFlip(mo) > 0 and max or min
+			local momz = guh(mo.momz*P_MobjFlip(mo),mo.scale*5)
+			P_SetObjectMomZ(mo,momz,false)
+		end
+
 		--Effects
 		uncolorize(mo)
 		P_SpawnParaloop(mo.x,mo.y,mo.z,mo.scale*64,12,MT_DUST,ANGLE_90,nil,true)
-		--if P_IsObjectOnGround(mo) then
-			--P_Thrust(mo, mo.angle, swipe_thrust*mo.scale)
-		--elseif player.speed < player.normalspeed then
-			--P_Thrust(mo, mo.angle, 10*mo.scale)
-		--end
 		S_StartSound(mo,sfx_spdpad)
-		--S_StartSoundAtVolume(mo,sfx_swing, 120)
-		B.ApplyCooldown(player,cooldown_swipe)
+		B.ApplyCooldown(player,cooldown_sweep)
 	end
 
 	//Activate thrust
@@ -739,4 +736,14 @@ B.Action.TailSwipe = function(mo,doaction)
 			end
 		end
 	end
+end
+
+B.SwipeTouch = function(swipe, collide)
+	if not(collide.player and B.MyTeam(swipe.target,collide)) then
+		if collide.battleobject then
+			collide.target = swipe.target
+		end
+		P_DamageMobj(collide,swipe,swipe.target)
+	end
+	return true
 end

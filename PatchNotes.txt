@@ -111,6 +111,15 @@ Tails
 		- Added a wind-up state which must happen for at least 0.33s before the attack happens, but can be charged for an additional 1.5s
 		- Lower player gravity during wind-up
 		- Projectiles have much lower speed, spread and duration when not charged
+	Tail Swipe
+		- Available after spindash has been charged at least 60%
+		- Sonic boom projectiles no longer decelerate
+		- Lowered spread angle (40° -> 30°)
+		- Heavily lowered duration of each projectile (1.28s -> 0.75s)
+		- Can no longer bounce off objects and walls
+		- Pierces through objects
+		- Is no longer instantly deleted when in contact with a slope or spawned inside a wall
+		- Projectile colors are tied to the player's
 	Flight Dash
 		- Decreased attack (1 -> 0)
 		- Reverted cooldown increase depending on Tails's exhaustion level

@@ -66,7 +66,7 @@ end,MT_GROUNDPOUND)
 
 --Tails Projectiles
 addHook("MobjThinker",function(mo)
-	if not(mo.flags&MF_MISSILE) then return end
+	if not(mo.flags&MF_SPECIAL) then return end
 	local ghostcolor = SKINCOLOR_SKY
 	if mo.target and not(mo.target.color == SKINCOLOR_ORANGE) then
 		ghostcolor = mo.target.color
@@ -88,9 +88,6 @@ addHook("MobjThinker",function(mo)
 	
 	if not (mo.valid) then return end
 
-	P_Thrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy) + ANGLE_180,R_PointToDist2(0,0,mo.momx,mo.momy) / 16)
-	P_SetObjectMomZ(mo, -mo.momz/32, true)
-
 	if mo.fuse < 10 then
 		mo.destscale = 0
 		mo.scalespeed = FRACUNIT/10
@@ -106,6 +103,11 @@ addHook("MobjThinker",function(mo)
 		s.colorized = true
 		s.color = ghostcolor
 	end
+end,MT_SONICBOOM)
+addHook("TouchSpecial",B.SwipeTouch,MT_SONICBOOM)
+addHook("MobjMoveCollide",function(mover,collide)
+	if not(collide.battleobject) then return end
+	B.SwipeTouch(mover,collide)
 end,MT_SONICBOOM)
 
 addHook("MobjSpawn",function(mo)
