@@ -109,6 +109,8 @@ B.RingsHUD = function(v, player, cam)
 			text = "\x86" + $ + " \x85 "..cost
 		end
 		v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
+	elseif player.tumble then
+		--nothing
 	else
 		if (player.actioncooldown) then
 			local lastcooldown = player.lastcooldown or 1
@@ -227,7 +229,7 @@ B.RingsHUD = function(v, player, cam)
 
 	--GUARD
 	local mo = player.mo
-	if not (mo and mo.valid) then return end
+	if player.tumble and not (mo and mo.valid) then return end
 	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1
 
 	x = $+20
@@ -240,7 +242,6 @@ B.RingsHUD = function(v, player, cam)
 		and not guardoverride
 		and not P_PlayerInPain(player)
 		and not player.guard
-		and not player.tumble
 		and not player.actionstate
 		and not (player.skidtime and player.powers[pw_nocontrol])
 		and not (mo.eflags & MFE_JUSTHITFLOOR)
