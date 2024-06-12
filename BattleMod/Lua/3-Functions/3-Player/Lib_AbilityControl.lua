@@ -487,15 +487,10 @@ B.StunBreakAllowed = function(player)
 		return false --same as in lib_stunbreak.lua
 	end
 	if player.canstunbreak then
-		return player.canstunbreak > 0
+		return player.canstunbreak > 0 --something is overriding this behavior
 	end
-	if not player.actionallowed
-	and not player.landlag
-	and P_PlayerInPain(player)
-	and (player.mo.state == S_PLAY_PAIN or player.mo.state == S_PLAY_STUN)
-	then
-		return true
-	end
-	return false
+	local hurtbreak = P_PlayerInPain(player) and (player.mo.state == S_PLAY_PAIN or player.mo.state == S_PLAY_STUN) and not player.actionallowed
+	local tumblebreak = (player.tumble and not player.tumble_nostunbreak)
+	return (hurtbreak or tumblebreak)
 end
 
