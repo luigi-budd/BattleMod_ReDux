@@ -33,17 +33,37 @@ local overlayZ = function(mo, overlaytype, flip)
 	end
 end
 
+local colortable = {
+	[V_MAGENTAMAP] = SKINCOLOR_PITCHMAGENTA,
+	[V_YELLOWMAP] = SKINCOLOR_PITCHYELLOW,
+	[V_GREENMAP] = SKINCOLOR_PITCHGREEN,
+	[V_BLUEMAP] = SKINCOLOR_PITCHBLUE,
+	[V_REDMAP] = SKINCOLOR_PITCHRED,
+	[V_GRAYMAP] = SKINCOLOR_PITCHGRAY,
+	[V_ORANGEMAP] = SKINCOLOR_PITCHORANGE,
+	[V_SKYMAP] = SKINCOLOR_PITCHSKY,
+	[V_PURPLEMAP] = SKINCOLOR_PITCHPURPLE,
+	[V_AQUAMAP] = SKINCOLOR_PITCHAQUA,
+	[V_PERIDOTMAP] = SKINCOLOR_PITCHPERIDOT,
+	[V_AZUREMAP] = SKINCOLOR_PITCHAZURE,
+	[V_BROWNMAP] = SKINCOLOR_PITCHBROWN,
+	[V_ROSYMAP] = SKINCOLOR_PITCHROSY
+}
+
 local dash_overlayVars = function(mo, player)
 	applyFlip(player.mo, mo)
-	mo.scale = player.mo.scale+(player.mo.scale/2) --1.5x player scale
-	mo.fuse = -1 --Don't disappear
+	--mo.scale = player.mo.scale+(player.mo.scale/2) --1.5x player scale
+	mo.fuse = TICRATE/2 --Don't disappear immediately
+	mo.tics = TICRATE/2
 	mo.colorized = true --Colorize
-	mo.color = player.mo.color --Color
+	--mo.color = player.mo.color --Color
+	mo.color = colortable[skincolors[player.skincolor].chatcolor] --Color
 	mo.sprite = player.mo.sprite --SPR_PLAY
 	mo.skin = player.mo.skin --Player's skin
 	mo.sprite2 = player.mo.sprite2 --Player's sprite
-	mo.frame = player.mo.frame|FF_TRANS30 --Player's frame
+	mo.frame = player.mo.frame --Player's frame
 	mo.angle = player.drawangle --Player's angle
+	mo.blendmode = AST_ADD
 	P_MoveOrigin(mo, player.mo.x, player.mo.y, overlayZ(player.mo, dash_mobjtype, (player.mo.flags2 & MF2_OBJECTFLIP)))--Keep teleporting to player
 end
 
@@ -90,27 +110,31 @@ end
 
 --I decided to manually grow and shrink the sprite indeterminate of its actual scale
 
-local dash_initscale = FRACUNIT --Initial sprite scale
-local dash_destscale = FRACUNIT+(FRACUNIT/8) --Biggest scale for overlay
-local dash_scalespeed = FRACUNIT/45 --Scale speed for overlay (using spritexscale & spriteyscale)
+local dash_initscale = FRACUNIT*3/2 --Initial sprite scale
+local dash_destscale = FRACUNIT*2 --Biggest scale for overlay
+local dash_scalespeed = 10 --Scale speed for overlay. How many degrees to increment per frame
+--360 deg = 1 whole cycle of the sin() function
 
 local dash_pulseFunc = function(mo) --This function creates values that are added to the object's vars
-	local eq = FRACUNIT*2 + sin(leveltime*ANG1*(FRACUNIT))*1
+	local eq = dash_initscale + FixedMul(dash_destscale-dash_initscale, abs(sin(leveltime*ANG1*dash_scalespeed)))
 	mo.scale = eq
-	--mo.spriteyoffset = -(mo.scale-FRACUNIT)
-	mo.spriteyoffset = -(FRACUNIT + (abs(eq)+mo.scale))
-	mo.blendmode = AST_ADD
+	mo.spriteyoffset = -(FRACUNIT + abs(eq))
 end
 
 local dash_overlayThink = function(mo) --MobjThinker
-	if mo and mo.valid and mo.tracer and mo.tracer.valid and mo.tracer.player then
-		dash_overlayVars(mo, mo.tracer.player)
-		dash_pulseFunc(mo)
-		if not(mo.tracer.player.dashmode >= DASHMODE_THRESHOLD) then
-			P_RemoveMobj(mo)
-			return
-		end
-	else
+	if not(mo and mo.valid and mo.tracer and mo.tracer.valid and mo.tracer.player) or mo.dying then
+		return
+	end
+	dash_overlayVars(mo, mo.tracer.player)
+	dash_pulseFunc(mo)
+	if not(mo.tracer.player.dashmode >= DASHMODE_THRESHOLD) then
+		mo.dying = true
+		mo.momx = mo.tracer.momx/2
+		mo.momy = mo.tracer.momy/2
+		mo.momz = mo.tracer.momz/2
+		mo.destscale = 0
+		mo.scalespeed = FRACUNIT/10
+		--P_RemoveMobj(mo)
 		return
 	end
 end
@@ -119,11 +143,9 @@ local dash_colorizer = function(player) --Colorizes dashmode users that would sh
 	if player.dashmode >= DASHMODE_THRESHOLD and (player.charflags & SF_DASHMODE) and (player.charflags & SF_MACHINE) and ((leveltime/2) & 1) then --if we're flashing & a dashmode machine
 		dash_overlayOn(player, false, true) --Colorize
 		player.dash_colorize = true --Mark as colorized
-	else --if we're not
-		if player.dash_colorize then --If we're marked as colorized
-			dash_overlayOff(player, false, true) --DeColorize
-			player.dash_colorize = false --Mark as not colorized
-		end
+	elseif player.dash_colorize then --if we're not, and we're marked as colorized
+		dash_overlayOff(player, false, true) --DeColorize
+		player.dash_colorize = false --Mark as not colorized
 	end
 end
 
@@ -131,27 +153,24 @@ end
 local dash_sfxThink = function(player) --Dashmode SFX
 	if player.dashmode >= DASHMODE_THRESHOLD then --Dashing
 		for p in players.iterate do 
-			if p.mo and p.mo.valid then
-				if (p == player) or B.MyTeam(player, p) or (not P_CheckSight(p.mo, player.mo)) then
-					--If you're the player in question, on the same team as the player in question, or the player in question isn't checksight visible
-					continue --Halt
-				end
-				if not S_SoundPlaying(player.mo, dash_sfx) then --If the sound isn't already playing
-					S_StartSoundAtVolume(player.mo, dash_sfx, dash_sfxvol, p) --Play the sound (not too loud though)
-				end
+			if not(p.mo and p.mo.valid) then
+				continue --don't bother continuing the script for this player
+			end
+			if (p == player) or B.MyTeam(player, p) or (not P_CheckSight(p.mo, player.mo)) then
+				--If you're the player in question, on the same team as the player in question, or the player in question isn't checksight visible
+				continue --Halt
+			end
+			if not S_SoundPlaying(player.mo, dash_sfx) then --If the sound isn't already playing
+				S_StartSoundAtVolume(player.mo, dash_sfx, dash_sfxvol, p) --Play the sound (not too loud though)
 			end
 		end
-	else
-		if player.mo and player.mo.valid then
-			if S_SoundPlaying(player.mo, dash_sfx) then --If the sound is playing for some reason
-				S_StopSoundByID(player.mo, dash_sfx) --Stop it
-			end
-		end
+	elseif player.mo and player.mo.valid and S_SoundPlaying(player.mo, dash_sfx) then
+		S_StopSoundByID(player.mo, dash_sfx) --If the sound is playing for some reason, stop it
 	end
 end
 
 local dash_overlaySpawner = function(player) --PreThinkFrame prefferably
-	if player.dashmode >= DASHMODE_THRESHOLD and (player.charflags & SF_DASHMODE) and ((leveltime/2) & 1) then --If we're flashing and have dashmode
+	if player.dashmode >= DASHMODE_THRESHOLD and (player.charflags & SF_DASHMODE) then --If we're flashing and have dashmode
 		dash_overlayOn(player, true, false) --Spawn Overlay
 	else
 		dash_overlayOff(player, true, false) --Remove Overlay
