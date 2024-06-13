@@ -363,8 +363,8 @@ B.DoPlayerInteract = function(smo,tmo)
 	local defend = max(def[s],def[t])
 	local attack = max(atk[s],atk[t])
 	local shake = false
-	if (smo and smo.player and smo.player == consoleplayer)
-	or (tmo and tmo.player and tmo.player == consoleplayer)
+	if (smo and smo.player and smo.player == displayplayer)
+	or (tmo and tmo.player and tmo.player == displayplayer)
 		shake = true
 	end
 	
@@ -376,6 +376,7 @@ B.DoPlayerInteract = function(smo,tmo)
 			S_StartSoundAtVolume(mo[n2],sfx_s3kaa, 120)
 		end
 		local sc = 2
+		local impact = 0
 		if not plr[n1] or atk[n1] == 1 //1atk hit
 			S_StartSoundAtVolume(mo[n1],sfx_s3k49, 220)
 			S_StartSound(mo[n2],sfx_s3k96)
@@ -384,19 +385,24 @@ B.DoPlayerInteract = function(smo,tmo)
 			end
 		elseif atk[n1] == 2 //2atk
 			sc = 4
+			impact = 3
 			S_StartSoundAtVolume(mo[n1],sfx_s3k49, 200)
 			S_StartSound(mo[n2],sfx_s3k5f)
 			if shake
-				P_StartQuake(12 * FRACUNIT, 3)
+				P_StartQuake(12 * FRACUNIT, impact)
 			end
 		elseif atk[n1] >= 3 //3atk or more
 			sc = 6
+			impact = 5
 			S_StartSoundAtVolume(mo[n1],sfx_s3k49, 200)
 			S_StartSound(mo[n2],sfx_s3k9b)
+			mo[n1].hitstun_tics = impact
 			if shake
-				P_StartQuake(14 * FRACUNIT, 5)
+				P_FlashPal(displayplayer, PAL_INVERT, impact)
+				P_StartQuake(14 * FRACUNIT, impact)
 			end
 		end
+		mo[n2].hitstun_tics = impact*3
 		local vfx = P_SpawnMobjFromMobj(mo[n2], 0, 0, mo[n2].height/2, MT_SPINDUST)
 		if vfx.valid
 			vfx.scale = mo[n2].scale * sc/5
