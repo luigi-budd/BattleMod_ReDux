@@ -7,13 +7,12 @@ local cooldown_sweep = TICRATE*7/5 --1.4s
 local cooldown_dash = TICRATE*2
 local cooldown_throw = cooldown_dash
 local cooldown_cancel = TICRATE
-local sideangle = ANG30
+local sideangle = ANG30 - ANG10
 local throw_strength = 30
 local throw_lift = 10
 local thrustpower = 16
 local threshold1 = TICRATE/3 --0.3s
 local threshold2 = threshold1+(TICRATE*3/2) --minimum charging time + 1.5s
-
 B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
@@ -114,7 +113,7 @@ local function sbvars_swipe(m,pmo)
 	if m and m.valid then
 		m.fuse = TICRATE*3/4
 		m.flags = $ &~ MF_MISSILE
-		S_StartSoundAtVolume(m,sfx_s3kb8,190)
+		S_StartSound(m,sfx_s3kb8)
 	end
 end
 
@@ -265,7 +264,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		and B.PlayerButtonPressed(player,player.battleconfig_guard,false)
 	local thrusttrigger = (player.actionstate == 0 and doaction == 1 and flying and not(carrying))
 	local throwtrigger = (player.actionstate == 0 and doaction == 1 and carrying)
-	local chargetrigger = (player.actionstate == 0 and doaction == 1 and not (flying or carrying))
+	local chargetrigger = (not swipetrigger) and (player.actionstate == 0 and doaction == 1 and not (flying or carrying))
 	local buffer = (player.cmd.buttons&player.battleconfig_special)
 
 	//Get thrust speed multiplier
