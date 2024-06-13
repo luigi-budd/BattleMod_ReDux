@@ -229,6 +229,7 @@ B.RingsHUD = function(v, player, cam)
 
 	--GUARD
 	local mo = player.mo
+	if not(mo and mo.valid) then return end
 	if player.tumble and not (mo and mo.valid) then return end
 	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1
 
