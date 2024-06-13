@@ -40,8 +40,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 
 	//Action info
 	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
-			player.actiontext = "Spin Wave"
-			player.actionrings = 10
+		player.actiontext = "Spin Wave"
+		player.actionrings = 10
 	elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB or player.actionstate == state_superspinjump then
 		player.actiontext = "Super Spin Jump"
 		player.actionrings = 10
@@ -63,31 +63,31 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			B.PayRings(player)
 			//Do spin wave if charging a spin dash
 			if mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
-					player.actionstate = state_superspinwave
-					thrust = FixedMul((recoilthrust),player.jumpfactor)
-					P_SetObjectMomZ(mo,thrust,true) //Inherit platform momentum
-					thrust = ($/FRACUNIT)*player.mo.scale// need scale bacause thrust is dumb
-					P_Thrust(mo,(mo.angle-ANGLE_180),thrust/2)// recoil back
-					player.pflags = jumpflags
-					mo.state = S_PLAY_ROLL
-					player.secondjump = 0
-					player.canguard = false
-					player.lockmove = true
-					// wave projectile
-					 local spinwave = P_SpawnMobjFromMobj(player.mo, FixedMul(player.mo.radius, cos(player.mo.angle)),
-				 FixedMul(player.mo.radius, sin(player.mo.angle)), 0, MT_SUPERSPINWAVE)
-					spinwave.target = player.mo
-					spinwave.spawntime = 0
-					local spinwave_speed = player.dashspeed+1*FRACUNIT
-					spinwave_speed = ($/FRACUNIT)*player.mo.scale
-					spinwave.startingspeed = spinwave_speed
-					spinwave.setpostion = true
-					 spinwave.angle = player.mo.angle
-					 spinwave.color = SKINCOLOR_SKY
-					 B.ApplyCooldown(player,cooldown2)
-					 if G_GametypeHasTeams() then
-							spinwave.color = player.skincolor
-						end
+				player.actionstate = state_superspinwave
+				thrust = FixedMul((recoilthrust),player.jumpfactor)
+				P_SetObjectMomZ(mo,thrust,true) //Inherit platform momentum
+				thrust = ($/FRACUNIT)*player.mo.scale// need scale bacause thrust is dumb
+				P_Thrust(mo,(mo.angle-ANGLE_180),thrust/2)// recoil back
+				player.pflags = jumpflags
+				mo.state = S_PLAY_ROLL
+				player.secondjump = 0
+				player.canguard = false
+				player.lockmove = true
+				// wave projectile
+				local spinwave = P_SpawnMobjFromMobj(player.mo, FixedMul(player.mo.radius, cos(player.mo.angle)),
+				FixedMul(player.mo.radius, sin(player.mo.angle)), 0, MT_SUPERSPINWAVE)
+				spinwave.target = player.mo
+				spinwave.spawntime = 0
+				local spinwave_speed = player.dashspeed+1*FRACUNIT
+				spinwave_speed = ($/FRACUNIT)*player.mo.scale
+				spinwave.startingspeed = spinwave_speed
+				spinwave.setpostion = true
+				spinwave.angle = player.mo.angle
+				spinwave.color = SKINCOLOR_SKY
+				--B.ApplyCooldown(player,cooldown2)
+				if G_GametypeHasTeams() then
+					spinwave.color = player.skincolor
+				end
 			elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB then //Do high jump
 				mo.spritexscale = FRACUNIT * 4/5
 				mo.spriteyscale = FRACUNIT * 5/4
@@ -200,20 +200,20 @@ B.Action.SuperSpinJump=function(mo,doaction)
 
 	//Spin Wave state
 	if player.actionstate == state_superspinwave 
-			B.ControlThrust(mo,FRACUNIT,nil,jumpfriction,nil)
-						
-			//Go into fall frames after end-rising
-			if mo.momz*P_MobjFlip(mo) < 0 then 
-				mo.state = S_PLAY_FALL
-				player.pflags = $&~(PF_JUMPED)
-				player.lockmove = false
-				player.actionstate = 0
-			end
-			if P_IsObjectOnGround(mo) then
-				B.ApplyCooldown(player,cooldown2)
-				player.lockmove = false
-				player.actionstate = 0
-			end
+		B.ControlThrust(mo,FRACUNIT,nil,jumpfriction,nil)
+					
+		//Go into fall frames after end-rising
+		if mo.momz*P_MobjFlip(mo) < 0 then 
+			mo.state = S_PLAY_FALL
+			player.pflags = $&~(PF_JUMPED)
+			player.lockmove = false
+			player.actionstate = 0
+		end
+		if P_IsObjectOnGround(mo) then
+			B.ApplyCooldown(player,cooldown2)
+			player.lockmove = false
+			player.actionstate = 0
+		end
 	end
 
 	//vfx
