@@ -1,3 +1,4 @@
+-- OVERRIDE FILE
 -- This should replace `COM_BufInsertText` with a version that accounts for many netxcmd buffer commands.
 
 local cons_queue = "cmd_queue"     -- Name of the console command
