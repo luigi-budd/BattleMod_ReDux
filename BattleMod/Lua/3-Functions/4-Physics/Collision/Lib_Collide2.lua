@@ -451,9 +451,17 @@ B.DoPlayerInteract = function(smo,tmo)
 	
 	if smo.player then
 		smo.player.homing = 0
+		smo.player.skidtime = 0
+		if P_IsObjectOnGround(smo) and smo.state == S_PLAY_GLIDE then
+			smo.state = S_PLAY_GLIDE_LANDING
+		end
 	end 
 	if tmo.player then
 		tmo.player.homing = 0
+		tmo.player.skidtime = 0
+		if P_IsObjectOnGround(tmo) and tmo.state == S_PLAY_GLIDE then
+			tmo.state = S_PLAY_GLIDE_LANDING
+		end
 	end
 	//Player interactions completed
 	return true
