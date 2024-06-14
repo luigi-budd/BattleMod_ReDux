@@ -168,8 +168,7 @@ local capture = function(mo, player)
 		if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
 			S_StartSound(nil, sfx_s3k68, p)
 			continue
-		end
-		if G_GametypeHasTeams()
+		elseif G_GametypeHasTeams() and not splitscreen
 			S_StartSound(nil, sfx_lose, p)
 			continue
 		end
@@ -185,7 +184,15 @@ local capture = function(mo, player)
 	B.CTF.GameState.CaptureHUDName = player.name
 	B.CTF.GameState.CaptureHUDTeam = player.ctfteam
 	--vfx
-	if player.mo and player.mo.valid then B.DoFirework(player.mo) end
+	if player.mo and player.mo.valid then
+		B.DoFirework(player.mo)
+		local cooleffect = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_THOK)
+		cooleffect.color = SKINCOLOR_PITCHMAGENTA
+		cooleffect.fuse = TICRATE*2
+		cooleffect.tics = cooleffect.fuse
+		cooleffect.destscale = FRACUNIT*20
+		cooleffect.scalespeed = cooleffect.destscale/cooleffect.fuse
+	end
 end
 
 R.PreThinker = function()
@@ -250,6 +257,8 @@ R.Thinker = function(mo)
 	--Glow
 	if not (mo.light and mo.light.valid)
 		mo.light = P_SpawnMobjFromMobj(mo, 0,0,20*mo.scale, MT_INVINCIBLE_LIGHT)
+	else
+		P_MoveOrigin(mo.light, mo.x, mo.y, mo.z)
 	end
 	local light = mo.light
 	if mo.target
@@ -348,10 +357,10 @@ R.Thinker = function(mo)
 			g.destscale = g.scale * 2
 			g.blendmode = AST_ADD
 		else
-			mo.color = B.FlashColor(SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERSILVER5)
+			--mo.color = B.FlashColor(SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERSILVER5)
 			if not(leveltime&3)
 				local g = P_SpawnGhostMobj(mo)
-				g.color = B.FlashRainbow()
+				--g.color = B.FlashRainbow()
 				g.colorized = true
 			end
 		end
@@ -374,7 +383,7 @@ R.Thinker = function(mo)
 		end
 		-- Presence ambience
 		if not S_SoundPlaying(mo, sfx_ruby5)
-			S_StartSoundAtVolume(mo, sfx_ruby5, 130)
+			S_StartSound(mo, sfx_ruby5)
 		end
 		return
 	end

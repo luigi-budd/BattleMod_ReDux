@@ -6,6 +6,7 @@ sfxinfo[sfx_ruby2].caption = "Ruby respawned"
 sfxinfo[sfx_ruby3].caption = "/"
 sfxinfo[sfx_ruby4].caption = "Ruby warp"
 sfxinfo[sfx_ruby5].caption = "Ruby presence"
+sfxinfo[sfx_ruby5].flags = $|SF_X8AWAYSOUND
 
 // Ruby object
 mobjinfo[MT_RUBY] = {

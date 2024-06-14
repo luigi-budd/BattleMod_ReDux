@@ -535,8 +535,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
 				S_StartSound(nil, sfx_s3k68, p)
 				continue
-			end
-			if G_GametypeHasTeams()
+			elseif G_GametypeHasTeams() and not splitscreen
 				S_StartSound(nil, sfx_lose, p)
 				continue
 			end

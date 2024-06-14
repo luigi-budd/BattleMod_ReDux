@@ -163,7 +163,7 @@ B.PlayerThinkFrame = function(player)
 			S_StartSound(nil, sfx_cddone, player)
 		end
 	end
-	if B.SkinVars[player.skinvars].special then
+	if B.SkinVars[player.skinvars].special and not player.gotflagdebuff then
 		if player.actionrings then
 			player.lastactionrings = player.actionrings
 		end
