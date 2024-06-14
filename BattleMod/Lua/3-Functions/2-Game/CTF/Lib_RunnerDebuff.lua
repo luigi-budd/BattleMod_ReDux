@@ -42,9 +42,9 @@ B.GotFlagStats = function(player)
 	end
 	//Apply debuff
 	if player.gotflagdebuff
-		--player.normalspeed = skin.normalspeed*4/5
-		--player.acceleration = skin.acceleration*5/6
-		--player.runspeed = skin.runspeed*4/5
+		player.normalspeed = skin.normalspeed
+		player.acceleration = skin.acceleration
+		player.runspeed = skin.runspeed
 		if not(B.GetSkinVarsFlags(player) & SKINVARS_ROSY) then
 			player.mindash = 15*3/4*FRACUNIT
 			player.maxdash = 70*4/5*FRACUNIT
