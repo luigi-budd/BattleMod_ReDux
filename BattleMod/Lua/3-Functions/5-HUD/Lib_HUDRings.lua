@@ -35,6 +35,7 @@ B.RingsHUD = function(v, player, cam)
 	local x = 40
 	local y = 180
 	local shake = 0
+	local patch
 	if (not player.playerstate) and P_PlayerInPain(player) then --p_playerinpain crashes w/ playerstate :v
 		shake = 5
 	elseif player.tumble then
@@ -183,6 +184,18 @@ B.RingsHUD = function(v, player, cam)
 				action_offsety = $ + action_offsety_line
 			end
 		end
+		if (player.gotflagdebuff) then
+			local color = SKINCOLOR_WHITE
+			patch = v.cachePatch("FLAGBT")
+			if B.RubyGametype() then
+				patch = v.cachePatch("RUBYBT")
+				color = nil
+			elseif G_GametypeHasTeams() then
+				local flagcolors = {SKINCOLOR_BLUE, SKINCOLOR_RED}
+				color = flagcolors[player.ctfteam]
+			end
+			v.draw(x + action_offsetx, y - 1 + action_offsety, patch, flags, color and v.getColormap(TC_RAINBOW, color) or nil)
+		end
 	end
 	
 	--Number
@@ -268,7 +281,7 @@ B.RingsHUD = function(v, player, cam)
 	)
 	
 	local guardtext = guardoverride and player.guardtext or "\x82Guard"
-	local patch = v.cachePatch("PARRYBT")
+	patch = v.cachePatch("PARRYBT")
 	if canguard or guardoverride then
 		v.draw(x-10,y-1,patch,flags)
 		v.drawString(x,y,guardtext,flags,"thin")
