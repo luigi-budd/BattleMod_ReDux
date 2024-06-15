@@ -25,16 +25,21 @@ B.FireTrailRingDrain = function(target, inflictor, source, damage, damagetype)
 	P_RemoveMobj(inflictor)
 	return false 
 end
-
-B.TeamFireTrail = function(mo)
-	mo.fuse = min($, TICRATE * 4)
-	--if not(G_GametypeHasTeams() and mo.target and mo.target.valid and mo.target.player) then return end
-	--if not(mo.ctfteam) then
+B.FireTrailThinker = function(mo)
+	if mo.fuse < TICRATE then
+		mo.frame = $ | TR_TRANS50
+		mo.destscale = mo.fuse*FRACUNIT/TICRATE
+	end
+	if mo.changed then
+		return
+	end
 	if (mo.target and mo.target.valid and mo.target.player) then
 		local player = mo.target.player
 		mo.ctfteam = player.ctfteam
-		mo.color = player.skincolor
 		mo.state = S_TEAMFIRE1
+		mo.fuse = TICRATE * 4
+		mo.color = player.skincolor
+		mo.changed = true
 	end
 end
 

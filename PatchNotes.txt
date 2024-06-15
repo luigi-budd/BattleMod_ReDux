@@ -36,6 +36,7 @@ Major gameplay changes
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
 	- Characters will take twice as long to exhaust in non-survival gametypes
+	- Fire trails from elemental shields only damage if the player doesn't have any rings, otherwise, the player loses a ring when in contact with them
 	Guard [TODO: Double-Check after Ket's guard is implemented]
 		- Guard is once again possible during flashing frames, but will result in a guard break when frame-perfect-parrying this way (for example, if you're standing inside a hazard)
 		- Players can no longer guard during heavy bumps (pw_nocontrol + skidtime)

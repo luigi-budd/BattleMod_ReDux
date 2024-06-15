@@ -98,6 +98,7 @@ B.RestoreTailsFollowMobj = function(p, mobj) -- cry
 		return true
 	end
 end
+addHook("FollowMobj", B.RestoreTailsFollowMobj, MT_TAILSOVERLAY)
 
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_CRIMSON,nil) end,MT_ELEMENTAL_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_ORANGE,SKINCOLOR_VAPOR) end,MT_ATTRACT_ORB)
@@ -108,7 +109,8 @@ addHook("MobjThinker", function(mo) colorsh(mo,nil,SKINCOLOR_DUSK) end,MT_FLAMEA
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_RED,nil) end,MT_BUBBLEWRAP_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_RED,SKINCOLOR_SAPPHIRE) end,MT_THUNDERCOIN_ORB)
 addHook("MobjThinker", colorsh2,MT_OVERLAY)
-addHook("MobjThinker",function(mo) 
+
+B.PityThinker = function(mo) 
 	B.OverlayHide(mo,mo.target)
 	if gametyperules&GTR_PITYSHIELD or G_GametypeHasTeams()
 		local owner = mo.target
@@ -118,5 +120,23 @@ addHook("MobjThinker",function(mo)
 	else
 		mo.color = SKINCOLOR_CERULEAN
 	end
-end,MT_PITY_ORB)
-addHook("FollowMobj", B.RestoreTailsFollowMobj, MT_TAILSOVERLAY)
+end
+addHook("MobjThinker", B.PityThinker,MT_PITY_ORB)
+
+B.SpinDustThinker = function(mo)
+	if mo.changed then
+		return
+	end
+	if (mo.state == S_SPINDUST_FIRE1)
+	and (mo.target and mo.target.valid and mo.target.player)
+	then
+		mo.color = mo.target.player.skincolor
+		mo.state = S_TEAMFIRE1
+		mo.frame = $|FF_ANIMATE|FF_TRANSMASK
+		mo.fuse = TICRATE/2
+		mo.destscale = 0
+		mo.scalespeed = $/2
+		mo.changed = true
+	end
+end
+addHook("MobjThinker", B.SpinDustThinker, MT_SPINDUST)

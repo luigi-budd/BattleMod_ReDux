@@ -72,7 +72,7 @@ local ElementalStomp = function(player)
 	mo.momy = $ * 3/5
 	P_SetObjectMomZ(mo, -25*FRACUNIT)
 	S_StartSound(mo,sfx_s3k43)
-	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY)
+	player.pflags = ($|PF_THOKKED|PF_SHIELDABILITY) &~ PF_SPINNING
 end
 local ArmageddonExplosion = function(player)
 	local mo = player.mo

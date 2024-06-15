@@ -211,20 +211,20 @@ addHook("MobjThinker", function(mo)
 	end
 end, MT_FORCE_ORB);
 
-states[S_ELEM1] = {SPR_ELEM, FF_ADD, 4, nil, 1, 0, S_ELEM2};
-states[S_ELEM2] = {SPR_ELEM, FF_ADD|1, 4, nil, 1, 0, S_ELEM3};
-states[S_ELEM3] = {SPR_ELEM, FF_ADD|2, 4, nil, 1, 0, S_ELEM4};
-states[S_ELEM4] = {SPR_ELEM, FF_ADD|3, 4, nil, 1, 0, S_ELEM5};
-states[S_ELEM5] = {SPR_ELEM, FF_ADD|4, 4, nil, 1, 0, S_ELEM6};
-states[S_ELEM6] = {SPR_ELEM, FF_ADD|5, 4, nil, 1, 0, S_ELEM7};
-states[S_ELEM7] = {SPR_ELEM, FF_ADD|6, 4, nil, 1, 0, S_ELEM8};
-states[S_ELEM8] = {SPR_ELEM, FF_ADD|7, 4, nil, 1, 0, S_ELEM9};
-states[S_ELEM9] = {SPR_ELEM, FF_ADD|8, 4, nil, 1, 0, S_ELEM10};
-states[S_ELEM10] = {SPR_ELEM, FF_ADD|9, 4, nil, 1, 0, S_ELEM11};
-states[S_ELEM11] = {SPR_ELEM, FF_ADD|10, 4, nil, 1, 0, S_ELEM12};
-states[S_ELEM12] = {SPR_ELEM, FF_ADD|11, 4, nil, 1, 0, S_ELEM1};
+states[S_ELEM1] = {SPR_ELEM, FF_ADD|FF_TRANS50, 4, nil, 1, 0, S_ELEM2};
+states[S_ELEM2] = {SPR_ELEM, FF_ADD|FF_TRANS50|1, 4, nil, 1, 0, S_ELEM3};
+states[S_ELEM3] = {SPR_ELEM, FF_ADD|FF_TRANS50|2, 4, nil, 1, 0, S_ELEM4};
+states[S_ELEM4] = {SPR_ELEM, FF_ADD|FF_TRANS50|3, 4, nil, 1, 0, S_ELEM5};
+states[S_ELEM5] = {SPR_ELEM, FF_ADD|FF_TRANS50|4, 4, nil, 1, 0, S_ELEM6};
+states[S_ELEM6] = {SPR_ELEM, FF_ADD|FF_TRANS50|5, 4, nil, 1, 0, S_ELEM7};
+states[S_ELEM7] = {SPR_ELEM, FF_ADD|FF_TRANS50|6, 4, nil, 1, 0, S_ELEM8};
+states[S_ELEM8] = {SPR_ELEM, FF_ADD|FF_TRANS50|7, 4, nil, 1, 0, S_ELEM9};
+states[S_ELEM9] = {SPR_ELEM, FF_ADD|FF_TRANS50|8, 4, nil, 1, 0, S_ELEM10};
+states[S_ELEM10] = {SPR_ELEM, FF_ADD|FF_TRANS50|9, 4, nil, 1, 0, S_ELEM11};
+states[S_ELEM11] = {SPR_ELEM, FF_ADD|FF_TRANS50|10, 4, nil, 1, 0, S_ELEM12};
+states[S_ELEM12] = {SPR_ELEM, FF_ADD|FF_TRANS50|11, 4, nil, 1, 0, S_ELEM1};
 
-states[S_ELEM14] = {SPR_ELEM, FF_ADD|11, 1, nil, 1, 0, S_ELEM1};
+states[S_ELEM14] = {SPR_ELEM, FF_ADD|FF_TRANS50|11, 1, nil, 1, 0, S_ELEM1};
 
 states[S_ELEMF1] = {SPR_ELEM, FF_FULLBRIGHT|12, 3, nil, 0, 0, S_ELEMF2};
 states[S_ELEMF2] = {SPR_ELEM, FF_FULLBRIGHT|13, 3, nil, 0, 0, S_ELEMF3};
