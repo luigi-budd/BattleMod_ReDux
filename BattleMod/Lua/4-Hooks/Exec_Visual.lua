@@ -68,7 +68,7 @@ B.RestoreTailsFollowMobj = function(p, mobj) -- cry
 	if p.mo.state == S_PLAY_LEDGE_GRAB 
 	or p.mo.state == S_PLAY_LEDGE_RELEASE
         mobj.state = S_TAILSOVERLAY_PLUS60DEGREES
-		P_SetOrigin(mobj,
+		P_MoveOrigin(mobj,
 		p.mo.x-P_ReturnThrustX(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustX(mobj, mobj.angle, mobj.scale),
 		p.mo.y-P_ReturnThrustY(mobj, p.drawangle, 2*p.mo.scale)+P_ReturnThrustY(mobj, mobj.angle, mobj.scale),
 		p.mo.z+FixedMul(4*p.mo.scale, mobj.scale)

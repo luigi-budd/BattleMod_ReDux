@@ -294,10 +294,10 @@ B.exhaust = function(player)
 	
 	--Exhaust warning
 	if player.exhaustmeter < warningtic and player.exhaustmeter != 0 then
-		local sweatheight = mo.height * 3/2
+		local sweatheight = (mo.height * 3/2) * P_MobjFlip(mo)
 		if not(leveltime&7) then
 			S_StartSound(mo, sfx_s3kbb, player)
-			local sweat = P_SpawnMobjFromMobj(mo, 0, 0, sweatheight * P_MobjFlip(mo), MT_THOK) --we got a local sweat in our area
+			local sweat = P_SpawnMobjFromMobj(mo, 0, 0, sweatheight, MT_THOK) --we got a local sweat in our area
 			sweat.spritexoffset = $ - (mo.radius*2)
 			sweat.state = (player.charflags & SF_MACHINE) and S_SPARK or S_SWEAT
 			sweat.target = mo
@@ -305,7 +305,8 @@ B.exhaust = function(player)
 			player.sweatobj = sweat
 		end
 		if player.sweatobj and player.sweatobj.valid then
-			P_MoveOrigin(player.sweatobj, player.mo.x, player.mo.y, player.mo.z + sweatheight)
+			local WHAT = P_MobjFlip(mo) > 0 and P_MoveOrigin or P_SetOrigin --for real tho can someone explain this
+			WHAT(player.sweatobj, player.mo.x, player.mo.y, player.mo.z + sweatheight)
 		end
 	end
 end
