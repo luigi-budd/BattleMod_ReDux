@@ -8,8 +8,8 @@ B.ResetScore = function()
 -- 		for player in players.iterate()
 -- 			player.pflags = $&~PF_GAMETYPEOVER
 -- 		end
-	if G_TagGametype()
-	return end
+	/*if G_TagGametype()
+	return end*/
 	for player in players.iterate()
 		if not(player.spectator) then
 			player.preservescore = player.score
@@ -33,8 +33,8 @@ B.UpdateScore = function()
 -- 				player.pflags = $|PF_TAGIT|PF_GAMETYPEOVER
 -- 			end
 -- 		end
-	if G_TagGametype()
-	return end
+	/*if G_TagGametype()
+	return end*/
 	for player in players.iterate
 		//Player is contending
 		if player.preservescore != nil then

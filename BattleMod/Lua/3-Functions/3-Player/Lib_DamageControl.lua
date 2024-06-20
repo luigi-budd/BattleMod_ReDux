@@ -5,6 +5,7 @@ B.PlayerCanBeDamaged = function(player)
 	or player.powers[pw_invulnerability]
 	or player.powers[pw_super]
 	or player.powers[pw_flashing]
+	or (B.TagGametype() and not (player.pflags & PF_TAGIT) and player.guard > 0)
 		return false
 	end
 	return true

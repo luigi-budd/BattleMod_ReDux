@@ -6,7 +6,7 @@ B.ActionHUD=function(v, player, cam)
 	if not hud.enabled("rings") then return end
 	if player.playerstate ~= PST_LIVE then return end
 	if not(CV.Actions.value) then return end
-	if G_TagGametype() and (leveltime < CV_FindVar("hidetime").value*TICRATE) then return end
+	//if G_TagGametype() and (leveltime < CV_FindVar("hidetime").value*TICRATE) then return end
 	local TF_GRAY = 1
 	local TF_YELLOW = 2
 	local TF_RED = 3

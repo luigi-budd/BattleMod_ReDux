@@ -6,7 +6,7 @@ local pinchmusic = "BPNCH1"
 local overtimemusic = "BPNCH2"
 
 B.PreRoundWait = function()
-	if gametype and CV.PreRound.value and not(B.TagGametype())
+	if gametype and CV.PreRound.value// and not(B.TagGametype())
 		and gametyperules&GTR_STARTCOUNTDOWN and leveltime < CV_FindVar("hidetime").value*TICRATE
 		then return true
 	else return false end

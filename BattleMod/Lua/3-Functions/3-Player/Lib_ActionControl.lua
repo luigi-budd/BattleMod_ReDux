@@ -126,5 +126,9 @@ B.ApplyCooldown=function(player,cooldown,applydebt)
 		--player.rings = 0
 		player.actiondebt = 0
 	end
+	//extend cooldown for guard in battle tag
+	if B.TagGametype() and not (player.pflags & PF_TAGIT)
+		cooldown = $ * 2
+	end
 	player.actioncooldown = cooldown
 end

@@ -139,6 +139,9 @@ addHook("ShouldDamage", function(target,inflictor,source,damage,other)
 	return end
 	if not(B.PlayerCanBeDamaged(target.player) or inflictor.flags2&MF2_SUPERFIRE) then
 	return end
+	if B.TagGametype() and not B.TagDamageControl(target, inflictor)
+		return false
+	end
 	return true
 end,MT_PLAYER)
 

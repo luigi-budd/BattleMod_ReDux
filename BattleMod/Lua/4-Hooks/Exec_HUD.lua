@@ -41,6 +41,7 @@ hud.add(A.GameSetHUD,player)
 --Misc.
 hud.add(B.HitCounterHUD,player)
 hud.add(B.DebugHUD)
+hud.add(B.TagHUD)
 
 --Score screen
 hud.add(F.RankingHUD, "scores")

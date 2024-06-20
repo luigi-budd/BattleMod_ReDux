@@ -206,6 +206,21 @@ G_AddGametype({
     description = 'Reach the goalpost with the ruby crystal in hand!'
 })
 
+freeslot("tol_battletag")
+G_AddGametype({
+	name = "Battle Tag",
+	identifier = "battletag",
+	typeoflevel = TOL_TAG | TOL_MATCH | TOL_BATTLETAG,
+	rules = GTR_SPECTATORS | GTR_TIMELIMIT | GTR_HURTMESSAGES | 
+			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | GTR_TAG | 
+			GTR_POINTLIMIT | GTR_DEATHMATCHSTARTS | GTR_TEAMFLAGS,
+	defaulttimelimit = 5,
+	intermissiontype = int_match,
+	headercolor = 251,
+	rankingtype = GT_TEAMMATCH,
+	description = "Tag as many people as possible OR avoid getting tagged!"
+})
+
 local B = CBW_Battle
 local G = B.Gametypes
 
@@ -230,7 +245,8 @@ local GAMETYPE_INDICES = {
 	{GT_DIAMOND			,{0, false, true, false, false,true,  false}},
 	{GT_TEAMDIAMOND		,{0, false, true, false, false,true,  false}},
 	{GT_BANK			,{0, false, true, false, false,false, false}},
-	{GT_RUBYRUN 		,{0, false, false,false, false,false,  true}}
+	{GT_RUBYRUN 		,{0, false, false,false, false,false,  true}},
+	{GT_BATTLETAG		,{0, false, true, false, false,false, false}}
 }
 for i =1,#GAMETYPE_INDICES do
 	local GAME_TYPE_INDEX 	= GAMETYPE_INDICES[i]
