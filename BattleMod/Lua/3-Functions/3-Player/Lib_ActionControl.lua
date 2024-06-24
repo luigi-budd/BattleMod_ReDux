@@ -83,7 +83,7 @@ B.CanDoAction=function(player)
 	if CV.RequireRings.value and player.rings < player.actionrings then return false end
 	if G_RingSlingerGametype() then return false end
 	if P_PlayerInPain(player) or player.playerstate ~= PST_LIVE then return false end
-	if B.TagGametype() and not(player.pflags&PF_TAGIT) then return false end
+	if B.TagGametype() and not(player.pflags&PF_TAGIT or player.battletagIT) then return false end
 	if player.gotflag then return false end
 	if player.gotcrystal then return false end
 	if player.isjettysyn then return false end
@@ -127,7 +127,7 @@ B.ApplyCooldown=function(player,cooldown,applydebt)
 		player.actiondebt = 0
 	end
 	//extend cooldown for guard in battle tag
-	if B.TagGametype() and not (player.pflags & PF_TAGIT)
+	if B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
 		cooldown = $ * 2
 	end
 	player.actioncooldown = cooldown

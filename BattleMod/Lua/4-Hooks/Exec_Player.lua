@@ -139,8 +139,8 @@ addHook("ShouldDamage", function(target,inflictor,source,damage,other)
 	return end
 	if not(B.PlayerCanBeDamaged(target.player) or inflictor.flags2&MF2_SUPERFIRE) then
 	return end
-	if B.TagGametype() and not B.TagDamageControl(target, inflictor)
-		return false
+	if B.TagGametype()
+		return B.TagDamageControl(target, inflictor, source)
 	end
 	return true
 end,MT_PLAYER)
@@ -199,6 +199,11 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	local player = target.player
 	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON--no more arma revenge boom
 		player.powers[pw_shield] = SH_PITY
+	end
+	
+	//have runners damaged by taggers switch teams
+	if B.TagGametype()
+		B.TagTeamSwitch(target, inflictor, source)
 	end
 end,MT_PLAYER)
 
@@ -266,6 +271,10 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	if (target.player and not target.player.squashstretch)
 		target.spritexscale = FRACUNIT
 		target.spriteyscale = FRACUNIT
+	end
+	//have runners killed by taggers switch teams
+	if B.TagGametype()
+		B.TagTeamSwitch(target, inflictor, source)
 	end
 end, MT_PLAYER)
 

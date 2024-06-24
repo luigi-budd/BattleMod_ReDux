@@ -51,6 +51,20 @@ B.GetInteractionType = function(smo,tmo)
 	if CV.Collision.value and CV_FindVar("friendlyfire").value return 3 end
 	//Egg Robo Tag
 	if gametype == GT_EGGROBOTAG return 1 end
+	//Battle Tag
+	if gametype == GT_BATTLETAG
+		/*if not B.MyTeam(smo.player, tmo.player) and tmo.player.pflags & PF_TAGIT
+				and not (smo.player.pflags & PF_TAGIT)
+			return 3
+		else
+			return 1
+		end*/
+		if B.MyTeam(smo.player, tmo.player)
+			return 1
+		else
+			return 3
+		end
+	end
 	//Battle gametype
 	if B.BattleGametype() and not(B.MyTeam(smo.player,tmo.player)) then return 3 end
 	//Tag with collision
@@ -134,7 +148,7 @@ B.DoPlayerCollisionDamage = function(smo,tmo)
 	for n = 1,2
 		if mo[n].player then
 			power[n] = (mo[n].player.powers[pw_super] or mo[n].player.powers[pw_invulnerability])
-			tagit[n] = (mo[n].player.pflags&PF_TAGIT)
+			tagit[n] = (mo[n].player.pflags&PF_TAGIT or mo[n].player.battletagIT)
 			invuln[n] = (mo[n].player.powers[pw_flashing])
 		elseif mo[n].sentient then
 			invuln[n] = false
@@ -151,6 +165,14 @@ B.DoPlayerCollisionDamage = function(smo,tmo)
 		P_DamageMobj(smo,tmo,tsrc,0)
 		return -1
 	else
+		//adding this in because it was missing it seems
+		if tagit[s] and not (tagit[t] or invuln[t])
+			P_DamageMobj(tmo, smo, ssrc, 0)
+			return 1
+		elseif tagit[t] and not (tagit[s] or invuln[s])
+			P_DamageMobj(smo, tmo, tsrc, 0)
+			return -1
+		end
 		local ret = 0
 		if bias[s] < 0 and not(invuln[s] or power[s]) then
 			P_DamageMobj(smo,tmo,tsrc,0)

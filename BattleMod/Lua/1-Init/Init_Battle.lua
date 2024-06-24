@@ -212,13 +212,13 @@ G_AddGametype({
 	identifier = "battletag",
 	typeoflevel = TOL_TAG | TOL_MATCH | TOL_BATTLETAG,
 	rules = GTR_SPECTATORS | GTR_TIMELIMIT | GTR_HURTMESSAGES | 
-			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | GTR_TAG | 
-			GTR_POINTLIMIT | GTR_DEATHMATCHSTARTS | GTR_TEAMFLAGS,
+			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | 
+			GTR_DEATHMATCHSTARTS,
 	defaulttimelimit = 5,
 	intermissiontype = int_match,
 	headercolor = 251,
 	rankingtype = GT_TEAMMATCH,
-	description = "Tag as many people as possible OR avoid getting tagged!"
+	description = "The classic game of Tag you all know, now in Battle edition!"
 })
 
 local B = CBW_Battle

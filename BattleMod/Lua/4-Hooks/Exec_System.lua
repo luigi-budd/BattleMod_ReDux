@@ -17,6 +17,7 @@ addHook("MapChange",function(map)
         --// rev: reset these variables.
         player.ingametime = 0
         player.caps = 0
+		player.battletagIT = false
 	end
 	D.Reset()
 	R.Reset()
@@ -64,7 +65,7 @@ addHook("PreThinkFrame", function()
 	R.GameControl()
 	I.GameControl()
 	B.PinchControl()
-	B.TagStart()
+	B.TagControl()
 	//Player control
 	for player in players.iterate
 		if player.deadtimer < 0 and player.deadtimer >= -TICRATE then player.deadtimer = 0 end

@@ -12,8 +12,8 @@ end
 
 B.GuardControl = function(player)
 	if CV.Guard.value == 0 
-	or (B.TagGametype() and not (player.pflags & PF_TAGIT) and 
-			player.actioncooldown > 0 and player.guard == 0)
+	or (B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
+			and player.actioncooldown > 0 and player.guard == 0)
 	or player.iseggrobo
 	or player.isjettysyn
 	or player.tumble
@@ -45,7 +45,7 @@ B.Guard = function(player,buttonpressed)
 	or (mo.eflags & MFE_JUSTHITFLOOR)
 	or (player.weapondelay and mo.state == S_PLAY_FIRE)
 	//disable guard for runners in battle tag for now
-	or (B.TagGametype() and not (player.pflags & PF_TAGIT))
+	//or (B.TagGametype() and not (player.pflags & PF_TAGIT))
 		if player.guard != 0 then
 			if not(P_PlayerInPain(player)) and not(player.pflags&(PF_JUMPED|PF_SPINNING)) then
 				mo.state = S_PLAY_FALL
@@ -76,7 +76,8 @@ B.Guard = function(player,buttonpressed)
 				i.target = mo
 			end
 			//make runners pay rings and apply cooldown for guard in battle tag
-			if B.TagGametype() and not (player.pflags & PF_TAGIT)
+			if B.TagGametype() and not (player.pflags & PF_TAGIT or 
+					player.battletagIT)
 				B.PayRings(player, 10, true)
 				B.ApplyCooldown(player, TICRATE)
 			end

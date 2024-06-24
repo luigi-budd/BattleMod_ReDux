@@ -140,3 +140,29 @@ B.SpinDustThinker = function(mo)
 	end
 end
 addHook("MobjThinker", B.SpinDustThinker, MT_SPINDUST)
+
+//visual indicator for tagger
+local function BattleTagITtag(mo)
+	if gametype != GT_BATTLETAG or mo.tracerplayer == nil or not 
+			mo.tracerplayer.valid or not mo.tracerplayer.battletagIT
+		P_RemoveMobj(mo)
+		return
+	end
+	
+	local tracer = mo.tracerplayer.mo
+	if tracer != nil and tracer.valid
+		mo.flags2 = $ & ~MF2_DONTDRAW
+		mo.scale = tracer.scale
+		mo.eflags = tracer.eflags
+		local zheight
+		if tracer.eflags & MFE_VERTICALFLIP
+			zheight = tracer.height / 2 * -1
+		else
+			zheight = tracer.height
+		end
+		P_MoveOrigin(mo, tracer.x, tracer.y, tracer.z + zheight)
+	else
+		mo.flags2 = $ | MF2_DONTDRAW
+	end
+end
+addHook("MobjThinker", BattleTagITtag, MT_BATTLETAG_IT)

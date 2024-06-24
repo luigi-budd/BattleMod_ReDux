@@ -2,7 +2,7 @@ local B = CBW_Battle
 
 B.HideTime = function()
 	if (server) then
-		if G_TagGametype() and gametype != GT_BATTLETAG then
+		if G_TagGametype() //and gametype != GT_BATTLETAG then
 			COM_BufInsertText(server,"hidetime 30")
 		else
 			COM_BufInsertText(server,"hidetime 15")
@@ -20,32 +20,38 @@ B.TagCam = function(player, runner)
 	end
 end
 
-//attempt to override vanilla tag pre-round to allow taggers to select-
-//characters (and also assign taggers based on lobby size)
+//all the stuff for battle tag
 B.TagPreRound = 0
 B.TagPreTimer = 0
 
-B.TagStart = function(player)
-	if not B.TagGametype()
+local function IsValidPlayer(player)
+	return player != nil and player.valid and player.mo != nil and
+			player.mo.valid
+end
+
+B.TagControl = function()
+	if gametype != GT_BATTLETAG
 		return
 	end
 	
 	if B.PreRoundWait()
-		for player in players.iterate do
-			if player.mo != nil and player.mo.valid
-				player.pflags = $ & ~PF_TAGIT
-			end
-		end
 		B.TagPreRound = 0
 	elseif B.TagPreRound == 0
 		local i = 0
-		local maxtaggers = 1//figure out how to calculate how many players there are in the game
+		local maxtaggers = 0
+		for player in players.iterate do
+			if IsValidPlayer(player)
+				maxtaggers = $ + 1
+			end
+		end
+		maxtaggers = min(max($ / 4, 1), 5)
 		while i < maxtaggers
 			local luckyplayer = players[P_RandomKey(32)]
-			if luckyplayer != nil and luckyplayer.valid and luckyplayer.mo != 
-					nil and luckyplayer.mo.valid and not (luckyplayer.pflags &
-					PF_TAGIT)
-				luckyplayer.pflags = $ | PF_TAGIT
+			if IsValidPlayer(luckyplayer) and not luckyplayer.battletagIT
+				luckyplayer.battletagIT = true
+				local IT = P_SpawnMobjFromMobj(luckyplayer.mo, 0, 0, 0, 
+						MT_BATTLETAG_IT)
+				IT.tracerplayer = luckyplayer
 				i = $ + 1
 			end
 		end
@@ -53,7 +59,7 @@ B.TagStart = function(player)
 		B.TagPreTimer = 10 * TICRATE
 	elseif B.TagPreRound == 1
 		for player in players.iterate do
-			if player.pflags & PF_TAGIT
+			if player.battletagIT
 				player.pflags = $ | PF_FULLSTASIS
 			end
 		end
@@ -62,38 +68,65 @@ B.TagStart = function(player)
 		else
 			B.TagPreRound = 2
 		end
+	else
+		//constantly keep track of how many active players and taggers there are
+		//to end the game if everyone is tagged
+		local totaltaggers = 0
+		local totalplayers = 0
+		for player in players.iterate do
+			if IsValidPlayer(player)
+				//have spectators joining in become taggers, also as failsafe
+				if player.battlespawning > 0 and not player.battletagIT
+					player.battletagIT = true
+					local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, 
+							MT_BATTLETAG_IT)
+					IT.tracerplayer = player
+				end
+				totalplayers = $ + 1
+				if player.battletagIT
+					totaltaggers = $ + 1
+				end
+			end
+		end
+		if totalplayers > 1 and totalplayers == totaltaggers
+			G_ExitLevel()
+		end
 	end
 end
 
 //ensure taggers that are tumbled or in pain can't deal damage to runners
-local function ValidPlayer(mo, isit)
-	local isvalid = mo != nil and mo.valid and mo.player != nil and 
-			mo.player.valid
-	if isit
-		isvalid = $ and mo.player.pflags & PF_TAGIT
-	end
-	return isvalid
+local function MoValidPlayer(mo)
+	return mo != nil and mo.valid and mo.player != nil and mo.player.valid
 end
 
-B.TagDamageControl = function(target, inflictor)
-	if not B.TagGametype()
+B.TagDamageControl = function(target, inflictor, source)
+	if gametype != GT_BATTLETAG or not MoValidPlayer(target) or (not 
+			MoValidPlayer(inflictor) and not MoValidPlayer(source))
 		return
 	end
 	
-	local runner
-	local tagger
-	if ValidPlayer(target)
-		runner = target.player
-	end
-	if inflictor != nil and inflictor.valid and inflictor.player != nil
-			and inflictor.player.valid and inflictor.player.pflags & PF_TAGIT
-		tagger = inflictor.player
-	elseif source != nil and source.valid and source.player != nil and
-			source.player.valid and source.player.pflags & PF_TAGIT
-		tagger = source.player
-	end
-	if tagger != nil and (P_PlayerInPain(tagger) or tagger.tumble)
+	if B.MyTeam(target, inflictor)
 		return false
 	end
-	return true
+end
+
+//have runners who are damaged or killed by taggers switch teams
+B.TagTeamSwitch = function(target, inflictor, source)
+	if gametype != GT_BATTLETAG or not MoValidPlayer(target) or (not
+			MoValidPlayer(inflictor) and MoValidPlayer(source))
+		return
+	end
+	
+	local runner = target.player
+	local tagger
+	if MoValidPlayer(inflictor)
+		tagger = inflictor.player
+	elseif MoValidPlayer(source)
+		tagger = source.player
+	end
+	if tagger != nil and tagger.battletagIT and not runner.battletagIT
+		runner.battletagIT = true
+		local IT = P_SpawnMobjFromMobj(runner.mo, 0, 0, 0, MT_BATTLETAG_IT)
+		IT.tracerplayer = runner
+	end
 end
