@@ -20,31 +20,31 @@ B.TagCam = function(player, runner)
 	end
 end
 
-//all the stuff for battle tag
-B.TagPreRound = 0
-B.TagPreTimer = 0
-
 local function IsValidPlayer(player)
 	return player != nil and player.valid and player.mo != nil and
-			player.mo.valid
+			player.mo.valid and not player.spectating
 end
 
 B.TagControl = function()
-	if gametype != GT_BATTLETAG
+	if gametype != GT_BATTLETAG or B.PreRoundWait()
 		return
 	end
 	
-	if B.PreRoundWait()
-		B.TagPreRound = 0
-	elseif B.TagPreRound == 0
+	local totalplayers = 0
+	if B.TagPreRound == 0
 		local i = 0
-		local maxtaggers = 0
+		totalplayers = 0
 		for player in players.iterate do
 			if IsValidPlayer(player)
-				maxtaggers = $ + 1
+				totalplayers = $ + 1
 			end
 		end
-		maxtaggers = min(max($ / 4, 1), 5)
+		local maxtaggers = 0
+		if totalplayers > 4
+			maxtaggers = min(max($ / 4, 1), 5)
+		elseif totalplayers > 0
+			maxtaggers = 1
+		end
 		while i < maxtaggers
 			local luckyplayer = players[P_RandomKey(32)]
 			if IsValidPlayer(luckyplayer) and not luckyplayer.battletagIT
@@ -58,9 +58,23 @@ B.TagControl = function()
 		B.TagPreRound = 1
 		B.TagPreTimer = 10 * TICRATE
 	elseif B.TagPreRound == 1
+		totalplayers = 0
 		for player in players.iterate do
-			if player.battletagIT
-				player.pflags = $ | PF_FULLSTASIS
+			if IsValidPlayer(player)
+				if player.battletagIT
+					player.pflags = $ | PF_FULLSTASIS
+				end
+				totalplayers = $ + 1
+			end
+		end
+		if totalplayers == 1
+			for player in players.iterate do
+				if IsValidPlayer(player) and not player.battletagIT
+					player.battletagIT = true
+					local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, 
+							MT_BATTLETAG_IT)
+					IT.tracerplayer = player
+				end
 			end
 		end
 		if B.TagPreTimer > 0
@@ -72,11 +86,12 @@ B.TagControl = function()
 		//constantly keep track of how many active players and taggers there are
 		//to end the game if everyone is tagged
 		local totaltaggers = 0
-		local totalplayers = 0
+		totalplayers = 0
 		for player in players.iterate do
 			if IsValidPlayer(player)
 				//have spectators joining in become taggers, also as failsafe
-				if player.battlespawning > 0 and not player.battletagIT
+				if player.battlespawning != nil and player.battlespawning > 0 
+						and not player.battletagIT
 					player.battletagIT = true
 					local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, 
 							MT_BATTLETAG_IT)
