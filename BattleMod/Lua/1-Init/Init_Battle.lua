@@ -33,9 +33,6 @@ B.HUDMain = true
 B.HUDAlt = true
 B.Timeout = 0
 B.HUDRoulette = {}
-//all the stuff for battle tag
-B.TagPreRound = 0
-B.TagPreTimer = 0
 
 -- Debug flags
 rawset(_G,"DF_GAMETYPE",	1<<0)

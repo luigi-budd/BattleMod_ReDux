@@ -7,9 +7,11 @@ B.TagHUD = function(v, player, cam)
 	end
 	
 	if B.TagPreTimer > 0
-		/*if player.pflags & PF_TAGIT
-			v.drawFill(0, 0, v.width() / v.dupx() + 1, v.height / v.dupy() + 1)
-		end*/
+		if player.pflags & PF_TAGIT
+			local wid = v.width() / v.dupx()
+			local hight = v.height / v.dupy()
+			v.drawFill(0, 0, wid, hight)
+		end
 		local x = v.width() / v.dupx() / 2
 		local y = v.height() / v.dupy() / 5
 		local flags = V_SNAPTOTOP | V_PERPLAYER | V_ALLOWLOWERCASE

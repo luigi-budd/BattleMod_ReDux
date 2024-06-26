@@ -20,9 +20,13 @@ B.TagCam = function(player, runner)
 	end
 end
 
+//all the stuff for battle tag
+B.TagPreRound = 0
+B.TagPreTimer = 0
+
 local function IsValidPlayer(player)
 	return player != nil and player.valid and player.mo != nil and
-			player.mo.valid and not player.spectating
+			player.mo.valid and not player.spectator
 end
 
 B.TagControl = function()
