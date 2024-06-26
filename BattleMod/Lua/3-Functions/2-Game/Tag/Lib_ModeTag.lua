@@ -105,6 +105,10 @@ B.TagControl = function()
 				if player.battletagIT
 					totaltaggers = $ + 1
 				end
+				//attempts to have the runner earn points every second they're alive
+				if not player.battletagIT and leveltime % TICRATE == 0
+					P_AddPlayerScore(player, 5)
+				end
 			end
 		end
 		if totalplayers > 1 and totalplayers == totaltaggers
