@@ -66,4 +66,5 @@ function B.NetVars.Sync(network)
 	//all the stuff for battle tag
 	B.TagPreRound = network($)
 	B.TagPreTimer = network($)
+	B.TagPlayers = network($)
 end

@@ -43,6 +43,7 @@ addHook("MapChange",function(map)
 	//reset tag pre-round varaibles
 	B.TagPreRound = 0
 	B.TagPreTimer = 0
+	B.TagPlayers = 0
 end)
 
 addHook("MapLoad",function(map)

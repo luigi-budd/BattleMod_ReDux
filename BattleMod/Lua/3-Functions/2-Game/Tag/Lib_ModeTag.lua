@@ -23,30 +23,40 @@ end
 //all the stuff for battle tag
 B.TagPreRound = 0
 B.TagPreTimer = 0
+B.TagPlayers = 0
 
 local function IsValidPlayer(player)
 	return player != nil and player.valid and player.mo != nil and
 			player.mo.valid and not player.spectator
 end
 
+local function PlayerCounter()
+	local tplayers = 0
+	for player in players.iterate do
+		if IsValidPlayer(player)
+			tplayers = $ + 1
+		end
+	end
+	return tplayers
+end
+
 B.TagControl = function()
-	if gametype != GT_BATTLETAG or B.PreRoundWait()
+	if gametype != GT_BATTLETAG
 		return
 	end
 	
-	local totalplayers = 0
+	if B.PreRoundWait()
+		B.TagPlayers = PlayerCounter()
+		return
+	end
+	//assign some taggers as soon as pre-round ends
 	if B.TagPreRound == 0
 		local i = 0
-		totalplayers = 0
-		for player in players.iterate do
-			if IsValidPlayer(player)
-				totalplayers = $ + 1
-			end
-		end
+		B.TagPlayers = PlayerCounter()
 		local maxtaggers = 0
-		if totalplayers > 4
+		if B.TagPlayers > 4
 			maxtaggers = min(max($ / 4, 1), 5)
-		elseif totalplayers > 0
+		elseif B.TagPlayers > 0
 			maxtaggers = 1
 		end
 		while i < maxtaggers
@@ -61,19 +71,15 @@ B.TagControl = function()
 		end
 		B.TagPreRound = 1
 		B.TagPreTimer = 10 * TICRATE
+	//run through the second pre-round, where taggers are frozen
 	elseif B.TagPreRound == 1
-		totalplayers = 0
+		B.TagPlayers = PlayerCounter()
 		for player in players.iterate do
 			if IsValidPlayer(player)
 				if player.battletagIT
 					player.pflags = $ | PF_FULLSTASIS
-				end
-				totalplayers = $ + 1
-			end
-		end
-		if totalplayers == 1
-			for player in players.iterate do
-				if IsValidPlayer(player) and not player.battletagIT
+				//ensure the first player that joins is a tagger, if there's none
+				elseif B.TagPlayers == 1
 					player.battletagIT = true
 					local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, 
 							MT_BATTLETAG_IT)
@@ -88,20 +94,19 @@ B.TagControl = function()
 		end
 	else
 		//constantly keep track of how many active players and taggers there are
-		//to end the game if everyone is tagged
 		local totaltaggers = 0
-		totalplayers = 0
+		B.TagPlayers = PlayerCounter()
 		for player in players.iterate do
 			if IsValidPlayer(player)
 				//have spectators joining in become taggers, also as failsafe
+				//exception for if there's only 2 active players in a game
 				if player.battlespawning != nil and player.battlespawning > 0 
-						and not player.battletagIT
+						and not player.battletagIT and B.TagPlayers != 2
 					player.battletagIT = true
 					local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, 
 							MT_BATTLETAG_IT)
 					IT.tracerplayer = player
 				end
-				totalplayers = $ + 1
 				if player.battletagIT
 					totaltaggers = $ + 1
 				end
@@ -111,7 +116,7 @@ B.TagControl = function()
 				end
 			end
 		end
-		if totalplayers > 1 and totalplayers == totaltaggers
+		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers
 			G_ExitLevel()
 		end
 	end
