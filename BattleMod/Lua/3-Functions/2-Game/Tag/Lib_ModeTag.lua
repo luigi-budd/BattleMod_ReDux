@@ -45,6 +45,12 @@ B.TagControl = function()
 		return
 	end
 	
+	//failsafe to ensure a time limit is active
+	local tlimit = CV_FindVar("timelimit")
+	if tlimit != 5 and (server)
+		COM_BufInsertText(server,"timelimit 5")
+	end
+	
 	if B.PreRoundWait()
 		B.TagPlayers = PlayerCounter()
 		return

@@ -214,10 +214,10 @@ G_AddGametype({
 	rules = GTR_SPECTATORS | GTR_TIMELIMIT | GTR_HURTMESSAGES | 
 			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | 
 			GTR_DEATHMATCHSTARTS,
-	defaulttimelimit = 5,
+	//defaulttimelimit = 5,
 	intermissiontype = int_match,
 	headercolor = 251,
-	rankingtype = GT_TEAMMATCH,
+	rankingtype = GT_TAG,
 	description = "The classic game of Tag you all know, now in Battle edition!"
 })
 
