@@ -133,7 +133,7 @@ G_AddGametype({
 })
 
 G_AddGametype({
-	name = "Diamond in the Rough",
+	name = "Warp Heist",
 	identifier = "diamond",
 	typeoflevel = TOL_DIAMOND|TOL_MATCH,
 	rules = GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES,
@@ -143,11 +143,11 @@ G_AddGametype({
 	defaulttimelimit = 5,
 	headerleftcolor = 148,
 	headerrightcolor = 148,
-	description = 'Find and seize the diamond on the field, then hold onto it for as long as you can! Careful -- other players can steal your crystal, even just by touching it!'
+	description = 'Find and seize the WArp Topaz on the field, then take it to a Control Point to score! Careful -- other players can steal the warp topaz, even just by touching it or you!!'
 })
 
 G_AddGametype({
-	name = "Team Diamond in the Rough",
+	name = "Team Warp Heist",
 	identifier = "teamdiamond",
 	typeoflevel = TOL_DIAMOND|TOL_MATCH,
 	rules = GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES|GTR_TEAMFLAGS,
@@ -157,7 +157,7 @@ G_AddGametype({
 	defaulttimelimit = 5,
 	headerleftcolor = 37,
 	headerrightcolor = 150,
-	description = 'Two teams compete for a single diamond on the field; work together to seize the crystal, or protect the diamond holder if your team already has it!'
+	description = 'Two teams compete for a single warp topaz on the field; work together to seize the topaz and send it back whence it came!!'
 })
 
 -- Removed GTR_TEAMFLAGS; Battle CTF uses its own flag system
