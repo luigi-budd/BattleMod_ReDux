@@ -2,6 +2,23 @@ local CV = CBW_Battle.Console
 CV.ConfigPath = "client/battleconfig.cfg"
 CV.BattleConfigs = {}
 
+-- as of v10, player's default values are handled automatically, so don't worry about other scripts! ~lu
+local base_battleconfigs = {
+	-- {NAME, DEFAULTVALUE}
+	{"battleconfig_dodgecamera", true},
+	{"battleconfig_special", BT_ATTACK},
+	{"battleconfig_guard", BT_FIRENORMAL},
+	{"battleconfig_aimsight", true},
+	{"battleconfig_charselect", true},
+	{"battleconfig_nospinshield", false},
+	{"battleconfig_newhud", true},
+	{"battleconfig_minimap", true},
+	{"battleconfig_glidestrafe", true},
+	{"battleconfig_hammerstrafe", false},
+	{"battleconfig_slipstreambutton", BT_WEAPONNEXT},
+	{"battleconfig_useslipstreambutton", false},
+}
+
 -- holy moly.. maybe we should use pcall() to prevent ppl from causing warnings? ~lu
 CV.SaveConfig = function(player, configname, value, oldonly)
 	if not(consoleplayer and consoleplayer == player) then
@@ -277,45 +294,14 @@ CV.SetButton = function(player, args, config, defaultvalue, silent)
 	end
 end
 
---time to start adding battleconfigs! as of v10, default values are handled automatically, so don't worry about other scripts! ~lu
---TODO: maybe merge CV.SetYesNo and CV.SetButton by using the default value to determine what to do, would make implementation easier but maybe less performant?
-local cfg, default = {}, {} --by the way, this is only necessary because we are adding them in bulk (so it doesnt print different commands later)
-
-cfg[1], default[1] = "battleconfig_dodgecamera", true
-CV.AddBattleConfig(cfg[1], function(player, arg) CV.SetYesNo(player, arg, cfg[1], default[1]) end, default[1])
-
-cfg[2], default[2] = "battleconfig_autospectator", true
-CV.AddBattleConfig(cfg[2], function(player, arg) CV.SetYesNo(player, arg, cfg[2], default[2]) end, default[2])
-
-cfg[3], default[3] = "battleconfig_special", BT_ATTACK
-CV.AddBattleConfig(cfg[3], function(player, ...) CV.SetButton(player, {...}, cfg[3], default[3]) end, default[3])
-
-cfg[4], default[4] = "battleconfig_guard", BT_FIRENORMAL
-CV.AddBattleConfig(cfg[4], function(player, ...) CV.SetButton(player, {...}, cfg[4], default[4]) end, default[4])
-
-cfg[5], default[5] = "battleconfig_aimsight", true
-CV.AddBattleConfig(cfg[5], function(player, arg) CV.SetYesNo(player, arg, cfg[5], default[5]) end, default[5])
-
-cfg[6], default[6] = "battleconfig_charselect", true
-CV.AddBattleConfig(cfg[6], function(player, arg) CV.SetYesNo(player, arg, cfg[6], default[6]) end, default[6])
-
-cfg[7], default[7] = "battleconfig_nospinshield", false
-CV.AddBattleConfig(cfg[7], function(player, arg) CV.SetYesNo(player, arg, cfg[7], default[7]) end, default[7])
-
-cfg[8], default[8] = "battleconfig_newhud", true
-CV.AddBattleConfig(cfg[8], function(player, arg) CV.SetYesNo(player, arg, cfg[8], default[8]) end, default[8])
-
-cfg[9], default[9] = "battleconfig_minimap", true
-CV.AddBattleConfig(cfg[9], function(player, arg) CV.SetYesNo(player, arg, cfg[9], default[9]) end, default[9])
-
-cfg[10], default[10] = "battleconfig_glidestrafe", true
-CV.AddBattleConfig(cfg[10], function(player, arg) CV.SetYesNo(player, arg, cfg[10], default[10]) end, default[10])
-
-cfg[11], default[11] = "battleconfig_hammerstrafe", false
-CV.AddBattleConfig(cfg[11], function(player, arg) CV.SetYesNo(player, arg, cfg[11], default[11]) end, default[11])
-
-cfg[12], default[12] = "battleconfig_slipstreambutton", BT_WEAPONNEXT
-CV.AddBattleConfig(cfg[12], function(player, ...) CV.SetButton(player, {...}, cfg[12], default[12]) end, default[12])
-
-cfg[13], default[13] = "battleconfig_useslipstreambutton", false
-CV.AddBattleConfig(cfg[13], function(player, arg) CV.SetYesNo(player, arg, cfg[13], default[13]) end, default[13])
+-- finally, time to add everything!
+-- configs with true/false as default values are treated as On/Off switches, treated as buttons otherwise
+for _, config in ipairs(base_battleconfigs) do
+	local name = config[1]
+	local default = config[2]
+    if type(default) == "boolean" then
+        CV.AddBattleConfig(name, function(player, arg) CV.SetYesNo(player, arg, name, default) end, default)
+    else
+        CV.AddBattleConfig(name, function(player, ...) CV.SetButton(player, {...}, name, default) end, default)
+    end
+end
