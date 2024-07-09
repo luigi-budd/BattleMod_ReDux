@@ -1,12 +1,27 @@
 local B = CBW_Battle
 local R = B.Ruby
 local CV = B.Console
+R.FadeColor = 176
 
 local captime = CV.RubyCaptureTime.value * TICRATE
 
 R.HUD = function(v, player, cam)
 	if not (B.HUDMain) then return end
+
+
 	if not (player.realmo) then return end
+
+	--Ruby Run
+	if (B.Timeout > 1) or ((B.Timeout < (TICRATE + (TICRATE/5))) and player.exiting) or R.RubyFade == 10 then
+		v.fadeScreen(R.FadeColor, R.RubyFade)
+	end
+
+	if (R.RubyFade >= 1) and (player.battlespawning > 25) and (player.battlespawning < 48) then
+		R.RubyFade = $-1
+		v.fadeScreen(R.FadeColor, R.RubyFade)
+	end
+	--Fade
+
 	local ruby = R.ID
 	if not (ruby and ruby.valid) then return end
 	
@@ -159,4 +174,5 @@ R.HUD = function(v, player, cam)
 			end
 		end		
 	end	
+
 end

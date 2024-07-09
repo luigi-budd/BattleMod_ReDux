@@ -16,12 +16,7 @@ local freetics = TICRATE
 local bounceheight = 10
 
 local timeout = function()
-	B.Timeout = TICRATE*3
--- 	for player in players.iterate do
--- 		if not player.spectator and player.playerstate == PST_LIVE
--- 			player.exiting = TICRATE*3+2
--- 		end
--- 	end
+	B.Timeout = R.CapAnimTime --Value is inside of Lib_ModeArena.lua
 end
 
 R.GameControl = function()
@@ -183,8 +178,12 @@ local capture = function(mo, player)
 	B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
 	B.CTF.GameState.CaptureHUDName = player.name
 	B.CTF.GameState.CaptureHUDTeam = player.ctfteam
+
+	player.ruby_capped = true --Know if they should do the floaty spin thing
+
 	--vfx
 	if player.mo and player.mo.valid then
+		--player.mo.momz = FRACUNIT
 		B.DoFirework(player.mo)
 		local cooleffect = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_THOK)
 		cooleffect.color = SKINCOLOR_PITCHMAGENTA
@@ -452,6 +451,24 @@ R.Thinker = function(mo)
 		player.gotcrystal_time = 0
 		capture(mo, player)
 	end
-	--]]
+	--
 end
+
+
+COM_AddCommand("ruby_capture", function(player)
+
+	local ruby
+
+	for mo in mobjs.iterate() do
+		if mo.type == MT_RUBY then
+			mo.target = player.mo
+			ruby = mo
+		end
+	end
+
+	--capture(ruby, player)
+	--S_StartSound(nil, sfx_ruby0)
+	--player.ruby_capped = true
+	timeout()
+end, COM_ADMIN) --]]
 

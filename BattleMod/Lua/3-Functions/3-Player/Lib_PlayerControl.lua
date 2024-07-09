@@ -174,6 +174,7 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 	end
 	--player.exhaustmeter = FRACUNIT
 	player.otherscore = nil
+	player.ruby_capture = nil --More vars! yay!
 end
 
 B.GetSkinVars = function(player)

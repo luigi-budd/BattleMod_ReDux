@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local CV = B.Console
 local A = B.Arena
+local R = B.Ruby
 A.Fighters = {}
 A.RedFighters = {}
 A.BlueFighters = {}
@@ -10,6 +11,8 @@ A.BlueSurvivors = {}
 A.Placements = {}
 A.SpawnLives = 3
 A.GameOvers = 0
+R.CapAnimTime = TICRATE*3+(TICRATE/2) --Time the Ruby capture animation takes
+R.RubyFade = 0 --Value for the ruby's fade transition
 
 A.GameOverControl = function(player)
 	if not(B.BattleGametype()) then return end
@@ -219,8 +222,31 @@ local function forcewin()
 	end
 end
 
+
 local tiebreaker_t = function()
 	print("\x82".."Tiebreaker!")
+end
+
+local function stretchx(mo)
+	if not (mo and mo.valid) then return end
+	local stretchx = ease.linear(mo.spriteyscale-(mo.spriteyscale/4), 0, FRACUNIT/4)
+	mo.spriteyscale = $-stretchx
+	mo.spriteyoffset = $+stretchx*46
+end
+
+local function resetstretch(mo)
+	if not (mo and mo.valid) then return end
+	mo.spriteyscale = FRACUNIT
+	mo.spriteyoffset = 0
+	mo.spritexscale = FRACUNIT
+end
+
+local function stretchy(mo)
+	if not (mo and mo.valid) then return end
+	local stretchy = ease.outquad(mo.spritexscale/2, 0, FRACUNIT/2)
+	mo.spritexscale = $-stretchy
+	mo.spriteyscale = $+stretchy
+	mo.spriteyoffset = $-(stretchy*27)
 end
 
 A.UpdateGame = function()
@@ -233,7 +259,7 @@ A.UpdateGame = function()
 	A.BlueSurvivors = {}
 	A.BlueFighters = {}
 	A.RedFighters = {}
-	for player in players.iterate()
+	for player in players.iterate() do
 		playercount = $+1
 		if not(player.spectator)
 			A.Fighters[#A.Fighters+1] = player //Player is participating
@@ -256,7 +282,9 @@ A.UpdateGame = function()
 			end
 		end
 	end
-	
+
+
+
 	//Update score
 	B.UpdateScore()
 	A.UpdateScore()
@@ -296,15 +324,103 @@ A.UpdateGame = function()
 		)
 	then
 		forcewin()
-	return end //Exit function
+	return end --Exit function
 	
 	if B.Timeout and not B.Exiting then
-		for player in players.iterate do
--- 			if player.exiting
-				player.exiting = max($, B.Timeout+2)
--- 			end
-		end
+
+
 		B.Timeout = $-1
+
+		for player in players.iterate do
+			
+			player.exiting = max($, B.Timeout+2)
+
+
+			if gametype == GT_RUBYRUN then
+				if not (player.mo and player.mo.valid) then
+					continue
+				end
+
+				local divisor = 10
+
+				player.mo.momx = $-($/divisor)
+				player.mo.momy = $-($/divisor)
+
+				player.mo.flags = $|MF_NOCLIPHEIGHT|MF_NOCLIP
+
+				if B.Timeout == R.CapAnimTime then
+					player.mo.momz = player.mo.scale
+				end
+
+				player.mo.momz = max($+(player.mo.scale/2), 0)
+
+
+				local invtime = ((B.Timeout-R.CapAnimTime)/2)
+
+				if player.ruby_capped then
+					--if B.Timeout <= R.CapAnimTime-(R.CapAnimTime/3) then
+						player.drawangle = $+(ANG1*invtime)
+					--end
+
+					player.mo.momx = $/2
+					player.mo.momy = $/2
+
+					player.pflags = $ & ~(PF_SPINNING)
+					if player.mo.state != S_PLAY_FALL then
+						player.mo.state = S_PLAY_FALL
+					end
+				end
+
+				if player.mo.state == S_PLAY_STND then
+					player.mo.state = S_PLAY_FALL
+				end
+
+				player.squashstretch = true
+
+			end
+
+		end
+
+		if gametype == GT_RUBYRUN then
+
+			local one_andathird = (TICRATE + (TICRATE/5))
+			local one_andtwothirds = (TICRATE + (TICRATE/3))
+
+			if B.Timeout == one_andtwothirds then
+				S_StartSound(nil, sfx_cdfm56)
+			elseif B.Timeout < one_andtwothirds and B.Timeout > one_andathird then
+				for player in players.iterate do
+					stretchx(player.mo)
+				end
+			elseif B.Timeout == one_andathird then
+				R.RubyFade = 0
+			elseif B.Timeout < one_andathird then
+				if (R.RubyFade < 10) then
+					R.RubyFade = $+1
+				end
+				for player in players.iterate do
+					stretchy(player.mo)
+				end
+			end
+
+			if B.Timeout == R.CapAnimTime-(R.CapAnimTime/4) then
+
+				for mo in mobjs.iterate() do
+
+					if not(mo and mo.valid) then
+						continue
+					end
+
+					
+
+				end
+
+			end
+
+
+		end
+
+		
 		if B.Timeout == 0 then
 			for player in players.iterate do
 				player.exiting = 0
