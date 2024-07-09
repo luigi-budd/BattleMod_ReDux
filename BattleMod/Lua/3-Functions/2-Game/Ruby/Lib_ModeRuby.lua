@@ -451,10 +451,10 @@ R.Thinker = function(mo)
 		player.gotcrystal_time = 0
 		capture(mo, player)
 	end
-	--
+	--]]
 end
 
-
+/*
 COM_AddCommand("ruby_capture", function(player)
 
 	local ruby
@@ -470,5 +470,5 @@ COM_AddCommand("ruby_capture", function(player)
 	--S_StartSound(nil, sfx_ruby0)
 	--player.ruby_capped = true
 	timeout()
-end, COM_ADMIN) --]]
+end, COM_ADMIN)*/
 
