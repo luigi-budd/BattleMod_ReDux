@@ -391,15 +391,21 @@ A.UpdateGame = function()
 			elseif B.Timeout < one_andtwothirds and B.Timeout > one_andathird then
 				for player in players.iterate do
 					stretchx(player.mo)
+					stretchx(player.followmobj)
 				end
 			elseif B.Timeout == one_andathird then
 				R.RubyFade = 0
+				for player in players.iterate do
+					resetstretch(player.mo)
+					resetstretch(player.followmobj)
+				end
 			elseif B.Timeout < one_andathird then
 				if (R.RubyFade < 10) then
 					R.RubyFade = $+1
 				end
 				for player in players.iterate do
 					stretchy(player.mo)
+					stretchx(player.followmobj)
 				end
 			end
 
