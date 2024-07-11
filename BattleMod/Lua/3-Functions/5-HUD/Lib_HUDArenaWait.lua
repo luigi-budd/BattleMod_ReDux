@@ -124,7 +124,7 @@ A.GameSetHUD = function(v,player,cam)
 		lerpamt2 = B.FixedLerp(0,FRACUNIT,$*90/100)
 		subtract2 = B.FixedLerp(180,0,lerpamt2)
 		local trans = B.TimeTrans(exittime*2 - delay*2)
-		local x3 = 320/2
+		local x3 = 340/2
 		if leveltime%2 == 0 and not paused then
 			local last = rainbow[#rainbow]
 			for n = #rainbow, 2, -1 do
