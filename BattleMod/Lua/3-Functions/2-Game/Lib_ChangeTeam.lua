@@ -4,6 +4,10 @@ local CV = B.Console
 
 local notice = "\x83".."NOTICE: \x80"
 B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
+	if B.Exiting then
+		S_StartSound(nil, sfx_adderr, player)
+		return false
+	end
 	if player.spectatortime == nil then
 		player.spectatortime = 0
 	end

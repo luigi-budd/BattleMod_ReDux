@@ -14,6 +14,9 @@ A.GameOvers = 0
 R.CapAnimTime = TICRATE*3+(TICRATE/2) --Time the Ruby capture animation takes
 R.RubyFade = 0 --Value for the ruby's fade transition
 
+local lossmusic = "BLOSE"
+local winmusic = "BWIN"
+
 A.GameOverControl = function(player)
 	if not(B.BattleGametype()) then return end
 	if player.playerstate == PST_DEAD and player.lives == 0 then
@@ -205,23 +208,71 @@ end
 
 local function forcewin()
 	local doexit = false
+	local extended = (not splitscreen) and not(G_GametypeHasTeams() and redscore == bluescore)
+	local player_scores = {}
 	for player in players.iterate
+		table.insert(player_scores, player.score)
+		if (extended) then
+			if player.powers[pw_sneakers] then player.powers[pw_sneakers] = $+1 end
+			if player.powers[pw_invulnerability] then player.powers[pw_invulnerability] = $+1 end
+			if player.powers[pw_super] and leveltime%TICRATE==1 then player.rings = $+1 end
+		else
+			S_StopMusic(player)
+		end
 		if player.exiting then continue end
-		doexit = true 
-		P_DoPlayerExit(player)
-		S_StopMusic(player)
+		doexit = true
 	end
-	if doexit == true then
+	table.sort(player_scores, function(a, b)
+		return (a > b)
+	end)
+	if doexit == true and not(B.Exiting) then
 		B.DebugPrint("Game set conditions triggered.")
 		S_StartSound(nil,sfx_lvpass)
 		S_StartSound(nil,sfx_nxbump)
 		B.Exiting = true
+		B.Timeout = (extended) and 5*TICRATE or 1
 		for player in players.iterate
+			S_StopMusic(player)
 			COM_BufInsertText(player,"cecho  ") //Override ctf messages
+			if not(extended) then continue end
+			if (player.spectator)
+			or (player.ctfteam == 1 and redscore > bluescore)
+			or (player.ctfteam == 2 and bluescore > redscore)
+			or (A.Bounty and A.Bounty == player)
+			or (player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
+			then
+				COM_BufInsertText(player,"tunes "..winmusic)
+			else
+				if player.mo then player.mo.loss = true end
+				COM_BufInsertText(player,"tunes "..lossmusic)
+			end
 		end
 	end
 end
 
+A.Exiting = function()
+	if B.Exiting then
+		B.Timeout = max(0,$-1)
+		if B.Timeout then
+			for player in players.iterate do
+				if not player.spectator then
+					player.powers[pw_nocontrol] = max($, 2)
+				end
+				player.nodamage = TICRATE
+			end
+		else
+			for player in players.iterate do
+				if player.mo and player.mo.loss
+				and player.mo.state != S_PLAY_LOSS and P_IsObjectOnGround(player.mo)
+				then
+					player.mo.state = S_PLAY_LOSS
+				end
+				if player.exiting then continue end
+				P_DoPlayerExit(player)
+			end
+		end
+	end
+end
 
 local tiebreaker_t = function()
 	print("\x82".."Tiebreaker!")
@@ -251,6 +302,7 @@ end
 
 A.UpdateGame = function()
 	if not(B.BattleGametype()) then return end
+	A.Exiting()
 	local survival = G_GametypeUsesLives() and B.ArenaGametype()
 	local playercount = 0
 	A.Survivors = {}

@@ -464,20 +464,19 @@ B.Tumble = function(player)
 		end
 	end
 end
---[[
-/*
+
 B.TestScript = function(player)
-	B.ZLaunch(player.mo, 8*FRACUNIT)
-	B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
-	//make sure your char has at least 3 shield reserve slots in def_skinvars
+	--B.ZLaunch(player.mo, 8*FRACUNIT)
+	--B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
 	local shieldgiver = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_THOK)
 	shieldgiver.target = player.mo
 	A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
 	A_GiveShield(shieldgiver, SH_FLAMEAURA)
 	A_GiveShield(shieldgiver, SH_THUNDERCOIN)
-end*/
---]]
---holy moly the test script was sealed TWICE
+	if player.mo and player.mo.state != S_PLAY_LOSS then
+		player.mo.state = S_PLAY_LOSS
+	end
+end
 
 B.PlayerCreditPusher = function(player,source)
 	if source and source.valid and source.player then

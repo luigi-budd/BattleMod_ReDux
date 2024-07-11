@@ -43,13 +43,17 @@ end
 B.DrawSpriteString = function(v, x, y, scale, font, text, gap, flags, colormap, center, yfloat, yfloatspd, shadow)
 	gap = $ or 8*scale
 	local x_offset = 0
+	local spacebars = 0
 	if center and string.len(text) then
 		x_offset = $ - (gap*string.len(text)/2)
 	end
 	for i = 1, string.len(text) do
 		local letter = text:sub(i, i)
 		x_offset = $ + gap
-		if letter == " " then continue end --skip
+		if letter == " " then
+			spacebars = $+1
+			continue --skip remaider of code
+		end
 		local sprite = v.cachePatch(font..letter)
 		local y_offset = 0
 		if yfloat then
@@ -59,9 +63,11 @@ B.DrawSpriteString = function(v, x, y, scale, font, text, gap, flags, colormap, 
 		if shadow then
 			v.drawScaled(x + x_offset + (2*FU), y + y_offset + (2*FU), scale, sprite, flags, v.getColormap(TC_DEFAULT, SKINCOLOR_PITCHBLACK))
 		end
-		local actualcolormap = colormap
-		if type(actualcolormap) == "table" then
-			actualcolormap = v.getColormap(TC_RAINBOW, actualcolormap[i])
+		local actualcolormap
+		if type(colormap) == "table" then
+			actualcolormap = v.getColormap(TC_RAINBOW, colormap[i-spacebars])
+		else
+			actualcolormap = v.getColormap(TC_DEFAULT, colormap)
 		end
 		v.drawScaled(x + x_offset, y + y_offset, scale, sprite, flags, actualcolormap)
 	end
@@ -91,6 +97,8 @@ local lerpamt = FRACUNIT
 local lerpamt2 = FRACUNIT
 local exittime = 0
 local rainbow = {SKINCOLOR_RED, SKINCOLOR_ORANGE, SKINCOLOR_YELLOW, SKINCOLOR_GREEN, SKINCOLOR_CYAN, SKINCOLOR_BLUE, SKINCOLOR_PURPLE}
+local b_rainbow = {SKINCOLOR_BLUE, SKINCOLOR_COBALT, SKINCOLOR_BLUEBELL, SKINCOLOR_ARCTIC, SKINCOLOR_BLUEBELL, SKINCOLOR_COBALT, SKINCOLOR_BLUE}
+local r_rainbow = {SKINCOLOR_CRIMSON, SKINCOLOR_RED, SKINCOLOR_PEPPER, SKINCOLOR_SALMON, SKINCOLOR_PEPPER, SKINCOLOR_RED, SKINCOLOR_CRIMSON}
 A.GameSetHUD = function(v,player,cam)
 	if not (B.BattleGametype()) or not (B.Exiting) or not (B.HUDAlt) then
 		lerpamt = FRACUNIT
@@ -119,20 +127,57 @@ A.GameSetHUD = function(v,player,cam)
 	local spacing = 20
 	
 	local subtract2 = 0
-	local delay = TICRATE
-	if G_GametypeHasTeams() and exittime > delay then
+	local delay = TICRATE*3
+	if exittime > delay then
 		lerpamt2 = B.FixedLerp(0,FRACUNIT,$*90/100)
 		subtract2 = B.FixedLerp(180,0,lerpamt2)
 		local trans = B.TimeTrans(exittime*2 - delay*2)
 		local x3 = 340/2
 		if leveltime%2 == 0 and not paused then
-			local last = rainbow[#rainbow]
-			for n = #rainbow, 2, -1 do
-				rainbow[n] = rainbow[n-1]
+			local rainbows = {rainbow, b_rainbow, r_rainbow}
+			for _, tbl in ipairs(rainbows) do
+				local last = tbl[#tbl]
+				for n = #tbl, 2, -1 do
+					tbl[n] = tbl[n-1]
+				end
+				tbl[1] = last
 			end
-			rainbow[1] = last
 		end
-		B.DrawSpriteString(v, x3*FU, y1*FU, FU, "LETTER", "COOOOOL", 22*FU, trans|V_SNAPTOLEFT|V_SNAPTOTOP, rainbow, true, 4, nil, true)
+		local finaltext = "COOOOOL"
+		local finalcolors = rainbow
+		if player.mo and player.mo.loss then
+			finaltext = "TOO BAD"
+			finalcolors = SKINCOLOR_CRIMSON
+		end
+		if G_GametypeHasTeams() and redscore == bluescore then
+			finaltext = "TIE GAME"
+			finalcolors = SKINCOLOR_WHITE
+		end
+		if player.spectator and not(finaltext == "TIE GAME") then
+			if G_GametypeHasTeams() then
+				finaltext = (redscore > bluescore) and "RED" or "BLUE"
+				finalcolors = (finaltext == "RED") and r_rainbow or r_bluerainbow
+				finaltext = $.." WINS"
+			else
+				local highestscore = 0
+				finaltext = "WHAT"
+				for p in players.iterate do
+					if p.spectator then
+						continue
+					end
+					if p.score > highestscore then
+						highestscore = p.score
+						finaltext = p.name.." WINS"
+						finalcolors = p.skincolor
+					end
+					if p.score == highestscore then
+						finaltext = "TIE GAME"
+						finalcolors = SKINCOLOR_WHITE
+					end
+				end
+			end
+		end
+		B.DrawSpriteString(v, x3*FU, y1*FU, FU, "LETTER", finaltext, 22*FU, trans|V_SNAPTOLEFT|V_SNAPTOTOP, finalcolors, true, 4, nil, true)
 	end
 
 	for n = 1,#text1
