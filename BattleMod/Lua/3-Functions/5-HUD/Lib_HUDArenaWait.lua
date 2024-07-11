@@ -88,12 +88,13 @@ end
 
 --Game set!
 local lerpamt = FRACUNIT
+local lerpamt2 = FRACUNIT
 local exittime = 0
 local rainbow = {SKINCOLOR_RED, SKINCOLOR_ORANGE, SKINCOLOR_YELLOW, SKINCOLOR_GREEN, SKINCOLOR_CYAN, SKINCOLOR_BLUE, SKINCOLOR_PURPLE}
 A.GameSetHUD = function(v,player,cam)
-	--if not (B.BattleGametype()) or not (B.Exiting) or not (B.HUDAlt) then
-	if leveltime < TICRATE then
+	if not (B.BattleGametype()) or not (B.Exiting) or not (B.HUDAlt) then
 		lerpamt = FRACUNIT
+		lerpamt2 = FRACUNIT
 		exittime = 0
 		return
 	else
@@ -116,12 +117,14 @@ A.GameSetHUD = function(v,player,cam)
 	local x2 = 140
 	local y2 = 100
 	local spacing = 20
-
+	
+	local subtract2 = 0
 	local delay = TICRATE
 	if G_GametypeHasTeams() and exittime > delay then
-		lerpamt = B.FixedLerp(FRACUNIT,0,$*90/100)
-		subtract = -B.FixedLerp(0,180,lerpamt)
+		lerpamt2 = B.FixedLerp(0,FRACUNIT,$*90/100)
+		subtract2 = B.FixedLerp(180,0,lerpamt2)
 		local trans = B.TimeTrans(exittime*2 - delay*2)
+		local x3 = 320/2
 		if leveltime%2 == 0 and not paused then
 			local last = rainbow[#rainbow]
 			for n = #rainbow, 2, -1 do
@@ -129,18 +132,18 @@ A.GameSetHUD = function(v,player,cam)
 			end
 			rainbow[1] = last
 		end
-		B.DrawSpriteString(v, x2*FU, y1*FU, FU, "LETTER", "COOOOOL", 22*FU, trans|V_SNAPTOLEFT|V_SNAPTOTOP, rainbow, true, 4, nil, true)
+		B.DrawSpriteString(v, x3*FU, y1*FU, FU, "LETTER", "COOOOOL", 22*FU, trans|V_SNAPTOLEFT|V_SNAPTOTOP, rainbow, true, 4, nil, true)
 	end
 
 	for n = 1,#text1
-		v.drawScaled(FRACUNIT*(x1+spacing*n-subtract),y1*FRACUNIT,FRACUNIT,text1[n],
+		v.drawScaled(FRACUNIT*(x1+spacing*n-subtract),(y1-subtract2)*FRACUNIT,FRACUNIT,text1[n],
 			V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT)
 		if text1[n] == m then
 			x1 = $+8
 		end
 	end
 	for n = 1,#text2
-		v.drawScaled(FRACUNIT*(x2+spacing*n+subtract),y2*FRACUNIT,FRACUNIT,text2[n],
+		v.drawScaled(FRACUNIT*(x2+spacing*n+subtract),(y2-subtract2)*FRACUNIT,FRACUNIT,text2[n],
 			V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT)
 	end
 end
