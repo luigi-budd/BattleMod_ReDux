@@ -701,6 +701,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		mo.momy = $ * 5/6
 		P_Thrust(mo, move, spd)
 		player.pflags = $|PF_SPINNING
+		player.powers[pw_strong] = $|STR_ANIM|STR_PUNCH
 		
 		if player.actiontime >= 10
 			spawnslashes(player,mo)
