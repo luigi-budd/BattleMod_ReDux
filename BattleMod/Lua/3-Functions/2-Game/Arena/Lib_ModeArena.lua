@@ -427,7 +427,7 @@ A.UpdateGame = function()
 					end
 				end
 
-				if player.mo.state == S_PLAY_STND then
+				if (player.mo.state == S_PLAY_STND) or (player.mo.state == S_PLAY_WAIT) then
 					player.mo.state = S_PLAY_FALL
 				end
 
