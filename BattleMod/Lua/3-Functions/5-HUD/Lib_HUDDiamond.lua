@@ -57,38 +57,40 @@ D.HUD = function(v, player, cam)
 		lookang = player.cmd.angleturn<<16
 	end
 	
-	local active_point = D.ActivePoint
-	if not active_point then return end
-	if id.target == player.realmo and active_point then
-		local cmpangle = get_angle_to_pos(active_point.x, active_point.y, active_point.z, xx, yy, zz, lookang)	
-		compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
-	else
-		local cmpangle = get_angle_to_pos(id.x, id.y, id.z, xx, yy, zz, lookang)	
-		compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
-		cmpangle = get_angle_to_pos(active_point.x, active_point.y, active_point.z, xx, yy, zz, lookang)	
-		compass_2 = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
-	end
-	local pcol = id.color
-	color = v.getColormap(TC_DEFAULT,pcol)
-	local cflags = flags
-	if G_GametypeHasTeams() then
-		yoffset = $ + 20
-	end
-	if id.target == player.realmo and active_point then
-		if time > 0 then
-			cflags = V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER
+	if not (player.battleconfig_newhud) then
+		local active_point = D.ActivePoint
+		if not active_point then return end
+		if id.target == player.realmo and active_point then
+			local cmpangle = get_angle_to_pos(active_point.x, active_point.y, active_point.z, xx, yy, zz, lookang)	
+			compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
+		else
+			local cmpangle = get_angle_to_pos(id.x, id.y, id.z, xx, yy, zz, lookang)	
+			compass = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
+			cmpangle = get_angle_to_pos(active_point.x, active_point.y, active_point.z, xx, yy, zz, lookang)	
+			compass_2 = v.getSpritePatch("CMPS",A,max(min(cmpangle,8),1))
 		end
-		v.draw(xoffset,yoffset,compass,cflags,color)
-	else
-		v.draw(xoffset-25,yoffset,compass,cflags,color)
-	end
-	--Draw
-	if compass_2 ~= nil then
-		color = v.getColormap(TC_DEFAULT,SKINCOLOR_YELLOW)
-		if time > 0 then
-			cflags = V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER
+		local pcol = id.color
+		color = v.getColormap(TC_DEFAULT,pcol)
+		local cflags = flags
+		if G_GametypeHasTeams() then
+			yoffset = $ + 20
 		end
-		v.draw(xoffset,yoffset,compass_2,cflags,color)
+		if id.target == player.realmo and active_point then
+			if time > 0 then
+				cflags = V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER
+			end
+			v.draw(xoffset,yoffset,compass,cflags,color)
+		else
+			v.draw(xoffset-25,yoffset,compass,cflags,color)
+		end
+		--Draw
+		if compass_2 ~= nil then
+			color = v.getColormap(TC_DEFAULT,SKINCOLOR_YELLOW)
+			if time > 0 then
+				cflags = V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER
+			end
+			v.draw(xoffset,yoffset,compass_2,cflags,color)
+		end
 	end
 	
 	local text = ""
@@ -101,6 +103,7 @@ D.HUD = function(v, player, cam)
 	local centeralign = "center"
 	local leftalign = "thin-right"
 	local rightalign = "thin"
+	if (player.battleconfig_newhud) then yoffset = $+12 end
 	--Get timer
 	if id.idle then
 		local text = id.idle/TICRATE
@@ -114,6 +117,11 @@ D.HUD = function(v, player, cam)
 			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign) --Draw timer
 		end
 	end
+
+	if (player.battleconfig_newhud) then
+		return
+	end
+
 	--Get item holder
 	if id.target and id.target.valid and id.target.player then
 		if not(G_GametypeHasTeams())

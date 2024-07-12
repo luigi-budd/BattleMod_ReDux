@@ -165,7 +165,7 @@ local function drawmap(v, xpos, ypos, map_zoom, icon_scale, snapflags, border)
 		local x = FixedMul(map_screenwidth, FixedDiv(xpos,radarpoints_width))
 		local y = FixedMul(map_screenheight, FixedDiv(ypos,radarpoints_height))
 		local color = D.ID.color
-		drawicon(v, xoff, yoff, x, y, FixedMul(scale, icon_scale), v.cachePatch("RAD_RUBY"), V_HUDTRANS|snapflags|V_PERPLAYER, v.getColormap(TC_RAINBOW, color))
+		drawicon(v, xoff, yoff, x, y, FixedMul(scale, icon_scale), v.cachePatch("RAD_RUBY1"), V_HUDTRANS|snapflags|V_PERPLAYER, v.getColormap(TC_RAINBOW, color))
 	end
 	
 	--Draw Players
@@ -228,7 +228,7 @@ local function drawmap(v, xpos, ypos, map_zoom, icon_scale, snapflags, border)
 		local x = FixedMul(map_screenwidth, FixedDiv(xpos,radarpoints_width))
 		local y = FixedMul(map_screenheight, FixedDiv(ypos,radarpoints_height))
 		local color = D.ID.color
-		drawicon(v, xoff, yoff, x, y, FixedMul(scale, icon_scale), v.cachePatch("RAD_RUBY"), V_HUDTRANS|snapflags|V_PERPLAYER, v.getColormap(TC_RAINBOW, color))
+		drawicon(v, xoff, yoff, x, y, FixedMul(scale, icon_scale), v.cachePatch("RAD_RUB1"), V_HUDTRANS|snapflags|V_PERPLAYER, v.getColormap(TC_RAINBOW, color))
 	end
 	
 	--Draw flag (held by player)

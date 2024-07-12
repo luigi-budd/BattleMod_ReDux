@@ -42,10 +42,10 @@ R.HUD = function(v, player, cam)
 		
 		if ruby.target
 			if not frontrotate
-				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY"), flags, rubycolor)
+				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 			end
 		else
-			v.draw(xoffset, yoffset, v.cachePatch("RAD_RUBY"), flags, rubycolor)
+			v.draw(xoffset, yoffset, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 		end
 		
 		if ruby.target and ruby.target.valid and ruby.target.player then
@@ -53,7 +53,7 @@ R.HUD = function(v, player, cam)
 			local facepatch = v.getSprite2Patch(ruby.target.skin, SPR2_LIFE)
 			v.draw(xoffset, yoffset + face_yoffset, facepatch, flags|V_FLIP, playercolor)
 			if frontrotate
-				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY"), flags, rubycolor)
+				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 			end
 			local color = 0
 			if R.RedGoal and R.BlueGoal and R.RedGoal.valid and R.BlueGoal.valid

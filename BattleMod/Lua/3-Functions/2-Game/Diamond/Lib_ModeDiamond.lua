@@ -658,9 +658,11 @@ D.DiamondIndicatorThinker = function()
 
 		if player == displayplayer then
 			indicator.flags2 = $|MF2_DONTDRAW
+			--[[
 			if leveltime % (TICRATE/2) == 0 then
 				S_StartSoundAtVolume(nil, sfx_s24d, 125, player)
 			end
+			]]
 			if not S_IdPlaying(sfx_shimr) then
 				S_StartSoundAtVolume(nil, sfx_shimr, 125, player)
 			end

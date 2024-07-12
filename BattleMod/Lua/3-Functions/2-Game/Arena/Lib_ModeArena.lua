@@ -239,7 +239,7 @@ local function forcewin()
 			or (player.ctfteam == 1 and redscore > bluescore)
 			or (player.ctfteam == 2 and bluescore > redscore)
 			or (A.Bounty and A.Bounty == player)
-			or (player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
+			or (player_scores and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
 				COM_BufInsertText(player,"tunes "..winmusic)
 			else
