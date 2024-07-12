@@ -104,32 +104,33 @@ D.HUD = function(v, player, cam)
 	local leftalign = "thin-right"
 	local rightalign = "thin"
 
-	--Get timer
-	if id.idle then
+	if player.battleconfig_newhud then
+		yoffset = $+12
+	end
+
+	--Get timers
+	if id.idle then --Going to respawn in X seconds
 		text = id.idle/TICRATE
 	end
-
-	if (player.battleconfig_newhud) then
-		--local spr = (D.Diamond and D.Diamond.target) and "RAD_CP1" or "RAD_TOPAZ1"
-		--local colormap = spr == "RAD_CP1" and v.getColormap(TC_RAINBOW, D.Diamond.color) or nil
-		--v.draw(xoffset+center,yoffset+20+bottom,v.cachePatch(spr),flags,colormap)
-		if not (D.Diamond and D.Diamond.target) then
-			v.draw(xoffset+center,yoffset+20+bottom,v.cachePatch("RAD_TOPAZ1"),flags,colormap)
-		end
-		if id.idle and (id.idle > 3*TICRATE or id.idle % 2 == 0) then
-			v.drawString(xoffset+center,yoffset+12+bottom,text,flags,centeralign)
-		end
-		return
-	end
-
+	
 	--Draw timer
-	if time > 0 then
+	if time > 0 then --Point is going to be unlocked in X seconds
 		text = (time/TICRATE)+1
-		if id.target ~= nil and id.target.valid then
+		if player.battleconfig_newhud then
+			v.draw(xoffset,yoffset+16, v.cachePatch("RAD_LOCK1"),flags,colormap)
 			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign)
+			return
 		else
 			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign)
 		end
+	end
+
+	if player.battleconfig_newhud then
+		if not (D.Diamond and D.Diamond.target) then
+			v.draw(xoffset+center,yoffset+8+bottom, v.cachePatch("RAD_TOPAZ1"),flags,colormap)
+			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign)
+		end
+		return
 	end
 
 	--Get item holder
