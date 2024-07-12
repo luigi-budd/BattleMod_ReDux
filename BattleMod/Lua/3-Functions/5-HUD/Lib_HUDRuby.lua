@@ -17,7 +17,6 @@ R.HUD = function(v, player, cam)
 	end
 
 	if (R.RubyFade >= 1) and (player.battlespawning > 25) and (player.battlespawning < 48) then
-		R.RubyFade = $-1
 		v.fadeScreen(R.FadeColor, R.RubyFade)
 	end
 	--Fade

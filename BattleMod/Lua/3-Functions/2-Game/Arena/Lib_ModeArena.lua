@@ -344,6 +344,17 @@ A.UpdateGame = function()
 	//Update score
 	B.UpdateScore()
 	A.UpdateScore()
+
+	if gametype == GT_RUBYRUN then
+		if R.player_respawntime and R.player_respawntime > 1 then
+			R.player_respawntime = $-1
+		end
+		--this is so hacky, but there doesn't seem to be a global spawntimer so
+		
+		if (R.RubyFade and (R.RubyFade >= 1)) and (R.player_respawntime and (R.player_respawntime > 25) and (R.player_respawntime < 48)) then
+			R.RubyFade = $-1
+		end
+	end
 	
 	//End of round conditions
 	local timelimit = 60*TICRATE*CV_FindVar("timelimit").value
@@ -494,6 +505,7 @@ A.UpdateGame = function()
 				player.mo.angle = player.starpostangle
 -- 				player.mo.scale = player.starpostscale
 -- 				B.InitPlayer(player)
+				R.player_respawntime = 48
 				B.PlayerBattleSpawnStart(player)
 			end
 			if gametype == GT_RUBYRUN then
