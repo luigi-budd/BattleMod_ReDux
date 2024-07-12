@@ -115,6 +115,7 @@ B.InitPlayer = function(player)
 	if not (player.lastcolor) then
 		player.lastcolor = 0
 	end
+	player.roulette = player.battleconfig_roulette == nil and true or player.battleconfig_roulette
 end
 
 B.ResetPlayerProperties = function(player,jumped,thokked)
@@ -503,7 +504,7 @@ B.PlayerSetupPhase = function(player)
 	
 	--Roulette
 	local change = 0
-	if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE)
+	if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE) and player.roulette
 		local deadzone = 20
 		local right = player.cmd.sidemove >= deadzone
 		local left = player.cmd.sidemove <= -deadzone
@@ -539,6 +540,11 @@ B.PlayerSetupPhase = function(player)
 		end
 	else
 		player.roulette_x = (40*FRACUNIT*change)
+	end
+
+	--Roulette toggling
+	if B.PlayerButtonPressed(player,BT_TOSSFLAG,false) then
+		player.roulette = not player.roulette
 	end
 	
 	--No control

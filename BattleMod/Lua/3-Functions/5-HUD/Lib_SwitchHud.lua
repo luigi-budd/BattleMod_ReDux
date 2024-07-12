@@ -6,15 +6,16 @@ local yellow = "\x82"
 local DeathCharSwitch = function(v,player,cam)
 	local roulette_x = player.roulette_x
 
+	if player.spectator then return end
 	if (roulette_x == nil) return end
 	//local lockedin = (leveltime + 17 >= CV_FindVar("hidetime").value*TICRATE)
 	//if lockedin then roulette_x = 0 end
 	
-	if player.selectchar and not (player.spectator) then
+	if player.selectchar then
 		local x, y = 160, 72
 		local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER|V_ALLOWLOWERCASE
 		-- Display pre-round hint: We can change characters during this period.
-		if not (splitscreen) then v.drawString(x, y, gray.."Press spin to confirm...", flags, "thin-center") end
+		--if not (splitscreen) then v.drawString(x, y, gray.."Press spin to confirm...", flags, "thin-center") end
 		v.drawString(x, y + 8, yellow.."Select a character!", flags, "center")
 		
 		if player.deadtimer == 0 return end
@@ -57,6 +58,9 @@ local DeathCharSwitch = function(v,player,cam)
 			)
 		end
 		v.draw(160-16, 100-9, v.cachePatch("M_FSEL"), V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER)
+		v.drawString(160, 192, yellow.."TOSSFLAG: "..white.."Close roulette", V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_PERPLAYER, "center")
+	elseif player.deadtimer and player.battleconfig_roulette then
+		v.drawString(160, 192, yellow.."TOSSFLAG: "..white.."Change character", V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_PERPLAYER, "center")
 	end
 end
 

@@ -9,7 +9,7 @@ local base_battleconfigs = {
 	{"battleconfig_special", BT_ATTACK},
 	{"battleconfig_guard", BT_FIRENORMAL},
 	{"battleconfig_aimsight", true},
-	{"battleconfig_charselect", true},
+	{"battleconfig_roulette", true},
 	{"battleconfig_nospinshield", false},
 	{"battleconfig_newhud", true},
 	{"battleconfig_minimap", true},

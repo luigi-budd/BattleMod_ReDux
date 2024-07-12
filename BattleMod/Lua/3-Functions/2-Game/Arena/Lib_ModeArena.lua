@@ -127,7 +127,11 @@ A.ForceRespawn = function(player)
 	and not(player.playerstate == PST_LIVE) and player.lives > 0 and not(player.revenge)
 	and leveltime&1
 		then
-		player.cmd.buttons = $|BT_JUMP
+		if player.extradeadtimer then
+			player.extradeadtimer = $-1
+		else
+			player.cmd.buttons = $|BT_JUMP
+		end
 	end
 end
 

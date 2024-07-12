@@ -1,6 +1,7 @@
 freeslot('mt_diamond',
 	'mt_diamondspawn',
 	"spr_mshd", -- the diamond indicator (the one that displays over people's head)
+	"spr_topz", -- topaz
 	"mt_gotdiamond", -- the diamond indicator (the one that displays over people's head)
 	"s_gotdiamond",
 	"sfx_dmstl1",

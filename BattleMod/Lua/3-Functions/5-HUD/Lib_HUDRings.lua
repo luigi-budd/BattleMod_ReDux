@@ -76,6 +76,11 @@ B.RingsHUD = function(v, player, cam)
 	end
 	v.draw(x + 3 + facepos, 200, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
 	--v.draw(x + 2 + facepos, 201, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
+
+	if B.PreRoundWait() then
+		v.drawString(x + action_offsetx, y + action_offsety, "GET READY...", flags_hudtrans, "thin")
+		return
+	end
 	
 	--Rings
 	local scale = FRACUNIT + (player.ringhudflash * FRACUNIT/50)
@@ -192,6 +197,9 @@ B.RingsHUD = function(v, player, cam)
 			if B.RubyGametype() then
 				patch = v.cachePatch("RUBYBT")
 				color = nil
+			elseif B.DiamondGametype() then
+				patch = v.cachePatch("TOPZBT")
+				color = nil
 			elseif G_GametypeHasTeams() then
 				local flagcolors = {SKINCOLOR_BLUE, SKINCOLOR_RED}
 				color = flagcolors[player.ctfteam]
@@ -246,7 +254,7 @@ B.RingsHUD = function(v, player, cam)
 	local mo = player.mo
 	if not(mo and mo.valid) then return end
 	if player.tumble and not (mo and mo.valid) then return end
-	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1
+	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1 and not player.deadtimer
 
 	x = $+20
 	y = $+10

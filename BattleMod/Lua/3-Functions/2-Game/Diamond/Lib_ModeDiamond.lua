@@ -20,7 +20,8 @@ D.LastPointNum = 0
 
 
 local rotatespd = ANG20
-local diamondtext = "\x83".."Diamond".."\x80"
+--local diamondtext = "\x83".."Diamond".."\x80"
+local diamondtext = "\x87".."Topaz".."\x80"
 
 local function Wrap(num,size)
 	if num > size then
@@ -107,7 +108,7 @@ D.SpawnCapturePoints = function()
 end
 
 D.SpawnDiamond = function()
-	B.DebugPrint("Attempting to spawn diamond",DF_GAMETYPE)
+	B.DebugPrint("Attempting to spawn topaz",DF_GAMETYPE)
 	local num = P_RandomRange(1, #D.Spawns)
 	if #D.Spawns > 2 then
 		while num == D.LastDiamondPointNum or num == D.LastPointNum do
@@ -126,9 +127,12 @@ D.SpawnDiamond = function()
 	if subsector.valid and subsector.sector then
 		z = $+subsector.sector.ceilingheight
 		D.Diamond = P_SpawnMobj(x,y,z,MT_DIAMOND)
+		D.Diamond.sprite = SPR_TOPZ
+		D.Diamond.spritexoffset = D.Diamond.radius --who needs slade anyway
+		D.Diamond.spriteyoffset = D.Diamond.height --who needs slade anyway
 		D.ActivatePoint(num)
 		D.LastDiamondPointNum = num
-		B.DebugPrint("Diamond coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)
+		B.DebugPrint("Topaz coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)
 		print("The "..diamondtext.." has been spawned!")
 	end
 end
@@ -324,7 +328,7 @@ D.Thinker = function(mo)
 				player.actioncooldown = TICRATE
 				player.gotcrystal = false
 				player.gotcrystal_time = 0
-				P_TeleportMove(mo,player.mo.x,player.mo.y,player.mo.z)
+				P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 				P_InstaThrust(mo,player.mo.angle,FRACUNIT*5)
 				P_SetObjectMomZ(mo,FRACUNIT*10)
 				player.tossdelay = TICRATE*2
@@ -386,7 +390,7 @@ D.Thinker = function(mo)
 		z = $+t.height
 		t.flags2 = $|MF2_OBJECTFLIP
 	end
-	P_TeleportMove(mo,t.x,t.y,t.z)
+	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) --Do z pos while respecting level geometry
 end
@@ -554,7 +558,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			--Reuse CTF's capture HUD
 			B.CTF.GameState.CaptureHUDTimer = 2*TICRATE
 			B.CTF.GameState.CaptureHUDName = player.name
-			B.CTF.GameState.CaptureHUDTeam = player.ctfteam
+			B.CTF.GameState.CaptureHUDTeam = skincolors[player.skincolor].chatcolor
 		else
 			if player.captures == nil then
 				player.captures = 0

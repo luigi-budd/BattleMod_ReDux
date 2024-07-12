@@ -61,6 +61,8 @@ Minor gameplay changes
 	- Added a 3 frame window (customizable via the console variable battle_coyotetime) where players can still jump from walking off a ledge/slope
 	- [!] Players are now able to hold the guard button to perform guard actions as soon as they are available
 	- Added new VFX flair for invulnerability, sneakers and slipstream
+Character roulette
+	- Can now be toggled with TOSSFLAG, or hidden by default with the command battleconfig_roulette
 Survival, Team Survival, Arena, Team Arena
 	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable survival_bounty)
 	- The highest rank player can always be located with the radar or compass
@@ -213,7 +215,7 @@ Console
 		battle_requirerings
 		survival_bounty
 		battleconfig
-		battleconfig_charselect
+		battleconfig_roulette
 		battleconfig_nospinshield
 		battleconfig_glidestrafe
 		battleconfig_hammerstrafe

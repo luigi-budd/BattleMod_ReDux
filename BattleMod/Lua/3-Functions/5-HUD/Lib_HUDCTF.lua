@@ -349,17 +349,22 @@ F.CapHUD = function(v)
 		local red = "\x85"
 		local blue = "\x84"
 		local magenta = "\x81"
-		local green = "\x83"
+		local orange = "\x87"
 		local flagtext
-		if (team == 1) then
-			name = red + $
-			flagtext = blue+"BLUE FLAG"
+		local chatcolor = 0
+		if G_GametypeHasTeams() then
+			if (team == 1) then
+				name = red + $
+				flagtext = blue+"BLUE FLAG"
+			else
+				name = blue + $
+				flagtext = red+"RED FLAG"
+			end
 		else
-			name = blue + $
-			flagtext = red+"RED FLAG"
+			chatcolor = team --for diamond
 		end
 		if B.DiamondGametype() then
-			flagtext = green+"DIAMOND"
+			flagtext = orange+"TOPAZ"
 		elseif B.RubyGametype() then
 			flagtext = magenta+"PHANTOM RUBY"
 		end
@@ -367,7 +372,7 @@ F.CapHUD = function(v)
 		local y = B.Exiting and 160 or 66
 		lerpamt = B.FixedLerp(0,FRACUNIT,$*90/100)
 		local subtract = B.FixedLerp(0,180,lerpamt)
-		v.drawString(x-subtract, y, name, trans|V_ALLOWLOWERCASE, "center")
+		v.drawString(x-subtract, y, name, trans|V_ALLOWLOWERCASE|chatcolor, "center")
 		v.drawString(x+subtract, y + 12, "CAPTURED THE "+flagtext+"\x80.", trans, "center")
 		F.GameState.CaptureHUDTimer = $ - 1
 	end
