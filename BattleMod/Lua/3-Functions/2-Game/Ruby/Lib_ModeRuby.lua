@@ -187,6 +187,8 @@ local capture = function(mo, player)
 		B.DoFirework(player.mo)
 		local cooleffect = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_THOK)
 		cooleffect.color = SKINCOLOR_PITCHMAGENTA
+		cooleffect.frame = $|FF_FULLBRIGHT
+		cooleffect.blendmode = AST_ADD
 		cooleffect.fuse = TICRATE*2
 		cooleffect.tics = cooleffect.fuse
 		cooleffect.destscale = FRACUNIT*20
