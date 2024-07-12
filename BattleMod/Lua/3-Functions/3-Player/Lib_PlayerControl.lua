@@ -473,9 +473,8 @@ B.TestScript = function(player)
 	A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
 	A_GiveShield(shieldgiver, SH_FLAMEAURA)
 	A_GiveShield(shieldgiver, SH_THUNDERCOIN)
-	if player.mo and player.mo.state != S_PLAY_LOSS then
-		player.mo.state = S_PLAY_LOSS
-	end
+	player.mo.loss = true
+	player.mo.state = S_PLAY_LOSS
 end
 
 B.PlayerCreditPusher = function(player,source)

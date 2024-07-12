@@ -45,7 +45,11 @@ B.DrawSpriteString = function(v, x, y, scale, font, text, gap, flags, colormap, 
 	local x_offset = 0
 	local spacebars = 0
 	if center and string.len(text) then
-		x_offset = $ - (gap*string.len(text)/2)
+		local len = 1+string.len(text)/2
+		x_offset = $ - (gap*len)
+		if (1+string.len(text)) % 2 == 0 then
+			x_offset = $ - gap/2
+		end
 	end
 	for i = 1, string.len(text) do
 		local letter = text:sub(i, i)
@@ -97,7 +101,7 @@ local lerpamt = FRACUNIT
 local lerpamt2 = FRACUNIT
 local exittime = 0
 local rainbow = {SKINCOLOR_RED, SKINCOLOR_ORANGE, SKINCOLOR_YELLOW, SKINCOLOR_GREEN, SKINCOLOR_CYAN, SKINCOLOR_BLUE, SKINCOLOR_PURPLE}
-local b_rainbow = {SKINCOLOR_BLUE, SKINCOLOR_COBALT, SKINCOLOR_BLUEBELL, SKINCOLOR_ARCTIC, SKINCOLOR_BLUEBELL, SKINCOLOR_COBALT, SKINCOLOR_BLUE}
+local b_rainbow = {SKINCOLOR_BLUE, SKINCOLOR_COBALT, SKINCOLOR_BLUEBELL, SKINCOLOR_ARCTIC, SKINCOLOR_ARCTIC, SKINCOLOR_BLUEBELL, SKINCOLOR_COBALT, SKINCOLOR_BLUE}
 local r_rainbow = {SKINCOLOR_CRIMSON, SKINCOLOR_RED, SKINCOLOR_PEPPER, SKINCOLOR_SALMON, SKINCOLOR_PEPPER, SKINCOLOR_RED, SKINCOLOR_CRIMSON}
 A.GameSetHUD = function(v,player,cam)
 	if not (B.BattleGametype()) or not (B.Exiting) or not (B.HUDAlt) then
@@ -128,11 +132,13 @@ A.GameSetHUD = function(v,player,cam)
 	
 	local subtract2 = 0
 	local delay = TICRATE*3
-	if exittime > delay then
+	if exittime > delay
+	and not(player.spectator and not G_GametypeHasTeams()) --spectators only see "GAME SET" in solo gametypes
+	then
 		lerpamt2 = B.FixedLerp(0,FRACUNIT,$*90/100)
 		subtract2 = B.FixedLerp(180,0,lerpamt2)
 		local trans = B.TimeTrans(exittime*2 - delay*2)
-		local x3 = 340/2
+		local x3 = 320/2
 		if leveltime%2 == 0 and not paused then
 			local rainbows = {rainbow, b_rainbow, r_rainbow}
 			for _, tbl in ipairs(rainbows) do
@@ -156,8 +162,9 @@ A.GameSetHUD = function(v,player,cam)
 		if player.spectator and not(finaltext == "TIE GAME") then
 			if G_GametypeHasTeams() then
 				finaltext = (redscore > bluescore) and "RED" or "BLUE"
-				finalcolors = (finaltext == "RED") and r_rainbow or r_bluerainbow
+				finalcolors = (finaltext == "RED") and r_rainbow or b_rainbow
 				finaltext = $.." WINS"
+			--[[
 			else
 				local highestscore = 0
 				finaltext = "WHAT"
@@ -175,9 +182,10 @@ A.GameSetHUD = function(v,player,cam)
 						finalcolors = SKINCOLOR_WHITE
 					end
 				end
+			]]
 			end
 		end
-		B.DrawSpriteString(v, x3*FU, y1*FU, FU, "LETTER", finaltext, 22*FU, trans|V_SNAPTOLEFT|V_SNAPTOTOP, finalcolors, true, 4, nil, true)
+		B.DrawSpriteString(v, x3*FU, y1*FU, FU, "LETTER", finaltext, 22*FU, trans|V_SNAPTOTOP, finalcolors, true, 4, nil, true)
 	end
 
 	for n = 1,#text1
