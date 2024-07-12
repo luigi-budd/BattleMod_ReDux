@@ -120,23 +120,43 @@ B.RadarHUD = function(v, player, cam)
 			float = true
 			allow_clamp = false
 		end
-		--Red Flag
+		--Red Flag / Bank
 		if r == 3
-			if not (F.RedFlag and F.RedFlag.valid) then continue end
-			table.insert(t,F.RedFlag)
+			if not (
+				(F.RedFlag and F.RedFlag.valid)
+				or (B.RedBank and B.RedBank.valid)
+			) then
+				continue
+			end
+			table.insert(t,F.RedFlag or B.RedBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			patch = v.cachePatch("RAD_FLAG")
+			if gametype == GT_BANK then
+				patch_clamped = v.cachePatch("RAD_RING1")
+				patch = v.cachePatch("RAD_RING2")
+			else
+				patch = v.cachePatch("RAD_FLAG")
+			end
 			color = SKINCOLOR_RED
 			center = true
 		end
-		--Blue Flag
+		--Blue Flag / Bank
 		if r == 4
-			if not (F.BlueFlag and F.BlueFlag.valid) then continue end
-			table.insert(t,F.BlueFlag)
+			if not (
+				(F.BlueFlag and F.BlueFlag.valid)
+				or (B.BlueBank and B.BlueBank.valid)
+			) then
+				continue
+			end
+			table.insert(t,F.BlueFlag or B.BlueBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			patch = v.cachePatch("RAD_FLAG")
+			if gametype == GT_BANK then
+				patch_clamped = v.cachePatch("RAD_RING1")
+				patch = v.cachePatch("RAD_RING2")
+			else
+				patch = v.cachePatch("RAD_FLAG")
+			end
 			color = SKINCOLOR_BLUE
 			center = true
 			flags = $|V_FLIP
@@ -279,9 +299,11 @@ B.RadarHUD = function(v, player, cam)
 			if color == 0
 				color = nil
 			end
+			--[[
 			if clampedh == 2 then
 				dx = $-(final_scale*12) --ugh
 			end
+			]]
 			v.drawScaled(dx, dy, final_scale, final_patch, final_trans|flags, color and v.getColormap(colormap, color))
 		end
 	end

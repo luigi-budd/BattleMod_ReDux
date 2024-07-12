@@ -1,8 +1,10 @@
-local redFlag, blueFlag
+local B = CBW_Battle
+B.RedBank = nil
+B.BlueBank = nil
 
 addHook('NetVars', function(net)
-	redFlag = net($)
-	blueFlag = net($)
+	B.RedBank = net($)
+	B.BlueBank = net($)
 end)
 
 local addPoints = function(team, points)
@@ -27,10 +29,10 @@ end
 
 local baseSparkle = function(player, team)
 	local spark
-	if team == 1 and redFlag and redFlag.valid
-		spark = P_SpawnMobjFromMobj(redFlag, 0, 0, 0, MT_SPARK)
-	elseif team == 2 and blueFlag and blueFlag.valid
-		spark = P_SpawnMobjFromMobj(blueFlag, 0, 0, 0, MT_SPARK)
+	if team == 1 and B.RedBank and B.RedBank.valid
+		spark = P_SpawnMobjFromMobj(B.RedBank, 0, 0, 0, MT_SPARK)
+	elseif team == 2 and B.BlueBank and B.BlueBank.valid
+		spark = P_SpawnMobjFromMobj(B.BlueBank, 0, 0, 0, MT_SPARK)
 	end
 	if spark and spark.valid
 		spark.momx = P_RandomRange(-2, 2) * spark.scale
@@ -96,9 +98,9 @@ local spawnFunc = function(mo, team)
 		return
 	end
 	if team == 1
-		redFlag = mo
+		B.RedBank = mo
 	else
-		blueFlag = mo
+		B.BlueBank = mo
 	end
 	mo.state = S_TEAMRING
 	mo.scale = $<<1
@@ -242,21 +244,21 @@ addHook('ThinkFrame', do
 				baseTransaction(player, base)
 			end
 		end
-		if redFlag and redFlag.valid
+		if B.RedBank and B.RedBank.valid
 			-- Color
 			if redInRed and blueInRed
-				redFlag.color = flashColor(SKINCOLOR_SUPERORANGE1, SKINCOLOR_SUPERORANGE5, 8)
+				B.RedBank.color = flashColor(SKINCOLOR_SUPERORANGE1, SKINCOLOR_SUPERORANGE5, 8)
 			elseif redInRed
-				redFlag.color = flashColor(SKINCOLOR_SUPERRED1, SKINCOLOR_SUPERRED5, 16)
+				B.RedBank.color = flashColor(SKINCOLOR_SUPERRED1, SKINCOLOR_SUPERRED5, 16)
 			elseif blueInRed
-				redFlag.color = flashColor(SKINCOLOR_SUPERRUST1, SKINCOLOR_SUPERRUST5, 16)
+				B.RedBank.color = flashColor(SKINCOLOR_SUPERRUST1, SKINCOLOR_SUPERRUST5, 16)
 			else
-				redFlag.color = SKINCOLOR_CRIMSON
+				B.RedBank.color = SKINCOLOR_CRIMSON
 			end
 			-- Transparency
-			redFlag.frame = $ | FF_TRANS30
+			B.RedBank.frame = $ | FF_TRANS30
 			-- Motion
-			redFlag.z = redFlag.floorz + redFlag.scale * 16 + FixedMul(sin(leveltime * ANG10), redFlag.scale * 8)
+			B.RedBank.z = B.RedBank.floorz + B.RedBank.scale * 16 + FixedMul(sin(leveltime * ANG10), B.RedBank.scale * 8)
 			-- HUD sparkle
 			if rs < redscore
 				addHudSparkle(1, 1)
@@ -264,21 +266,21 @@ addHook('ThinkFrame', do
 				addHudSparkle(1, 0)
 			end
 		end
-		if blueFlag and blueFlag.valid
+		if B.BlueBank and B.BlueBank.valid
 			-- Color
 			if redInBlue and blueInBlue
-				blueFlag.color = flashColor(SKINCOLOR_SUPERGOLD1, SKINCOLOR_SUPERGOLD5, 8)
+				B.BlueBank.color = flashColor(SKINCOLOR_SUPERGOLD1, SKINCOLOR_SUPERGOLD5, 8)
 			elseif redInBlue
-				blueFlag.color = flashColor(SKINCOLOR_SUPERPURPLE1, SKINCOLOR_SUPERPURPLE5, 16)
+				B.BlueBank.color = flashColor(SKINCOLOR_SUPERPURPLE1, SKINCOLOR_SUPERPURPLE5, 16)
 			elseif blueInBlue
-				blueFlag.color = flashColor(SKINCOLOR_SUPERSKY1, SKINCOLOR_SUPERSKY5, 16)
+				B.BlueBank.color = flashColor(SKINCOLOR_SUPERSKY1, SKINCOLOR_SUPERSKY5, 16)
 			else
-				blueFlag.color = SKINCOLOR_COBALT
+				B.BlueBank.color = SKINCOLOR_COBALT
 			end
 			-- Transparency
-			blueFlag.frame = $ | FF_TRANS30
+			B.BlueBank.frame = $ | FF_TRANS30
 			-- Motion
-			blueFlag.z = blueFlag.floorz + blueFlag.scale * 16 + FixedMul(sin(leveltime * ANG10), blueFlag.scale * 8)
+			B.BlueBank.z = B.BlueBank.floorz + B.BlueBank.scale * 16 + FixedMul(sin(leveltime * ANG10), B.BlueBank.scale * 8)
 			-- HUD sparkle
 			if bs < bluescore
 				addHudSparkle(0, 1)
