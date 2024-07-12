@@ -286,13 +286,13 @@ local function stretchx(mo)
 	if not (mo and mo.valid) then return end
 	local stretchx = ease.linear(mo.spriteyscale-(mo.spriteyscale/4), 0, FRACUNIT/4)
 	mo.spriteyscale = $-stretchx
-	mo.spriteyoffset = $+stretchx*46
+	--mo.spriteyoffset = $+stretchx*mo.spriteyscale
 end
 
 local function resetstretch(mo)
 	if not (mo and mo.valid) then return end
 	mo.spriteyscale = FRACUNIT
-	mo.spriteyoffset = 0
+	--mo.spriteyoffset = 0
 	mo.spritexscale = FRACUNIT
 end
 
@@ -301,7 +301,7 @@ local function stretchy(mo)
 	local stretchy = ease.outquad(mo.spritexscale/2, 0, FRACUNIT/2)
 	mo.spritexscale = $-stretchy
 	mo.spriteyscale = $+stretchy
-	mo.spriteyoffset = $-(stretchy*27)
+	--mo.spriteyoffset = $-(stretchy*mo.spritexscale)
 end
 
 A.UpdateGame = function()
@@ -427,7 +427,7 @@ A.UpdateGame = function()
 					end
 				end
 
-				if player.mo.state == S_PLAY_STND then
+				if (player.mo.state == S_PLAY_STND) or (player.mo.state == S_PLAY_WAIT) then
 					player.mo.state = S_PLAY_FALL
 				end
 

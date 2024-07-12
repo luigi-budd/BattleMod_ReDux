@@ -701,6 +701,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		mo.momy = $ * 5/6
 		P_Thrust(mo, move, spd)
 		player.pflags = $|PF_SPINNING
+		player.powers[pw_strong] = $|STR_ANIM|STR_PUNCH
 		
 		if player.actiontime >= 10
 			spawnslashes(player,mo)
@@ -760,7 +761,21 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 end
 
+local function stateEnforcer(player, state, actionstate, newstate)
+	if player.mo and player.mo.valid then
+		if (player.mo.state == state) and player.actionstate != actionstate then
+			player.mo.state = newstate
+		end
+	end
+end
+
 B.Action.EnergyAttack_Priority = function(player)
+
+	stateEnforcer(player, S_METALSONIC_RINGSPARK1, state_ringsparkprep, S_PLAY_STND)
+	stateEnforcer(player, S_METALSONIC_RINGSPARK2, state_ringspark, S_PLAY_STND)
+			
+
+	
 	if player.actionstate == state_charging then
 		B.SetPriority(player,1,1,nil,1,1,"energy charge aura")
 	end

@@ -206,7 +206,7 @@ B.RadarHUD = function(v, player, cam)
 			table.insert(t,mobj)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			if CP.Timer and not D.ActivePoint then
+			if CP.Timer and not (D.Diamond and D.Diamond.target) then
 				patch_clamped = v.cachePatch("RAD_LOCK1")
 				patch = v.cachePatch("RAD_LOCK2")
 			else

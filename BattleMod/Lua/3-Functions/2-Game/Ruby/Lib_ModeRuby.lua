@@ -61,6 +61,7 @@ R.GetSpawns = function()
 end
 
 local function free(mo)
+	if not (mo and mo.valid) then return end
 	mo.fuse = freetics
 	mo.flags = $&~MF_SPECIAL
 	mo.flags = $|MF_GRENADEBOUNCE
@@ -187,6 +188,8 @@ local capture = function(mo, player)
 		B.DoFirework(player.mo)
 		local cooleffect = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_THOK)
 		cooleffect.color = SKINCOLOR_PITCHMAGENTA
+		cooleffect.frame = $|FF_FULLBRIGHT
+		cooleffect.blendmode = AST_ADD
 		cooleffect.fuse = TICRATE*2
 		cooleffect.tics = cooleffect.fuse
 		cooleffect.destscale = FRACUNIT*20
@@ -204,15 +207,16 @@ R.PreThinker = function()
 					local mo = R.ID
 					S_StartSound(mo, sfx_toss)
 					B.PrintGameFeed(player," tossed the "..rubytext..".")
-					free(mo)
-					mo.target = nil
 					player.actioncooldown = TICRATE
 					player.gotcrystal = false
 					player.gotcrystal_time = 0
+					player.tossdelay = TICRATE*2
+					free(mo)
+					if not (mo and mo.valid) then continue end
+					mo.target = nil
 					P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 					B.ZLaunch(mo,player.mo.scale*6)
 					P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
-					player.tossdelay = TICRATE*2
 				end
 			end
 		end

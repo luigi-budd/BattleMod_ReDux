@@ -21,7 +21,7 @@ D.LastPointNum = 0
 
 local rotatespd = ANG20
 --local diamondtext = "\x83".."Diamond".."\x80"
-local diamondtext = "\x87".."Topaz".."\x80"
+local diamondtext = "\x87".."Warp Topaz".."\x80"
 
 local function Wrap(num,size)
 	if num > size then
@@ -127,9 +127,6 @@ D.SpawnDiamond = function()
 	if subsector.valid and subsector.sector then
 		z = $+subsector.sector.ceilingheight
 		D.Diamond = P_SpawnMobj(x,y,z,MT_DIAMOND)
-		D.Diamond.sprite = SPR_TOPZ
-		D.Diamond.spritexoffset = D.Diamond.radius --who needs slade anyway
-		D.Diamond.spriteyoffset = D.Diamond.height --who needs slade anyway
 		D.ActivatePoint(num)
 		D.LastDiamondPointNum = num
 		B.DebugPrint("Topaz coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)
