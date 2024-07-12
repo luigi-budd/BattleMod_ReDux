@@ -364,7 +364,7 @@ F.CapHUD = function(v)
 			chatcolor = team --for diamond
 		end
 		if B.DiamondGametype() then
-			flagtext = orange+"TOPAZ"
+			flagtext = orange+"WARP TOPAZ"
 		elseif B.RubyGametype() then
 			flagtext = magenta+"PHANTOM RUBY"
 		end
