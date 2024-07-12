@@ -21,7 +21,7 @@ D.LastPointNum = 0
 
 local rotatespd = ANG20
 --local diamondtext = "\x83".."Diamond".."\x80"
-local diamondtext = "\x87".."Topaz".."\x80"
+local diamondtext = "\x87".."Warp Topaz".."\x80"
 
 local function Wrap(num,size)
 	if num > size then
