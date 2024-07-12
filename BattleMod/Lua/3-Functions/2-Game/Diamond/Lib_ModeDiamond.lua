@@ -127,9 +127,6 @@ D.SpawnDiamond = function()
 	if subsector.valid and subsector.sector then
 		z = $+subsector.sector.ceilingheight
 		D.Diamond = P_SpawnMobj(x,y,z,MT_DIAMOND)
-		D.Diamond.sprite = SPR_TOPZ
-		D.Diamond.spritexoffset = D.Diamond.radius --who needs slade anyway
-		D.Diamond.spriteyoffset = D.Diamond.height --who needs slade anyway
 		D.ActivatePoint(num)
 		D.LastDiamondPointNum = num
 		B.DebugPrint("Topaz coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)

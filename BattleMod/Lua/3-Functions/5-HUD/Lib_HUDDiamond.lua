@@ -103,23 +103,33 @@ D.HUD = function(v, player, cam)
 	local centeralign = "center"
 	local leftalign = "thin-right"
 	local rightalign = "thin"
-	if (player.battleconfig_newhud) then yoffset = $+12 end
+
 	--Get timer
 	if id.idle then
-		local text = id.idle/TICRATE
-		v.drawString(xoffset+center-25,yoffset+bottom,text,flags,centeralign) --Draw timer
-	end
-	if time > 0 then
-		local text = (time/TICRATE)+1
-		if id.target ~= nil and id.target.valid then
-			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign) --Draw timer
-		else
-			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign) --Draw timer
-		end
+		text = id.idle/TICRATE
 	end
 
 	if (player.battleconfig_newhud) then
+		--local spr = (D.Diamond and D.Diamond.target) and "RAD_CP1" or "RAD_TOPAZ1"
+		--local colormap = spr == "RAD_CP1" and v.getColormap(TC_RAINBOW, D.Diamond.color) or nil
+		--v.draw(xoffset+center,yoffset+20+bottom,v.cachePatch(spr),flags,colormap)
+		if not (D.Diamond and D.Diamond.target) then
+			v.draw(xoffset+center,yoffset+20+bottom,v.cachePatch("RAD_TOPAZ1"),flags,colormap)
+		end
+		if id.idle and (id.idle > 3*TICRATE or id.idle % 2 == 0) then
+			v.drawString(xoffset+center,yoffset+12+bottom,text,flags,centeralign)
+		end
 		return
+	end
+
+	--Draw timer
+	if time > 0 then
+		text = (time/TICRATE)+1
+		if id.target ~= nil and id.target.valid then
+			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign)
+		else
+			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign)
+		end
 	end
 
 	--Get item holder
