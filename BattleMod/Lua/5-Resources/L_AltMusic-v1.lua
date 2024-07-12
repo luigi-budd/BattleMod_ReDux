@@ -45,3 +45,5 @@ addHook("MusicChange", function(oldname, newname)
         return true --No new music.
     end
 end)
+
+CBW_Battle.Console.AddBattleConfig("battleconfig_altmusic", function(player, arg) CBW_Battle.Console.SetYesNo(player, arg, "battleconfig_altmusic", true) end, true)
