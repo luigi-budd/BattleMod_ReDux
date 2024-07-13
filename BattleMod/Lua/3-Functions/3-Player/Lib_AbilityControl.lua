@@ -430,6 +430,8 @@ B.invinciblespark = function(player)
 		if not S_SoundPlaying(mo, sfx_huprsa) then
 			if player ~= displayplayer and not splitscreen then
 				S_StartSound(mo, sfx_huprsa)
+			else
+				S_StartSoundAtVolume(mo, sfx_huprsa, 160)
 			end
 		end
 	elseif player.invbarrier and player.invbarrier.valid then
