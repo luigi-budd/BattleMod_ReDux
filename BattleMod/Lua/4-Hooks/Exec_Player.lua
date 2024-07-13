@@ -272,9 +272,9 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		target.spritexscale = FRACUNIT
 		target.spriteyscale = FRACUNIT
 	end
-	//have runners killed by taggers switch teams
-	if B.TagGametype()
-		B.TagTeamSwitch(target, inflictor, source)
+	//have runners who died switch teams
+	if B.TagGametype() and target.player != nil
+		B.TagConverter(target.player)
 	end
 end, MT_PLAYER)
 

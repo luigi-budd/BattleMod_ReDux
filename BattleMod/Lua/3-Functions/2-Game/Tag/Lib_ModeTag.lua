@@ -30,7 +30,7 @@ local function IsValidPlayer(player)
 			player.mo.valid and not player.spectator
 end
 
-local function TagConverter(player)
+B.TagConverter = function(player)
 	if not IsValidPlayer(player) or player.battletagIT
 		return
 	end
@@ -78,7 +78,7 @@ B.TagControl = function()
 		while i < maxtaggers
 			local luckyplayer = players[P_RandomKey(32)]
 			if IsValidPlayer(luckyplayer) and not luckyplayer.battletagIT
-				TagConverter(luckyplayer)
+				B.TagConverter(luckyplayer)
 				i = $ + 1
 			end
 		end
@@ -93,7 +93,7 @@ B.TagControl = function()
 					player.pflags = $ | PF_FULLSTASIS
 				//ensure the first player that joins is a tagger, if there's none
 				elseif B.TagPlayers == 1
-					TagConverter(player)
+					B.TagConverter(player)
 				end
 			end
 		end
@@ -112,7 +112,7 @@ B.TagControl = function()
 				//exception for if there's only 2 active players in a game
 				if player.battlespawning != nil and player.battlespawning > 0 
 						and not player.battletagIT and B.TagPlayers != 2
-					TagConverter(player)
+					B.TagConverter(player)
 				end
 				if player.battletagIT
 					totaltaggers = $ + 1
@@ -148,7 +148,7 @@ B.TagDamageControl = function(target, inflictor, source)
 	end
 end
 
-//have runners who are damaged or killed by taggers switch teams
+//have runners who are damaged by taggers switch teams
 B.TagTeamSwitch = function(target, inflictor, source)
 	if gametype != GT_BATTLETAG or not MoValidPlayer(target) or (not
 			MoValidPlayer(inflictor) and not MoValidPlayer(source))
@@ -163,6 +163,6 @@ B.TagTeamSwitch = function(target, inflictor, source)
 		tagger = source.player
 	end
 	if tagger != nil and tagger.battletagIT and not runner.battletagIT
-		TagConverter(runner)
+		B.TagConverter(runner)
 	end
 end
