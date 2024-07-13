@@ -256,6 +256,16 @@ B.DoFirework = function(mo)
 	end
 end
 
+local validSound = function(player, fallback)
+	if Cosmetics and Cosmetics.Capturesounds_long and 
+	(player.cos_capturesoundlong and player.cos_capturesoundlong and 
+	player.cos_capturesoundlong > 0 and player.cos_capturesoundlong <= #Cosmetics.Capturesounds_long) then
+		return Cosmetics.Capturesounds_long[player.cos_capturesoundlong].sound
+	else
+		return fallback
+	end
+end
+
 -- @flag:
 -- 1: red
 -- 2: blue
@@ -269,8 +279,19 @@ local function capFlag(p, flag)
 	P_AddPlayerScore(p, FLG_SCORE)
 	
 	--sounds
-	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == p.ctfteam))
-	if friendly then S_StartSound(nil, sfx_flgcap) else S_StartSound(nil, sfx_lose) end
+
+	if splitscreen then
+		S_StartSound(nil, validSound(player, sfx_flgcap))
+	else
+		for player in players.iterate do
+			if player.ctfteam == p.ctfteam then
+				S_StartSound(nil, validSound(p, sfx_flgcap), player)
+			else
+				S_StartSound(nil, validSound(p, sfx_lose), player)
+			end
+		end
+	end
+
 	--hud
 	F.GameState.CaptureHUDTimer = 5*TICRATE
 	F.GameState.CaptureHUDName = p.name

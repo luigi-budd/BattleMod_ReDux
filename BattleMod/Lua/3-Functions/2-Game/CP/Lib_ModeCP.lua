@@ -263,6 +263,16 @@ CP.ActivatePoint = function()
 	end
 end
 
+local validSound = function(player, fallback)
+	if Cosmetics and Cosmetics.Capturesounds_short and 
+	(player.cos_capturesoundshort and player.cos_capturesoundshort and 
+	player.cos_capturesoundshort > 0 and player.cos_capturesoundshort <= #Cosmetics.Capturesounds_short) then
+		return Cosmetics.Capturesounds_short[player.cos_capturesoundshort].sound
+	else
+		return fallback
+	end
+end
+
 CP.SeizePoint = function()
 	if G_GametypeHasTeams() then	//Teams
 		local victor = 0
@@ -277,7 +287,7 @@ CP.SeizePoint = function()
 			bluescore = $+1
 		end
 		if consoleplayer and consoleplayer.ctfteam == victor then
-			S_StartSound(nil,CP.WinSFX)
+			S_StartSound(nil,validSound(consoleplayer, CP.WinSFX))
 		else
 			S_StartSound(nil,CP.LoseSFX)
 		end
@@ -286,9 +296,9 @@ CP.SeizePoint = function()
 		P_AddPlayerScore(CP.LeadCapPlr,CV.CPBonus.value)
 		
 		if consoleplayer == CP.LeadCapPlr then
-			S_StartSound(nil,CP.WinSFX)
+			S_StartSound(nil,validSound(CP.LeadCapPlr, CP.WinSFX))
 		else
-			S_StartSound(nil,CP.LoseSFX)
+			S_StartSound(nil,validSound(CP.LeadCapPlr, CP.LoseSFX))
 		end
 	end
 	CP.RefreshPoints()

@@ -433,6 +433,16 @@ D.CapturePointThinker = function(mo)
 	end
 end
 
+local validSound = function(player, fallback)
+	if Cosmetics and Cosmetics.Capturesounds_short and 
+	(player.cos_capturesoundshort and player.cos_capturesoundshort and 
+	player.cos_capturesoundshort > 0 and player.cos_capturesoundshort <= #Cosmetics.Capturesounds_short) then
+		return Cosmetics.Capturesounds_short[player.cos_capturesoundshort].sound
+	else
+		return fallback
+	end
+end
+
 
 D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)	
 	mo.flags2 = $&~MF2_SHADOW
@@ -534,10 +544,10 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 		local scoreincrease = 0
 		for p in players.iterate()
 			if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
-				S_StartSound(nil, sfx_s3k68, p)
+				S_StartSound(nil, validSound(player, sfx_s3k68), p)
 				continue
 			elseif G_GametypeHasTeams() and not splitscreen
-				S_StartSound(nil, sfx_lose, p)
+				S_StartSound(nil, validSound(player, sfx_lose), p)
 				continue
 			end
 			S_StartSound(nil, sfx_s243, p)

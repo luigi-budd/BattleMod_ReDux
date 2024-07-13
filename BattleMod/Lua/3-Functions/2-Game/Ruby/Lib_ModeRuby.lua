@@ -153,6 +153,16 @@ local points = function(player)
 	end
 end
 
+local validSound = function(player, fallback)
+	if Cosmetics and Cosmetics.Capturesounds_long and 
+	(player.cos_capturesoundlong and player.cos_capturesoundlong and 
+	player.cos_capturesoundlong > 0 and player.cos_capturesoundlong <= #Cosmetics.Capturesounds_long) then
+		return Cosmetics.Capturesounds_long[player.cos_capturesoundlong].sound
+	else
+		return fallback
+	end
+end
+
 local capture = function(mo, player)
 	if (gametype == GT_RUBYCONTROL or gametype == GT_TEAMRUBYCONTROL)
 		P_AddPlayerScore(player,CV.RubyCaptureBonus.value)
@@ -162,10 +172,10 @@ local capture = function(mo, player)
 	S_StartSound(nil, sfx_prloop)
 	for p in players.iterate() do
 		if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
-			S_StartSound(nil, sfx_s3k68, p)
+			S_StartSound(nil, validSound(player, sfx_s3k68), p)
 			continue
 		elseif G_GametypeHasTeams() and not splitscreen
-			S_StartSound(nil, sfx_lose, p)
+			S_StartSound(nil, validSound(player, sfx_lose), p)
 			continue
 		end
 		S_StartSound(nil, sfx_s243, p)
