@@ -63,7 +63,7 @@ local baseTransaction = function(player, team)
 			P_AddPlayerScore(player, 1)
 			addPoints(team, 1)
 			player.tossdelay = bankTime(player)
-			local spark = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_SPARK)
+			local spark = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BOXSPARKLE)
 			if spark and spark.valid
 				spark.colorized = true
 				spark.color = SKINCOLOR_CARBON
@@ -148,7 +148,7 @@ local highValueSparkle = function(player)
 		local y = P_RandomRange(-w, w) * FRACUNIT
 		local z = P_RandomRange(0, h) * FRACUNIT
 -- 		local fx = P_SpawnMobjFromMobj(player.mo, x, y, z, MT_BOXSPARKLE)
-		local fx = P_SpawnMobjFromMobj(player.mo, x, y, z, MT_SPARK)
+		local fx = P_SpawnMobjFromMobj(player.mo, x, y, z, MT_BOXSPARKLE)
 		if fx and fx.valid
 			fx.scale = $>>1
 			fx.fuse = P_RandomRange(10, 65)
@@ -158,10 +158,10 @@ local highValueSparkle = function(player)
 			P_SetObjectMomZ(fx, P_RandomRange(0, FRACUNIT-1), true)
 -- 			if P_RandomChance(FRACUNIT>>2)
 				fx.colorized = true
-				fx.color = player.mo.color
+				fx.color = SKINCOLOR_GOLD
 -- 			end
 			if player == displayplayer
-				fx.flags2 = $|MF2_SHADOW
+				fx.flags2 = $|MF2_SHADOW|FF_ADD
 			end
 		end
 	end
@@ -247,11 +247,11 @@ addHook('ThinkFrame', do
 		if B.RedBank and B.RedBank.valid
 			-- Color
 			if redInRed and blueInRed
-				B.RedBank.color = flashColor(SKINCOLOR_SUPERORANGE1, SKINCOLOR_SUPERORANGE5, 8)
+				B.RedBank.color = flashColor(SKINCOLOR_TANGERINE, SKINCOLOR_TOPAZ, 8)
 			elseif redInRed
 				B.RedBank.color = flashColor(SKINCOLOR_SUPERRED1, SKINCOLOR_SUPERRED5, 16)
 			elseif blueInRed
-				B.RedBank.color = flashColor(SKINCOLOR_SUPERRUST1, SKINCOLOR_SUPERRUST5, 16)
+				B.RedBank.color = flashColor(SKINCOLOR_SUNSET, SKINCOLOR_FOUNDATION, 16)
 			else
 				B.RedBank.color = SKINCOLOR_CRIMSON
 			end
@@ -269,11 +269,11 @@ addHook('ThinkFrame', do
 		if B.BlueBank and B.BlueBank.valid
 			-- Color
 			if redInBlue and blueInBlue
-				B.BlueBank.color = flashColor(SKINCOLOR_SUPERGOLD1, SKINCOLOR_SUPERGOLD5, 8)
+				B.BlueBank.color = flashColor(SKINCOLOR_NOBLE, SKINCOLOR_PASTEL, 8)
 			elseif redInBlue
-				B.BlueBank.color = flashColor(SKINCOLOR_SUPERPURPLE1, SKINCOLOR_SUPERPURPLE5, 16)
+				B.BlueBank.color = flashColor(SKINCOLOR_MIDNIGHT, SKINCOLOR_VIOLET, 16)
 			elseif blueInBlue
-				B.BlueBank.color = flashColor(SKINCOLOR_SUPERSKY1, SKINCOLOR_SUPERSKY5, 16)
+				B.BlueBank.color = flashColor(SKINCOLOR_ICY, SKINCOLOR_ARCTIC, 16)
 			else
 				B.BlueBank.color = SKINCOLOR_COBALT
 			end
