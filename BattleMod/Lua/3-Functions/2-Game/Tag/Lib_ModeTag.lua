@@ -30,6 +30,17 @@ local function IsValidPlayer(player)
 			player.mo.valid and not player.spectator
 end
 
+local function TagConverter(player)
+	if not IsValidPlayer(player) or player.battletagIT
+		return
+	end
+	
+	player.battletagIT = true
+	local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BATTLETAG_IT)
+	IT.tracerplayer = player
+	print(player.name .. " is now IT!")
+end
+
 local function PlayerCounter()
 	local tplayers = 0
 	for player in players.iterate do
@@ -67,10 +78,7 @@ B.TagControl = function()
 		while i < maxtaggers
 			local luckyplayer = players[P_RandomKey(32)]
 			if IsValidPlayer(luckyplayer) and not luckyplayer.battletagIT
-				luckyplayer.battletagIT = true
-				local IT = P_SpawnMobjFromMobj(luckyplayer.mo, 0, 0, 0, 
-						MT_BATTLETAG_IT)
-				IT.tracerplayer = luckyplayer
+				TagConverter(luckyplayer)
 				i = $ + 1
 			end
 		end
@@ -85,10 +93,7 @@ B.TagControl = function()
 					player.pflags = $ | PF_FULLSTASIS
 				//ensure the first player that joins is a tagger, if there's none
 				elseif B.TagPlayers == 1
-					player.battletagIT = true
-					local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, 
-							MT_BATTLETAG_IT)
-					IT.tracerplayer = player
+					TagConverter(player)
 				end
 			end
 		end
@@ -107,10 +112,7 @@ B.TagControl = function()
 				//exception for if there's only 2 active players in a game
 				if player.battlespawning != nil and player.battlespawning > 0 
 						and not player.battletagIT and B.TagPlayers != 2
-					player.battletagIT = true
-					local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, 
-							MT_BATTLETAG_IT)
-					IT.tracerplayer = player
+					TagConverter(player)
 				end
 				if player.battletagIT
 					totaltaggers = $ + 1
@@ -122,6 +124,7 @@ B.TagControl = function()
 			end
 		end
 		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers
+			print("All players have been tagged!")
 			G_ExitLevel()
 		end
 	end
@@ -160,8 +163,6 @@ B.TagTeamSwitch = function(target, inflictor, source)
 		tagger = source.player
 	end
 	if tagger != nil and tagger.battletagIT and not runner.battletagIT
-		runner.battletagIT = true
-		local IT = P_SpawnMobjFromMobj(runner.mo, 0, 0, 0, MT_BATTLETAG_IT)
-		IT.tracerplayer = runner
+		TagConverter(runner)
 	end
 end
