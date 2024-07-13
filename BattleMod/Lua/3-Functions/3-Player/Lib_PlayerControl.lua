@@ -261,8 +261,10 @@ B.MyTeam = function(player,myplayer) --Also accepts player.mo
 		B.Warning("Attempted to use a nil argument in function MyTeam()!")
 	return end
 	--Are we using mo's instead of players? Let's fix that.
-	if player.player then player = player.player end
-	if myplayer.player then myplayer = myplayer.player end
+	if player.valid and player.player then player = player.player end
+	if myplayer.valid and myplayer.player then myplayer = myplayer.player end
+	--Check if these are actually players
+	if not (player.jointime and myplayer.jointime) then return end
 	--FriendlyFire
 	if CV_FindVar("friendlyfire").value then
 		return false
@@ -353,6 +355,10 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 end
 
 B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
+	if not (player.mo and player.mo.valid) then
+		return
+	end
+
 	player.panim = PA_PAIN
 	player.mo.state = S_PLAY_PAIN
 	player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
