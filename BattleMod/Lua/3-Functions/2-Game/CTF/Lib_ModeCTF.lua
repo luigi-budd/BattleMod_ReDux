@@ -301,9 +301,9 @@ F.FlagPreThinker = function()
 			end
 
 			if p.gotflag and P_IsObjectOnGround(p.mo) then
-				if p.ctfteam == 1 and P_PlayerTouchingSectorSpecial(p, 4, 3) then -- Red man touching red base
+				if p.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_REDTEAMBASE) then -- Red man touching red base
 					capFlag(p,1)
-				elseif p.ctfteam == 2 and P_PlayerTouchingSectorSpecial(p, 4, 4) then -- Blue man touching Blue base
+				elseif p.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_BLUETEAMBASE) then -- Blue man touching Blue base
 					capFlag(p,2)
 			    end
 			end
