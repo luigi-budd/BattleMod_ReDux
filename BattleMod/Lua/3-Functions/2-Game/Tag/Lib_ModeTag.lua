@@ -38,6 +38,7 @@ B.TagConverter = function(player)
 	player.battletagIT = true
 	local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BATTLETAG_IT)
 	IT.tracerplayer = player
+	player.BTblindfade = 0
 	print(player.name .. " is now IT!")
 end
 
@@ -84,13 +85,16 @@ B.TagControl = function()
 		end
 		B.TagPreRound = 1
 		B.TagPreTimer = 10 * TICRATE
-	//run through the second pre-round, where taggers are frozen
+	//run through the second pre-round, where taggers are frozen and blindfolded
 	elseif B.TagPreRound == 1
 		B.TagPlayers = PlayerCounter()
 		for player in players.iterate do
 			if IsValidPlayer(player)
 				if player.battletagIT
 					player.pflags = $ | PF_FULLSTASIS
+					if player.BTblindfade < 10
+						player.BTblindfade = $ + 1
+					end
 				//ensure the first player that joins is a tagger, if there's none
 				elseif B.TagPlayers == 1
 					B.TagConverter(player)
@@ -116,6 +120,9 @@ B.TagControl = function()
 				end
 				if player.battletagIT
 					totaltaggers = $ + 1
+					if player.BTblindfade > 0
+						player.BTblindfade = $ - 1
+					end
 				end
 				//attempts to have the runner earn points every second they're alive
 				if not player.battletagIT and leveltime % TICRATE == 0

@@ -6,6 +6,10 @@ B.TagPreHUD = function(v, player, cam)
 		return
 	end
 	
+	//blindfold taggers
+	if player.battletagIT
+		v.fadeScreen(31, player.BTblindfade)
+	end
 	if B.TagPreTimer > 0
 		local x = v.width() / v.dupx() / 2
 		local y = v.height() / v.dupy() / 5
