@@ -127,26 +127,28 @@ B.TagControl = function()
 	end
 end
 
-//ensure taggers that are tumbled or in pain can't deal damage to runners
 local function MoValidPlayer(mo)
 	return mo != nil and mo.valid and mo.player != nil and mo.player.valid
 end
 
+//ensure taggers that are tumbled or in pain can't deal damage to runners
 B.TagDamageControl = function(target, inflictor, source)
 	if gametype != GT_BATTLETAG or not MoValidPlayer(target) or (not 
 			MoValidPlayer(inflictor) and not MoValidPlayer(source))
 		return
 	end
 	
-	if B.MyTeam(target, inflictor)
+	if B.MyTeam(target, inflictor) or B.MyTeam(target, source)
 		return false
+	else
+		return true
 	end
 end
 
 //have runners who are damaged or killed by taggers switch teams
 B.TagTeamSwitch = function(target, inflictor, source)
 	if gametype != GT_BATTLETAG or not MoValidPlayer(target) or (not
-			MoValidPlayer(inflictor) and MoValidPlayer(source))
+			MoValidPlayer(inflictor) and not MoValidPlayer(source))
 		return
 	end
 	
