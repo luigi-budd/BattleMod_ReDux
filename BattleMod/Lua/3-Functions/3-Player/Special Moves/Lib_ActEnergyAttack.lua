@@ -611,7 +611,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				
 				if not P_IsObjectOnGround(mo) then
 					player.normalspeed = 0
-					player.drawangle = $ or player.energyattack_drawangle
+					--player.drawangle = $ or player.energyattack_drawangle
 				end
 				player.dashmode = 0 --Normal
 				player.jumpfactor = 0 --No Jumping
