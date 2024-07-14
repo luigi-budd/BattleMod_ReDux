@@ -325,7 +325,7 @@ addHook("MobjThinker", function(mo)
 		
 		if mo.threshold >= 32*mo.scale
 			mo.frame = mo.copy.frame
-			P_MoveOrigin(mo, mo.x, mo.y, mo.origz)
+			P_SetOrigin(mo, mo.x, mo.y, mo.origz)
 			P_RemoveMobj(mo.copy)
 			mo.copy = nil
 			mo.threshold = 0
@@ -338,7 +338,7 @@ addHook("MobjThinker", function(mo)
 		end
 	else
 		if mo.origz
-			P_MoveOrigin(mo, mo.x, mo.y, mo.origz)
+			P_SetOrigin(mo, mo.x, mo.y, mo.origz)
 		end
 		mo.momz = 0
 	end
