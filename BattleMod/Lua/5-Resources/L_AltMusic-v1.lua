@@ -27,8 +27,8 @@ local splitString = function(string)
 end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
-local current_mapsong = "ospec" --Trying to stop desynchs here
-local current_defsong = "_title"
+local current_mapsong = " "
+local current_defsong = " "
 
 addHook("NetVars", function(n)
     altmusic_transition = n($) --Just in case
@@ -44,6 +44,7 @@ end)
 
 addHook("IntermissionThinker", do
     current_mapsong = nil --Thanks SRB2!
+    current_defsong = nil
 end)
 
 addHook("MapLoad", function(mapnum)
