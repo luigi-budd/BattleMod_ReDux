@@ -57,7 +57,7 @@ local function BootlegAttract(mo, target, speed, xoffs, yoffs, zoffs)
 		mo.momx = 0
 		mo.momy = 0
 		mo.momz = 0
-		P_TeleportMove(mo, newx, newy, newz)
+		P_MoveOrigin(mo, newx, newy, newz)
 	end
 end
 
@@ -235,7 +235,7 @@ addHook("TouchSpecial", function(special, toucher)
 	toucher.momy = 0
 	toucher.momz = 0
 	
-	P_TeleportMove(toucher, special.x, special.y, special.z - special.height/2)
+	P_MoveOrigin(toucher, special.x, special.y, special.z - special.height/2)
 	
 	local total = 0
 	
@@ -290,7 +290,7 @@ addHook("PlayerThink", function(p)
 	
 	-- If we're in a slot machine...
 	if p.powers[pw_carry] == CR_SLOTMACHINE
-		P_TeleportMove(p.mo, tracer.x, tracer.y, tracer.z - tracer.height/2)
+		P_MoveOrigin(p.mo, tracer.x, tracer.y, tracer.z - tracer.height/2)
 		
 		p.mo.reactiontime = TICRATE
 		p.mo.state = S_PLAY_ROLL
@@ -325,7 +325,7 @@ addHook("MobjThinker", function(mo)
 		
 		if mo.threshold >= 32*mo.scale
 			mo.frame = mo.copy.frame
-			P_TeleportMove(mo, mo.x, mo.y, mo.origz)
+			P_MoveOrigin(mo, mo.x, mo.y, mo.origz)
 			P_RemoveMobj(mo.copy)
 			mo.copy = nil
 			mo.threshold = 0
@@ -338,7 +338,7 @@ addHook("MobjThinker", function(mo)
 		end
 	else
 		if mo.origz
-			P_TeleportMove(mo, mo.x, mo.y, mo.origz)
+			P_MoveOrigin(mo, mo.x, mo.y, mo.origz)
 		end
 		mo.momz = 0
 	end
