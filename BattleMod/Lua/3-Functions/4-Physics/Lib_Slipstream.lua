@@ -5,6 +5,31 @@ local CV = CBW_Battle
 local barColor, barEmptyColor
 local commonFlags = V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_PERPLAYER|V_HUDTRANS
 
+B.GetBackdraftSpeed = function(player, nearest)
+	local base_speed = skins[player.mo.skin].normalspeed + player.gradualspeed + nearest.gradualspeed
+	local dash_modifier = player.dashmode > 0 and player.dashmode * player.mo.scale or nil
+	if dash_modifier then
+		return base_speed + dash_modifier
+	end
+	return base_speed
+end
+
+B.BackdraftThinker = function(player, nearest)
+	player.normalspeed = B.GetBackdraftSpeed(player, nearest)
+	if not player.slipping then
+		local pmo = player.mo
+		S_StartSound(player.mo, sfx_s3ka2)
+		P_SpawnParaloop(pmo.x, pmo.y, pmo.z + pmo.height / 2, pmo.height, 16, MT_DUST, pmo.angle * ANGLE_180, nil, false)
+		player.slipping = true
+	end
+end
+
+B.DisableBackdraft = function(player)
+	player.didslipbutton = 0
+	player.slipping = false
+	player.normalspeed = skins[player.mo.skin].normalspeed
+end
+
 B.DoBackdraft = function(player)
 	if B.Console.Slipstream.value == 0 then return false end--Server has disabled the backdraft/slipstream mechanic
 	if player.charmed == true then --Charmed players cannot take advantage of the backdraft mechanic
@@ -72,68 +97,12 @@ B.DoBackdraft = function(player)
 		player.didslipbutton = $+1
 	end
 
-	if player.gradualspeed and nearest and nearest.valid then
-		--print(player.dashmode)
-		if player.battleconfig_useslipstreambutton == true then
-			if player.didslipbutton == 1 then
-				
-				if nearest.speed > 54*FRACUNIT 
-					or nearest.powers[pw_sneakers] 
-					and not player.dashmode
-				then
-					player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed
-				elseif not player.dashmode then
-					player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed
-				end
-
-				if nearest.speed > 54*FRACUNIT 
-					or nearest.powers[pw_sneakers] 
-					and player.dashmode > 0
-				then
-					player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed+player.dashmode*mo.scale
-				elseif player.dashmode > 0 then
-					player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed+player.dashmode*mo.scale
-				end
-				if not player.slipping then
-					S_StartSound(player.mo,sfx_s3ka2)
-					P_SpawnParaloop(pmo.x,pmo.y,pmo.z+pmo.height/2,pmo.height,16,MT_DUST,pmo.angle*ANGLE_180,nil,false)
-					player.slipping = true
-				end
-
-			elseif player.slipping == true then
-				player.didslipbutton = 0
-				player.normalspeed = skins[player.mo.skin].normalspeed
-				player.slipping = false
-			end
-		elseif not player.battleconfig_useslipstreambutton then
-			if nearest.speed > 54*FRACUNIT 
-				or nearest.powers[pw_sneakers] 
-				and not player.dashmode
-			then
-				player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed
-			elseif not player.dashmode then
-				
-				player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed
-			end
-
-			if nearest.speed > 54*FRACUNIT 
-				or nearest.powers[pw_sneakers] 
-				and player.dashmode
-			then
-				player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed+player.dashmode
-			elseif player.dashmode then
-				player.normalspeed = skins[player.mo.skin].normalspeed+player.gradualspeed+nearest.gradualspeed+player.dashmode
-			end
-
-			if not player.slipping then
-				S_StartSound(player.mo,sfx_s3ka2)
-				P_SpawnParaloop(pmo.x,pmo.y,pmo.z+pmo.height/2,pmo.height,16,MT_DUST,pmo.angle*ANGLE_180,nil,false)
-				player.slipping = true
-			end
-		end
-	elseif player.slipping == true then
-		player.didslipbutton = 0
-		player.slipping = false
-		player.normalspeed = skins[player.mo.skin].normalspeed
+	if player.gradualspeed
+	and (nearest and nearest.valid)
+	and not (player.battleconfig_useslipstreambutton and not player.didslipbutton)
+	then
+		B.BackdraftThinker(player, nearest)
+	elseif player.slipping then
+		B.DisableBackdraft(player)
 	end
 end
