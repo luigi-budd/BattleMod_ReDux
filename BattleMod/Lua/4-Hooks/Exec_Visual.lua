@@ -166,3 +166,27 @@ local function BattleTagITtag(mo)
 	end
 end
 addHook("MobjThinker", BattleTagITtag, MT_BATTLETAG_IT)
+
+//blindfold taggers, kinda scuffed but if it works it works
+/*local function BTagBlindfold(mo)
+	if gametype != GT_BATTLETAG or mo.tracerplayer == nil or not 
+			mo.tracerplayer.valid or not mo.tracerplayer.battletagIT
+		P_RemoveMobj(mo)
+		return
+	end
+	
+	local cam
+	if displayplayer == mo.tracerplayer
+		cam = camera
+	elseif secondarydisplayplayer == mo.tracerplayer
+		cam = camera2
+	end
+	if cam != nil
+		mo.angle = R_PointToAngle(mo.tracerplayer.mo.x, mo.tracerplayer.mo.y)
+		local x = cam.x + P_ReturnThrustX(mo, mo.angle, FRACUNIT)
+		local y = cam.y + P_ReturnThrustY(mo, mo.angle, FRACUNIT)
+		P_MoveOrigin(mo, x, y, cam.z)
+	end
+	mo.drawonlyforplayer = mo.tracerplayer
+end
+addHook("MobjThinker", BTagBlindfold, MT_BTAG_BLINDFOLD)*/

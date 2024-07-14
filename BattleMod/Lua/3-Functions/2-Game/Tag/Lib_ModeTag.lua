@@ -38,7 +38,7 @@ B.TagConverter = function(player)
 	player.battletagIT = true
 	local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BATTLETAG_IT)
 	IT.tracerplayer = player
-	player.BTblindfade = 0
+	//player.BTblindfade = 0
 	print(player.name .. " is now IT!")
 end
 
@@ -80,6 +80,9 @@ B.TagControl = function()
 			local luckyplayer = players[P_RandomKey(32)]
 			if IsValidPlayer(luckyplayer) and not luckyplayer.battletagIT
 				B.TagConverter(luckyplayer)
+				/*local BFold = P_SpawnMobj(camera.x, camera.y, camera.z, 
+						MT_BTAG_BLINDFOLD)
+				BFold.tracerplayer = luckyplayer*/
 				i = $ + 1
 			end
 		end
@@ -92,9 +95,9 @@ B.TagControl = function()
 			if IsValidPlayer(player)
 				if player.battletagIT
 					player.pflags = $ | PF_FULLSTASIS
-					if player.BTblindfade < 10
+					/*if player.BTblindfade < 10
 						player.BTblindfade = $ + 1
-					end
+					end*/
 				//ensure the first player that joins is a tagger, if there's none
 				elseif B.TagPlayers == 1
 					B.TagConverter(player)
@@ -120,9 +123,9 @@ B.TagControl = function()
 				end
 				if player.battletagIT
 					totaltaggers = $ + 1
-					if player.BTblindfade > 0
+					/*if player.BTblindfade > 0
 						player.BTblindfade = $ - 1
-					end
+					end*/
 				end
 				//attempts to have the runner earn points every second they're alive
 				if not player.battletagIT and leveltime % TICRATE == 0

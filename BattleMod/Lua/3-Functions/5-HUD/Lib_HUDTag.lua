@@ -1,14 +1,17 @@
 //separate hud in case someone wants to polish it up
 local B = CBW_Battle
 
-B.TagPreHUD = function(v, player, cam)
+B.TagGenHUD = function(v, player, cam)
 	if not B.TagGametype()
 		return
 	end
 	
-	//blindfold taggers
 	if player.battletagIT
-		v.fadeScreen(31, player.BTblindfade)
+		//blindfold taggers
+		/*if player.BTblindfade > 0
+			v.fadeScreen(31, player.BTblindfade)
+		end*/
+		
 	end
 	if B.TagPreTimer > 0
 		local x = v.width() / v.dupx() / 2
