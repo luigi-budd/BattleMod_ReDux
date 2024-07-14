@@ -71,7 +71,9 @@ addHook("MapLoad", function(mapnum)
 
         else --No patch or altmusic line in header?
             if mapheaderinfo[mapnum].musname then
-                current_mapsong = mapheaderinfo[mapnum].musname
+                current_mapsong = nil
+                current_defsong = nil
+                return
             end
         end
     end
