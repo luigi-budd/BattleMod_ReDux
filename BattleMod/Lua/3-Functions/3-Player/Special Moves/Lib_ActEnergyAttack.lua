@@ -764,7 +764,11 @@ end
 local function stateEnforcer(player, state, actionstate, newstate)
 	if player.mo and player.mo.valid then
 		if (player.mo.state == state) and player.actionstate != actionstate then
-			player.mo.state = newstate
+			if (player.pflags & PF_SPINNING) or ((player.pflags & PF_JUMPED) and not(player.pflags & PF_NOJUMPDAMAGE)) then
+				player.mo.state = S_PLAY_ROLL
+			else
+				player.mo.state = newstate
+			end
 		end
 	end
 end
