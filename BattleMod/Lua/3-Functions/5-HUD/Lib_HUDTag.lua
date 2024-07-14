@@ -8,10 +8,9 @@ B.TagGenHUD = function(v, player, cam)
 	
 	if player.battletagIT
 		//blindfold taggers
-		/*if player.BTblindfade > 0
+		if player.BTblindfade > 0
 			v.fadeScreen(31, player.BTblindfade)
-		end*/
-		
+		end
 	end
 	if B.TagPreTimer > 0
 		local x = v.width() / v.dupx() / 2
@@ -30,7 +29,10 @@ B.TagRankHUD = function(v)
 	
 	for player in players.iterate do
 		if player.battletagIT
-			v.drawString(14, 5, "placeholder", V_PERPLAYER, "center")
+			//v.drawString(14, 5, "placeholder", V_PERPLAYER, "center")
+			if displayplayer == player and player.BTblindfade > 0
+				v.fadeScreen(31, player.BTblindfade)
+			end
 		end
 	end
 end

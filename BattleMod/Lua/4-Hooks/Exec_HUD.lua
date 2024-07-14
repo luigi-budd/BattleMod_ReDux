@@ -45,7 +45,7 @@ hud.add(B.TagGenHUD)
 
 --Score screen
 hud.add(F.RankingHUD, "scores")
-//hud.add(B.TagRankHUD, "scores")
+hud.add(B.TagRankHUD, "scores")
 
 --Title HUD
 hud.add(B.TitleHUD, "title")

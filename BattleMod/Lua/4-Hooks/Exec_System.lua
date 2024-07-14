@@ -18,7 +18,7 @@ addHook("MapChange",function(map)
         player.ingametime = 0
         player.caps = 0
 		player.battletagIT = false
-		//player.BTblindfade = 0
+		player.BTblindfade = 0
 	end
 	D.Reset()
 	R.Reset()

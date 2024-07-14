@@ -153,7 +153,8 @@ B.RingsHUD = function(v, player, cam)
 					text = "\x82" + $
 				else
 					if not B.CanDoAction(player) then
-						if B.TagGametype() and not (player.pflags & PF_TAGIT)
+						if B.TagGametype() and not (player.pflags & PF_TAGIT or
+								player.battletagIT)
 							text = "\x86RUN!!"
 						else
 							text = "\x86" + $
