@@ -1,0 +1,459 @@
+// Tatsuru's Slot Machine v1.2
+
+// The generic carry doesn't let you spin for some reason
+rawset(_G, "CR_SLOTMACHINE", 31)
+
+// Edit this table to modify the character slots!
+// Their values must be in the order of their SLOT sprite lumps.
+local slotlist = {
+	// Fixed slots. No need to touch!
+	jackpot = 0,
+	ring = 1,
+	bar = 2,
+	eggman = 3,
+	
+	// Edit under this with your desired character slots.
+	// Make sure the skin name is written correctly since it's used for prize checks.
+	sonic = 4,
+	tails = 5,
+	knuckles = 6,
+	amy = 7,
+	fang = 8,
+	metalsonic = 9
+}
+
+local i = 0
+for _, _ in pairs(slotlist)
+	i = $ + 1
+end
+
+rawset(_G, "MAXMACHINESLOTS", i)
+
+// Helper function for stupid syntax
+local function IsValid(mo)
+	if mo and mo.valid
+		return true
+	end
+	
+	return false
+end
+
+// Function for object homing
+local function BootlegAttract(mo, target, speed, xoffs, yoffs, zoffs)
+	xoffs = $ or 0
+	yoffs = $ or 0
+	zoffs = $ or 0
+	
+	local newx = target.x + xoffs
+	local newy = target.y + yoffs
+	local newz = target.z + zoffs
+	local dist = R_PointToDist2(0, 0, R_PointToDist2(mo.x, mo.y, newx, newy), newz - mo.z)
+	
+	if speed < dist
+		mo.momx = FixedMul(FixedDiv(newx - mo.x, dist), speed)
+		mo.momy = FixedMul(FixedDiv(newy - mo.y, dist), speed)
+		mo.momz = FixedMul(FixedDiv(newz - mo.z, dist), speed)
+	elseif speed > dist
+		mo.momx = 0
+		mo.momy = 0
+		mo.momz = 0
+		P_TeleportMove(mo, newx, newy, newz)
+	end
+end
+
+// A slot machine gather has been placed! Let's set it all up!
+addHook("MapThingSpawn", function(mo, mapthing)
+	mo.angle = FixedAngle(mapthing.angle * FRACUNIT)
+	
+	-- We're gonna be 1.5x bigger than our original dimensions
+	mo.scale = 3*$/2
+	
+	local angle = mo.angle
+	local radius = mo.radius
+	
+	// Spawn the gates
+	mo.gates = {}
+	for i = 0, 3
+		angle = angle + FixedAngle(i*90*FRACUNIT)
+		local gate = P_SpawnMobjFromMobj(mo, FixedMul(radius*-1, cos(angle)), FixedMul(radius*-1, sin(angle)), 0, MT_SLOTMACHINE_GATE)
+		gate.angle = angle + ANGLE_90
+		gate.scale = mo.scale
+		table.insert(mo.gates, gate)
+	end
+	
+	// Spawn the background
+	local bg = P_SpawnMobjFromMobj(mo, FixedMul(radius, cos(angle)), FixedMul(radius, sin(angle)), 0, MT_SLOTMACHINE_BG)
+	bg.angle = angle - ANGLE_90
+	bg.scale = mo.scale
+	bg.target = mo
+	mo.bg = bg
+	
+	// Spawn the slots!
+	mo.slots = {}
+	for i = -1, 1
+		local slot = P_SpawnMobjFromMobj(bg, i*32*cos(bg.angle) + 4*cos(angle), i*32*sin(bg.angle) + 4*sin(angle), 64*FRACUNIT, MT_SLOTMACHINE_SLOT)
+		slot.angle = angle + ANGLE_90
+		slot.target = mo
+		table.insert(mo.slots, slot)
+	end
+end, MT_SLOTMACHINE_GATHER)
+
+// The chances of each picture appearing on each slot.
+local function CalculateOdds(p)
+	local slot
+	
+	if P_RandomChance(FRACUNIT/2)
+		slot = P_RandomChance(FRACUNIT/2) and slotlist.eggman or slotlist.jackpot
+	end
+	
+	if slot == nil
+		if P_RandomChance(FRACUNIT/2)
+			slot = P_RandomChance(FRACUNIT/2) and slotlist.bar or slotlist.ring
+		end
+	end
+	
+	if slot == nil
+		if MAXMACHINESLOTS > 4
+			if slotlist[p.skin]
+				slot = P_RandomChance(FRACUNIT/2) and slotlist[p.skin] or (4 + P_RandomKey(MAXMACHINESLOTS - 4))
+			else
+				slot = (4 + P_RandomKey(MAXMACHINESLOTS - 4))
+			end
+		else
+			slot = P_RandomKey(MAXMACHINESLOTS)
+		end
+	end
+	
+	// Rig the machine for debugging!
+	--return slotlist.fang
+	return slot
+end
+
+// How much to pay the player for their roll?
+local function CalculatePayout(slots, p)
+	local payout = 0
+	local total = {}
+	
+	for type, frame in pairs(slotlist)
+		for _, slot in ipairs(slots)
+			if slot.dest == frame
+				total[type] = $ or 0
+				total[type] = $ + 1
+			end
+		end
+	end
+	
+	local jackpot = total.jackpot
+	local ring = total.ring
+	local bar = total.bar
+	local eggman = total.eggman
+	
+	--for type, value in pairs(total)
+	--	print(type.." = "..value)
+	--end
+	
+	-- Let's check for jackpots since they're basically multipliers...
+	if jackpot
+		if jackpot < 3
+			if eggman and jackpot + eggman == 3
+				return -100
+			else
+				-- Bar + jackpot
+				if bar and bar + jackpot == 3
+					return 2^jackpot
+				-- Ring + jackpot
+				elseif ring and ring + jackpot == 3
+					return jackpot*20
+				-- Your skin + jackpot
+				elseif total[p.skin] and total[p.skin] + jackpot == 3
+					return jackpot*60
+				else
+				-- Other skins + jackpot
+					for type, _ in pairs(total)
+						if total[type] and total[type] + jackpot == 3
+							return jackpot*40
+						end
+					end
+				end
+			end
+		else
+			-- Three jackpots!
+			return 100
+		end
+	end
+	-- No jackpots to deal with. Let's try the rest...
+	
+	// oOOHOOHOHOOHOHOO
+	if eggman == 3
+		return -100
+	end
+	
+	-- You got three of your skin!
+	if total[p.skin] == 3
+		return 30
+	end
+	
+	-- Three of some other skin?
+	for type, _ in pairs(total)
+		if total[type] == 3
+			return 20
+		end
+	end
+	
+	-- Three rings
+	if ring == 3
+		return 10
+	end
+	
+	-- Any bars?
+	if bar
+		return 2^bar
+	end
+		
+	-- Sorry nothing
+	return 0
+end
+
+// When a player touches a slot machine gather...
+addHook("TouchSpecial", function(special, toucher)
+	-- No bots
+	if toucher.player.bot == 1 return true end
+	
+	-- We're already in use
+	if special.spin return true end
+	
+	-- You're just leaving!
+	if toucher.player.slotmachinedelay return true end
+	
+	-- We're using a slot machine! Tell this to everyone.
+	toucher.player.powers[pw_carry] = CR_SLOTMACHINE
+	toucher.tracer = special
+	special.target = toucher
+	special.spin = true
+	
+	toucher.momx = 0
+	toucher.momy = 0
+	toucher.momz = 0
+	
+	P_TeleportMove(toucher, special.x, special.y, special.z - special.height/2)
+	
+	local total = 0
+	
+	-- Tell the slots to start spinning!
+	for key, slot in ipairs(special.slots)
+		slot.countdown = 10 - (3 - key)
+		total = $ + slot.countdown
+		
+		slot.dest = CalculateOdds(toucher)
+		slot.frame = (((slot.dest & FF_FRAMEMASK) + 3 - key) % MAXMACHINESLOTS) | FF_PAPERSPRITE
+		slot.momz = 8*FRACUNIT
+		slot.origz = slot.z
+	end
+	
+	special.countdown = total
+	special.payout = CalculatePayout(special.slots, toucher)
+	
+	if special.payout < 0
+		special.payoutsubtract = true
+	end
+	
+	if special.payout
+		special.payout = abs($)
+		if special.payout < 10
+			special.payoutdist = 54*FRACUNIT
+		else
+			special.payoutdist = 160*FRACUNIT
+		end
+		special.payout = $ + 6
+	end
+	
+	-- Make the player's view pan away
+	if not (toucher.flags2 & MF2_TWOD) and not twodlevel
+		local camera = P_SpawnMobjFromMobj(toucher, -80*cos(toucher.angle), -80*sin(toucher.angle), toucher.height, MT_CAMERA)
+		camera.target = special
+		camera.owner = toucher
+		toucher.player.awayviewmobj = camera
+		toucher.player.awayviewtics = TICRATE/3
+	end
+	
+	return true
+end, MT_SLOTMACHINE_GATHER)
+
+// Slot machine carrier handler
+addHook("PlayerThink", function(p)
+	p.slotmachinedelay = $ or 0
+	
+	if p.playerstate return end
+	if p.spectator return end
+	
+	local tracer = p.mo.tracer
+	
+	-- If we're in a slot machine...
+	if p.powers[pw_carry] == CR_SLOTMACHINE
+		P_TeleportMove(p.mo, tracer.x, tracer.y, tracer.z - tracer.height/2)
+		
+		p.mo.reactiontime = TICRATE
+		p.mo.state = S_PLAY_ROLL
+		p.mo.flags = $ | MF_NOGRAVITY
+		p.pflags = $ | PF_GODMODE
+	
+		if not (p.mo.flags2 & MF2_TWOD) and not twodlevel
+			p.awayviewtics = TICRATE/3
+		end
+	else
+		p.slotmachinedelay = $ and $ - 1 or 0
+	end
+end)
+
+// Slots thinker
+addHook("MobjThinker", function(mo)
+	if not mo.target return end
+	
+	if mo.countdown
+		if IsValid(mo.copy)
+			mo.threshold = $ + mo.momz
+		else
+			mo.copy = P_SpawnMobjFromMobj(mo, 0, 0, -32*FRACUNIT, MT_SLOTMACHINE_SLOT)
+			mo.copy.frame = (((mo.frame & FF_FRAMEMASK) + 1) % MAXMACHINESLOTS) | FF_PAPERSPRITE
+			mo.copy.angle = mo.angle
+			mo.copy.momz = mo.momz
+			
+			if mo.target.target
+				S_StartSound(mo.target.target, sfx_s3kb7)
+			end
+		end
+		
+		if mo.threshold >= 32*mo.scale
+			mo.frame = mo.copy.frame
+			P_TeleportMove(mo, mo.x, mo.y, mo.origz)
+			P_RemoveMobj(mo.copy)
+			mo.copy = nil
+			mo.threshold = 0
+			mo.countdown = $ - 1
+			mo.target.countdown = $ - 1
+			
+			if mo.target.target
+				S_StartSound(mo.target.target, sfx_s3kb7)
+			end
+		end
+	else
+		if mo.origz
+			P_TeleportMove(mo, mo.x, mo.y, mo.origz)
+		end
+		mo.momz = 0
+	end
+end, MT_SLOTMACHINE_SLOT)
+
+// Prize time!
+local function SlotMachineAward(mo)
+	local dist = mo.payoutdist
+	local angle = FixedAngle(((leveltime % 360) * 2) * FRACUNIT)
+	
+	for i = 0, 1
+		if mo.payout > 6
+			local type = mo.payoutsubtract and MT_DUST or MT_SPARK
+			local sinex = FixedMul(dist, cos(angle + i*ANGLE_180))
+			
+			local spark = P_SpawnMobjFromMobj(mo, FixedMul(sinex, cos(mo.angle + ANGLE_90)), FixedMul(sinex, sin(mo.angle + ANGLE_90)), FixedMul(dist, sin(angle + i*ANGLE_180)), type)
+			local award = P_SpawnMobjFromMobj(spark, 0, 0, 0, MT_AWARD)
+			award.scale = FRACUNIT
+			award.owner = mo.target
+			
+			local type = mo.payoutsubtract and MT_SPIKEBALL or MT_RING
+			award.state = mobjinfo[type].spawnstate
+			
+			if type == MT_RING
+				award.add = 1
+			elseif type == MT_SPIKEBALL
+				award.add = -1
+			end
+		end
+		
+		mo.payout = $ - 1
+	end
+end
+
+// Payout thinker
+addHook("MobjThinker", function(mo)
+	if not mo.target or not mo.target.player
+		mo.payout = 0
+	end
+	
+	if mo.spin and not mo.countdown
+		if mo.payout
+			if (leveltime % 4) == 0
+				SlotMachineAward(mo)
+			end
+			return
+		end
+		
+		mo.payoutsubtract = false
+		mo.spin = false
+		
+		if mo.target
+			local p = mo.target.player
+			
+			p.powers[pw_carry] = 0
+			p.mo.tracer = nil
+			p.mo.reactiontime = 0
+			p.mo.flags = $ & ~MF_NOGRAVITY
+			p.pflags = $ & ~PF_GODMODE
+			p.slotmachinedelay = TICRATE
+			p.mo.momx = 0
+			p.mo.momy = 0
+			p.mo.momz = 0
+		end
+	end
+end, MT_SLOTMACHINE_GATHER)
+
+// Collision handling for the prizes
+addHook("MobjThinker", function(mo)
+	if not IsValid(mo.owner)
+		P_RemoveMobj(mo)
+		return
+	end
+	
+	BootlegAttract(mo, mo.owner, 12*FRACUNIT)
+end, MT_AWARD)
+
+addHook("TouchSpecial", function(special, toucher)
+	if not toucher.player return true end
+	
+	-- Don't collide with anyone except the winner
+	if toucher != special.owner
+		return true
+	end
+	
+	local sound = (special.add > 0) and sfx_itemup or sfx_spkdth
+	S_StartSound(toucher, sound, toucher.player)
+	
+	P_GivePlayerRings(toucher.player, special.add)
+end, MT_AWARD)
+
+// Away view camera thinker
+addHook("MobjThinker", function(mo)
+	if not IsValid(mo.owner) or not IsValid(mo.target)
+		P_RemoveMobj(mo)
+		return
+	end
+	
+	-- Our player has left the slot machine. Disappear
+	if not mo.owner.player.awayviewtics
+		P_RemoveMobj(mo)
+		return
+	end
+	
+	mo.angle = R_PointToAngle2(mo.x, mo.y, mo.target.x, mo.target.y)
+	BootlegAttract(mo, mo.target, 12*FRACUNIT, 256*cos(mo.target.angle), 256*sin(mo.target.angle), 4*FRACUNIT)
+end, MT_CAMERA)
+
+// Background thinker
+addHook("MobjThinker", function(mo)
+	if mo.target.countdown
+		if (leveltime % 4) == 0
+			mo.frame = ((($ & FF_FRAMEMASK) + 1) % 10) | FF_PAPERSPRITE
+		end
+	else
+		mo.frame = FF_PAPERSPRITE
+	end
+end, MT_SLOTMACHINE_BG)

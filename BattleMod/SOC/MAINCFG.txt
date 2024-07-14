@@ -272,14 +272,64 @@ SkyNum = 68
 SkyboxScaleX = 64
 SkyboxScaleY = 64
 
+#Ruby Run
+
+Level R1
+NextLevel = 3
+Levelname = Thunder Nimbus
+Music = NIMSTM
+SkyNum = 20
+Weather = PRECIP_STORM
+TypeOfLevel = Rubyrun
+Lua.Author = Smol
+SelectHeading = EXTRA
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_LocalRate = 40
+
 #Warp Heist
 
-Level GG
+Level W1
 Levelname = Green Grove
 Act = 1
 Music = 3DBG
 SkyNum = 29
 TypeOfLevel = Arena,CP,Diamond
+SelectHeading = EXTRA
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_Roulette = 200
+Lua.BattleItems_LocalRate = 40
+
+#Ring Rally
+
+Level J1
+Levelname = Nimbus Garden
+SelectHeading = EXTRA
+Act = 0
+Music = MP_AIR
+TypeOfLevel = Bank
+SkyNum = 18
+Lua.Author = JABSphere94
+
+Level J2
+NextLevel = 3
+Levelname = Casino Night
+Music = S2CN
+SkyNum = 7771
+TypeOfLevel = BattleCTF,Bank
+Lua.Author = Smol
+SelectHeading = EXTRA
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_LocalRate = 40
+
+Level J3
+Levelname = Aquatic Base
+NextLevel = 3
+Act = 0
+Music = DSZZ1
+SkyNum = 22
+TypeOfLevel = Battlectf
+Lua.Author = STJR, Smol, Cyanknight
+SelectHeading = EXTRA
 Lua.BattleItems_GlobalRate = 55
 Lua.BattleItems_Roulette = 200
 Lua.BattleItems_LocalRate = 40
