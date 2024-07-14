@@ -388,88 +388,84 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 end
 
 B.Tumble = function(player)
-	if not (player and player.valid and player.mo and player.mo.valid)
+	if not (player and player.valid and player.tumble and player.mo and player.mo.valid) then
 		return
 	end
 	local mo = player.mo
-	
-	if player.tumble
 
-		local endtumble = false
-		if player.max_tumble_time
-			player.max_tumble_time = $-1
-			if not player.max_tumble_time
-				endtumble = true
-			end
-		end
-		
-		--End tumble
-		if player.isjettysyn
-			or player.powers[pw_carry]
-			or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
-			or endtumble
-			
-			player.tumble = nil
-			player.lockmove = false
-			player.drawangle = mo.angle
-			S_StopSoundByID(mo, sfx_kc38)
-			B.ResetPlayerProperties(player,false,false)
-			if not P_IsObjectOnGround(mo)
-				mo.state = S_PLAY_FALL
-			end
-		
-		--Do tumble animation
-		else
-			if mo.tumble_prevmomz == nil
-				mo.tumble_prevmomz = mo.momz
-			end
-			
-			if P_IsObjectOnGround(mo) and (mo.momz * P_MobjFlip(mo) <= 0)
-				S_StartSound(mo, sfx_s3k49)
-				mo.momz = mo.tumble_prevmomz * -2/3
-				
-				if mo.momz * P_MobjFlip(mo) < 6 * FRACUNIT
-					mo.momz = 6 * FRACUNIT * P_MobjFlip(mo)
-				elseif mo.momz * P_MobjFlip(mo) > 13 * FRACUNIT
-					mo.momz = 13 * FRACUNIT * P_MobjFlip(mo)
-				end
-
-				mo.state = S_PLAY_FALL
-			end
-			
-			mo.tumble_prevmomz = mo.momz
-
-			player.tumble = $ - 1
-			if player.tumble <= 0
-				
-				player.tumble = nil
-				player.lockmove = false
-				player.drawangle = mo.angle
-				S_StopSoundByID(mo, sfx_kc38)
-				player.panim = PA_FALL
-				B.ResetPlayerProperties(player,false,false)
-				if not (P_IsObjectOnGround(mo))
-					mo.state = S_PLAY_FALL
-				end
-				
-			else
-				--player.powers[pw_nocontrol] = max($, 2)
-				player.pflags = $ | PF_FULLSTASIS
-				player.panim = PA_PAIN
-				player.mo.state = S_PLAY_PAIN
-				
-				player.airdodge_spin = $ + ANGLE_45
-				player.drawangle = mo.angle + player.airdodge_spin
-
-				if not (player.tumble % 4)-- and not P_PlayerInPain(player)
-					local g = P_SpawnGhostMobj(mo)
-					g.color = SKINCOLOR_BLACK
-					g.colorized = true
-					g.destscale = g.scale * 2
-				end
-			end
+	local endtumble = false
+	if player.max_tumble_time
+		player.max_tumble_time = $-1
+		if not player.max_tumble_time
+			endtumble = true
 		end
 	end
+	
+	--End tumble
+	if player.isjettysyn
+	or player.powers[pw_carry]
+	or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
+	or endtumble
+	then
+		player.tumble = nil
+		player.lockmove = false
+		player.drawangle = mo.angle
+		S_StopSoundByID(mo, sfx_kc38)
+		B.ResetPlayerProperties(player,false,false)
+		if not (P_IsObjectOnGround(mo) or P_PlayerInPain(player))
+			mo.state = S_PLAY_FALL
+		end
+		return
+	end
+	
+	--Do tumble animation
+	if mo.tumble_prevmomz == nil
+		mo.tumble_prevmomz = mo.momz
+	end
+	
+	if P_IsObjectOnGround(mo) and (mo.momz * P_MobjFlip(mo) <= 0)
+		S_StartSound(mo, sfx_s3k49)
+		mo.momz = mo.tumble_prevmomz * -2/3
+		
+		if mo.momz * P_MobjFlip(mo) < 6 * FRACUNIT
+			mo.momz = 6 * FRACUNIT * P_MobjFlip(mo)
+		elseif mo.momz * P_MobjFlip(mo) > 13 * FRACUNIT
+			mo.momz = 13 * FRACUNIT * P_MobjFlip(mo)
+		end
+
+		mo.state = S_PLAY_FALL
+	end
+	
+	mo.tumble_prevmomz = mo.momz
+
+	player.tumble = $ - 1
+	if player.tumble <= 0
+		player.tumble = nil
+		player.lockmove = false
+		player.drawangle = mo.angle
+		S_StopSoundByID(mo, sfx_kc38)
+		player.panim = PA_FALL
+		B.ResetPlayerProperties(player,false,false)
+		if not (P_IsObjectOnGround(mo))
+			mo.state = S_PLAY_FALL
+		end
+	else
+		player.panim = PA_PAIN
+		player.mo.state = S_PLAY_PAIN
+		
+		player.airdodge_spin = $ + ANGLE_45
+		player.drawangle = mo.angle + player.airdodge_spin
+
+		if not (player.tumble % 4)-- and not P_PlayerInPain(player)
+			local g = P_SpawnGhostMobj(mo)
+			g.color = SKINCOLOR_BLACK
+			g.colorized = true
+			g.destscale = g.scale * 2
+		end
+	end
+
+	--Do tumble physics
+	player.pflags = $ | PF_FULLSTASIS
 end
 
 B.TestScript = function(player)
