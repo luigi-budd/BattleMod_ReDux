@@ -365,6 +365,8 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 	
 	player.tumble = time
 	player.airdodge_spin = 0
+	player.dashmode = 0
+	player.powers[pw_strong] = 0
 	--player.powers[pw_flashing] = 0
 	
 	--player.mo.recoilangle = angle
