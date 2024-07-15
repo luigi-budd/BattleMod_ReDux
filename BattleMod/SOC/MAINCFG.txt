@@ -30,9 +30,9 @@ Lua.BattleItems_Whirlwind = 2
 Lua.BattleItems_Force = 1
 
 Level B1
-LevelName = Oasis
+LevelName = Oasis 
 Music = MP_GLZ
-SkyNum = 14
+SkyNum = 1949
 TypeOfLevel = Arena,Survival
 NextLevel = B2
 SelectHeading = Arena
@@ -123,12 +123,13 @@ Lua.BattleItems_HyperRoulette = 1
 
 Level B7
 LevelName = Tunnel Road
-SkyNum = 6
+SkyNum = 943
 Music = THZ2
+Music = TRZ
 TypeOfLevel = Arena,Survival
 NextLevel = B8
 SelectHeading = Arena
-Lua.BattleItems_LocalRate = 60
+Lua.BattleItems_LocalRate = 6
 Lua.BattleItems_GlobalRate = 30
 Lua.BattleItems_SuperRing = 10
 Lua.BattleItems_Roulette = 2
@@ -270,4 +271,66 @@ NextLevel = F0
 SkyNum = 68
 SkyboxScaleX = 64
 SkyboxScaleY = 64
+
+#Ruby Run
+
+Level R1
+NextLevel = 3
+Levelname = Thunder Nimbus
+Music = NIMSTM
+SkyNum = 20
+Weather = PRECIP_STORM
+TypeOfLevel = Rubyrun
+Lua.Author = Smol
+SelectHeading = EXTRA
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_LocalRate = 40
+
+#Warp Heist
+
+Level W1
+Levelname = Green Grove
+Act = 1
+Music = 3DBG
+SkyNum = 29
+TypeOfLevel = Arena,CP,Diamond
+SelectHeading = EXTRA
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_Roulette = 200
+Lua.BattleItems_LocalRate = 40
+
+#Ring Rally
+
+Level J1
+Levelname = Nimbus Garden
+SelectHeading = EXTRA
+Act = 0
+Music = MP_AIR
+TypeOfLevel = Bank
+SkyNum = 18
+Lua.Author = JABSphere94
+
+Level J2
+NextLevel = 3
+Levelname = Casino Night
+Music = S2CN
+SkyNum = 7771
+TypeOfLevel = BattleCTF,Bank
+Lua.Author = Smol
+SelectHeading = EXTRA
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_LocalRate = 40
+
+Level J3
+Levelname = Aquatic Base
+NextLevel = 3
+Act = 0
+Music = DSZZ1
+SkyNum = 22
+TypeOfLevel = Battlectf
+Lua.Author = STJR, Smol, Cyanknight
+SelectHeading = EXTRA
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_Roulette = 200
+Lua.BattleItems_LocalRate = 40
 

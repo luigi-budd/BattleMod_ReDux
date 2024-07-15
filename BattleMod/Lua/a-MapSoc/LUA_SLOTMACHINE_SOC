@@ -1,0 +1,79 @@
+// Tatsuru's Slot Machine v1.2
+// SOC definitions
+
+freeslot("MT_SLOTMACHINE_GATHER", "MT_SLOTMACHINE_SLOT", "MT_SLOTMACHINE_GATE", "MT_SLOTMACHINE_BG", "MT_CAMERA", "MT_AWARD")
+freeslot("S_SLOTMACHINE_SLOT", "S_SLOTMACHINE_GATE", "S_SLOTMACHINE_BG")
+freeslot("SPR_SLOT", "SPR_SMGT", "SPR_SMBG")
+
+mobjinfo[MT_SLOTMACHINE_GATHER] = {
+	--$Name "Slot Machine Gather Point"
+	--$Sprite SMGTALAR
+	doomednum = 4000,
+	spawnstate = S_INVISIBLE,
+	radius = 16*FRACUNIT,
+	height = 16*FRACUNIT,
+	flags = MF_NOGRAVITY|MF_NOSECTOR|MF_SPECIAL
+}
+
+mobjinfo[MT_SLOTMACHINE_SLOT] = {
+	doomednum = -1,
+	spawnstate = S_SLOTMACHINE_SLOT,
+	radius = 16*FRACUNIT,
+	height = 32*FRACUNIT,
+	flags = MF_NOGRAVITY|MF_SCENERY
+}
+
+mobjinfo[MT_SLOTMACHINE_GATE] = {
+	doomednum = -1,
+	spawnstate = S_SLOTMACHINE_GATE,
+	radius = 24*FRACUNIT,
+	height = 16*FRACUNIT,
+	flags = MF_NOGRAVITY|MF_NOBLOCKMAP|MF_NOCLIP
+}
+
+mobjinfo[MT_SLOTMACHINE_BG] = {
+	doomednum = -1,
+	spawnstate = S_SLOTMACHINE_BG,
+	radius = 32*FRACUNIT,
+	height = 32*FRACUNIT,
+	flags = MF_NOGRAVITY|MF_NOBLOCKMAP|MF_NOCLIPHEIGHT|MF_SCENERY
+}
+
+mobjinfo[MT_CAMERA] = {
+	doomednum = -1,
+	spawnstate = S_INVISIBLE,
+	radius = FRACUNIT,
+	height = FRACUNIT,
+	flags = MF_NOGRAVITY|MF_NOBLOCKMAP|MF_NOSECTOR|MF_SCENERY
+}
+
+mobjinfo[MT_AWARD] = {
+	doomednum = -1,
+	spawnstate = S_INVISIBLE,
+	radius = FRACUNIT,
+	height = FRACUNIT,
+	flags = MF_NOGRAVITY|MF_NOBLOCKMAP|MF_NOCLIPHEIGHT|MF_SPECIAL
+}
+
+states[S_SLOTMACHINE_SLOT] = {
+	sprite = SPR_SLOT,
+	frame = E|FF_PAPERSPRITE,
+	tics = -1,
+	nextstate = S_SLOTMACHINE_SLOT
+}
+
+states[S_SLOTMACHINE_GATE] = {
+	sprite = SPR_SMGT,
+	frame = A|FF_ANIMATE|FF_PAPERSPRITE,
+	var1 = 4,
+	var2 = 4,
+	tics = -1,
+	nextstate = S_SLOTMACHINE_GATE
+}
+
+states[S_SLOTMACHINE_BG] = {
+	sprite = SPR_SMBG,
+	frame = FF_PAPERSPRITE,
+	tics = -1,
+	nextstate = S_SLOTMACHINE_BG
+}

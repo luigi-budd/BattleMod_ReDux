@@ -96,6 +96,16 @@ local function JumpLeniencyThink(player)
 		mo.coyoteTime = -1;
 	end
 
+	if (mo.eflags & MFE_JUSTHITFLOOR) then
+		-- God forbid frame perfect coyote jumps...
+		if not mo.coyoteHitFloor then
+			mo.coyoteHitFloor = true
+			return -- Prevent execution of the remainder of this script
+		end
+	else
+		mo.coyoteHitFloor = false
+	end
+
 	if (mo.coyoteTime < 0) then
 		-- (For mods) Don't go any further if something is preventing it
 		mo.coyoteTime = $+1;

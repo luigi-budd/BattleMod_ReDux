@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local CV = B.Console
 local S = B.SkinVars
+local grace = 3*TICRATE
 
 local function ButtonCheck2(player,button)
 	if player.cmd.buttons&button then
@@ -17,7 +18,9 @@ addHook("PlayerThink", function(player) -- death timer test
 	if player.deadtimer then
 		if (ButtonCheck2(player,BT_TOSSFLAG) == 1) and not player.selectchar then
 			player.selectchar = true -- new var we are useing to control this
-			player.deadtimer = $-10*TICRATE -- add more time before respawning so player can choose
+			if B.ArenaGametype() then 
+				player.extradeadtimer = grace -- add more time before respawning so player can choose
+			end
 		end
 		
 		local skinnum = #skins[player.skin]
@@ -65,8 +68,8 @@ addHook("PlayerThink", function(player) -- death timer test
 				else
 					player.roulette_x = (40*FRACUNIT*change)
 				end
-			if (ButtonCheck2(player,BT_SPIN) == 1) then -- confirn skin choice, cant use jump because its alreay being set 
-				player.deadtimer = $+10*TICRATE -- subtract timer so we will spawn sooner
+			if (ButtonCheck2(player,BT_SPIN) == 1 or ButtonCheck2(player,BT_JUMP) == 1) then -- confirm skin choice
+				player.extradeadtimer = $ and $-grace or 0 -- subtract timer so we will spawn sooner
 				player.selectchar = false
 			end
 		end

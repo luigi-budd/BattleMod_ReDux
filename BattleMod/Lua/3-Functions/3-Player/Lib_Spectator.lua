@@ -128,11 +128,8 @@ B.AutoSpectator = function(player)
 end
 
 B.SpectatorControl = function(player)
-	if player.spectatortime != nil
-		player.spectatortime = $+1
-	else
-		player.spectatortime = 0
-	end
+	player.spectatortime = $ and $+1 or 0
+	player.spectatorlock = $ and $-1 or 0
 	if player.playerstate then return end
 	if not(player.spectator and player.realmo and player.realmo.valid) then return end
 	local mo = player.realmo

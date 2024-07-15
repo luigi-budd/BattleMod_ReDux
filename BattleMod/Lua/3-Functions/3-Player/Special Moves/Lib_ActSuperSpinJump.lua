@@ -145,14 +145,11 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			P_SetObjectMomZ(mo,-pound_downaccel/water,true)
 			if mo.eflags&MFE_JUSTHITFLOOR then //We have hit a surface
 				player.lockjumpframe = 2
-				player.actionstate = 0
+				player.powers[pw_nocontrol] = $ or 2
 				B.ApplyCooldown(player,cooldown2)//
 				
 				if player == displayplayer
 					P_StartQuake(6*FRACUNIT, 3)
-				end
-				if not (player.cmd.buttons & BT_SPIN)
-					player.powers[pw_nocontrol] = $ or 2
 				end
 				
 				S_StartSound(mo,sfx_s3k5f)

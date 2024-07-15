@@ -115,6 +115,7 @@ B.InitPlayer = function(player)
 	if not (player.lastcolor) then
 		player.lastcolor = 0
 	end
+	player.roulette = player.battleconfig_roulette == nil and true or player.battleconfig_roulette
 end
 
 B.ResetPlayerProperties = function(player,jumped,thokked)
@@ -174,6 +175,8 @@ B.ResetPlayerProperties = function(player,jumped,thokked)
 	end
 	--player.exhaustmeter = FRACUNIT
 	player.otherscore = nil
+	player.ruby_capture = nil --More vars! yay!
+	player.squashstretch = false
 end
 
 B.GetSkinVars = function(player)
@@ -258,8 +261,10 @@ B.MyTeam = function(player,myplayer) --Also accepts player.mo
 		B.Warning("Attempted to use a nil argument in function MyTeam()!")
 	return end
 	--Are we using mo's instead of players? Let's fix that.
-	if player.player then player = player.player end
-	if myplayer.player then myplayer = myplayer.player end
+	if player.valid and player.player then player = player.player end
+	if myplayer.valid and myplayer.player then myplayer = myplayer.player end
+	--Check if these are actually players
+	if not (player.jointime and myplayer.jointime) then return end
 	--FriendlyFire
 	if CV_FindVar("friendlyfire").value then
 		return false
@@ -358,12 +363,18 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 end
 
 B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
+	if not (player.mo and player.mo.valid) then
+		return
+	end
+
 	player.panim = PA_PAIN
 	player.mo.state = S_PLAY_PAIN
 	player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 	
 	player.tumble = time
 	player.airdodge_spin = 0
+	player.dashmode = 0
+	player.powers[pw_strong] = 0
 	--player.powers[pw_flashing] = 0
 	
 	--player.mo.recoilangle = angle
@@ -387,103 +398,97 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 end
 
 B.Tumble = function(player)
-	if not (player and player.valid and player.mo and player.mo.valid)
+	if not (player and player.valid and player.tumble and player.mo and player.mo.valid) then
 		return
 	end
 	local mo = player.mo
-	
-	if player.tumble
 
-		local endtumble = false
-		if player.max_tumble_time
-			player.max_tumble_time = $-1
-			if not player.max_tumble_time
-				endtumble = true
-			end
-		end
-		
-		--End tumble
-		if player.isjettysyn
-			or player.powers[pw_carry]
-			or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
-			or endtumble
-			
-			player.tumble = nil
-			player.lockmove = false
-			player.drawangle = mo.angle
-			S_StopSoundByID(mo, sfx_kc38)
-			B.ResetPlayerProperties(player,false,false)
-			if not P_IsObjectOnGround(mo)
-				mo.state = S_PLAY_FALL
-			end
-		
-		--Do tumble animation
-		else
-			if mo.tumble_prevmomz == nil
-				mo.tumble_prevmomz = mo.momz
-			end
-			
-			if P_IsObjectOnGround(mo) and (mo.momz * P_MobjFlip(mo) <= 0)
-				S_StartSound(mo, sfx_s3k49)
-				mo.momz = mo.tumble_prevmomz * -2/3
-				
-				if mo.momz * P_MobjFlip(mo) < 6 * FRACUNIT
-					mo.momz = 6 * FRACUNIT * P_MobjFlip(mo)
-				elseif mo.momz * P_MobjFlip(mo) > 13 * FRACUNIT
-					mo.momz = 13 * FRACUNIT * P_MobjFlip(mo)
-				end
-
-				mo.state = S_PLAY_FALL
-			end
-			
-			mo.tumble_prevmomz = mo.momz
-
-			player.tumble = $ - 1
-			if player.tumble <= 0
-				
-				player.tumble = nil
-				player.lockmove = false
-				player.drawangle = mo.angle
-				S_StopSoundByID(mo, sfx_kc38)
-				player.panim = PA_FALL
-				B.ResetPlayerProperties(player,false,false)
-				if not (P_IsObjectOnGround(mo))
-					mo.state = S_PLAY_FALL
-				end
-				
-			else
-				--player.powers[pw_nocontrol] = max($, 2)
-				player.pflags = $ | PF_FULLSTASIS
-				player.panim = PA_PAIN
-				player.mo.state = S_PLAY_PAIN
-				
-				player.airdodge_spin = $ + ANGLE_45
-				player.drawangle = mo.angle + player.airdodge_spin
-
-				if not (player.tumble % 4)-- and not P_PlayerInPain(player)
-					local g = P_SpawnGhostMobj(mo)
-					g.color = SKINCOLOR_BLACK
-					g.colorized = true
-					g.destscale = g.scale * 2
-				end
-			end
+	local endtumble = false
+	if player.max_tumble_time
+		player.max_tumble_time = $-1
+		if not player.max_tumble_time
+			endtumble = true
 		end
 	end
+	
+	--End tumble
+	if player.isjettysyn
+	or player.powers[pw_carry]
+	or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
+	or endtumble
+	then
+		player.tumble = nil
+		player.lockmove = false
+		player.drawangle = mo.angle
+		S_StopSoundByID(mo, sfx_kc38)
+		B.ResetPlayerProperties(player,false,false)
+		if not (P_IsObjectOnGround(mo) or P_PlayerInPain(player))
+			mo.state = S_PLAY_FALL
+		end
+		return
+	end
+	
+	--Do tumble animation
+	if mo.tumble_prevmomz == nil
+		mo.tumble_prevmomz = mo.momz
+	end
+	
+	if P_IsObjectOnGround(mo) and (mo.momz * P_MobjFlip(mo) <= 0)
+		S_StartSound(mo, sfx_s3k49)
+		mo.momz = mo.tumble_prevmomz * -2/3
+		
+		if mo.momz * P_MobjFlip(mo) < 6 * FRACUNIT
+			mo.momz = 6 * FRACUNIT * P_MobjFlip(mo)
+		elseif mo.momz * P_MobjFlip(mo) > 13 * FRACUNIT
+			mo.momz = 13 * FRACUNIT * P_MobjFlip(mo)
+		end
+
+		mo.state = S_PLAY_FALL
+	end
+	
+	mo.tumble_prevmomz = mo.momz
+
+	player.tumble = $ - 1
+	if player.tumble <= 0
+		player.tumble = nil
+		player.lockmove = false
+		player.drawangle = mo.angle
+		S_StopSoundByID(mo, sfx_kc38)
+		player.panim = PA_FALL
+		B.ResetPlayerProperties(player,false,false)
+		if not (P_IsObjectOnGround(mo))
+			mo.state = S_PLAY_FALL
+		end
+	else
+		player.panim = PA_PAIN
+		player.mo.state = S_PLAY_PAIN
+		
+		player.airdodge_spin = $ + ANGLE_45
+		player.drawangle = mo.angle + player.airdodge_spin
+
+		if not (player.tumble % 4)-- and not P_PlayerInPain(player)
+			local g = P_SpawnGhostMobj(mo)
+			g.color = SKINCOLOR_BLACK
+			g.colorized = true
+			g.destscale = g.scale * 2
+		end
+	end
+
+	--Do tumble physics
+	player.pflags = $ | PF_FULLSTASIS
 end
---[[
-/*
+
 B.TestScript = function(player)
-	B.ZLaunch(player.mo, 8*FRACUNIT)
-	B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
-	//make sure your char has at least 3 shield reserve slots in def_skinvars
+	--B.ZLaunch(player.mo, 8*FRACUNIT)
+	--B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
 	local shieldgiver = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_THOK)
 	shieldgiver.target = player.mo
 	A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
 	A_GiveShield(shieldgiver, SH_FLAMEAURA)
 	A_GiveShield(shieldgiver, SH_THUNDERCOIN)
-end*/
---]]
---holy moly the test script was sealed TWICE
+	player.mo.loss = true
+	player.mo.state = S_PLAY_LOSS
+end
 
 B.PlayerCreditPusher = function(player,source)
 	if source and source.valid and source.player then
@@ -511,7 +516,7 @@ B.PlayerSetupPhase = function(player)
 	
 	--Roulette
 	local change = 0
-	if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE)
+	if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE) and player.roulette
 		local deadzone = 20
 		local right = player.cmd.sidemove >= deadzone
 		local left = player.cmd.sidemove <= -deadzone
@@ -547,6 +552,11 @@ B.PlayerSetupPhase = function(player)
 		end
 	else
 		player.roulette_x = (40*FRACUNIT*change)
+	end
+
+	--Roulette toggling
+	if B.PlayerButtonPressed(player,BT_TOSSFLAG,false) then
+		player.roulette = not player.roulette
 	end
 	
 	--No control

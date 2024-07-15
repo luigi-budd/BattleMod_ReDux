@@ -11,7 +11,7 @@ B.PreRoundHUD = function(v,player,cam)
 	local lockedin = (leveltime + 17 >= CV_FindVar("hidetime").value*TICRATE)
 	if lockedin then roulette_x = 0 end
 	
-	if (B.HUDAlt) and B.PreRoundWait() and player.battleconfig_charselect and not (B.Timeout or player.spectator) then
+	if (B.HUDAlt) and B.PreRoundWait() and player.roulette and not (B.Timeout or player.spectator) then
 		local x, y = 160, 72
 		local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER|V_ALLOWLOWERCASE
 		-- Display pre-round hint: We can change characters during this period.
@@ -60,5 +60,6 @@ B.PreRoundHUD = function(v,player,cam)
 			)
 		end
 		v.draw(160-16, 100-9, v.cachePatch("M_FSEL"), V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER)
+		v.drawString(160, 192, yellow.."TOSSFLAG: "..white.."Close roulette", V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_PERPLAYER, "center")
 	end
 end

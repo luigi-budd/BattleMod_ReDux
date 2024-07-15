@@ -133,7 +133,7 @@ G_AddGametype({
 })
 
 G_AddGametype({
-	name = "Diamond in the Rough",
+	name = "Warp Heist",
 	identifier = "diamond",
 	typeoflevel = TOL_DIAMOND|TOL_MATCH,
 	rules = GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES,
@@ -143,11 +143,11 @@ G_AddGametype({
 	defaulttimelimit = 5,
 	headerleftcolor = 148,
 	headerrightcolor = 148,
-	description = 'Find and seize the diamond on the field, then hold onto it for as long as you can! Careful -- other players can steal your crystal, even just by touching it!'
+	description = 'Find the Warp Topaz and take it to the Control Zone while avoiding every enemy in your way in this fast paced map knowledge testing mode!'
 })
 
 G_AddGametype({
-	name = "Team Diamond in the Rough",
+	name = "Team Warp Heist",
 	identifier = "teamdiamond",
 	typeoflevel = TOL_DIAMOND|TOL_MATCH,
 	rules = GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES|GTR_TEAMFLAGS,
@@ -157,7 +157,7 @@ G_AddGametype({
 	defaulttimelimit = 5,
 	headerleftcolor = 37,
 	headerrightcolor = 150,
-	description = 'Two teams compete for a single diamond on the field; work together to seize the crystal, or protect the diamond holder if your team already has it!'
+	description = 'Work together to seize the Warp Topaz and send it back whence it came!'
 })
 
 -- Removed GTR_TEAMFLAGS; Battle CTF uses its own flag system
@@ -177,7 +177,7 @@ G_AddGametype({
 
 freeslot('tol_bank')
 G_AddGametype({
-    name = "Bank",
+    name = "Ring Rally",
     identifier = "bank",
     typeoflevel = TOL_BANK|TOL_CTF|TOL_BATTLECTF,
     rules = GTR_STARTCOUNTDOWN|GTR_OVERTIME|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|
@@ -188,7 +188,7 @@ G_AddGametype({
 	defaulttimelimit = 5,
     headerleftcolor = 37,
     headerrightcolor = 150,
-    description = "Add rings to your base, and steal ring's from the enemy base!"
+    description = "Work with your allies to rack up the most rings for your team! Collect rings and take them back to your team's rally point or steal rings from the enemy rally point to keep them from gaining the upper hand!"
 })
 
 freeslot('tol_rubyrun')
@@ -234,6 +234,7 @@ G.Diamond 		= {false,false,false,false,false,false,false,false}
 G.Ruby 			= {false,false,false,false,false,false,false,false}
 
 -- Format: { [GAMETYPE], {[ GAMETYPE_VALUES ]}}
+-- NOTE: the 3rd field indicates that the gametype is a BATTLE gametype.
 local GAMETYPE_INDICES = {
 	{GT_ARENA			,{0, false, true, false, true, false, false}}, 
 	{GT_TEAMARENA		,{0, false, true, false, true, false, false}}, 
@@ -245,7 +246,7 @@ local GAMETYPE_INDICES = {
 	{GT_DIAMOND			,{0, false, true, false, false,true,  false}},
 	{GT_TEAMDIAMOND		,{0, false, true, false, false,true,  false}},
 	{GT_BANK			,{0, false, true, false, false,false, false}},
-	{GT_RUBYRUN 		,{0, false, false,false, false,false,  true}},
+	{GT_RUBYRUN 		,{0, false, true,false, false,false,  true}},
 	{GT_BATTLETAG		,{0, false, true, false, false,false, false}}
 }
 for i =1,#GAMETYPE_INDICES do

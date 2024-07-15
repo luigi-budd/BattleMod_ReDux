@@ -1,6 +1,8 @@
 freeslot('mt_diamond',
 	'mt_diamondspawn',
 	"spr_mshd", -- the diamond indicator (the one that displays over people's head)
+	"spr_topz", -- topaz
+	"s_topaz",
 	"mt_gotdiamond", -- the diamond indicator (the one that displays over people's head)
 	"s_gotdiamond",
 	"sfx_dmstl1",
@@ -11,10 +13,13 @@ freeslot('mt_diamond',
 	"sfx_shimr"
 	)
 
+-- Topaz sprite
+states[S_TOPAZ] = {SPR_TOPZ, 0, -1, nil, 0, 0, S_NULL, 0}
+
 -- Diamond object
 mobjinfo[MT_DIAMOND] = {
 	doomednum = -1,
-	spawnstate = S_SHRD1,
+	spawnstate = S_TOPAZ,
 	height = 32*FRACUNIT,
 	radius = 12*FRACUNIT,
 	flags = MF_SPECIAL
@@ -50,4 +55,3 @@ states[S_GOTDIAMOND] =
 	frame = A|FF_FULLBRIGHT,
 	--tics = -1,
 }
-

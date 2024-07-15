@@ -4,6 +4,10 @@ local CV = B.Console
 
 local notice = "\x83".."NOTICE: \x80"
 B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
+	if B.Exiting then
+		S_StartSound(nil, sfx_adderr, player)
+		return false
+	end
 	if player.spectatortime == nil then
 		player.spectatortime = 0
 	end
@@ -17,11 +21,11 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 			end
 		end
 		player.spectator = true
-		player.spectatortime = -10*TICRATE
+		player.spectatorlock = 10*TICRATE
 		return true
 	end
-	if not(player.spectatortime >= 0) and team != 0 then //Player join time cannot preceed assigned respawn delay
-		CONS_Printf(player,"Please wait "..-player.spectatortime/TICRATE.."s to rejoin")
+	if player.spectatorlock or (not(player.spectatortime >= 0) and team != 0) then //Player join time cannot preceed assigned respawn delay
+		CONS_Printf(player,"Please wait "..max(abs(player.spectatortime), player.spectatorlock)/TICRATE.."s to rejoin")
 		return false
 	end
 	

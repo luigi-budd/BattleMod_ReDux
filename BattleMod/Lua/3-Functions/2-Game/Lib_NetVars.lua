@@ -52,6 +52,8 @@ function B.NetVars.Sync(network)
 	R.ID 				= network($)
 	R.RedGoal		= network($)
 	R.BlueGoal		= network($)
+	R.RubyFade 		= network($)
+	R.player_respawntime = network($)
 	//CTF
 	F.RedFlag 		= network($)
 	F.BlueFlag		= network($)

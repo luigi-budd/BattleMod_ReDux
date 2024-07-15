@@ -1,12 +1,26 @@
 local B = CBW_Battle
 local R = B.Ruby
 local CV = B.Console
+R.FadeColor = 176
 
 local captime = CV.RubyCaptureTime.value * TICRATE
 
 R.HUD = function(v, player, cam)
 	if not (B.HUDMain) then return end
+
+
 	if not (player.realmo) then return end
+
+	--Ruby Run
+	if (B.Timeout > 1) or ((B.Timeout < (TICRATE + (TICRATE/5))) and player.exiting) or R.RubyFade == 10 then
+		v.fadeScreen(R.FadeColor, R.RubyFade)
+	end
+
+	if (R.RubyFade >= 1) and (player.battlespawning > 25) and (player.battlespawning < 48) then
+		v.fadeScreen(R.FadeColor, R.RubyFade)
+	end
+	--Fade
+
 	local ruby = R.ID
 	if not (ruby and ruby.valid) then return end
 	
@@ -27,10 +41,10 @@ R.HUD = function(v, player, cam)
 		
 		if ruby.target
 			if not frontrotate
-				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY"), flags, rubycolor)
+				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 			end
 		else
-			v.draw(xoffset, yoffset, v.cachePatch("RAD_RUBY"), flags, rubycolor)
+			v.draw(xoffset, yoffset, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 		end
 		
 		if ruby.target and ruby.target.valid and ruby.target.player then
@@ -38,7 +52,7 @@ R.HUD = function(v, player, cam)
 			local facepatch = v.getSprite2Patch(ruby.target.skin, SPR2_LIFE)
 			v.draw(xoffset, yoffset + face_yoffset, facepatch, flags|V_FLIP, playercolor)
 			if frontrotate
-				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY"), flags, rubycolor)
+				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 			end
 			local color = 0
 			if R.RedGoal and R.BlueGoal and R.RedGoal.valid and R.BlueGoal.valid
@@ -159,4 +173,5 @@ R.HUD = function(v, player, cam)
 			end
 		end		
 	end	
+
 end

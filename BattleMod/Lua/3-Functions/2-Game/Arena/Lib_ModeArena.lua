@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local CV = B.Console
 local A = B.Arena
+local R = B.Ruby
 A.Fighters = {}
 A.RedFighters = {}
 A.BlueFighters = {}
@@ -10,6 +11,11 @@ A.BlueSurvivors = {}
 A.Placements = {}
 A.SpawnLives = 3
 A.GameOvers = 0
+R.CapAnimTime = TICRATE*3+(TICRATE/2) --Time the Ruby capture animation takes
+R.RubyFade = 0 --Value for the ruby's fade transition
+
+local lossmusic = "BLOSE"
+local winmusic = "BWIN"
 
 A.GameOverControl = function(player)
 	if not(B.BattleGametype()) then return end
@@ -121,7 +127,11 @@ A.ForceRespawn = function(player)
 	and not(player.playerstate == PST_LIVE) and player.lives > 0 and not(player.revenge)
 	and leveltime&1
 		then
-		player.cmd.buttons = $|BT_JUMP
+		if player.extradeadtimer then
+			player.extradeadtimer = $-1
+		else
+			player.cmd.buttons = $|BT_JUMP
+		end
 	end
 end
 
@@ -202,19 +212,68 @@ end
 
 local function forcewin()
 	local doexit = false
+	local extended = (not splitscreen) and not(G_GametypeHasTeams() and redscore == bluescore)
+	local player_scores = {}
 	for player in players.iterate
+		table.insert(player_scores, player.score)
+		if (extended) then
+			if player.powers[pw_sneakers] then player.powers[pw_sneakers] = $+1 end
+			if player.powers[pw_invulnerability] then player.powers[pw_invulnerability] = $+1 end
+			if player.powers[pw_super] and leveltime%TICRATE==1 then player.rings = $+1 end
+		else
+			S_StopMusic(player)
+		end
 		if player.exiting then continue end
-		doexit = true 
-		P_DoPlayerExit(player)
-		S_StopMusic(player)
+		doexit = true
 	end
-	if doexit == true then
+	table.sort(player_scores, function(a, b)
+		return (a > b)
+	end)
+	if doexit == true and not(B.Exiting) then
 		B.DebugPrint("Game set conditions triggered.")
 		S_StartSound(nil,sfx_lvpass)
 		S_StartSound(nil,sfx_nxbump)
 		B.Exiting = true
+		B.Timeout = (extended) and 5*TICRATE or 1
 		for player in players.iterate
+			S_StopMusic(player)
 			COM_BufInsertText(player,"cecho  ") //Override ctf messages
+			if not(extended) then continue end
+			if (player.spectator)
+			or (player.ctfteam == 1 and redscore > bluescore)
+			or (player.ctfteam == 2 and bluescore > redscore)
+			or (A.Bounty and A.Bounty == player)
+			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
+			then
+				COM_BufInsertText(player,"tunes "..winmusic)
+			else
+				if player.mo then player.mo.loss = true end
+				COM_BufInsertText(player,"tunes "..lossmusic)
+			end
+		end
+	end
+end
+
+A.Exiting = function()
+	if B.Exiting then
+		B.Timeout = max(0,$-1)
+		if B.Timeout then
+			for player in players.iterate do
+				if not player.spectator then
+					player.powers[pw_nocontrol] = max($, 2)
+				end
+				player.nodamage = TICRATE
+			end
+		else
+			for player in players.iterate do
+				if player.mo and player.mo.loss
+				and player.mo.state != S_PLAY_LOSS and P_IsObjectOnGround(player.mo)
+				then
+					player.mo.state = S_PLAY_LOSS
+				end
+				if player.exiting then continue end
+				P_DoPlayerExit(player)
+			end
 		end
 	end
 end
@@ -223,8 +282,31 @@ local tiebreaker_t = function()
 	print("\x82".."Tiebreaker!")
 end
 
+local function stretchx(mo)
+	if not (mo and mo.valid) then return end
+	local stretchx = ease.linear(mo.spriteyscale-(mo.spriteyscale/4), 0, FRACUNIT/4)
+	mo.spriteyscale = $-stretchx
+	--mo.spriteyoffset = $+stretchx*mo.spriteyscale
+end
+
+local function resetstretch(mo)
+	if not (mo and mo.valid) then return end
+	mo.spriteyscale = FRACUNIT
+	--mo.spriteyoffset = 0
+	mo.spritexscale = FRACUNIT
+end
+
+local function stretchy(mo)
+	if not (mo and mo.valid) then return end
+	local stretchy = ease.outquad(mo.spritexscale/2, 0, FRACUNIT/2)
+	mo.spritexscale = $-stretchy
+	mo.spriteyscale = $+stretchy
+	--mo.spriteyoffset = $-(stretchy*mo.spritexscale)
+end
+
 A.UpdateGame = function()
 	if not(B.BattleGametype()) then return end
+	A.Exiting()
 	local survival = G_GametypeUsesLives() and B.ArenaGametype()
 	local playercount = 0
 	A.Survivors = {}
@@ -233,7 +315,7 @@ A.UpdateGame = function()
 	A.BlueSurvivors = {}
 	A.BlueFighters = {}
 	A.RedFighters = {}
-	for player in players.iterate()
+	for player in players.iterate() do
 		playercount = $+1
 		if not(player.spectator)
 			A.Fighters[#A.Fighters+1] = player //Player is participating
@@ -256,10 +338,23 @@ A.UpdateGame = function()
 			end
 		end
 	end
-	
+
+
+
 	//Update score
 	B.UpdateScore()
 	A.UpdateScore()
+
+	if gametype == GT_RUBYRUN then
+		if R.player_respawntime and R.player_respawntime > 1 then
+			R.player_respawntime = $-1
+		end
+		--this is so hacky, but there doesn't seem to be a global spawntimer so
+		
+		if (R.RubyFade and (R.RubyFade >= 1)) and (R.player_respawntime and (R.player_respawntime > 25) and (R.player_respawntime < 48)) then
+			R.RubyFade = $-1
+		end
+	end
 	
 	//End of round conditions
 	local timelimit = 60*TICRATE*CV_FindVar("timelimit").value
@@ -296,15 +391,109 @@ A.UpdateGame = function()
 		)
 	then
 		forcewin()
-	return end //Exit function
+	return end --Exit function
 	
 	if B.Timeout and not B.Exiting then
-		for player in players.iterate do
--- 			if player.exiting
-				player.exiting = max($, B.Timeout+2)
--- 			end
-		end
+
+
 		B.Timeout = $-1
+
+		for player in players.iterate do
+			
+			player.exiting = max($, B.Timeout+2)
+
+
+			if gametype == GT_RUBYRUN then
+				if not (player.mo and player.mo.valid) then
+					continue
+				end
+
+				local divisor = 10
+
+				player.mo.momx = $-($/divisor)
+				player.mo.momy = $-($/divisor)
+
+				player.mo.flags = $|MF_NOCLIPHEIGHT|MF_NOCLIP
+
+				if B.Timeout == R.CapAnimTime then
+					player.mo.momz = player.mo.scale
+				end
+
+				player.mo.momz = max($+(player.mo.scale/2), 0)
+
+
+				local invtime = ((B.Timeout-R.CapAnimTime)/2)
+
+				if player.ruby_capped then
+					--if B.Timeout <= R.CapAnimTime-(R.CapAnimTime/3) then
+						player.drawangle = $+(ANG1*invtime)
+					--end
+
+					player.mo.momx = $/2
+					player.mo.momy = $/2
+
+					player.pflags = $ & ~(PF_SPINNING)
+					if player.mo.state != S_PLAY_FALL then
+						player.mo.state = S_PLAY_FALL
+					end
+				end
+
+				if (player.mo.state == S_PLAY_STND) or (player.mo.state == S_PLAY_WAIT) then
+					player.mo.state = S_PLAY_FALL
+				end
+
+				player.squashstretch = true
+
+			end
+
+		end
+
+		if gametype == GT_RUBYRUN then
+
+			local one_andathird = (TICRATE + (TICRATE/5))
+			local one_andtwothirds = (TICRATE + (TICRATE/3))
+
+			if B.Timeout == one_andtwothirds then
+				S_StartSound(nil, sfx_cdfm56)
+			elseif B.Timeout < one_andtwothirds and B.Timeout > one_andathird then
+				for player in players.iterate do
+					stretchx(player.mo)
+					stretchx(player.followmobj)
+				end
+			elseif B.Timeout == one_andathird then
+				R.RubyFade = 0
+				for player in players.iterate do
+					resetstretch(player.mo)
+					resetstretch(player.followmobj)
+				end
+			elseif B.Timeout < one_andathird then
+				if (R.RubyFade < 10) then
+					R.RubyFade = $+1
+				end
+				for player in players.iterate do
+					stretchy(player.mo)
+					stretchx(player.followmobj)
+				end
+			end
+
+			if B.Timeout == R.CapAnimTime-(R.CapAnimTime/4) then
+
+				for mo in mobjs.iterate() do
+
+					if not(mo and mo.valid) then
+						continue
+					end
+
+					
+
+				end
+
+			end
+
+
+		end
+
+		
 		if B.Timeout == 0 then
 			for player in players.iterate do
 				player.exiting = 0
@@ -316,6 +505,7 @@ A.UpdateGame = function()
 				player.mo.angle = player.starpostangle
 -- 				player.mo.scale = player.starpostscale
 -- 				B.InitPlayer(player)
+				R.player_respawntime = 48
 				B.PlayerBattleSpawnStart(player)
 			end
 			if gametype == GT_RUBYRUN then

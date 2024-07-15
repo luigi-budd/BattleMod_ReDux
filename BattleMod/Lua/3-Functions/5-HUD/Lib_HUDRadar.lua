@@ -4,6 +4,7 @@ local D = B.Diamond
 local R = B.Ruby
 local F = B.CTF
 local A = B.Arena
+local CP = B.ControlPoint
 
 B.clamp = function(num, minimum, maximum)
 	return min(maximum, max(num, minimum))
@@ -69,7 +70,7 @@ B.RadarHUD = function(v, player, cam)
 		return
 	end
 	
-	for r = 1, 6 do
+	for r = 1, 8 do
 		local t = {}
 		local scale = FRACUNIT/2
 		local trans = V_10TRANS
@@ -84,6 +85,7 @@ B.RadarHUD = function(v, player, cam)
 		local float = false
 		local color = nil
 		local flags = V_PERPLAYER
+		local colormap = TC_RAINBOW
 		
 		--Goal
 		if r == 1 or r == 2
@@ -105,10 +107,9 @@ B.RadarHUD = function(v, player, cam)
 						patch = v.cachePatch("RAD_DEFEN")
 					end
 				else
-					continue
-					--patch = v.cachePatch("RAD_GOAL1")
-					--trans = V_70TRANS
-					--scale = FRACUNIT/7
+					patch = v.cachePatch("RAD_NO")
+					trans = V_70TRANS
+					scale = FRACUNIT/7
 				end
 			else
 				continue
@@ -119,23 +120,43 @@ B.RadarHUD = function(v, player, cam)
 			float = true
 			allow_clamp = false
 		end
-		--Red Flag
+		--Red Flag / Bank
 		if r == 3
-			if not (F.RedFlag and F.RedFlag.valid) then continue end
-			table.insert(t,F.RedFlag)
+			if not (
+				(F.RedFlag and F.RedFlag.valid)
+				or (B.RedBank and B.RedBank.valid)
+			) then
+				continue
+			end
+			table.insert(t,F.RedFlag or B.RedBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			patch = v.cachePatch("RAD_FLAG")
+			if gametype == GT_BANK then
+				patch_clamped = v.cachePatch("RAD_RING1")
+				patch = v.cachePatch("RAD_RING2")
+			else
+				patch = v.cachePatch("RAD_FLAG")
+			end
 			color = SKINCOLOR_RED
 			center = true
 		end
-		--Blue Flag
+		--Blue Flag / Bank
 		if r == 4
-			if not (F.BlueFlag and F.BlueFlag.valid) then continue end
-			table.insert(t,F.BlueFlag)
+			if not (
+				(F.BlueFlag and F.BlueFlag.valid)
+				or (B.BlueBank and B.BlueBank.valid)
+			) then
+				continue
+			end
+			table.insert(t,F.BlueFlag or B.BlueBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			patch = v.cachePatch("RAD_FLAG")
+			if gametype == GT_BANK then
+				patch_clamped = v.cachePatch("RAD_RING1")
+				patch = v.cachePatch("RAD_RING2")
+			else
+				patch = v.cachePatch("RAD_FLAG")
+			end
 			color = SKINCOLOR_BLUE
 			center = true
 			flags = $|V_FLIP
@@ -146,7 +167,8 @@ B.RadarHUD = function(v, player, cam)
 			table.insert(t,R.ID)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			patch = v.cachePatch("RAD_RUBY")
+			patch_clamped = v.cachePatch("RAD_RUBY1")
+			patch = v.cachePatch("RAD_RUBY2")
 			color = R.ID.color
 			scale = FRACUNIT / 2
 			center = true
@@ -159,6 +181,41 @@ B.RadarHUD = function(v, player, cam)
 			fade2 = V_60TRANS
 			patch = v.cachePatch("RAD_CROWN")
 			scale = FRACUNIT / 6
+			center = true
+		end
+		--Topaz
+		if r == 7
+			if not (D.Diamond and D.Diamond.valid) then continue end
+			table.insert(t,(D.Diamond.target and D.Diamond.target.valid) and D.Diamond.target or D.Diamond)
+			fade = V_40TRANS
+			fade2 = V_60TRANS
+			patch_clamped = v.cachePatch("RAD_TOPAZ1")
+			patch = v.cachePatch("RAD_TOPAZ2")
+			scale = FRACUNIT / 2
+			center = true
+		end
+		--Capture Point
+		if r == 8 then
+			if not (
+				(CP.Mode and CP.ID and CP.ID[CP.Num] and CP.ID[CP.Num].valid and (CP.Active or CP.Timer and CP.Timer <= 10*TICRATE))
+				or D.ActivePoint
+			) then
+				continue
+			end
+			local mobj = D.ActivePoint or CP.ID[CP.Num]
+			table.insert(t,mobj)
+			fade = V_40TRANS
+			fade2 = V_60TRANS
+			if CP.Timer and not (D.Diamond and D.Diamond.valid and D.Diamond.target) then
+				patch_clamped = v.cachePatch("RAD_LOCK1")
+				patch = v.cachePatch("RAD_LOCK2")
+			else
+				patch_clamped = v.cachePatch("RAD_CP1")
+				patch = v.cachePatch("RAD_CP2")
+				color = mobj.color
+				colormap = TC_DEFAULT
+			end
+			scale = FRACUNIT / 2
 			center = true
 		end
 		
@@ -235,12 +292,19 @@ B.RadarHUD = function(v, player, cam)
 			if clampscale
 				ds = min(FRACUNIT*2/3, ds)
 			end
+
+			local final_scale = max(1, scale + ds)
 			
             --Finally draw the damn thing
 			if color == 0
 				color = nil
 			end
-			v.drawScaled(dx, dy, max(1, scale + ds), final_patch, final_trans|flags, color and v.getColormap(TC_RAINBOW, color))
+			--[[
+			if clampedh == 2 then
+				dx = $-(final_scale*12) --ugh
+			end
+			]]
+			v.drawScaled(dx, dy, final_scale, final_patch, final_trans|flags, color and v.getColormap(colormap, color))
 		end
 	end
 end

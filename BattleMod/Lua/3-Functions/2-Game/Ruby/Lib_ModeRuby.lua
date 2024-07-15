@@ -16,12 +16,7 @@ local freetics = TICRATE
 local bounceheight = 10
 
 local timeout = function()
-	B.Timeout = TICRATE*3
--- 	for player in players.iterate do
--- 		if not player.spectator and player.playerstate == PST_LIVE
--- 			player.exiting = TICRATE*3+2
--- 		end
--- 	end
+	B.Timeout = R.CapAnimTime --Value is inside of Lib_ModeArena.lua
 end
 
 R.GameControl = function()
@@ -66,6 +61,7 @@ R.GetSpawns = function()
 end
 
 local function free(mo)
+	if not (mo and mo.valid) then return end
 	mo.fuse = freetics
 	mo.flags = $&~MF_SPECIAL
 	mo.flags = $|MF_GRENADEBOUNCE
@@ -157,6 +153,16 @@ local points = function(player)
 	end
 end
 
+local validSound = function(player, fallback)
+	if Cosmetics and Cosmetics.Capturesounds_long and 
+	(player.cos_capturesoundlong and player.cos_capturesoundlong and 
+	player.cos_capturesoundlong > 0 and player.cos_capturesoundlong <= #Cosmetics.Capturesounds_long) then
+		return Cosmetics.Capturesounds_long[player.cos_capturesoundlong].sound
+	else
+		return fallback
+	end
+end
+
 local capture = function(mo, player)
 	if (gametype == GT_RUBYCONTROL or gametype == GT_TEAMRUBYCONTROL)
 		P_AddPlayerScore(player,CV.RubyCaptureBonus.value)
@@ -166,10 +172,10 @@ local capture = function(mo, player)
 	S_StartSound(nil, sfx_prloop)
 	for p in players.iterate() do
 		if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
-			S_StartSound(nil, sfx_s3k68, p)
+			S_StartSound(nil, validSound(player, sfx_s3k68), p)
 			continue
 		elseif G_GametypeHasTeams() and not splitscreen
-			S_StartSound(nil, sfx_lose, p)
+			S_StartSound(nil, validSound(player, sfx_lose), p)
 			continue
 		end
 		S_StartSound(nil, sfx_s243, p)
@@ -183,11 +189,17 @@ local capture = function(mo, player)
 	B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
 	B.CTF.GameState.CaptureHUDName = player.name
 	B.CTF.GameState.CaptureHUDTeam = player.ctfteam
+
+	player.ruby_capped = true --Know if they should do the floaty spin thing
+
 	--vfx
 	if player.mo and player.mo.valid then
+		--player.mo.momz = FRACUNIT
 		B.DoFirework(player.mo)
 		local cooleffect = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_THOK)
 		cooleffect.color = SKINCOLOR_PITCHMAGENTA
+		cooleffect.frame = $|FF_FULLBRIGHT
+		cooleffect.blendmode = AST_ADD
 		cooleffect.fuse = TICRATE*2
 		cooleffect.tics = cooleffect.fuse
 		cooleffect.destscale = FRACUNIT*20
@@ -205,15 +217,16 @@ R.PreThinker = function()
 					local mo = R.ID
 					S_StartSound(mo, sfx_toss)
 					B.PrintGameFeed(player," tossed the "..rubytext..".")
-					free(mo)
-					mo.target = nil
 					player.actioncooldown = TICRATE
 					player.gotcrystal = false
 					player.gotcrystal_time = 0
+					player.tossdelay = TICRATE*2
+					free(mo)
+					if not (mo and mo.valid) then continue end
+					mo.target = nil
 					P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 					B.ZLaunch(mo,player.mo.scale*6)
 					P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
-					player.tossdelay = TICRATE*2
 				end
 			end
 		end
@@ -454,4 +467,22 @@ R.Thinker = function(mo)
 	end
 	--]]
 end
+
+/*
+COM_AddCommand("ruby_capture", function(player)
+
+	local ruby
+
+	for mo in mobjs.iterate() do
+		if mo.type == MT_RUBY then
+			mo.target = player.mo
+			ruby = mo
+		end
+	end
+
+	--capture(ruby, player)
+	--S_StartSound(nil, sfx_ruby0)
+	--player.ruby_capped = true
+	timeout()
+end, COM_ADMIN)*/
 

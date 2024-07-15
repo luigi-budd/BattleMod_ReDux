@@ -13,6 +13,7 @@ B.CarryState = function(tails,passenger)
 end
 
 B.TailsCatchPlayer = function(player1,player2)
+	if not (player1.mo and player1.mo.valid and player2.mo and player2.mo.valid) then return end
 	if P_MobjFlip(player1.mo) ~= P_MobjFlip(player2.mo) then return end
 	local flip = P_MobjFlip(player1.mo)
 	--Determine who's who
@@ -429,6 +430,8 @@ B.invinciblespark = function(player)
 		if not S_SoundPlaying(mo, sfx_huprsa) then
 			if player ~= displayplayer and not splitscreen then
 				S_StartSound(mo, sfx_huprsa)
+			else
+				S_StartSoundAtVolume(mo, sfx_huprsa, 160)
 			end
 		end
 	elseif player.invbarrier and player.invbarrier.valid then

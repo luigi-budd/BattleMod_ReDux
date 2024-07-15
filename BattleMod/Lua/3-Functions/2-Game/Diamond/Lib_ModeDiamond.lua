@@ -20,7 +20,8 @@ D.LastPointNum = 0
 
 
 local rotatespd = ANG20
-local diamondtext = "\x83".."Diamond".."\x80"
+--local diamondtext = "\x83".."Diamond".."\x80"
+local diamondtext = "\x87".."Warp Topaz".."\x80"
 
 local function Wrap(num,size)
 	if num > size then
@@ -107,7 +108,7 @@ D.SpawnCapturePoints = function()
 end
 
 D.SpawnDiamond = function()
-	B.DebugPrint("Attempting to spawn diamond",DF_GAMETYPE)
+	B.DebugPrint("Attempting to spawn topaz",DF_GAMETYPE)
 	local num = P_RandomRange(1, #D.Spawns)
 	if #D.Spawns > 2 then
 		while num == D.LastDiamondPointNum or num == D.LastPointNum do
@@ -128,7 +129,7 @@ D.SpawnDiamond = function()
 		D.Diamond = P_SpawnMobj(x,y,z,MT_DIAMOND)
 		D.ActivatePoint(num)
 		D.LastDiamondPointNum = num
-		B.DebugPrint("Diamond coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)
+		B.DebugPrint("Topaz coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)
 		print("The "..diamondtext.." has been spawned!")
 	end
 end
@@ -324,7 +325,7 @@ D.Thinker = function(mo)
 				player.actioncooldown = TICRATE
 				player.gotcrystal = false
 				player.gotcrystal_time = 0
-				P_TeleportMove(mo,player.mo.x,player.mo.y,player.mo.z)
+				P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 				P_InstaThrust(mo,player.mo.angle,FRACUNIT*5)
 				P_SetObjectMomZ(mo,FRACUNIT*10)
 				player.tossdelay = TICRATE*2
@@ -386,7 +387,7 @@ D.Thinker = function(mo)
 		z = $+t.height
 		t.flags2 = $|MF2_OBJECTFLIP
 	end
-	P_TeleportMove(mo,t.x,t.y,t.z)
+	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) --Do z pos while respecting level geometry
 end
@@ -429,6 +430,16 @@ D.CapturePointThinker = function(mo)
 		D.CapturePointActiveThinker(mo, floor, flip, ceil, radius, height)
 	else
 		CP.InertThinker(mo)
+	end
+end
+
+local validSound = function(player, fallback)
+	if Cosmetics and Cosmetics.Capturesounds_short and 
+	(player.cos_capturesoundshort and player.cos_capturesoundshort and 
+	player.cos_capturesoundshort > 0 and player.cos_capturesoundshort <= #Cosmetics.Capturesounds_short) then
+		return Cosmetics.Capturesounds_short[player.cos_capturesoundshort].sound
+	else
+		return fallback
 	end
 end
 
@@ -533,10 +544,10 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 		local scoreincrease = 0
 		for p in players.iterate()
 			if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
-				S_StartSound(nil, sfx_s3k68, p)
+				S_StartSound(nil, validSound(player, sfx_s3k68), p)
 				continue
 			elseif G_GametypeHasTeams() and not splitscreen
-				S_StartSound(nil, sfx_lose, p)
+				S_StartSound(nil, validSound(player, sfx_lose), p)
 				continue
 			end
 			S_StartSound(nil, sfx_s243, p)
@@ -554,7 +565,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			--Reuse CTF's capture HUD
 			B.CTF.GameState.CaptureHUDTimer = 2*TICRATE
 			B.CTF.GameState.CaptureHUDName = player.name
-			B.CTF.GameState.CaptureHUDTeam = player.ctfteam
+			B.CTF.GameState.CaptureHUDTeam = skincolors[player.skincolor].chatcolor
 		else
 			if player.captures == nil then
 				player.captures = 0
@@ -658,9 +669,11 @@ D.DiamondIndicatorThinker = function()
 
 		if player == displayplayer then
 			indicator.flags2 = $|MF2_DONTDRAW
+			--[[
 			if leveltime % (TICRATE/2) == 0 then
 				S_StartSoundAtVolume(nil, sfx_s24d, 125, player)
 			end
+			]]
 			if not S_IdPlaying(sfx_shimr) then
 				S_StartSoundAtVolume(nil, sfx_shimr, 125, player)
 			end
