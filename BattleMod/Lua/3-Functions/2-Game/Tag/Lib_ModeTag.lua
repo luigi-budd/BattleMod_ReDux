@@ -125,7 +125,7 @@ B.TagControl = function()
 					end
 				end
 				//attempts to have the runner earn points every second they're alive
-				if not player.battletagIT and leveltime % TICRATE == 0
+				if not player.battletagIT and player.realtime % TICRATE == 0//leveltime % TICRATE == 0
 					P_AddPlayerScore(player, 5)
 				end
 			end
@@ -134,6 +134,16 @@ B.TagControl = function()
 			print("All players have been tagged!")
 			G_ExitLevel()
 		end
+	end
+	//double runners score for surviving the whole round
+	if B.Exiting and B.TagPreRound == 2
+		for player in players.iterate do
+			if not player.battletagIT
+				P_AddPlayerScore(player, player.score)
+			end
+		end
+		print("All runners have their score doubled for surviving the round.")
+		B.TagPreRound = 3
 	end
 end
 
@@ -155,7 +165,7 @@ B.TagDamageControl = function(target, inflictor, source)
 	end
 end
 
-//have runners who are damaged by taggers switch teams
+//have runners who are damaged by taggers or die switch teams
 B.TagTeamSwitch = function(target, inflictor, source)
 	if gametype != GT_BATTLETAG or not MoValidPlayer(target) or (not
 			MoValidPlayer(inflictor) and not MoValidPlayer(source))
@@ -170,6 +180,12 @@ B.TagTeamSwitch = function(target, inflictor, source)
 		tagger = source.player
 	end
 	if tagger != nil and tagger.battletagIT and not runner.battletagIT
+		B.TagConverter(runner)
+		//have tagger steal the runner's score
+		P_AddPlayerScore(tagger, runner.score)
+		P_ResetScore(runner)
+		runner.score = 0
+	elseif runner.playerstate != PST_LIVE and not runner.battletagIT
 		B.TagConverter(runner)
 	end
 end

@@ -274,7 +274,7 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	end
 	//have runners who died after second pre-round switch teams
 	if B.TagGametype() and B.TagPreRound > 1 and target.player != nil
-		B.TagConverter(target.player)
+		B.TagTeamSwitch(target, inflictor, source)
 	end
 end, MT_PLAYER)
 

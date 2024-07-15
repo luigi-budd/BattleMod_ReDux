@@ -221,6 +221,11 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 			if twodlevel then thrust = B.TwoDFactor($) end
 			P_SetObjectMomZ(inflictor,thrust)
 			B.DoPlayerTumble(inflictor.player, 45, angle, inflictor.scale*3, true, true)	-- prevent stun break
+			//reward runners points for parrying taggers
+			if B.TagGametype() and (inflictor.player.battletagIT and not 
+					target.player.battletagIT)
+				P_AddPlayerScore(target.player, 50)
+			end
 		else
 			P_DamageMobj(inflictor,target,target)
 		end
