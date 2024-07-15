@@ -8,7 +8,7 @@ B.TagGenHUD = function(v, player, cam)
 	
 	if player.battletagIT
 		//blindfold taggers
-		if player.BTblindfade > 0
+		if player.BTblindfade > 0 and camera2 == nil
 			v.fadeScreen(31, player.BTblindfade)
 		end
 	end
@@ -30,7 +30,8 @@ B.TagRankHUD = function(v)
 	for player in players.iterate do
 		if player.battletagIT
 			//v.drawString(14, 5, "placeholder", V_PERPLAYER, "center")
-			if displayplayer == player and player.BTblindfade > 0
+			if displayplayer == player and player.BTblindfade > 0 and 
+					camera2 == nil
 				v.fadeScreen(31, player.BTblindfade)
 			end
 		end

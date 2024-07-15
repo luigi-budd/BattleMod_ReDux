@@ -22,18 +22,3 @@ mobjinfo[MT_BATTLETAG_IT] = {
 	dispoffset = 1,
 	flags = MF_NOCLIP | MF_NOCLIPHEIGHT | MF_SCENERY | MF_NOGRAVITY
 }
-
-//this is fucking scuffed but i have no other options
-/*freeslot("S_BTAG_BLINDFOLD", "MT_BTAG_BLINDFOLD")
-states[S_BTAG_BLINDFOLD] = {
-	sprite = SPR_THOK,
-	frame = FF_FULLDARK | A,
-	tics = -1,
-	nextstate = S_BTAG_BLINDFOLD
-}
-mobjinfo[MT_BTAG_BLINDFOLD] = {
-	spawnstate = S_BTAG_BLINDFOLD,
-	height = 10 * FRACUNIT,
-	radius = 5 * FRACUNIT,
-	flags = MF_NOCLIP | MF_NOCLIPHEIGHT | MF_SCENERY | MF_NOGRAVITY
-}*/
