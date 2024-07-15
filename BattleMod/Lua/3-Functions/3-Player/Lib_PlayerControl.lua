@@ -269,15 +269,23 @@ B.MyTeam = function(player,myplayer) --Also accepts player.mo
 	if CV_FindVar("friendlyfire").value then
 		return false
 	end
+	--Tag checks
+	if B.TagGametype() then
+		/*if player.pflags&PF_TAGIT == myplayer.pflags&PF_TAGIT then return true
+		else return false
+		end*/
+		if gametype == GT_BATTLETAG
+			return (player.battletagIT and myplayer.battletagIT) or
+					(not player.battletagIT and not myplayer.battletagIT)
+		else
+			return (player.pflags & PF_TAGIT and myplayer.pflags & PF_TAGIT) or
+					(not (player.pflags & PF_TAGIT) and not (myplayer.pflags &
+					PF_TAGIT))
+		end
+	end
 	--CTF checks
 	if G_GametypeHasTeams() then
 		if player.ctfteam == myplayer.ctfteam then return true
-		else return false
-		end
-	end
-	--Tag checks
-	if B.TagGametype() then
-		if player.pflags&PF_TAGIT == myplayer.pflags&PF_TAGIT then return true
 		else return false
 		end
 	end

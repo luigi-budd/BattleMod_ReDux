@@ -2,7 +2,8 @@ local B = CBW_Battle
 local CV = B.Console
 
 B.TagGametype = function()
-	if gametype == GT_EGGROBOTAG or G_TagGametype() then return true
+	if gametype == GT_EGGROBOTAG or G_TagGametype() or 
+			gametype == GT_BATTLETAG then return true
 	else return false end
 end
 

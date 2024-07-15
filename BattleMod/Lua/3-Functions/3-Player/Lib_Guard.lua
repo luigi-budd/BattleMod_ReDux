@@ -12,7 +12,8 @@ end
 
 B.GuardControl = function(player)
 	if CV.Guard.value == 0 
-	or G_TagGametype()
+	or (B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
+			and player.actioncooldown > 0 and player.guard == 0)
 	or player.iseggrobo
 	or player.isjettysyn
 	or player.tumble
@@ -43,6 +44,8 @@ B.Guard = function(player,buttonpressed)
 	or (player.skidtime and player.powers[pw_nocontrol])
 	or (mo.eflags & MFE_JUSTHITFLOOR)
 	or (player.weapondelay and mo.state == S_PLAY_FIRE)
+	//disable guard for runners in battle tag for now
+	//or (B.TagGametype() and not (player.pflags & PF_TAGIT))
 		if player.guard != 0 then
 			if not(P_PlayerInPain(player)) and not(player.pflags&(PF_JUMPED|PF_SPINNING)) then
 				mo.state = S_PLAY_FALL
@@ -71,6 +74,12 @@ B.Guard = function(player,buttonpressed)
 			local i = P_SpawnMobj(mo.x,mo.y,mo.z,MT_INSTASHIELD)
 			if i and i.valid
 				i.target = mo
+			end
+			//make runners pay rings and apply cooldown for guard in battle tag
+			if B.TagGametype() and not (player.pflags & PF_TAGIT or 
+					player.battletagIT)
+				B.PayRings(player, 10, true)
+				B.ApplyCooldown(player, TICRATE)
 			end
 		end
 	end
@@ -212,6 +221,11 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 			if twodlevel then thrust = B.TwoDFactor($) end
 			P_SetObjectMomZ(inflictor,thrust)
 			B.DoPlayerTumble(inflictor.player, 45, angle, inflictor.scale*3, true, true)	-- prevent stun break
+			//reward runners points for parrying taggers
+			if B.TagGametype() and (inflictor.player.battletagIT and not 
+					target.player.battletagIT)
+				P_AddPlayerScore(target.player, 50)
+			end
 		else
 			P_DamageMobj(inflictor,target,target)
 		end

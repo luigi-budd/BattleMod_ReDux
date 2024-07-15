@@ -158,7 +158,12 @@ B.RingsHUD = function(v, player, cam)
 					text = "\x82" + $
 				else
 					if not B.CanDoAction(player) then
-						text = "\x86" + $
+						if B.TagGametype() and not (player.pflags & PF_TAGIT or
+								player.battletagIT)
+							text = "\x86RUN!!"
+						else
+							text = "\x86" + $
+						end
 					end
 					if player.actionrings and not(player.actioncooldown) then
 						if not B.CanDoAction(player) then
@@ -271,6 +276,8 @@ B.RingsHUD = function(v, player, cam)
 		and not (mo.eflags & MFE_JUSTHITFLOOR)
 		and not (player.weapondelay and mo.state == S_PLAY_FIRE)
 		and leveltime > TICRATE*5/4
+		//since guard is disabled for runners for now, don't show it in the hud
+		and (B.TagGametype() and player.pflags & PF_TAGIT)
 	)
 	local candodge = (player.canguard
 		and CV.airtoggle.value
@@ -291,6 +298,9 @@ B.RingsHUD = function(v, player, cam)
 	)
 	
 	local guardtext = guardoverride and player.guardtext or "\x82Guard"
+	if B.TagGametype() and not (player.pflags & PF_TAGIT)
+		guardtext = $ + "\x80" + " 10"
+	end
 	patch = v.cachePatch("PARRYBT")
 	if canguard or guardoverride then
 		v.draw(x-10,y-1,patch,flags)
