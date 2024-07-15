@@ -9,8 +9,8 @@ F.RedScore = 0
 F.BlueScore = 0
 F.RedFlag = nil
 F.BlueFlag = nil
-F.RedFlagPos = {x=0,y=0,z=0}
-F.BlueFlagPos = {x=0,y=0,z=0}
+F.RedFlagPos = {x=0,y=0,z=0, mtopts=0} -- mtopts: MapThing options (e.g. flipped gravity, etc)
+F.BlueFlagPos = {x=0,y=0,z=0, mtopts=0}
 
 F.TrackRed = function(mo)
 	F.RedFlag = mo
@@ -133,19 +133,53 @@ end
 -- 1: Red team
 -- 2: Blue team
 local function spawnFlag(fteam)
-	-- find where the flag's Z coordinate is supposed to be (pain.)
+	local flag_sectors = {}
 	local x = (fteam == 1) and F.RedFlagPos.x or F.BlueFlagPos.x
 	local y = (fteam == 1) and F.RedFlagPos.y or F.BlueFlagPos.y
+	local z = ((fteam == 1) and F.RedFlagPos.z or F.BlueFlagPos.z ) -- + s_floorheight
+
+	local mtopts = fteam == 1 and F.RedFlagPos.mtopts or F.BlueFlagPos.mtopts
+	local obj_flip = mtopts and ((mtopts&MTF_OBJECTFLIP) == 2) or nil
 
 	local ss = R_PointInSubsector(x, y)
-	local s_floorheight = ss.sector.floorheight
-	local z = ((fteam == 1) and F.RedFlagPos.z or F.BlueFlagPos.z ) + s_floorheight
-	if fteam == 1 then -- spawn a red flag
-		local rflag = P_SpawnMobj(x, y, z, MT_CREDFLAG)
-		rflag.atbase = true
-	elseif fteam == 2 then -- spawn a blue flag
-		local bflag = P_SpawnMobj(x, y, z, MT_CBLUEFLAG)
-		bflag.atbase = true
+	local sector = ss.sector
+
+	local function spawnAndSetFlagAttributes(x,y,z,flagtype)
+		local flag_obj = P_SpawnMobj(x,y,z,flagtype)
+		if obj_flip then 
+			flag_obj.flags2 = $|MF2_OBJECTFLIP 
+			P_SetOrigin(flag_obj, flag_obj.x, flag_obj.y, flag_obj.ceilingz)
+		end
+		flag_obj.mtopts = mtopts
+		flag_obj.atbase = true
+	end
+
+	local is_flagbase = (fteam == 1)
+		and ((GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE))   -- Red
+		or  ((GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE))  -- Blue
+
+	if is_flagbase then table.insert(flag_sectors, sector) end
+
+	-- check all fofs of the sector to see if any of them are flag bases and if so store them		
+	for rover in sector.ffloors() do
+		if rover and rover.valid then
+			local s = rover.sector
+			local is_flagbase = (fteam == 1) 
+				and ((GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE))   -- Red
+				or  ((GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE))  -- Blue
+
+			if is_flagbase then table.insert(flag_sectors,s) end
+		end
+	end
+
+	-- finally go over all stored sectors and let's spawn flags on them
+	for i=1,#flag_sectors do
+		local sector = flag_sectors[i]
+		if fteam==1 then 	-- red
+			spawnAndSetFlagAttributes(x,y,z,MT_CREDFLAG)
+		else 				-- blue
+			spawnAndSetFlagAttributes(x,y,z,MT_CBLUEFLAG)
+		end
 	end
 end
 
@@ -155,11 +189,15 @@ local function getFlagpos()
 			F.RedFlagPos.x = FRACUNIT*mo.x
 			F.RedFlagPos.y = FRACUNIT*mo.y
 			F.RedFlagPos.z = FRACUNIT*mo.z
+			F.RedFlagPos.mtopts = mo.options
+			F.RedFlag = {}
 			spawnFlag(1)
 		elseif mo.type == 311 then  -- BLUE FLAG
 			F.BlueFlagPos.x = FRACUNIT*mo.x
 			F.BlueFlagPos.y = FRACUNIT*mo.y
 			F.BlueFlagPos.z = FRACUNIT*mo.z
+			F.BlueFlagPos.mtopts = mo.options
+			F.BlueFlag = {}
 			spawnFlag(2)
 		end
 	end
@@ -256,16 +294,6 @@ B.DoFirework = function(mo)
 	end
 end
 
-local validSound = function(player, fallback)
-	if Cosmetics and Cosmetics.Capturesounds_long and 
-	(player.cos_capturesoundlong and player.cos_capturesoundlong and 
-	player.cos_capturesoundlong > 0 and player.cos_capturesoundlong <= #Cosmetics.Capturesounds_long) then
-		return Cosmetics.Capturesounds_long[player.cos_capturesoundlong].sound
-	else
-		return fallback
-	end
-end
-
 -- @flag:
 -- 1: red
 -- 2: blue
@@ -279,19 +307,8 @@ local function capFlag(p, flag)
 	P_AddPlayerScore(p, FLG_SCORE)
 	
 	--sounds
-
-	if splitscreen then
-		S_StartSound(nil, validSound(player, sfx_flgcap))
-	else
-		for player in players.iterate do
-			if player.ctfteam == p.ctfteam then
-				S_StartSound(nil, validSound(p, sfx_flgcap), player)
-			else
-				S_StartSound(nil, validSound(p, sfx_lose), player)
-			end
-		end
-	end
-
+	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == p.ctfteam))
+	if friendly then S_StartSound(nil, sfx_flgcap) else S_StartSound(nil, sfx_lose) end
 	--hud
 	F.GameState.CaptureHUDTimer = 5*TICRATE
 	F.GameState.CaptureHUDName = p.name
@@ -321,12 +338,39 @@ F.FlagPreThinker = function()
 				F.PlayerFlagBurst(p, 1)
 			end
 
-			if p.gotflag and P_IsObjectOnGround(p.mo) then
-				if p.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_REDTEAMBASE) then -- Red man touching red base
-					capFlag(p,1)
-				elseif p.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_BLUETEAMBASE) then -- Blue man touching Blue base
-					capFlag(p,2)
-			    end
+			local flag_sector_heights = {}
+			local groundsect = (p.mo.subsector and p.mo.subsector.valid and p.mo.subsector.sector and p.mo.subsector.sector.valid) and p.mo.subsector.sector
+			table.insert(flag_sector_heights, groundsect.floorheight)
+
+			-- List all FOFs to check if they're all flag bases (and if we're touching them)			
+			for rover in groundsect.ffloors() do
+				if rover and rover.valid then
+					local s = rover.sector
+					local is_flagbase = p.ctfteam == 1 
+						and (GetSecSpecial(s.special, 4) == 3) -- Red man touches red base
+						or  (GetSecSpecial(s.special, 4) == 4) -- Blue man touches blue base
+
+					if is_flagbase then table.insert(flag_sector_heights,s.ceilingheight) end
+				end
+			end
+
+			local eq_height = 0
+			for i=1, #flag_sector_heights do
+				local flagbase_floor = flag_sector_heights[i]
+				if p.mo.z == flagbase_floor then 
+					eq_height = flagbase_floor
+					break
+				end
+			end
+
+			if p.gotflag and eq_height then
+				if eq_height then
+					if p.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_REDTEAMBASE) then -- Red man touching red base
+						capFlag(p,1)
+					elseif p.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_BLUETEAMBASE) then -- Blue man touching Blue base
+						capFlag(p,2)
+				    end
+				end
 			end
 		end
 	end
