@@ -85,8 +85,8 @@ addHook("MobjMoveBlocked", function(pmo)
 		end
 		
 		if (abs(floorz - ceilingz) <= playerspinheight) -- Can't fit in this space, it's too small!
-		or (gravitydirection > 0) and (abs(pmo.z + pmo.height + playerheight) >= pmo.ceilingz) -- We're gonna bonk our head against the ceiling!
-		or (gravitydirection < 0) and (abs(pmo.z - playerheight) <= pmo.floorz) -- Same case with ceiling, only in reverse gravity.
+		or (gravitydirection > 0 and abs(pmo.z + pmo.height + playerheight) >= pmo.ceilingz) -- We're gonna bonk our head against the ceiling!
+		or (gravitydirection < 0 and abs(pmo.z - playerheight) <= pmo.floorz) -- Same case with ceiling, only in reverse gravity.
 		or (gravitydirection == 0) -- Failsafe.
 		then
 			-- If conditions are met...
@@ -100,7 +100,7 @@ addHook("MobjMoveBlocked", function(pmo)
 			ledgegrabz = floorz - playerheight -- Z position we'll snap to when grabbing the ledge.
 		elseif (gravitydirection < 0) then -- Inverse gravity.
 			ledgegrabrange = (playergrabz > ceilingz) and (playergrabz < (ceilingz + playergrabrange))
-			ledgegrabz = ceilingz
+			ledgegrabz = ceilingz + (pmo.scale*10)
 		end
 		
 		if (ledgegrabrange and ledgegrabz)
