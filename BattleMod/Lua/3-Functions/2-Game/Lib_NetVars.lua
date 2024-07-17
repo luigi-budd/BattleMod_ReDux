@@ -65,6 +65,7 @@ function B.NetVars.Sync(network)
 	B.Overtime		= network($)
 	B.SuddenDeath 	= network($)
 	B.Exiting 		= network($)
+	B.MatchPoint	= network($)
 	//all the stuff for battle tag
 	B.TagPreRound = network($)
 	B.TagPreTimer = network($)

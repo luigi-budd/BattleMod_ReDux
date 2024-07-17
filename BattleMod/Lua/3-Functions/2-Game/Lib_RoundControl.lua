@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local CV = B.Console
+local A = B.Arena
 
 local pinchtime = 31
 local pinchmusic = "BPNCH1"
@@ -18,15 +19,29 @@ B.GetPinch = function()
 		B.SuddenDeath 	= false
 		B.Pinch 		= false
 		B.Overtime	 	= false
+		B.MatchPoint	= false
 	return end
 	//Get vars
 	local t 			= CV_FindVar("timelimit")
 	local ot 			= CV_FindVar("overtime")
+	local pointlimit 	= CV_FindVar("pointlimit").value
 	local pre_pinch 	= (t.value*60-pinchtime)
 	local timeleft 		= pre_pinch-leveltime/TICRATE
 	local pinch 		= timeleft < 0
 	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0)
 	local suddendeath 	= (B.Gametypes.SuddenDeath[gametype] and overtime and CV.SuddenDeath.value == 1)
+	local matchpoint    = G_GametypeHasTeams() and ((redscore+1 == pointlimit) or (bluescore+1 == pointlimit))
+
+	--Match point music
+	if matchpoint then
+		--print(true)
+		if B.MatchPoint == false then
+			B.DebugPrint("Match Point triggered", DF_GAMETYPE)
+			B.MatchPoint = true
+			B.MatchPointMusic(consoleplayer)
+		end
+	end
+
 	//Check game mode conditions
 	if not(B.PreRoundWait())
 	and gametyperules&GTR_TIMELIMIT and t.value and pinch
@@ -34,6 +49,7 @@ B.GetPinch = function()
 		if not(overtime)
 			B.SuddenDeath 	= false
 			B.Overtime 		= false
+			B.MatchPoint	= false
 			//Do pinch indicators
 			if B.Pinch == false then
 				B.Pinch = true
@@ -126,8 +142,11 @@ B.PinchMusic = function(player)
 	if B.Exiting then return end
 	if player == nil then return end
 	if B.Pinch and player == consoleplayer then
+
+		local pinch = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.pinch) or pinchmusic
+	
 		B.DebugPrint("Starting pinch music",DF_GAMETYPE)
-		COM_BufInsertText(player,"tunes "..pinchmusic)
+		COM_BufInsertText(player,"tunes "..pinch)
 	return true end
 	return false
 end
@@ -136,8 +155,24 @@ B.OvertimeMusic = function(player)
 	if B.Exiting then return end
 	if player == nil then return end
 	if B.Overtime and player == consoleplayer then
+
+		local over = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.overtime) or overtimemusic
+
 		B.DebugPrint("Starting overtime music",DF_GAMETYPE)
-		COM_BufInsertText(player,"tunes "..overtimemusic)
+		COM_BufInsertText(player,"tunes "..over)
+	return true end
+	return false
+end
+
+B.MatchPointMusic = function(player)
+	if B.Exiting then return end
+	if player == nil then return end
+	if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.matchpoint) and player == consoleplayer then
+
+		local matchpoint = ALTMUSIC.CurrentMap.matchpoint
+
+		B.DebugPrint("Starting matchpoint music",DF_GAMETYPE)
+		COM_BufInsertText(player,"tunes "..matchpoint)
 	return true end
 	return false
 end

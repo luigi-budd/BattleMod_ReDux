@@ -6,6 +6,7 @@ B.Intermission = function()
 	//Reset round stats
 	B.PinchTics = 0
 	B.Pinch = false
+	B.MatchPoint = false
 	B.Overtime = false
 	B.SuddenDeath = false
 	B.Exiting = false

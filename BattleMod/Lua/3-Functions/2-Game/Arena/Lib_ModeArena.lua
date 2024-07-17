@@ -245,10 +245,12 @@ local function forcewin()
 			or (A.Bounty and A.Bounty == player)
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
-				COM_BufInsertText(player,"tunes "..winmusic)
+				local win = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.win) or winmusic
+				COM_BufInsertText(player,"tunes "..win)
 			else
 				if player.mo then player.mo.loss = true end
-				COM_BufInsertText(player,"tunes "..lossmusic)
+				local loss = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.loss) or lossmusic
+				COM_BufInsertText(player,"tunes "..loss)
 			end
 		end
 	end

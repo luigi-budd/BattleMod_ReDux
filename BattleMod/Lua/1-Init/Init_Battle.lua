@@ -16,6 +16,7 @@ B.HitCounter = 0
 B.Item = {}
 B.SuddenDeath = false
 B.Pinch = false
+B.MatchPoint = false
 B.Overtime = false
 B.Exiting = false
 B.PinchTics = 0

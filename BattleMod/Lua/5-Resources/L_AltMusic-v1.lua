@@ -9,13 +9,35 @@ if not ALTMUSIC then
     rawset(_G, "ALTMUSIC",{})
 end
 
-ALTMUSIC.Set = function(mapcode, string)
-    local code = mapcode:upper()
+local A = ALTMUSIC
 
-    ALTMUSIC[mapcode] = string:lower()
+A.Maps = {}
+
+local setMusic = function(mapcode, song, arr)
+
+    local name = mapcode:upper()
+    local music = song:lower()
+
+    if not rawget(A.Maps, name) then
+        A.Maps[name] = {}
+    end
+
+    if not A.Maps[name].songlist then
+        A.Maps[name].songlist = {}
+    end
+
+    table.insert(A.Maps[name].songlist, music)
+    A.Maps[name][music] = arr
 end
 
---ALTMUSIC.Set("MAPF4", "MP_FOR,MP_WTR")
+/*
+setMusic("mapw1", "gfz2", { --New altmusic 'gfz2'(Also works if you just put the map's default song)
+    pinch = "_super",
+    overtime = "bhz",
+    matchpoint = "spec5",
+    win = "_clear",
+    loss = "_gover"
+})*/
 
 
 local splitString = function(string)
@@ -27,69 +49,62 @@ local splitString = function(string)
 end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
-local current_mapsong = " "
-local current_defsong = " "
+
+A.CurrentMap = {
+    pinch = nil,
+    overtime = nil,
+    matchpoint = nil,
+    win = nil,
+    loss = nil
+}
+
+A.CurrentDefsong = nil
 
 addHook("NetVars", function(n)
     altmusic_transition = n($) --Just in case
-    current_mapsong = n($)
-    current_defsong = n($)
+    A.CurrentMap = n($)
+    A.CurrentDefsong = n($)
 end)
 
 addHook("MapChange", function(mapnum) --Runs before MapLoad
-    if mapheaderinfo[mapnum].altmusic then
+    if mapheaderinfo[mapnum].altmusic or rawget(A.Maps, G_BuildMapName(mapnum))then
         altmusic_transition = true --Transitioning!
     end
 end)
 
 addHook("IntermissionThinker", do
-    current_mapsong = nil --Thanks SRB2!
-    current_defsong = nil
+    if A.CurrentMap then
+        A.CurrentMap = {}
+    end
+
+    if A.CurrentDefsong then
+        A.CurrentDefsong = nil
+    end
 end)
 
 addHook("MapLoad", function(mapnum)
 
-
-    local music
-    local allmusic
+    local mapcode = G_BuildMapName(mapnum)
 
 
-    if (mapheaderinfo[mapnum].altmusic and mapheaderinfo[mapnum].musname) then --Altmusic?
+    if rawget(A.Maps, mapcode) then
+        
+        local songtable = A.Maps[mapcode]
 
-        music = mapheaderinfo[mapnum].musname..","..mapheaderinfo[mapnum].altmusic --Make one string that has all the songs
+        local allsongs = songtable.songlist
 
-    else
+        local altsong = allsongs[P_RandomRange(1, #allsongs)] --Pick one, randomly
 
-        local mapcode = G_BuildMapName(mapnum)
+        A.CurrentDefsong = mapheaderinfo[mapnum].musname
+        A.CurrentMap = A.Maps[mapcode][altsong]
+        A.CurrentMap.song = altsong
 
-        if ALTMUSIC and rawget(ALTMUSIC, mapcode) and (type(ALTMUSIC[mapcode]) == "string") then --Level header takes priority, but...
-
-            music = ALTMUSIC[mapcode]
-
-            if (mapheaderinfo[mapnum].musname) then
-                music = mapheaderinfo[mapnum].musname..","..$
-            end
-
-        else --No patch or altmusic line in header?
-            if mapheaderinfo[mapnum].musname then
-                current_mapsong = nil
-                current_defsong = nil
-                return
-            end
-        end
+        altmusic_transition = false --no longer transitioning
+        S_ChangeMusic(A.CurrentMap.song) --play the song!
+    
+        mapmusname = A.CurrentMap.song --Just in case!
+        
     end
-
-    allmusic = splitString(music) --Parse it
-
-    current_defsong = mapheaderinfo[mapnum].musname
-    current_mapsong = allmusic[P_RandomRange(1, #allmusic)] --Set mapmusname randomly (this will account for people joining mid-game)
-    altmusic_transition = false --no longer transitioning
-
-    --if consoleplayer.battleconfig_altmusic then
-        S_ChangeMusic(current_mapsong) --play the song!
-    -- end
-
-    mapmusname = current_mapsong --Just in case!
 
 end)
 
@@ -102,8 +117,8 @@ addHook("MusicChange", function(oldname, newname)
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)
     local validMap = (gamemap and mapheaderinfo[gamemap].musname)
 
-   if validMap and current_mapsong and (current_mapsong != current_defsong) and (newname == current_defsong) then
-        return current_mapsong
+   if validMap and A.CurrentMap.song and (A.CurrentMap.song != A.CurrentDefsong) and (newname == A.CurrentDefsong) then
+        return A.CurrentMap.song
    end
 
 end)
