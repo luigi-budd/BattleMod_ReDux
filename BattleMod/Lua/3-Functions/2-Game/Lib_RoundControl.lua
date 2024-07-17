@@ -30,7 +30,7 @@ B.GetPinch = function()
 	local pinch 		= timeleft < 0
 	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0)
 	local suddendeath 	= (B.Gametypes.SuddenDeath[gametype] and overtime and CV.SuddenDeath.value == 1)
-	local matchpoint    = G_GametypeHasTeams() and ((redscore+1 == pointlimit) or (bluescore+1 == pointlimit))
+	local matchpoint    = G_GametypeHasTeams() and ((redscore+1 == pointlimit) or (bluescore+1 == pointlimit)) and not(pinch) and not(overtime)
 
 	--Match point music
 	if matchpoint then
