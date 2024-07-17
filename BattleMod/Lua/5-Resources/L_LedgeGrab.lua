@@ -67,17 +67,8 @@ addHook("MobjMoveBlocked", function(pmo)
 		local ledgez = pmo.z
 		local ledgeheight = pmo.scale*4
 		
-		local floorz, ceilingz
-		if (gravitydirection > 0) then -- Normal gravity.
-			floorz = P_FloorzAtPos(ledgex, ledgey, ledgez, playerheight + ledgeheight)
-			ceilingz = P_CeilingzAtPos(ledgex, ledgey, ledgez, playerheight + ledgeheight)
-		elseif (gravitydirection < 0) then -- Reverse gravity.
-			floorz = P_FloorzAtPos(ledgex, ledgey, ledgez, -ledgeheight)
-			ceilingz = P_CeilingzAtPos(ledgex, ledgey, ledgez, -ledgeheight)
-		else
-			-- Failsafe.
-			return
-		end
+		local floorz = P_FloorzAtPos(ledgex, ledgey, ledgez, playerheight + ledgeheight)
+		local ceilingz = P_CeilingzAtPos(ledgex, ledgey, ledgez, playerheight + ledgeheight)
 		
 		if (floorz == ceilingz) then
 			-- This is a wall. Don't even DARE grabbing onto it.
