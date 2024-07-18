@@ -97,9 +97,7 @@ end)
 
 
 addHook("MapLoad", function(mapnum)
-
-    if 
-
+    
     local mapcode = G_BuildMapName(mapnum)  
     
     if rawget(A.Maps, mapcode) then
