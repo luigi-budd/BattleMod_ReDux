@@ -95,6 +95,12 @@ addHook("IntermissionThinker", do
     end
 end)
 
+local function play(song)
+    altmusic_transition = false --no longer transitioning
+    S_ChangeMusic(song) --play the song!
+
+    mapmusname = song --Just in case!
+end
 
 addHook("MapLoad", function(mapnum)
     
@@ -115,6 +121,11 @@ addHook("MapLoad", function(mapnum)
         A.CurrentDefsong = mapheaderinfo[mapnum].musname
         A.CurrentMap = A.Maps[mapcode][altsong]
         A.CurrentMap.song = altsong
+
+        if A.CurrentMap.song != mapheaderinfo[mapnum].musname then
+            play(A.CurrentMap.song)
+        end
+
     else
         local strings = {
             [1] = (splitString(mapheaderinfo[mapnum].altmusic) or {}),
@@ -164,13 +175,14 @@ addHook("MapLoad", function(mapnum)
         if rawget(strings, 4) and rawget(strings[4], index) then
             A.CurrentMap.loss = strings[4][index]
         end
-        
+
+        if A.CurrentMap.song != mapheaderinfo[mapnum].musname then
+            play(A.CurrentMap.song)
+        end
+
     end
 
-    altmusic_transition = false --no longer transitioning
-    S_ChangeMusic(A.CurrentMap.song) --play the song!
-
-    mapmusname = A.CurrentMap.song --Just in case!
+    
 
 end)
 
