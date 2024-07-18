@@ -137,6 +137,7 @@ Tails
 		- Thrown opponents have (2/1) priority, cannot airdodge, can damage their own teammates, and will take damage if they slam into a wall with enough speed
 Knuckles
 	- While battleconfig_glidestrafe is enabled (it's enabled by default), is allowed to always face the camera while gliding
+		- This is a SkinVar flag internally, SKINVARS_GLIDESTRAFE
 Amy
 	- While battleconfig_hammerstrafe is disabled (it's disabled by default), is no longer forced to always attack towards the camera
 	- Reverted abilities to piko tornado and piko jump

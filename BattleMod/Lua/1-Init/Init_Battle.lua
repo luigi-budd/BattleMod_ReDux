@@ -46,6 +46,7 @@ rawset(_G,"SKINVARS_GUARD",			1<<0)
 rawset(_G,"SKINVARS_NOSPINSHIELD",	1<<1)
 rawset(_G,"SKINVARS_GUNSLINGER",	1<<2)
 rawset(_G,"SKINVARS_ROSY",			1<<3)
+rawset(_G,"SKINVARS_GLIDESTRAFE",	1<<4)
 
 -- Define TOLs and gametypes
 freeslot('tol_arena','tol_survival','tol_cp','tol_diamond','tol_battlectf','tol_bigarena','tol_battle','tol_eggrobotag')
