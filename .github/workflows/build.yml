@@ -62,3 +62,12 @@ jobs:
           compression-level: 0
           
           overwrite: false
+
+      - name: Notify Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+             -X POST \
+             -d "{\"content\": \"A new build is available: ["ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3](https://github.com/CyaanKnight/BattleMod_ReDux/actions/artifacts/${{ github.run_id }})\"}" \
+             $DISCORD_WEBHOOK_URL
