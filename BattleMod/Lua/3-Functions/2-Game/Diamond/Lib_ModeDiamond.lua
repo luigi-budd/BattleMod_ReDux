@@ -543,6 +543,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 		local teamscoreincrease = 0
 		local scoreincrease = 0
 		for p in players.iterate()
+			S_StartSound(nil, sfx_s243, p)
 			if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
 				S_StartSound(nil, validSound(player, sfx_s3k68), p)
 				continue
@@ -550,7 +551,6 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 				S_StartSound(nil, validSound(player, sfx_lose), p)
 				continue
 			end
-			S_StartSound(nil, sfx_s243, p)
 		end
 		if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
 		or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 1)

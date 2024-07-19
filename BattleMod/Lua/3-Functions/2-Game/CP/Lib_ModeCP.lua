@@ -287,18 +287,21 @@ CP.SeizePoint = function()
 			bluescore = $+1
 		end
 		if consoleplayer and consoleplayer.ctfteam == victor then
-			S_StartSound(nil,validSound(consoleplayer, CP.WinSFX))
+			S_StartSound(nil,validSound(consoleplayer, CP.WinSFX), consoleplayer)
 		else
-			S_StartSound(nil,CP.LoseSFX)
+			S_StartSound(nil,CP.LoseSFX, consoleplayer)
 		end
-	elseif CP.LeadCapPlr and CP.LeadCapPlr.valid then //Free for all
+	elseif CP.LeadCapPlr then //Free for all
 		print(CP.LeadCapPlr.name.." captured the Control Point!")
 		P_AddPlayerScore(CP.LeadCapPlr,CV.CPBonus.value)
 		
 		if consoleplayer == CP.LeadCapPlr then
-			S_StartSound(nil,validSound(CP.LeadCapPlr, CP.WinSFX))
+			S_StartSound(nil,validSound(CP.LeadCapPlr, CP.WinSFX), CP.LeadCapPlr)
 		else
-			S_StartSound(nil,validSound(CP.LeadCapPlr, CP.LoseSFX))
+			if validSound(CP.LeadCapPlr, nil) then
+				S_StartSound(nil, validSound(CP.LeadCapPlr, nil), consoleplayer)
+			end
+			S_StartSound(nil,sfx_lose, consoleplayer)
 		end
 	end
 	CP.RefreshPoints()
