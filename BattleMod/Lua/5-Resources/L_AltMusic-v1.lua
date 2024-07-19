@@ -189,7 +189,7 @@ end)
 
 addHook("MusicChange", function(oldname, newname)
     if altmusic_transition then --Transitioning?
-        return true --No new music.
+        --return true --No new music.
     end
 
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)
