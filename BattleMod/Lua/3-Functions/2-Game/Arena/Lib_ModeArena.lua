@@ -284,10 +284,13 @@ local tiebreaker_t = function()
 	print("\x82".."Tiebreaker!")
 end
 
-local function stretchx(mo)
-	if not (mo and mo.valid) then return end
-	local stretchx = ease.linear(mo.spriteyscale-(mo.spriteyscale/4), 0, FRACUNIT/4)
-	mo.spriteyscale = $-stretchx
+local function stretchx(player)
+	if not (player.mo and player.mo.valid) then return end
+	local stretchx = ease.linear(player.mo.spriteyscale-(player.mo.spriteyscale/4), 0, FRACUNIT/4)
+	player.mo.spriteyscale = $-stretchx
+	if player.followmobj and player.followmobj.valid then
+		player.followmobj.spriteyscale = $-stretchx
+	end
 	--mo.spriteyoffset = $+stretchx*mo.spriteyscale
 end
 
@@ -298,11 +301,15 @@ local function resetstretch(mo)
 	mo.spritexscale = FRACUNIT
 end
 
-local function stretchy(mo)
-	if not (mo and mo.valid) then return end
-	local stretchy = ease.outquad(mo.spritexscale/2, 0, FRACUNIT/2)
-	mo.spritexscale = $-stretchy
-	mo.spriteyscale = $+stretchy
+local function stretchy(player)
+	if not (player.mo and player.mo.valid) then return end
+	local stretchy = ease.outquad(player.mo.spritexscale/2, 0, FRACUNIT/2)
+	player.mo.spritexscale = $-stretchy
+	player.mo.spriteyscale = $+stretchy
+	if player.followmobj and player.followmobj.valid then
+		player.followmobj.spritexscale = $-stretchy
+		player.followmobj.spriteyscale = $+stretchy
+	end
 	--mo.spriteyoffset = $-(stretchy*mo.spritexscale)
 end
 
@@ -459,8 +466,7 @@ A.UpdateGame = function()
 				S_StartSound(nil, sfx_cdfm56)
 			elseif B.Timeout < one_andtwothirds and B.Timeout > one_andathird then
 				for player in players.iterate do
-					stretchx(player.mo)
-					stretchx(player.followmobj)
+					stretchx(player)
 				end
 			elseif B.Timeout == one_andathird then
 				R.RubyFade = 0
@@ -473,8 +479,7 @@ A.UpdateGame = function()
 					R.RubyFade = $+1
 				end
 				for player in players.iterate do
-					stretchy(player.mo)
-					stretchx(player.followmobj)
+					stretchy(player)
 				end
 			end
 
