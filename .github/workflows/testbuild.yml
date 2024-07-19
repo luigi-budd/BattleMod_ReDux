@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Generate & Upload Test Build
 
 # Controls when the workflow will run
 on:
@@ -64,5 +64,5 @@ jobs:
             maxLength: 6
       - name: Upload to Discord
         run: |
-          curl -F 'payload_json={"username": "GitHub", "content": "Commit - [${{ steps.truncatedString.outputs.string }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" ${{ secrets.DISCORD_WEBHOOK_URL }}   
+          curl -F 'payload_json={"content": "Commit - [${{ steps.truncatedString.outputs.string }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" ${{ secrets.DISCORD_WEBHOOK_URL }}   
           
