@@ -68,8 +68,4 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PK3_NAME: "ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3"
         run: |
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "{\"content\": \"Commit ``$(git rev-parse --short HEAD)``\"}" \
-               -F "file1=@$PK3_NAME" \
-               $DISCORD_WEBHOOK_URL
+          curl -H "Content-Type: application/json" \ -X POST \ -d "{\"content\": \"Commit ``$(git rev-parse --short HEAD)``\"}" \  -F "file1=@$PK3_NAME" \ $DISCORD_WEBHOOK_URL
