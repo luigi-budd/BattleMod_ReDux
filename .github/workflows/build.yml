@@ -70,5 +70,6 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d "{\"content\": \"A new build is available: [$PK3_NAME](https://github.com/CyaanKnight/BattleMod_ReDux/actions/artifacts/${{ github.run_id }})\"}" \
+               -d "{\"content\": \"Commit ``$(git rev-parse --short HEAD)``\"}" \
+               -F "file1=@$PK3_NAME" \
                $DISCORD_WEBHOOK_URL
