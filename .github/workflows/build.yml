@@ -64,8 +64,6 @@ jobs:
           overwrite: false
 
       - name: Upload Build to Discord
-        env:
-          PK3_NAME: "ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3"
         run: |
-          curl -F 'payload_json={"username": "GitHub", "content": "Commit [$(git rev-parse --short HEAD)](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@$PK3_NAME" ${{ secrets.DISCORD_WEBHOOK_URL }}   
+          curl -F 'payload_json={"username": "GitHub", "content": "Commit [$(git rev-parse --short HEAD)](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" ${{ secrets.DISCORD_WEBHOOK_URL }}   
           
