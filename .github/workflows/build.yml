@@ -38,7 +38,7 @@ jobs:
         run: |
           printf "CBW_Battle.VersionNumber = 10\nCBW_Battle.VersionSub = 0\nCBW_Battle.VersionPublic = 0\nCBW_Battle.VersionDate = '$(date +"%-m/%-d/%Y")'\nCBW_Battle.VersionTime = '$(date +"%l:%M:%S %p")'\nCBW_Battle.VersionBranch = '$(git rev-parse --abbrev-ref HEAD)'\nCBW_Battle.VersionCommit = '$(git rev-parse --short HEAD)'" >> Init_VersionInfo.lua
 
-      - name: Copy VersionInfo into pk3
+      - name: Copy VersionInfo into .pk3
         run: |
           cp Init_VersionInfo.lua .\BattleMod\Lua\1-Init\
 
@@ -63,9 +63,10 @@ jobs:
           
           overwrite: false
 
-      - name: Notify Discord
+      - name: Upload Build to Discord
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PK3_NAME: "ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3"
         run: |
-          curl -H "Content-Type: application/json" \ -X POST \ -d "{\"content\": \"Commit ``$(git rev-parse --short HEAD)``\"}" \  -F "file1=@$PK3_NAME" \ $DISCORD_WEBHOOK_URL
+          curl   -F 'payload_json={"username": "GitHub", "content": "Commit [$(git rev-parse --short HEAD)](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\"}'   -F "file1=@$PK3_NAME"   $DISCORD_WEBHOOK_URL      
+          
