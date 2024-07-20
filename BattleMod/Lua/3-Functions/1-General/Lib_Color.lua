@@ -122,7 +122,7 @@ function B.chargeFlash(mo, chargevar, chargedval, flashdiff, param) --chargevar 
 	end
 end
 
-B.TextFlash = function(text, reset)
+B.TextFlash = function(text, reset, player)
 	local colors = {"\x81","\x88"}
 
 	local originaltext = text
@@ -133,7 +133,16 @@ B.TextFlash = function(text, reset)
 		bin = 1
 	end
 
+	if player then
+		player.textflash_flashing = true
+	end
+
 	local newtext = colors[bin+1]..originaltext.."\x80"
 
-	return (reset and originaltext) or (newtext)
+	if (reset) then
+		player.textflash_flashing = false
+		return text:sub(2)
+	else
+		return (newtext)
+	end
 end
