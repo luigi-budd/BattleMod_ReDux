@@ -151,21 +151,17 @@ end
 
 
 local dash_sfxThink = function(player) --Dashmode SFX
+	if not(player and player.mo and player.mo.valid) then return end
+
+	local playing = (S_SoundPlaying(player.mo, sfx_dashe) or S_SoundPlaying(player.mo, sfx_dasht))
+
 	if player.dashmode >= DASHMODE_THRESHOLD then --Dashing
-		for p in players.iterate do 
-			if not(p.mo and p.mo.valid) then
-				continue --don't bother continuing the script for this player
-			end
-			if (p == player) or B.MyTeam(player, p) or (not P_CheckSight(p.mo, player.mo)) then
-				--If you're the player in question, on the same team as the player in question, or the player in question isn't checksight visible
-				continue --Halt
-			end
-			if not S_SoundPlaying(player.mo, dash_sfx) then --If the sound isn't already playing
-				S_StartSoundAtVolume(player.mo, dash_sfx, dash_sfxvol, p) --Play the sound (not too loud though)
-			end
+		if not(playing) then
+			B.teamSound(player.mo, player, sfx_dasht, sfx_dashe, dash_sfxvol, false)
 		end
-	elseif player.mo and player.mo.valid and S_SoundPlaying(player.mo, dash_sfx) then
-		S_StopSoundByID(player.mo, dash_sfx) --If the sound is playing for some reason, stop it
+	elseif playing then
+		S_StopSoundByID(player.mo, sfx_dashe)
+		S_StopSoundByID(player.mo, sfx_dasht) --If the sound is playing for some reason, stop it
 	end
 end
 
