@@ -309,6 +309,7 @@ B.ChargeHammer = function(player)
 			B.sfx_spwvchargevfx(mo)
 		end
 	end
+
 	//Visual
 	mo.state = S_PLAY_MELEE
 	mo.frame = 0

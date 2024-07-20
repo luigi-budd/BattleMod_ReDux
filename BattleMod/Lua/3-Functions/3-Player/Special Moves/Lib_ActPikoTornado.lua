@@ -17,10 +17,6 @@ B.Action.PikoTornado_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 
-	if B.chargeFlash(mo, player.melee_charge, (FRACUNIT/18)*13) then--checked prints for the last value lmao
-		B.teamSound(player.mo, player, sfx_piwvt, sfx_piwve, 255, true)
-	end
-
 	if player.actionstate == ground_special or player.actionstate == air_special then
 		B.SetPriority(player,2,3,nil,2,3,"piko spin technique")
 	end
@@ -61,10 +57,10 @@ B.Action.PikoTornado = function(mo,doaction)
 	player.actionrings = 10
 	//Action Info
 	if player.actionstate == piko_special
-	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT*6/10)
+	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT)
+		--print(player.actiontime)
 		player.actionrings = 5
-		player.actiontext = B.TextFlash("Piko Wave", (doaction == 1))
-		player.flashtext = true
+		player.actiontext = B.TextFlash("Piko Wave")
 	elseif player.melee_state == st_release
 		return
 	elseif P_IsObjectOnGround(mo)
@@ -80,7 +76,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	if player.actionstate == 0 and (doaction == 1) then
 		B.PayRings(player)
 		player.actiontime = 0
-		if player.melee_state == st_hold and player.melee_charge >= FRACUNIT*6/10 then
+		if player.melee_state == st_hold and player.melee_charge >= FRACUNIT then
 			player.actionstate = piko_special
 			player.cmd.buttons = $ &~ BT_SPIN
 		elseif not(P_IsObjectOnGround(mo)) then
