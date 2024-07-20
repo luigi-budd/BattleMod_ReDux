@@ -17,6 +17,12 @@ B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 
+	local tailswipereq = (player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3))
+
+	if not(tailswipereq) and player.textflash_flashing then
+		player.actiontext = B.TextFlash(player.actiontext, true, player)
+	end
+
 	if B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
 		B.teamSound(mo, player, sfx_tswit, sfx_tswie, 255, false)
 	end
@@ -282,7 +288,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	player.actionrings = 10
 	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
-		player.actiontext = B.TextFlash("Tail Swipe", (doaction == 1))
+		player.actiontext = B.TextFlash("Tail Swipe", (doaction == 1), player)
 	elseif not(flying or player.actionstate == state_dash) then
 		player.actiontext = player.actionstate and "Tail Swipe" or "Tail Sweep"
 	elseif not(carrying)
