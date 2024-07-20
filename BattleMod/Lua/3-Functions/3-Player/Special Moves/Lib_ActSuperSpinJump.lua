@@ -17,7 +17,8 @@ B.Action.SuperSpinJump_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 
-	if B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3), nil, (mo.state == S_PLAY_SPINDASH)) then
+	if B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
+		--B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3), nil, (mo.state == S_PLAY_SPINDASH))
 		B.teamSound(mo, player, sfx_spwvt, sfx_spwve, 255, false)
 	end
 

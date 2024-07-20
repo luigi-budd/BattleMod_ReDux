@@ -17,7 +17,7 @@ B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 
-	if mo.state == S_PLAY_SPINDASH and B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
+	if B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
 		B.teamSound(mo, player, sfx_tswit, sfx_tswie, 255, false)
 	end
 	
