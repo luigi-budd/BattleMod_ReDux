@@ -16,6 +16,10 @@ local threshold2 = threshold1+(TICRATE*3/2) --minimum charging time + 1.5s
 B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
+
+	if mo.state == S_PLAY_SPINDASH and B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
+		B.teamSound(mo, player, sfx_tswit, sfx_tswie, 255, false)
+	end
 	
 	if player.actionstate == state_charging
 		B.SetPriority(player,0,0,nil,0,0,"tail sweep chargeup")
@@ -278,7 +282,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	player.actionrings = 10
 	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
-		player.actiontext = "Tail Swipe"
+		player.actiontext = B.TextFlash("Tail Swipe", (doaction == 1))
 	elseif not(flying or player.actionstate == state_dash) then
 		player.actiontext = player.actionstate and "Tail Swipe" or "Tail Sweep"
 	elseif not(carrying)
@@ -321,7 +325,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.ledgemeter = (FRACUNIT*2) - (FRACUNIT/5)
 		player.pflags = $&~(PF_SPINNING|PF_SHIELDABILITY)
 		player.canguard = false
-		S_StartSound(mo,sfx_charge)
+		B.teamSound(mo, player, sfx_chargt, sfx_charge, 255, true)
 		if not(P_IsObjectOnGround(mo))
 			P_SetObjectMomZ(mo,mo.momz-(mo.momz/3),false)
 		end

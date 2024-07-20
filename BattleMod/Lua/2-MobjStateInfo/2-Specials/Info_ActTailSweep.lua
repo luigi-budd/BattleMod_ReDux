@@ -49,5 +49,13 @@ states[S_SONICBOOM4] = {
 	tics = 1,
 	nextstate = S_SONICBOOM1
 }
-freeslot('sfx_charge')
-sfxinfo[sfx_charge].caption = "Preparing attack"
+freeslot('sfx_charge',
+		 'sfx_chargt',
+		 'sfx_tswie',
+		 'sfx_tswit'
+)
+sfxinfo[sfx_charge].caption = "\x82".."TAIL SWEEP CHARGE".."\x80"
+sfxinfo[sfx_chargt].caption = "Tail Sweep Charge"
+
+sfxinfo[sfx_tswie].caption = "\x82".."TAIL SWIPE READY".."\x80"
+sfxinfo[sfx_tswit].caption = "Tail Swipe Ready"
