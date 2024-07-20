@@ -5,7 +5,8 @@ freeslot(
 "S_SUPPERSPIN_WALL1","S_SUPPERSPIN_WALL2","S_SUPPERSPIN_WALL3",
 "S_SUPPERSPIN_WAVE_ACTIVE","S_SUPPERSPIN_WAVE_END",
 "SPR_SPNV", "SPR_SPNW", "SPR_SPNX",
-"SPR_SPDV", "SPR_SPDW", "SPR_SPDX"
+"SPR_SPDV", "SPR_SPDW", "SPR_SPDX",
+"sfx_spwvt", "sfx_spwve"
 )
 
 //Sonic Ground Pound Projectile
@@ -112,3 +113,6 @@ states[S_SUPPERSPIN_WAVE_END] = {
 	var2 = 0,
 	nextstate = S_NULL
 }
+
+sfxinfo[sfx_spwvt].caption = "Spin Wave Ready"
+sfxinfp[sfx_spwve].caption = "\x82".."SPIN WAVE READY".."\x80"

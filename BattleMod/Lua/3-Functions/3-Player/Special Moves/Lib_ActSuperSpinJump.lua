@@ -14,6 +14,13 @@ local poundfriction = FRACUNIT
 local reboundthrust = 10
 
 B.Action.SuperSpinJump_Priority = function(player)
+	local mo = player.mo
+	if not (mo and mo.valid) return end
+
+	if mo.state == S_PLAY_SPINDASH and B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
+		B.teamSound(mo, player, sfx_spwvt, sfx_spwve, 255, false)
+	end
+
 	if player.actionstate == state_superspinjump then
 		B.SetPriority(player,2,2,nil,2,2,"super spin jump")
 	elseif player.actionstate == state_groundpound_rise then
@@ -25,22 +32,28 @@ B.Action.SuperSpinJump_Priority = function(player)
 	end
 end
 
+
+	
+
 B.Action.SuperSpinJump=function(mo,doaction)
 	local player = mo.player
-	if player.actionstate == 0
+
+	if player.actionstate == 0 and not(player.exiting) then
 		mo.spritexscale = FRACUNIT
 		mo.spriteyscale = FRACUNIT
 	end
 	
 	if not(B.CanDoAction(player)) then
 		player.actionstate = 0
-		mo.spritexscale = FRACUNIT
-		mo.spriteyscale = FRACUNIT
+		if not player.exiting then
+			mo.spritexscale = FRACUNIT
+			mo.spriteyscale = FRACUNIT
+		end
 	return end
 
 	//Action info
 	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
-		player.actiontext = "Spin Wave"
+		player.actiontext = B.TextFlash("Spin Wave", (doaction == 1))
 		player.actionrings = 10
 	elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB or player.actionstate == state_superspinjump then
 		player.actiontext = "Super Spin Jump"
@@ -84,7 +97,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				spinwave.setpostion = true
 				spinwave.angle = player.mo.angle
 				spinwave.color = SKINCOLOR_SKY
-				--B.ApplyCooldown(player,cooldown2)
+				B.ApplyCooldown(player,cooldown2)
 				if G_GametypeHasTeams() then
 					spinwave.color = player.skincolor
 				end
@@ -105,7 +118,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				player.canguard = false
 				--B.ApplyCooldown(player,cooldown1)
 			else //Do ground pound
-				//B.ApplyCooldown(player,cooldown2)
+				B.ApplyCooldown(player,cooldown2)
 				thrust = pound_startthrust/water
 				player.actionstate = state_groundpound_rise
 				P_SetObjectMomZ(mo,thrust,false)
@@ -180,6 +193,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 
 	//SuperSpinJump state
 	if player.actionstate == state_superspinjump 
+		player.squashstretch = 1
 		B.ControlThrust(mo,FRACUNIT,nil,jumpfriction,nil)
 		mo.spritexscale = max(FRACUNIT * 4/5, min($ + FRACUNIT/30, FRACUNIT))
 		mo.spriteyscale = max(FRACUNIT, min($ - FRACUNIT/30, FRACUNIT * 5/4))
