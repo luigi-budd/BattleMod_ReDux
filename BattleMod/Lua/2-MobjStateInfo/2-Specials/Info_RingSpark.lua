@@ -7,8 +7,10 @@ freeslot("MT_RINGSPARKAURA",
 		 "S_METALSONIC_RINGSPARK3"
 )
 
-local ring = freeslot("sfx_rngspk")
-local claw = freeslot("sfx_dshclw")
+local ringteam = freeslot("sfx_rgspkt")
+local ringenemy = freeslot("sfx_rgspke")
+local clawteam = freeslot("sfx_hclwt")
+local clawenemy = freeslot("sfx_hclwe")
 
 mobjinfo[MT_RINGSPARKAURA] = {
 	doomednum = -1,
@@ -33,6 +35,8 @@ states[S_METALSONIC_RINGSPARK3] = {SPR_PLAY, SPR2_RSPF, 1, nil, nil, 1, S_PLAY_S
 
 spr2defaults[SPR2_RSPF] = SPR2_SPNG
 
-sfxinfo[claw].caption = "\x8C".."DASH SLICER CLAW".."\x80"
+sfxinfo[clawenemy].caption = "\x82".."DASH SLICER CLAW".."\x80"
+sfxinfo[clawteam].caption = "Dash Slicer Claw"
 
-sfxinfo[ring].caption = "\x82".."RING SPARK FIELD".."\x80"
+sfxinfo[ringenemy].caption = "\x82".."RING SPARK FIELD".."\x80"
+sfxinfo[ringteam].caption = "Ring Spark Field"

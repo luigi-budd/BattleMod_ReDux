@@ -451,7 +451,7 @@ A.UpdateGame = function()
 					player.mo.state = S_PLAY_FALL
 				end
 
-				player.squashstretch = true
+				player.squashstretch = 1
 
 			end
 

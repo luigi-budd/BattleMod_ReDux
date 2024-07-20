@@ -26,8 +26,8 @@ local overlayZ = function(mo, overlaytype, flip)
 end
 
 local auraMobj = MT_RINGSPARKAURA
-local ringspark_sfx = sfx_rngspk
-local sliceprep_sfx = sfx_dshclw
+--local ringspark_sfx = sfx_rngspk
+--local sliceprep_sfx = sfx_dshclw
 local skinname = "metalsonic" --For frame colorization
 
 //Charge time thresholds
@@ -527,7 +527,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		if player.rings then
 			player.actiontime = 0
 			player.actionstate = state_ringsparkprep --We're rolling!
-			S_StartSound(mo, ringspark_sfx)
+			B.teamSound(player.mo, player, sfx_rgspkt, sfx_rgspke, 255, true)
 		else
 			S_StartSound(nil, sfx_s3k8c, player)
 		end
@@ -646,7 +646,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			player.energyattack_longerdash = true
 		end
 		player.actiontime = 0
-		S_StartSound(mo, sliceprep_sfx)
+		B.teamSound(player.mo, player, sfx_hclwt, sfx_hclwe, 255, false)
 		if player.pflags & PF_ANALOGMODE then
 			mo.angle = player.thinkmoveangle
 		end
@@ -661,7 +661,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		local pos = player.energyattack_stasis
 		P_SetOrigin(mo, mo.x, mo.y, pos)
 		if player.actiontime >= dashslice_buildup then
-			S_StopSoundByID(mo, sliceprep_sfx)
+			S_StopSoundByID(mo, sfx_hclwt)
+			S_StopSoundByID(mo, sfx_hclwe)
 			player.actionstate = state_dashslicer
 			S_StartSound(mo,sfx_cdfm01)
 			player.actiontime = 0
@@ -764,10 +765,15 @@ end
 local function stateEnforcer(player, state, actionstate, newstate)
 	if player.mo and player.mo.valid then
 		if (player.mo.state == state) and player.actionstate != actionstate then
-			if (player.pflags & PF_SPINNING) or ((player.pflags & PF_JUMPED) and not(player.pflags & PF_NOJUMPDAMAGE)) then
+			if (player.pflags & PF_SPINNING) or (((player.pflags & PF_JUMPED) or (player.pflags & PF_STARTJUMP)) and not(player.pflags & PF_NOJUMPDAMAGE)) then
 				player.mo.state = S_PLAY_ROLL
 			else
-				player.mo.state = newstate
+				if P_IsObjectOnGround(player.mo) then
+					player.mo.state = newstate
+				else
+					player.secondjump = 2
+					player.mo.state = S_PLAY_FALL
+				end
 			end
 		end
 	end
