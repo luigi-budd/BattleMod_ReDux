@@ -27,7 +27,7 @@ local function twin(player)
 				msl.fuse = 15
 				msl.flags = $
 				local speed = mo.scale * 20
-				local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
+				local xyangle = player.battleconfig_sfx_spwvstrafe and mo.angle or player.drawangle
 				local zangle = n*ANG1*5
 				B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 				msl.momx = $ + mo.momx
@@ -39,7 +39,7 @@ local function twin(player)
 	end
 
 	//Angle adjustment
-	if player.battleconfig_hammerstrafe then
+	if player.battleconfig_sfx_spwvstrafe then
 		player.drawangle = player.mo.angle
 	end
 end
@@ -104,7 +104,7 @@ B.SpawnWave = function(player,angle_offset,mute)
 	end
 end
 
-B.hammerjump = function(player,power)
+B.sfx_spwvjump = function(player,power)
 	local h = power and 6 or 2
 	local v = power and 13 or 10
 		
@@ -145,7 +145,7 @@ B.HammerControl = function(player)
 	end
 	
 	//Angle adjustment
-	if player.battleconfig_hammerstrafe
+	if player.battleconfig_sfx_spwvstrafe
 	and ((player.melee_state and P_IsObjectOnGround(mo)) or mo.state == S_PLAY_TWINSPIN)
 	and not (mo.eflags & MFE_JUSTHITFLOOR)
 		player.drawangle = mo.angle
@@ -175,6 +175,7 @@ B.HammerControl = function(player)
 	end -- ~JoJo
 	
 	if player.melee_state == st_hold
+
 		if not(player.cmd.buttons&BT_SPIN)
 			S_StartSound(mo,sfx_s3k42)
 			if player.melee_charge >= FRACUNIT
@@ -200,13 +201,13 @@ B.HammerControl = function(player)
 			B.SpawnWave(player, 0, false)
 			player.actionstate = 0
 		elseif (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin then
-			B.hammerjump(player, spin)
+			B.sfx_spwvjump(player, spin)
 		end
 		player.melee_state = st_idle
 	end
 end
 
-B.hammerchargevfx = function(mo)
+B.sfx_spwvchargevfx = function(mo)
 	S_StartSound(mo,sfx_hamrc)
 	local z = mo.z
 	if P_MobjFlip(mo) == -1
@@ -246,7 +247,7 @@ B.ChargeHammer = function(player)
 	return end
 	
 	//Angle adjustment
-	if (player.battleconfig_hammerstrafe) and not (mo.eflags & MFE_JUSTHITFLOOR)
+	if (player.battleconfig_sfx_spwvstrafe) and not (mo.eflags & MFE_JUSTHITFLOOR)
 		player.drawangle = mo.angle
 	end
 
@@ -302,9 +303,10 @@ B.ChargeHammer = function(player)
 			spark.scale = mo.scale
 		end
 		//Get Charged FX
+
 		if player.melee_charge >= FRACUNIT
 			player.melee_charge = FRACUNIT
-			B.hammerchargevfx(mo)
+			B.sfx_spwvchargevfx(mo)
 		end
 	end
 	//Visual
