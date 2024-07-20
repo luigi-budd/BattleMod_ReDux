@@ -105,16 +105,20 @@ function B.StopFlash(mo)
 	end
 end
 
-function B.chargeFlash(mo, chargevar, chargedval, flashdiff) --chargevar has to be a number that increases, charged val is the num that counts as charged
-	if (chargevar >= chargedval-(flashdiff or FRACUNIT)) then --flashdiff is what needs to be subtracted from chargedval to "catch" the charge
+function B.chargeFlash(mo, chargevar, chargedval, flashdiff, param) --chargevar has to be a number that increases, charged val is the num that counts as charged
+	param = $ or true
+	if param and (chargevar >= chargedval-(flashdiff or FRACUNIT)) then --flashdiff is what needs to be subtracted from chargedval to "catch" the charge
 		if chargevar == chargedval then
 			B.StartFlash(mo)
-			return true
 		else
 			B.StopFlash(mo)
 		end
 	elseif B.IsFlashOn(mo) then
 		B.StopFlash(mo)
+	end
+
+	if mo.alert_flash then
+		return true
 	end
 end
 

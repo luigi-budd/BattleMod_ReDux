@@ -17,7 +17,7 @@ B.Action.SuperSpinJump_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 
-	if mo.state == S_PLAY_SPINDASH and B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
+	if B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3), nil, (mo.state == S_PLAY_SPINDASH)) then
 		B.teamSound(mo, player, sfx_spwvt, sfx_spwve, 255, false)
 	end
 
@@ -97,6 +97,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				spinwave.setpostion = true
 				spinwave.angle = player.mo.angle
 				spinwave.color = SKINCOLOR_SKY
+				--player.actionstate = 0
 				B.ApplyCooldown(player,cooldown2)
 				if G_GametypeHasTeams() then
 					spinwave.color = player.skincolor
