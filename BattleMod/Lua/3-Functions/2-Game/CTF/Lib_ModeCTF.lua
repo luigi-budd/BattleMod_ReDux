@@ -287,7 +287,7 @@ local function capFlag(p, flag)
 	
 	--sounds
 	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == p.ctfteam))
-	if friendly then S_StartSound(nil, B.LongSound(p, sfx_flgcap)) else S_StartSound(nil, B.LongSound(player, sfx_lose)) end
+	if friendly then S_StartSound(nil, sfx_flgcap) else S_StartSound(nil, sfx_lose) end
 	--hud
 	F.GameState.CaptureHUDTimer = 5*TICRATE
 	F.GameState.CaptureHUDName = p.name
@@ -310,6 +310,7 @@ F.FlagPreThinker = function()
 	if gametype ~= GT_BATTLECTF then return end
 	for p in players.iterate do
 		if p and p.mo then
+
 			-- Press tossflag to tossflag
 			local btns = p.cmd.buttons
 			if (btns&BT_TOSSFLAG and not(p.powers[pw_carry] & CR_PLAYER) and not(p.powers[pw_super]) and not(p.tossdelay) and G_GametypeHasTeams() and p.gotflag)
@@ -317,39 +318,24 @@ F.FlagPreThinker = function()
 				F.PlayerFlagBurst(p, 1)
 			end
 
-			local flag_sector_heights = {}
-			local groundsect = (p.mo.subsector and p.mo.subsector.valid and p.mo.subsector.sector and p.mo.subsector.sector.valid) and p.mo.subsector.sector
-			table.insert(flag_sector_heights, groundsect.floorheight)
+			-- Check if flag was captured
+			if not P_IsObjectOnGround(p.mo) then continue end
 
-			-- List all FOFs to check if they're all flag bases (and if we're touching them)			
-			for rover in groundsect.ffloors() do
-				if rover and rover.valid then
-					local s = rover.sector
-					local is_flagbase = p.ctfteam == 1 
-						and (GetSecSpecial(s.special, 4) == 3) -- Red man touches red base
-						or  (GetSecSpecial(s.special, 4) == 4) -- Blue man touches blue base
+			local team = p.ctfteam == 1 and SSF_REDTEAMBASE or SSF_BLUETEAMBASE
+			local s = P_MobjTouchingSectorSpecialFlag(p.mo, team)
+			if not s then return end
 
-					if is_flagbase then table.insert(flag_sector_heights,s.ceilingheight) end
-				end
+			-- the FOF we're standing under needs to be a flag base!
+			-- check its target sector (the sector the FOF is located in)
+			-- to ensure that it's a flag base too
+			if p.mo.floorrover and p.mo.floorrover.valid then 
+				local st = p.mo.floorrover.target
+				if not (st.special&team) then return end
 			end
 
-			local eq_height = 0
-			for i=1, #flag_sector_heights do
-				local flagbase_floor = flag_sector_heights[i]
-				if p.mo.z == flagbase_floor then 
-					eq_height = flagbase_floor
-					break
-				end
-			end
-
-			if p.gotflag and eq_height then
-				if eq_height then
-					if p.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_REDTEAMBASE) then -- Red man touching red base
-						capFlag(p,1)
-					elseif p.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(p.mo, SSF_BLUETEAMBASE) then -- Blue man touching Blue base
-						capFlag(p,2)
-				    end
-				end
+			-- if we're clear after everything, cap
+			if p.gotflag then
+				capFlag(p,p.ctfteam)
 			end
 		end
 	end
