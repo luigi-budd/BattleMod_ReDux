@@ -276,8 +276,8 @@ B.RingsHUD = function(v, player, cam)
 		and not (mo.eflags & MFE_JUSTHITFLOOR)
 		and not (player.weapondelay and mo.state == S_PLAY_FIRE)
 		and leveltime > TICRATE*5/4
-		//since guard is disabled for runners for now, don't show it in the hud
-		and (B.TagGametype() and player.pflags & PF_TAGIT)
+		--since guard is disabled for runners for now, don't show it in the hud
+		and not (B.TagGametype() and not (player.pflags & PF_TAGIT))
 	)
 	local candodge = (player.canguard
 		and CV.airtoggle.value
