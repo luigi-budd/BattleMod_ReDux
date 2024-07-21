@@ -1,5 +1,5 @@
 //sonic
-mobjinfo[MT_GROUNDPOUND].name = "ground pound splash"
+mobjinfo[MT_GROUNDPOUND].name = "ground pound shockwave"
 //tails
 mobjinfo[MT_SONICBOOM].name = "air cutter"
 //knuckles
