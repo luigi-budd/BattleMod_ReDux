@@ -433,17 +433,6 @@ D.CapturePointThinker = function(mo)
 	end
 end
 
-local validSound = function(player, fallback)
-	if Cosmetics and Cosmetics.Capturesounds_short and 
-	(player.cos_capturesoundshort and player.cos_capturesoundshort and 
-	player.cos_capturesoundshort > 0 and player.cos_capturesoundshort <= #Cosmetics.Capturesounds_short) then
-		return Cosmetics.Capturesounds_short[player.cos_capturesoundshort].sound
-	else
-		return fallback
-	end
-end
-
-
 D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)	
 	mo.flags2 = $&~MF2_SHADOW
 	local function randomcolor() 
@@ -544,13 +533,21 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 		local scoreincrease = 0
 		for p in players.iterate()
 			S_StartSound(nil, sfx_s243, p)
-			if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
-				S_StartSound(nil, validSound(player, sfx_s3k68), p)
-				continue
-			elseif G_GametypeHasTeams() and not splitscreen
-				S_StartSound(nil, validSound(player, sfx_lose), p)
-				continue
+			local sfx
+			if G_GametypeHasTeams() then
+				if (p.ctfteam == player.ctfteam) or p.spectator or splitscreen then
+					sfx = sfx_s3k68
+				else
+					sfx = sfx_lose
+				end
+			else
+				if (p == player) then
+					sfx = sfx_s3k68
+				else
+					sfx = sfx_lose
+				end
 			end
+			S_StartSound(nil, B.ShortSound(player, sfx), p)
 		end
 		if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
 		or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 1)
