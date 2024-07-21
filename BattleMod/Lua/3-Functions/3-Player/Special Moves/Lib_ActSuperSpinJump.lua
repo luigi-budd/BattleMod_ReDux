@@ -107,8 +107,13 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				spinwave.setpostion = true
 				spinwave.angle = player.mo.angle
 				spinwave.color = SKINCOLOR_SKY
-				--player.actionstate = 0
-				B.ApplyCooldown(player,cooldown2)
+
+				if player.rings+player.actionrings < player.actionrings then
+					player.cooldown = cooldown2
+				else
+					B.ApplyCooldown(player, cooldown2)
+				end
+
 				if G_GametypeHasTeams() then
 					spinwave.color = player.skincolor
 				end
