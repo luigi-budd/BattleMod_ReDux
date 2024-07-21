@@ -4,7 +4,7 @@ local S = B.SkinVars
 local grace = 3*TICRATE
 
 local function ButtonCheck2(player,button)
-	if player.cmd.buttons&button then
+	if player.realbuttons&button then
 		if player.buttonhistory&button then
 			return 2
 		else
