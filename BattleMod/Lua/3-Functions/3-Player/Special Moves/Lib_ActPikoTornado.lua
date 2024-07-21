@@ -17,6 +17,12 @@ B.Action.PikoTornado_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
 
+	local pikowavereq = (player.actionstate == piko_special or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT))
+
+	if not(pikowavereq) and player.textflash_flashing then
+		player.actiontext = B.TextFlash(player.actiontext, true, player)
+	end
+
 	if player.actionstate == ground_special or player.actionstate == air_special then
 		B.SetPriority(player,2,3,nil,2,3,"piko spin technique")
 	end
