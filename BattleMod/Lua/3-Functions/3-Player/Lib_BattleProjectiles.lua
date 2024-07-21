@@ -163,8 +163,12 @@ B.PlayerCorkDamage = function(pmo,mo,source)
 		if mo.block_sound
 			sound = mo.block_sound
 		end
+
+		local func = pmo.player.battle_sfunc and B.PriorityFunction[pmo.player.battle_sfunc] or 0
+		local blocked = pmo.player.battle_def >= mo.blockable
+		local sweetspot_blocked = func and func(pmo, mo) and pmo.player.battle_sdef >= mo.blockable
 		
-		if vulnerable and pmo.player.battle_def >= mo.blockable then
+		if vulnerable and (blocked or sweetspot_blocked) then
 			B.ResetPlayerProperties(pmo.player,false,false)
 			
 			if P_IsObjectOnGround(pmo) then
