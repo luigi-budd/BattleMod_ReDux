@@ -272,6 +272,8 @@ R.Thinker = function(mo)
 		mo.light = P_SpawnMobjFromMobj(mo, 0,0,20*mo.scale, MT_INVINCIBLE_LIGHT)
 	else
 		P_MoveOrigin(mo.light, mo.x, mo.y, mo.z)
+		mo.tics = TICRATE
+		mo.fuse = mo.tics
 	end
 	local light = mo.light
 	if mo.target
