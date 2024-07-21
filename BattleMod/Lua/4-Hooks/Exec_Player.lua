@@ -52,7 +52,7 @@ addHook("AbilitySpecial",function(player)
 		
 		S_StartSound(mo, sfx_thok)
 		if player.speed > actionspd then
-			local circle = P_SpawnMobjFromMobj(mo, 0, 0, mo.scale * 24, MT_THOK)
+			local circle = P_SpawnMobjFromMobj(mo, 0, 0, P_MobjFlip(mo)*(mo.scale * 24), MT_THOK)
 			circle.sprite = SPR_STAB
 			circle.frame =  TR_TRANS50|FF_PAPERSPRITE|_G["A"]
 			circle.angle = mo.angle + ANGLE_90
