@@ -17,7 +17,8 @@ S[-1] = {
 	func_postcollide = nil,
 	func_exhaust = nil,
 	sprites = {},
-	supersprites = false
+	supersprites = false,
+	noledgegrab = false
 }
 S["sonic"] = {
 	weight = 100, 

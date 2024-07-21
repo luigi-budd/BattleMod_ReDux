@@ -24,6 +24,7 @@ addHook("MobjMoveBlocked", function(pmo)
 	
 	local player = pmo.player
 	if not (player and player.valid) then return end
+	if CBW_Battle and CBW_Battle.SkinVars[pmo.skin] and CBW_Battle.SkinVars[pmo.skin].noledgegrab then return end
 	if P_PlayerInPain(player) then return end
 	if player.powers[pw_carry] then return end
 	if player.actionstate then return end
