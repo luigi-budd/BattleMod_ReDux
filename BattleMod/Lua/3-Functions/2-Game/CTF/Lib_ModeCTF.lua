@@ -133,70 +133,49 @@ end
 -- 1: Red team
 -- 2: Blue team
 local function spawnFlag(fteam)
-	local flag_sectors = {}
-	local x = (fteam == 1) and F.RedFlagPos.x or F.BlueFlagPos.x
-	local y = (fteam == 1) and F.RedFlagPos.y or F.BlueFlagPos.y
-	local z = ((fteam == 1) and F.RedFlagPos.z or F.BlueFlagPos.z ) -- + s_floorheight
+	local flagtype = fteam == 1 and MT_CREDFLAG or MT_CBLUEFLAG
+	local flagpos = (fteam == 1) and F.RedFlagPos or F.BlueFlagPos
 
-	local mtopts = fteam == 1 and F.RedFlagPos.mtopts or F.BlueFlagPos.mtopts
+	local x = flagpos.x
+	local y = flagpos.y
+	local z = flagpos.z
+	local mtopts = flagpos.mtopts
+	
 	local obj_flip = mtopts and ((mtopts&MTF_OBJECTFLIP) == 2) or nil
-
+	
+	-- rev: thanks ... @ source code (see `P_FlagFuseThink` function)
 	local ss = R_PointInSubsector(x, y)
-	local sector = ss.sector
-
-	local function spawnAndSetFlagAttributes(x,y,z,flagtype)
-		local flag_obj = P_SpawnMobj(x,y,z,flagtype)
-		if obj_flip then 
-			flag_obj.flags2 = $|MF2_OBJECTFLIP 
-			P_SetOrigin(flag_obj, flag_obj.x, flag_obj.y, flag_obj.ceilingz)
-		end
-		flag_obj.mtopts = mtopts
-		flag_obj.atbase = true
+	if obj_flip then 
+		z = ss.sector.ceilingheight - mobjinfo[flagtype].height-z 
+	else
+		z = $+ss.sector.floorheight
 	end
 
-	local is_flagbase = (fteam == 1)
-		and ((GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE))   -- Red
-		or  ((GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE))  -- Blue
-
-	if is_flagbase then table.insert(flag_sectors, sector) end
-
-	-- check all fofs of the sector to see if any of them are flag bases and if so store them		
-	for rover in sector.ffloors() do
-		if rover and rover.valid then
-			local s = rover.sector
-			local is_flagbase = (fteam == 1) 
-				and ((GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE))   -- Red
-				or  ((GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE))  -- Blue
-
-			if is_flagbase then table.insert(flag_sectors,s) end
-		end
+	local flagmo = P_SpawnMobj(x,y,z,flagtype)
+	if obj_flip then
+		flagmo.eflags = $|MFE_VERTICALFLIP
+		flagmo.flags2 = $|MF2_OBJECTFLIP
 	end
 
-	-- finally go over all stored sectors and let's spawn flags on them
-	for i=1,#flag_sectors do
-		local sector = flag_sectors[i]
-		if fteam==1 then 	-- red
-			spawnAndSetFlagAttributes(x,y,z,MT_CREDFLAG)
-		else 				-- blue
-			spawnAndSetFlagAttributes(x,y,z,MT_CBLUEFLAG)
-		end
-	end
+	-- rev: cept these, not source code (:
+	flagmo.mtopts = mtopts
+	flagmo.atbase = true
 end
 
 local function getFlagpos()
-	for mo in mapthings.iterate do
-		if mo.type == 310 then -- RED FLAG
-			F.RedFlagPos.x = FRACUNIT*mo.x
-			F.RedFlagPos.y = FRACUNIT*mo.y
-			F.RedFlagPos.z = FRACUNIT*mo.z
-			F.RedFlagPos.mtopts = mo.options
+	for mt in mapthings.iterate do
+		if mt.type == 310 then -- RED FLAG
+			F.RedFlagPos.x = mt.x<<FRACBITS
+			F.RedFlagPos.y = mt.y<<FRACBITS
+			F.RedFlagPos.z = mt.z<<FRACBITS
+			F.RedFlagPos.mtopts = mt.options
 			F.RedFlag = {}
 			spawnFlag(1)
-		elseif mo.type == 311 then  -- BLUE FLAG
-			F.BlueFlagPos.x = FRACUNIT*mo.x
-			F.BlueFlagPos.y = FRACUNIT*mo.y
-			F.BlueFlagPos.z = FRACUNIT*mo.z
-			F.BlueFlagPos.mtopts = mo.options
+		elseif mt.type == 311 then  -- BLUE FLAG
+			F.BlueFlagPos.x = mt.x<<FRACBITS
+			F.BlueFlagPos.y = mt.y<<FRACBITS
+			F.BlueFlagPos.z = mt.z<<FRACBITS
+			F.BlueFlagPos.mtopts = mt.options
 			F.BlueFlag = {}
 			spawnFlag(2)
 		end
