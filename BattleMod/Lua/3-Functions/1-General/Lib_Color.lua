@@ -18,7 +18,15 @@ B.FlashRainbow = function(mo)
 	if t == 3 then return B.FlashColor(SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERSILVER5) end
 end
 
-function B.StartFlash(mo)
+local overlayZ = function(mo, overlaytype, flip)
+	if flip then
+		return mo.z-(mo.height/2)
+	else
+		return mo.z
+	end
+end
+
+function B.SpawnFlash(mo, tics, circle)
 
 	local fmo
 
@@ -26,101 +34,74 @@ function B.StartFlash(mo)
 		fmo = mo.player.followmobj
 	end
 
-	mo.alert_flash = {
-		mo.colorized,
-		mo.blendmode
-	}
-
+	local mainflash = P_SpawnGhostMobj(mo, 0,0,0, MT_THOK)
+	mainflash.fuse = tics or mobjinfo[MT_THOK].tics
+	mainflash.target = mo
+	mainflash.dispoffset = 2
 	--Toggle Colorized
 	if mo.colorized then
-		mo.colorized = false
+		mainflash.colorized = false
 	else
-		mo.colorized = true
+		mainflash.colorized = true
 	end
 
 	if mo.blendmode == AST_ADD then
-		mo.blendmode = AST_COPY
+		mainflash.blendmode = AST_COPY
 	else
-		mo.blendmode = AST_ADD
+		mainflash.blendmode = AST_ADD
 	end
+
+	local subflash
 
 	if fmo and fmo.valid then
 
-		fmo.alert_flash = {
-			fmo.colorized,
-			fmo.blendmode
-		}
-
+		local subflash = P_SpawnGhostMobj(mo, 0,0,0, MT_THOK)
+		subflash.fuse = tics or mobjinfo[MT_THOK].tics
+		subflash.target = mo
+		subflash.dispoffset = 2
+		--Toggle Colorized
 		if fmo.colorized then
-			fmo.colorized = false
+			subflash.colorized = false
 		else
-			fmo.colorized = true
+			subflash.colorized = true
+		end
+		
+		if fmo.colorized then
+			subflash.colorized = false
+		else
+			subflash.colorized = true
 		end
 		
 
 		--Toggle additive blending
 		if fmo.blendmode == AST_ADD then
-			fmo.blendmode = AST_COPY
+			subflash.blendmode = AST_COPY
 		else
-			fmo.blendmode = AST_ADD
+			subflash.blendmode = AST_ADD
 		end
 	end
 
-	local circle = P_SpawnMobjFromMobj(mo, 0, 0, mo.scale * 5, MT_THOK)
-	circle.sprite = SPR_STAB
-	circle.frame =  _G["A"]
-	--circle.angle = mo.angle + ANGLE_90
-	circle.fuse = 7
-	circle.scale = mo.scale / 3
-	circle.destscale = 10*mo.scale
-	circle.colorized = true
-	circle.blendmode = AST_OVERLAY
-	circle.color = mo.color
-	circle.momx = -mo.momx / 2
-	circle.momy = -mo.momy / 2
+	if circle then
+		local circle = P_SpawnMobj(mo.x, mo.y,overlayZ(mo, MT_THOK, (mo.flags2 & MF2_OBJECTFLIP)), MT_THOK)
+		circle.sprite = SPR_STAB
+		circle.frame =  _G["A"]
+		--circle.angle = mo.angle + ANGLE_90
+		circle.fuse = 7
+		circle.scale = mo.scale / 3
+		circle.destscale = 10*mo.scale
+		circle.colorized = true
+		circle.blendmode = AST_OVERLAY
+		circle.color = mo.color
+		circle.momx = -mo.momx / 2
+		circle.momy = -mo.momy / 2
+	end
+
+	if subflash then
+		return mainflash, subflash
+	else
+		return mainflash
+	end
 end 
-
-function B.IsFlashOn(mo)
-	return ((mo.player and mo.player.followmobj and mo.player.followmobj.alert_flash) or mo.alert_flash)
-end
-
-function B.StopFlash(mo)
-
-	local fmo
-
-	if mo.player then
-		fmo = mo.player.followmobj
-	end
-
-	if mo.alert_flash then
-		mo.colorized = mo.alert_flash[1]
-		mo.blendmode = mo.alert_flash[2]
-		mo.alert_flash = nil
-	end
-
-	if fmo and fmo.valid and fmo.alert_flash then
-		fmo.colorized = fmo.alert_flash[1]
-		fmo.blendmode = fmo.alert_flash[2]
-		fmo.alert_flash = nil
-	end
-end
-
-function B.chargeFlash(mo, chargevar, chargedval, flashdiff, param) --chargevar has to be a number that increases, charged val is the num that counts as charged
-	param = $ or true
-	if param and (chargevar >= chargedval-(flashdiff or FRACUNIT)) then --flashdiff is what needs to be subtracted from chargedval to "catch" the charge
-		if chargevar == chargedval then
-			B.StartFlash(mo)
-		else
-			B.StopFlash(mo)
-		end
-	elseif B.IsFlashOn(mo) then
-		B.StopFlash(mo)
-	end
-
-	if mo.alert_flash then
-		return true
-	end
-end
 
 B.TextFlash = function(text, reset, player)
 	local colors = {"\x81","\x88"}

@@ -23,11 +23,6 @@ B.Action.SuperSpinJump_Priority = function(player)
 		player.actiontext = B.TextFlash(player.actiontext, true, player)
 	end
 
-	if B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3)) then
-		--B.chargeFlash(mo, player.dashspeed, (player.maxdash/5*3), nil, (mo.state == S_PLAY_SPINDASH))
-		B.teamSound(mo, player, sfx_spwvt, sfx_spwve, 255, false)
-	end
-
 	if player.actionstate == state_superspinjump then
 		B.SetPriority(player,2,2,nil,2,2,"super spin jump")
 	elseif player.actionstate == state_groundpound_rise then
@@ -60,8 +55,14 @@ B.Action.SuperSpinJump=function(mo,doaction)
 
 	local spinwavereq = (player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3))
 
+
+	--print(string.format("%.4f", player.dashspeed))
 	//Action info
 	if spinwavereq then
+		if not(player.textflash_flashing) then --wittle hacky
+			B.SpawnFlash(mo, 10, true)
+			B.teamSound(mo, player, sfx_spwvt, sfx_spwve, 255, false)
+		end
 		player.actiontext = B.TextFlash("Spin Wave", (doaction == 1), player)
 		player.actionrings = 10
 	elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB or player.actionstate == state_superspinjump then
