@@ -21,6 +21,7 @@ addHook("PlayerThink", function(player) -- death timer test
 			if B.ArenaGametype() then 
 				player.extradeadtimer = grace -- add more time before respawning so player can choose
 			end
+			player.buttonhistory = $ | BT_TOSSFLAG --so we don't close the roulette instantly lol
 		end
 		
 		local skinnum = #skins[player.skin]
@@ -39,8 +40,8 @@ addHook("PlayerThink", function(player) -- death timer test
 		local change = 0
 		if player.selectchar then
 			local deadzone = 20
-			local right = player.cmd.sidemove >= deadzone
-			local left = player.cmd.sidemove <= -deadzone
+			local right = player.realsidemove >= deadzone
+			local left = player.realsidemove <= -deadzone
 			local scrollright = player.roulette_prev_right > 18 and player.roulette_prev_right % 4 == 0
 			local scrollleft = player.roulette_prev_left > 18 and player.roulette_prev_left % 4 == 0
 				if right and (scrollright or not player.roulette_prev_right) then
@@ -68,7 +69,10 @@ addHook("PlayerThink", function(player) -- death timer test
 				else
 					player.roulette_x = (40*FRACUNIT*change)
 				end
-			if (ButtonCheck2(player,BT_SPIN) == 1 or ButtonCheck2(player,BT_JUMP) == 1) then -- confirm skin choice
+			if (ButtonCheck2(player,BT_SPIN) == 1
+			or ButtonCheck2(player,BT_JUMP) == 1
+			or ButtonCheck2(player,BT_TOSSFLAG) == 1)
+			then -- confirm skin choice
 				player.extradeadtimer = $ and $-grace or 0 -- subtract timer so we will spawn sooner
 				player.selectchar = false
 			end
