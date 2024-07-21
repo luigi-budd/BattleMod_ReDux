@@ -556,7 +556,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			S_StartSound(nil, sfx_s3kb3)
 			scoreincrease = CV.DiamondCaptureBonus.value
 			teamscoreincrease = 1
-			print(player.name.." captured a "..diamondtext.."!")--Not sure how to color this text...
+			print(player.name.." captured the "..diamondtext.."!")--Not sure how to color this text...
 			B.DoFirework(player.mo)
 
 			--Reuse CTF's capture HUD
