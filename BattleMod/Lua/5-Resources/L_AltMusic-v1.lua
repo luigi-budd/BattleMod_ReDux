@@ -156,27 +156,27 @@ addHook("MapLoad", function(mapnum)
     
         A.CurrentMap.song = strings[1][index]
 
-        if rawget(strings, 2) and rawget(strings[2], index) then
+        if rawget(strings, 2) and rawget(strings[2], index) and strings[2] != "DEFAULT" then
             A.CurrentMap.pinch = strings[2][index]
         end
 
-        if rawget(strings, 5) and rawget(strings[5], index) then
+        if rawget(strings, 5) and rawget(strings[5], index) and strings[5] != "DEFAULT" then
             A.CurrentMap.overtime = strings[5][index]
         end
 
-        if rawget(strings, 6) and rawget(strings[6], index) then
+        if rawget(strings, 6) and rawget(strings[6], index) and strings[6] != "DEFAULT" then
             A.CurrentMap.matchpoint = strings[6][index]
         end
 
-        if rawget(strings, 3) and rawget(strings[3], index) then
+        if rawget(strings, 3) and rawget(strings[3], index) and strings[3] != "DEFAULT" then
             A.CurrentMap.win = strings[3][index]
         end
 
-        if rawget(strings, 4) and rawget(strings[4], index) then
+        if rawget(strings, 4) and rawget(strings[4], index) and strings[4] != "DEFAULT" then
             A.CurrentMap.loss = strings[4][index]
         end
 
-        if A.CurrentMap.song != mapheaderinfo[mapnum].musname then
+        if A.CurrentMap.song != mapheaderinfo[mapnum].musname and strings[1] != "DEFAULT" then
             play(A.CurrentMap.song)
         end
 
