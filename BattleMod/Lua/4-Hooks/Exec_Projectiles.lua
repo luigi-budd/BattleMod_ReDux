@@ -83,7 +83,7 @@ addHook("MobjThinker",function(mo)
 	ghost.tics = -1
 
 	if mo.radius < (32*FRACUNIT) then
-		mo.radius = $+FRACUNIT*2
+		mo.radius = $+FRACUNIT
 	end
 	
 	if not (mo.valid) then return end
