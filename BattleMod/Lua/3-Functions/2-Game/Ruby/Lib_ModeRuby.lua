@@ -153,16 +153,6 @@ local points = function(player)
 	end
 end
 
-local validSound = function(player, fallback)
-	if Cosmetics and Cosmetics.Capturesounds_long and 
-	(player.cos_capturesoundlong and player.cos_capturesoundlong and 
-	player.cos_capturesoundlong > 0 and player.cos_capturesoundlong <= #Cosmetics.Capturesounds_long) then
-		return Cosmetics.Capturesounds_long[player.cos_capturesoundlong].sound
-	else
-		return fallback
-	end
-end
-
 local capture = function(mo, player)
 	if (gametype == GT_RUBYCONTROL or gametype == GT_TEAMRUBYCONTROL)
 		P_AddPlayerScore(player,CV.RubyCaptureBonus.value)
@@ -170,15 +160,22 @@ local capture = function(mo, player)
 		P_AddPlayerScore(player,RUBYRUN_SCORE)
 	end
 	S_StartSound(nil, sfx_prloop)
-	for p in players.iterate() do
-		if p == player or (G_GametypeHasTeams() and p.ctfteam == player.ctfteam) or p.spectator
-			S_StartSound(nil, validSound(player, sfx_s3k68), p)
-			continue
-		elseif G_GametypeHasTeams() and not splitscreen
-			S_StartSound(nil, validSound(player, sfx_lose), p)
-			continue
+	for p in players.iterate()
+		local sfx
+		if G_GametypeHasTeams() then
+			if (p.ctfteam == player.ctfteam) or p.spectator or splitscreen then
+				sfx = sfx_s3k68
+			else
+				sfx = sfx_lose
+			end
+		else
+			if (p == player) then
+				sfx = sfx_s3k68
+			else
+				sfx = sfx_lose
+			end
 		end
-		S_StartSound(nil, sfx_s243, p)
+		S_StartSound(nil, B.LongSound(player, sfx), p)
 	end
 	P_RemoveMobj(mo)
 	if R.CheckPoint and R.CheckPoint.valid
