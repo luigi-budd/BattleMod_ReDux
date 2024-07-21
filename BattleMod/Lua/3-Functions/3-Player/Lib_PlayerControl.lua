@@ -393,7 +393,7 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 	-- this'll allow us to stun break or not
 	player.tech_timer = 0	-- reset tech timer
 	player.tumble_time = time	-- store how long we'll be parried for
-	player.max_tumble_time = 3*TICRATE	-- failsafe
+	player.max_tumble_time = (player.powers[pw_flashing] or player.powers[pw_invulnerability]) and TICRATE or 3*TICRATE -- failsafe
 	player.tumble_nostunbreak = nostunbreak	-- used for parry
 end
 
