@@ -287,7 +287,7 @@ local function capFlag(p, flag)
 	
 	--sounds
 	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == p.ctfteam))
-	if friendly then S_StartSound(nil, sfx_flgcap) else S_StartSound(nil, sfx_lose) end
+	if friendly then S_StartSound(nil, B.LongSound(p, sfx_flgcap)) else S_StartSound(nil, B.LongSound(player, sfx_lose)) end
 	--hud
 	F.GameState.CaptureHUDTimer = 5*TICRATE
 	F.GameState.CaptureHUDName = p.name
