@@ -14,9 +14,6 @@ local st_release = 2
 local st_jump = 3
 
 B.Action.PikoTornado_Priority = function(player)
-	local mo = player.mo
-	if not (mo and mo.valid) return end
-
 	local pikowavereq = (player.actionstate == piko_special or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT))
 
 	if not(pikowavereq) and player.textflash_flashing then
@@ -66,7 +63,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT)
 		--print(player.actiontime)
 		player.actionrings = 5
-		player.actiontext = B.TextFlash("Piko Wave")
+		player.actiontext = B.TextFlash("Piko Wave", (doaction == 1), player)
 	elseif player.melee_state == st_release
 		return
 	elseif P_IsObjectOnGround(mo)
