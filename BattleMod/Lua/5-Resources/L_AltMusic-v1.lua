@@ -30,23 +30,7 @@ local setMusic = function(mapcode, song, arr)
     A.Maps[name][music] = arr
 end
 
-/*
-setMusic("map01", "gfz2", { --New altmusic 'gfz2'(Also works if you just put the map's default song)
-    pinch = "_super",
-    overtime = "vsagz",
-    matchpoint = "spec1",
-    win = "_clear",
-    loss = "_gover"
-})
-
-
-setMusic("map01", "gfzol", { --New altmusic 'gfz2'(Also works if you just put the map's default song)
-    pinch = "osuper",
-    overtime = "bhz",
-    matchpoint = "spec2",
-    win = "oclear",
-    loss = "ogover"
-})*/
+A.setMusic = setMusic
 
 
 local splitString = function(string)
@@ -102,7 +86,8 @@ local function play(song)
     mapmusname = song --Just in case!
 end
 
-addHook("MapLoad", function(mapnum)
+
+local MapLoad = function(mapnum)
     
     local mapcode = G_BuildMapName(mapnum)  
     
@@ -127,56 +112,35 @@ addHook("MapLoad", function(mapnum)
         end
 
     else
-        local strings = {
-            [1] = (splitString(mapheaderinfo[mapnum].altmusic) or {}),
-            [2] = (splitString(mapheaderinfo[mapnum].bpinch)),
-            [3] = (splitString(mapheaderinfo[mapnum].bwin)),
-            [4] = (splitString(mapheaderinfo[mapnum].bloss)),
-            [5] = (splitString(mapheaderinfo[mapnum].bovertime)),
-            [6] = (splitString(mapheaderinfo[mapnum].bmatchpoint)),
+
+        local music       = mapheaderinfo[mapnum].musname
+        local altmusic    = mapheaderinfo[mapnum].altmusic
+        local bpinch      = mapheaderinfo[mapnum].bpinch
+        local bwin        = mapheaderinfo[mapnum].bwin
+        local bloss       = mapheaderinfo[mapnum].bloss
+        local bovertime   = mapheaderinfo[mapnum].bovertime
+        local bmatchpoint = mapheaderinfo[mapnum].bmatchpoint
+
+        if not(altmusic and music) then
+            return
+        end
+
+        local choices = {music, altmusic}
+    
+        local song = choices[P_RandomRange(1, #choices)]
+    
+    
+        A.CurrentMap = {
+            song = song,
+            pinch = bpinch,
+            win = bwin,
+            loss = bloss,
+            overtime = bovertime,
+            matchpoint = bmatchpoint
         }
-    
-        table.insert(strings[1], 1, mapheaderinfo[mapnum].musname)
-    
-        local index = P_RandomRange(1, #strings[1])
-    
-        for k, v in ipairs(strings) do
-    
-            if k == 1 then
-                continue
-            end
-    
-            if (v and rawget(v, index) and v[index] != "DEFAULT") then
-                v = v[index]
-            else
-                v = nil
-            end
-        end
-    
-    
-        A.CurrentMap.song = strings[1][index]
 
-        if rawget(strings, 2) and rawget(strings[2], index) and strings[2] != "DEFAULT" then
-            A.CurrentMap.pinch = strings[2][index]
-        end
-
-        if rawget(strings, 5) and rawget(strings[5], index) and strings[5] != "DEFAULT" then
-            A.CurrentMap.overtime = strings[5][index]
-        end
-
-        if rawget(strings, 6) and rawget(strings[6], index) and strings[6] != "DEFAULT" then
-            A.CurrentMap.matchpoint = strings[6][index]
-        end
-
-        if rawget(strings, 3) and rawget(strings[3], index) and strings[3] != "DEFAULT" then
-            A.CurrentMap.win = strings[3][index]
-        end
-
-        if rawget(strings, 4) and rawget(strings[4], index) and strings[4] != "DEFAULT" then
-            A.CurrentMap.loss = strings[4][index]
-        end
-
-        if A.CurrentMap.song != mapheaderinfo[mapnum].musname and strings[1] != "DEFAULT" then
+        A.CurrentDefsong = music
+        if A.CurrentMap.song != music then
             play(A.CurrentMap.song)
         end
 
@@ -184,7 +148,10 @@ addHook("MapLoad", function(mapnum)
 
     
 
-end)
+end
+
+addHook("MapLoad", MapLoad)
+
 
 
 addHook("MusicChange", function(oldname, newname)
