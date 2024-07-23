@@ -146,7 +146,9 @@ B.PinchMusic = function(player)
 		local pinch = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.pinch) or pinchmusic
 	
 		B.DebugPrint("Starting pinch music",DF_GAMETYPE)
-		COM_BufInsertText(player,"tunes "..pinch)
+		mapmusname = pinch
+		S_ChangeMusic(pinch)
+		--COM_BufInsertText(player,"tunes "..pinch)
 	return true end
 	return false
 end
@@ -159,7 +161,9 @@ B.OvertimeMusic = function(player)
 		local over = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.overtime) or overtimemusic
 
 		B.DebugPrint("Starting overtime music",DF_GAMETYPE)
-		COM_BufInsertText(player,"tunes "..over)
+		mapmusname = over
+		S_ChangeMusic(over)
+		--COM_BufInsertText(player,"tunes "..over)
 	return true end
 	return false
 end
@@ -172,7 +176,9 @@ B.MatchPointMusic = function(player)
 		local matchpoint = ALTMUSIC.CurrentMap.matchpoint
 
 		B.DebugPrint("Starting matchpoint music",DF_GAMETYPE)
-		COM_BufInsertText(player,"tunes "..matchpoint)
+		mapmusname = matchpoint
+		S_ChangeMusic(matchpoint)
+		--COM_BufInsertText(player,"tunes "..matchpoint)
 	return true end
 	return false
 end

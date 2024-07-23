@@ -246,11 +246,15 @@ local function forcewin()
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
 				local win = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.win) or winmusic
-				COM_BufInsertText(player,"tunes "..win)
+				mapmusname = win
+				S_ChangeMusic(win, false)
+				--COM_BufInsertText(player,"tunes "..win)
 			else
 				if player.mo then player.mo.loss = true end
 				local loss = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.loss) or lossmusic
-				COM_BufInsertText(player,"tunes "..loss)
+				mapmusname = loss
+				S_ChangeMusic(loss, false)
+				--COM_BufInsertText(player,"tunes "..loss)
 			end
 		end
 	end
