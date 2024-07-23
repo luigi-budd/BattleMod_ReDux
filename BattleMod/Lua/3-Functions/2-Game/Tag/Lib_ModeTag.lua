@@ -25,13 +25,13 @@ B.TagPreRound = 0
 B.TagPreTimer = 0
 B.TagPlayers = 0
 
-local function IsValidPlayer(player)
+B.IsValidPlayer = function(player)
 	return player != nil and player.valid and player.mo != nil and
 			player.mo.valid and not player.spectator
 end
 
 B.TagConverter = function(player)
-	if not IsValidPlayer(player) or player.battletagIT
+	if not B.IsValidPlayer(player) or player.battletagIT
 		return
 	end
 	
@@ -47,7 +47,7 @@ end
 local function PlayerCounter()
 	local tplayers = 0
 	for player in players.iterate do
-		if IsValidPlayer(player)
+		if B.IsValidPlayer(player)
 			tplayers = $ + 1
 		end
 	end
@@ -80,7 +80,7 @@ B.TagControl = function()
 		end
 		while i < maxtaggers
 			local luckyplayer = players[P_RandomKey(32)]
-			if IsValidPlayer(luckyplayer) and not luckyplayer.battletagIT
+			if B.IsValidPlayer(luckyplayer) and not luckyplayer.battletagIT
 				B.TagConverter(luckyplayer)
 				i = $ + 1
 			end
@@ -91,7 +91,7 @@ B.TagControl = function()
 	elseif B.TagPreRound == 1
 		B.TagPlayers = PlayerCounter()
 		for player in players.iterate do
-			if IsValidPlayer(player)
+			if B.IsValidPlayer(player)
 				if player.battletagIT
 					player.pflags = $ | PF_FULLSTASIS
 					if player.BTblindfade < 10
@@ -113,7 +113,7 @@ B.TagControl = function()
 		local totaltaggers = 0
 		B.TagPlayers = PlayerCounter()
 		for player in players.iterate do
-			if IsValidPlayer(player)
+			if B.IsValidPlayer(player)
 				//have spectators joining in become taggers, also as failsafe
 				//exception for if there's only 2 active players in a game
 				if player.battlespawning != nil and player.battlespawning > 0 
