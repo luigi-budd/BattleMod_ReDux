@@ -287,6 +287,11 @@ B.exhaust = function(player)
 	if (P_IsObjectOnGround(mo) or P_PlayerInPain(player)) and not player.actionstate then
 		if not override then
 			player.exhaustmeter = (G_GametypeUsesLives() and B.ArenaGametype()) and FRACUNIT or FRACUNIT*2
+			//attempt to reduce default exhaust for runners in tag
+			if B.TagGametype() and not (player.battletagIT or 
+					player.pflags & PF_TAGIT)
+				player.exhaustmeter = FRACUNIT - FRACUNIT / 3
+			end
 			player.ledgemeter = FRACUNIT
 		elseif override and not(type(override) == "number" and override > 1) then
 			player.ledgemeter = FRACUNIT

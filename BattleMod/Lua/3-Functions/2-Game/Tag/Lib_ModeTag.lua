@@ -126,7 +126,7 @@ B.TagControl = function()
 						player.BTblindfade = $ - 1
 					end
 				end
-				//attempts to have the runner earn points every second they're alive
+				//have runners earn points every second they're alive and well
 				if not player.battletagIT and player.realtime % TICRATE == 0
 						and player.playerstate == PST_LIVE and not
 						player.powers[pw_flashing]
