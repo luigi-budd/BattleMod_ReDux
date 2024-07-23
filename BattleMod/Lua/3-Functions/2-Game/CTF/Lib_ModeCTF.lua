@@ -318,25 +318,55 @@ F.FlagPreThinker = function()
 				F.PlayerFlagBurst(p, 1)
 			end
 
-			-- Check if flag was captured
-			if not P_IsObjectOnGround(p.mo) then continue end
+			-- If we're not on the ground then we can't cap flag
+			if not (P_IsObjectOnGround(p.mo) or (p.mo.eflags&MFE_JUSTHITFLOOR)) then continue end
 
 			local team = p.ctfteam == 1 and SSF_REDTEAMBASE or SSF_BLUETEAMBASE
-			local s = P_MobjTouchingSectorSpecialFlag(p.mo, team)
+			local s = P_PlayerTouchingSectorSpecialFlag(p, team)
 			if not s then return end
+			
+			local obj_flip = (p.mo.flags2&MF2_OBJECTFLIP) == MF2_OBJECTFLIP
+			local on_base = false
+			if (s.specialflags&team) then on_base = true end
 
-			-- the FOF we're standing under needs to be a flag base!
-			-- check its target sector (the sector the FOF is located in)
-			-- to ensure that it's a flag base too
-			if p.mo.floorrover and p.mo.floorrover.valid then 
-				local st = p.mo.floorrover.target
-				if not (st.special&team) then return end
+			local player_rover = p.mo.floorrover
+			if player_rover then
+
+				-- look for next rover
+				local next_rover = player_rover
+				while next_rover ~= nil do
+					local cs = next_rover.sector
+
+					if (cs.specialflags&team) then 
+						on_base = true 
+						break
+					else
+						on_base = false
+					end
+					next_rover = $.next
+				end
+
+				-- look for prev rover.. if `on_base` is still false
+				if not on_base then
+					local prev_rover = player_rover
+					while prev_rover ~= nil do
+						local cs = prev_rover.sector
+
+						if (cs.specialflags&team) then 
+							on_base = true 
+							break
+						else
+							on_base = false
+						end
+						prev_rover = $.prev
+					end
+				end
 			end
 
-			-- if we're clear after everything, cap
-			if p.gotflag then
-				capFlag(p,p.ctfteam)
+			if p.gotflag and on_base then
+				capFlag(p, p.ctfteam)
 			end
+
 		end
 	end
 end
