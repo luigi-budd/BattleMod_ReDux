@@ -39,6 +39,8 @@ B.TagConverter = function(player)
 	local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BATTLETAG_IT)
 	IT.tracerplayer = player
 	player.BTblindfade = 0
+	P_ResetScore(player)
+	player.score = 0
 	print(player.name .. " is now IT!")
 end
 
@@ -125,7 +127,9 @@ B.TagControl = function()
 					end
 				end
 				//attempts to have the runner earn points every second they're alive
-				if not player.battletagIT and player.realtime % TICRATE == 0//leveltime % TICRATE == 0
+				if not player.battletagIT and player.realtime % TICRATE == 0
+						and player.playerstate == PST_LIVE and not
+						player.powers[pw_flashing]
 					P_AddPlayerScore(player, 5)
 				end
 			end
@@ -167,8 +171,7 @@ end
 
 //have runners who are damaged by taggers or die switch teams
 B.TagTeamSwitch = function(target, inflictor, source)
-	if gametype != GT_BATTLETAG or not MoValidPlayer(target) or (not
-			MoValidPlayer(inflictor) and not MoValidPlayer(source))
+	if gametype != GT_BATTLETAG or not MoValidPlayer(target)
 		return
 	end
 	
@@ -180,11 +183,9 @@ B.TagTeamSwitch = function(target, inflictor, source)
 		tagger = source.player
 	end
 	if tagger != nil and tagger.battletagIT and not runner.battletagIT
-		B.TagConverter(runner)
 		//have tagger steal the runner's score
 		P_AddPlayerScore(tagger, runner.score)
-		P_ResetScore(runner)
-		runner.score = 0
+		B.TagConverter(runner)
 	elseif runner.playerstate != PST_LIVE and not runner.battletagIT
 		B.TagConverter(runner)
 	end
