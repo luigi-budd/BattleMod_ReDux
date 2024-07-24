@@ -364,13 +364,12 @@ F.FlagPreThinker = function()
 			end
 
 			-- UDMF(?) : if this is a gravity flipped sector and we're also gravity flipped, then capture the flag
-			if 		(obj_flip 		and (s.flags&MSF_FLIPSPECIAL_CEILING))
-					--or (obj_flip 	and (s.flags&MSF_FLIPSPECIAL_FLOOR))
-			then 
-				on_base = true 
-			else
+			if 		(not obj_flip and (s.flags&MSF_FLIPSPECIAL_CEILING)) then 
 				on_base = false
+			elseif (obj_flip and (s.flags&MSF_FLIPSPECIAL_CEILING)) then
+				on_base = true
 			end
+
 
 			if p.gotflag and on_base then
 				capFlag(p, p.ctfteam)
