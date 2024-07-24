@@ -139,7 +139,35 @@ local dash_overlayThink = function(mo) --MobjThinker
 	end
 end
 
+local teamcolors = {
+	[SKINCOLOR_ICY] = {SKINCOLOR_LEMON,SKINCOLOR_MINT},
+	[SKINCOLOR_SKY] = {SKINCOLOR_GOLDENROD,SKINCOLOR_MASTER},
+	[SKINCOLOR_CYAN] = {SKINCOLOR_TOPAZ,SKINCOLOR_EMERALD},
+	[SKINCOLOR_WAVE] = {SKINCOLOR_TANGERINE,SKINCOLOR_SEAFOAM},
+	[SKINCOLOR_TEAL] = {SKINCOLOR_APRICOT,SKINCOLOR_BOTTLE},
+	[SKINCOLOR_AQUA] = {SKINCOLOR_SUNSET,SKINCOLOR_OCEAN},
+	[SKINCOLOR_SEAFOAM] = {SKINCOLOR_KETCHUP,SKINCOLOR_WAVE},
+	[SKINCOLOR_MINT] = {SKINCOLOR_FLAME,SKINCOLOR_AQUAMARINE},
+	[SKINCOLOR_PERIDOT] = {SKINCOLOR_SALMON,SKINCOLOR_SKY},
+	[SKINCOLOR_LIME] = {SKINCOLOR_PEPPER,SKINCOLOR_CORNFLOWER},
+	[SKINCOLOR_YELLOW] = {SKINCOLOR_RUBY,SKINCOLOR_SAPPHIRE},
+	[SKINCOLOR_SANDY] = {SKINCOLOR_CHERRY,SKINCOLOR_BLUE},
+	[SKINCOLOR_GOLD] = {SKINCOLOR_RED,SKINCOLOR_COBALT},
+	[SKINCOLOR_APRICOT] = {SKINCOLOR_CRIMSON,SKINCOLOR_CERULEAN},
+	[SKINCOLOR_SUNSET] = {SKINCOLOR_VOLCANIC,SKINCOLOR_MIDNIGHT}
+}
+
+
 local dash_colorizer = function(player) --Colorizes dashmode users that would show the orange flash instead of colorizing (PostThinkFrame)
+
+	if (player.followmobj and player.followmobj.valid and player.followmobj.type == MT_METALJETFUME) and (player.ctfteam > 0) and rawget(teamcolors, player.followmobj.color) then
+		player.followmobj.color = teamcolors[$][player.ctfteam]
+	end
+	
+
+	
+
+
 	if player.dashmode >= DASHMODE_THRESHOLD and (player.charflags & SF_DASHMODE) and (player.charflags & SF_MACHINE) and ((leveltime/2) & 1) then --if we're flashing & a dashmode machine
 		dash_overlayOn(player, false, true) --Colorize
 		player.dash_colorize = true --Mark as colorized
