@@ -161,7 +161,10 @@ local capture = function(mo, player)
 	end
 	S_StartSound(nil, sfx_prloop)
 	for p in players.iterate()
-		local sfx
+		if splitscreen and p == players[1] then 
+			return
+		end
+ 		local sfx
 		if G_GametypeHasTeams() then
 			if (p.ctfteam == player.ctfteam) or p.spectator or splitscreen then
 				sfx = sfx_s3k68

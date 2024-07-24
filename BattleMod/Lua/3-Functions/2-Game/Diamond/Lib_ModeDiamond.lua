@@ -532,6 +532,9 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 		local teamscoreincrease = 0
 		local scoreincrease = 0
 		for p in players.iterate()
+			if splitscreen and p == players[1] then 
+				return
+			end
 			S_StartSound(nil, sfx_s243, p)
 			local sfx
 			if G_GametypeHasTeams() then
