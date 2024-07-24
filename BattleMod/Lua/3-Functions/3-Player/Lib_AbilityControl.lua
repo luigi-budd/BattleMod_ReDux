@@ -243,7 +243,12 @@ B.exhaust = function(player)
 	if player.prevfloat == nil then
 		player.prevfloat = false
 	end
-	if player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING) then
+
+	local ringsparkExhaust = 25
+	local state_ringspark = 4 --Magic Number :(
+	local ringspark = ((player.actionstate == state_ringspark) and player.energyattack_ringsparktimer and (player.energyattack_ringsparktimer > ringsparkExhaust))
+
+	if not(ringspark) and player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING) then
 		if not player.prevfloat then
 			player.exhaustmeter = max(0,$-FRACUNIT/20)
 		end
@@ -277,9 +282,7 @@ B.exhaust = function(player)
 	end
 
 	--Ring Spark exhaust
-	local ringsparkExhaust = 25
-	local state_ringspark = 4 --Magic Number :(
-	if (player.actionstate == state_ringspark) and player.energyattack_ringsparktimer and (player.energyattack_ringsparktimer > ringsparkExhaust) then
+	if ringspark then
 		player.exhaustmeter = max(0,$-FRACUNIT/100)
 	end
 	
