@@ -213,6 +213,21 @@ local stallOrFall = function(mo, player, cooldown)
 		end
 	end
 end
+
+local resetRingSpark = function(mo, player)
+	player.ringsparkclock = 0
+	player.actionstate = 0
+	player.actiontime = 0
+	resetdashmode(player)
+	B.ApplyCooldown(player,cooldown_ringspark)
+	resetvars(player)
+	player.runspeed = skins[mo.skin].runspeed
+	if not(skins[mo.skin].flags & SF_NOSKID) then
+		player.charflags = $ & ~(SF_NOSKID)
+	end
+	mo.frame = 0
+	mo.sprite = SPR_PLAY
+end
 		
 
 ---Metal Energy Aura-
@@ -238,7 +253,7 @@ end
 B.SparkAura = function(mo,target, override)
 	if not(target and target.valid and target.player and target.player.actionstate == state_ringspark
 		and target.player.playerstate == PST_LIVE) and not(override)
-		target.state = S_METALSONIC_RINGSPARK3
+		--target.state = S_METALSONIC_RINGSPARK3
 		P_RemoveMobj(mo)
 	return end
 	mo.scale = target.scale
@@ -307,12 +322,6 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 
 	--print(player.playerstate == PST_LIVE)
-
-	if (player.actionstate ~= state_ringspark) then
-		if (mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
-			mo.state = S_METALSONIC_RINGSPARK3
-		end
-	end
 
 	if player.actionstate ~= state_dashslicer then
 		player.energyattack_sliceangle = nil
@@ -539,15 +548,16 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		
 		player.canguard = false
 		
-		if mo.state != S_METALSONIC_RINGSPARK1 then
-			mo.state = S_METALSONIC_RINGSPARK1
-		end
+		--mo.state = S_PLAY_WALK
+		player.charflags = ($|SF_NOSKID)
+		player.runspeed = 0
+		mo.frame = 0
+		B.DrawSVSprite(player, 2) --S_METALSONIC_RINGSPARK1
 			
 		player.exhaustmeter = FRACUNIT
 		
-		player.pflags = $&~(PF_STARTDASH|PF_SPINNING|PF_JUMPED) --his ass is NOT spindashing
+		player.pflags = ($|PF_THOKKED) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED) --his ass is NOT spindashing
 		player.secondjump = 2 --No Floating allowed
-		player.skidtime = 0
 		if (player.actiontime > preptime_ringspark) then--If it's been 17 tics
 			player.actiontime = 0
 			player.actionstate = state_ringspark --Ring Sparkin' time
@@ -567,9 +577,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.canguard = false
 			end
 	
-			if mo.state != S_METALSONIC_RINGSPARK2 then
-				mo.state = S_METALSONIC_RINGSPARK2
-			end
+			player.charflags = ($|SF_NOSKID)
+			player.runspeed = 0
+			mo.frame = 0
+			--mo.sprite2 = SPR2_RUN_
+			B.DrawSVSprite(player, 2+player.actiontime%4)
 
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,overlayZ(mo, auraMobj, (mo.flags2 & MF2_OBJECTFLIP)), auraMobj) --Spawn One
@@ -616,24 +628,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.dashmode = 0 --Normal
 				player.jumpfactor = 0 --No Jumping
 				--print(player.jumpfactor)
-				player.pflags = $ & ~(PF_SPINNING|PF_STARTDASH) --No Spinning
+				player.pflags = ($|PF_THOKKED) & ~(PF_SPINNING|PF_STARTDASH) --No Spinning
 				player.skidtime = 0 --No skidding
 				player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK --We can attack enemies
 			else --If we let go, reset
-				player.ringsparkclock = 0
-				player.actionstate = 0
-				player.actiontime = 0
-				resetdashmode(player)
-				B.ApplyCooldown(player,cooldown_ringspark)
-				resetvars(player)
+				resetRingSpark(mo, player)
 			end
 		else
-			player.ringsparkclock = 0
-			player.actionstate = 0
-			player.actiontime = 0
-			resetdashmode(player)
-			B.ApplyCooldown(player,cooldown_ringspark)
-			resetvars(player)
+			resetRingSpark(mo, player)
 		end
 	end
 	
@@ -655,11 +657,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if (player.actionstate == state_dashslicerprep) then
-		if mo.state != S_PLAY_DASH then
-			mo.state = S_PLAY_DASH
-		end
+		mo.state = S_PLAY_DASH
+		mo.frame = 0
+		mo.sprite2 = SPR2_DASH
 		local pos = player.energyattack_stasis
-		P_SetOrigin(mo, mo.x, mo.y, pos)
+		P_MoveOrigin(mo, mo.x, mo.y, pos)
 		if player.actiontime >= dashslice_buildup then
 			S_StopSoundByID(mo, sfx_hclwt)
 			S_StopSoundByID(mo, sfx_hclwe)
@@ -762,16 +764,15 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 end
 
-local function stateEnforcer(player, state, actionstate, newstate)
+local function stateEnforcer(player, state, actionstate)
 	if player.mo and player.mo.valid then
 		if (player.mo.state == state) and player.actionstate != actionstate then
 			if (player.pflags & PF_SPINNING) or (((player.pflags & PF_JUMPED) or (player.pflags & PF_STARTJUMP)) and not(player.pflags & PF_NOJUMPDAMAGE)) then
 				player.mo.state = S_PLAY_ROLL
 			else
 				if P_IsObjectOnGround(player.mo) then
-					player.mo.state = newstate
+					player.mo.state = S_PLAY_FALL
 				else
-					player.secondjump = 2
 					player.mo.state = S_PLAY_FALL
 				end
 			end
@@ -780,11 +781,6 @@ local function stateEnforcer(player, state, actionstate, newstate)
 end
 
 B.Action.EnergyAttack_Priority = function(player)
-
-	stateEnforcer(player, S_METALSONIC_RINGSPARK1, state_ringsparkprep, S_PLAY_STND)
-	stateEnforcer(player, S_METALSONIC_RINGSPARK2, state_ringspark, S_PLAY_STND)
-			
-
 	
 	if player.actionstate == state_charging then
 		B.SetPriority(player,1,1,nil,1,1,"energy charge aura")
