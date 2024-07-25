@@ -109,32 +109,30 @@ COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
 end, COM_ADMIN)
 
 local MapLoad = function(mapnum)
+
+    A.CurrentMap = {}
+    A.CurrentDefsong = nil
     
     local mapcode = G_BuildMapName(mapnum):lower()  
     
     if rawget(A, mapcode) then
         --Hey so we're gonna sort this on the server then send it to everyone via a command, thanks pairs()!
         --A.songlist = nil
-        altmusic_transition = true
+        --altmusic_transition = true
         if isserver and not(running_command) then
             COM_BufInsertText(server, "_altmsort "..mapcode.." "..mapnum)
         end
     else
 
-        altmusic_transition = true
+        --altmusic_transition = true
 
         local music       = mapheaderinfo[mapnum].musname
-        local altmusic    = mapheaderinfo[mapnum].altmusic
+        local altmusic    = mapheaderinfo[mapnum].altmusic or music
         local bpinch      = mapheaderinfo[mapnum].bpinch
         local bwin        = mapheaderinfo[mapnum].bwin
         local bloss       = mapheaderinfo[mapnum].bloss
         local bovertime   = mapheaderinfo[mapnum].bovertime
         local bmatchpoint = mapheaderinfo[mapnum].bmatchpoint
-
-        if not(altmusic and music) then
-            altmusic_transition = false
-            return
-        end
 
         local choices = {music, altmusic}
     
@@ -167,8 +165,8 @@ addHook("MapLoad", MapLoad)
 
 addHook("MusicChange", function(oldname, newname)
     if altmusic_transition then --Transitioning?
-        S_FadeOutStopMusic(MUSICRATE/4, consoleplayer)
-        return true --No new music.
+        --S_FadeOutStopMusic(1, consoleplayer)
+        --return true --No new music.
     end
 
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)
