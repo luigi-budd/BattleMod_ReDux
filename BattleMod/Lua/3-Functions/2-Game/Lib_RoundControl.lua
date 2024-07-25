@@ -194,7 +194,7 @@ B.MatchPointMusic = function(player)
 		if type(matchpoint) == "table" then
 			matchpoint = tostring($[P_RandomRange(1, #$)])
 		end
-		print(matchpoint)
+		--print(matchpoint)
 
 		B.DebugPrint("Starting matchpoint music",DF_GAMETYPE)
 		mapmusname = matchpoint

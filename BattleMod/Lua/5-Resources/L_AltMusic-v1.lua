@@ -91,7 +91,7 @@ COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
     A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
     A.CurrentMap.song = altsong
 
-    print(A.CurrentMap.pinch)
+    --print(A.CurrentMap.pinch)
 
     --print(A.CurrentDefsong)
     --print(A.CurrentMap)
