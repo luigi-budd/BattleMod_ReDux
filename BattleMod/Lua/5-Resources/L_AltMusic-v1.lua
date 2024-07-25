@@ -75,21 +75,14 @@ COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
 
     local songtable = ALTMUSIC[mapcode]
 
-    if not(songtable) then
-        --print(mapcode)
-        altmusic_transition = false
-        running_command = false
-        return
-    end
-
     local songlist = {}
 
     for k, v in pairs(songtable) do
         table.insert(songlist, k)
     end
 
-    if not(rawget(songtable, mapheaderinfo[mapnum].musname:lower())) then
-        table.insert(songlist, mapheaderinfo[mapnum].musname:lower()) --add default song if not already added
+    if not(rawget(songtable, mapheaderinfo[mapnum].musname:upper())) then
+        table.insert(songlist, mapheaderinfo[mapnum].musname:upper()) --add default song if not already added
     end
 
     local altsong = songlist[P_RandomRange(1, #songlist)] --Pick one, randomly
@@ -97,6 +90,8 @@ COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
     A.CurrentDefsong = mapheaderinfo[mapnum].musname:lower()
     A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
     A.CurrentMap.song = altsong
+
+    print(A.CurrentMap.pinch)
 
     --print(A.CurrentDefsong)
     --print(A.CurrentMap)
@@ -137,6 +132,8 @@ local MapLoad = function(mapnum)
         local choices = {music, altmusic}
     
         local song = choices[P_RandomRange(1, #choices)]
+
+        --print(bpinch)
     
     
         A.CurrentMap = {
