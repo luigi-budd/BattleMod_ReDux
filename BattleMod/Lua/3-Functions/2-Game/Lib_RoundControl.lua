@@ -143,7 +143,15 @@ B.PinchMusic = function(player)
 	if player == nil then return end
 	if B.Pinch and player == consoleplayer then
 
-		local pinch = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.pinch) or pinchmusic
+		local pinch = pinchmusic
+
+		if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.pinch) then
+			if type(ALTMUSIC.CurrentMap.pinch) == "table" then
+				pinch = tostring(ALTMUSIC.CurrentMap.pinch[P_RandomRange(1, #ALTMUSIC.CurrentMap.pinch)])
+			else
+				pinch = tostring(ALTMUSIC.CurrentMap.pinch)
+			end
+		end
 	
 		B.DebugPrint("Starting pinch music",DF_GAMETYPE)
 		mapmusname = pinch
@@ -158,7 +166,15 @@ B.OvertimeMusic = function(player)
 	if player == nil then return end
 	if B.Overtime and player == consoleplayer then
 
-		local over = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.overtime) or overtimemusic
+		local over = overtimemusic
+
+		if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.overtime) then
+			if type(ALTMUSIC.CurrentMap.overtime) == "table" then
+				over = tostring(ALTMUSIC.CurrentMap.overtime[P_RandomRange(1, #ALTMUSIC.CurrentMap.overtime)])
+			else
+				over = tostring(ALTMUSIC.CurrentMap.overtime)
+			end
+		end
 
 		B.DebugPrint("Starting overtime music",DF_GAMETYPE)
 		mapmusname = over
@@ -174,6 +190,11 @@ B.MatchPointMusic = function(player)
 	if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.matchpoint) and player == consoleplayer then
 
 		local matchpoint = ALTMUSIC.CurrentMap.matchpoint
+
+		if type(matchpoint) == "table" then
+			matchpoint = tostring($[P_RandomRange(1, #$)])
+		end
+		print(matchpoint)
 
 		B.DebugPrint("Starting matchpoint music",DF_GAMETYPE)
 		mapmusname = matchpoint

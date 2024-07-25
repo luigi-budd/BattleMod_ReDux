@@ -11,28 +11,6 @@ end
 
 local A = ALTMUSIC
 
-A.Maps = {}
-
-local setMusic = function(mapcode, song, arr)
-
-    local name = mapcode:upper()
-    local music = song:lower()
-
-    if not rawget(A.Maps, name) then
-        A.Maps[name] = {}
-    end
-
-    if not A.Maps[name].songlist then
-        A.Maps[name].songlist = {}
-    end
-
-    table.insert(A.Maps[name].songlist, music)
-    A.Maps[name][music] = arr
-end
-
-A.setMusic = setMusic
-
-
 local splitString = function(string)
     if not string then
         return nil
@@ -45,6 +23,7 @@ local splitString = function(string)
 end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
+local running_command = false
 
 A.CurrentMap = {
     song = nil,
@@ -59,12 +38,13 @@ A.CurrentDefsong = nil
 
 addHook("NetVars", function(n)
     altmusic_transition = n($) --Just in case
+    running_command = n($)
     A.CurrentMap = n($)
     A.CurrentDefsong = n($)
 end)
 
 addHook("MapChange", function(mapnum) --Runs before MapLoad
-    if mapheaderinfo[mapnum].altmusic or rawget(A.Maps, G_BuildMapName(mapnum))then
+    if mapheaderinfo[mapnum].altmusic or rawget(A, G_BuildMapName(mapnum):lower())then
         altmusic_transition = true --Transitioning!
     end
 end)
@@ -86,32 +66,62 @@ local function play(song)
     mapmusname = song --Just in case!
 end
 
+COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
+    if player != server then
+        return
+    end
+
+    running_command = true
+
+    local songtable = ALTMUSIC[mapcode]
+
+    if not(songtable) then
+        --print(mapcode)
+        altmusic_transition = false
+        running_command = false
+        return
+    end
+
+    local songlist = {}
+
+    for k, v in pairs(songtable) do
+        table.insert(songlist, k)
+    end
+
+    if not(rawget(songtable, mapheaderinfo[mapnum].musname:lower())) then
+        table.insert(songlist, mapheaderinfo[mapnum].musname:lower()) --add default song if not already added
+    end
+
+    local altsong = songlist[P_RandomRange(1, #songlist)] --Pick one, randomly
+
+    A.CurrentDefsong = mapheaderinfo[mapnum].musname:lower()
+    A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
+    A.CurrentMap.song = altsong
+
+    --print(A.CurrentDefsong)
+    --print(A.CurrentMap)
+    --print(A.CurrentMap.song)
+
+    if A.CurrentMap.song != mapheaderinfo[mapnum].musname then
+        play(A.CurrentMap.song)
+    end
+    running_command = false
+end, COM_ADMIN)
 
 local MapLoad = function(mapnum)
     
-    local mapcode = G_BuildMapName(mapnum)  
+    local mapcode = G_BuildMapName(mapnum):lower()  
     
-    if rawget(A.Maps, mapcode) then
-        
-        local songtable = A.Maps[mapcode]
-
-        local allsongs = songtable.songlist
-
-        if not rawget(songtable, mapheaderinfo[mapnum].musname:lower()) then
-            table.insert(allsongs, mapheaderinfo[mapnum].musname:lower()) --add default song if not already added
+    if rawget(A, mapcode) then
+        --Hey so we're gonna sort this on the server then send it to everyone via a command, thanks pairs()!
+        --A.songlist = nil
+        altmusic_transition = true
+        if isserver and not(running_command) then
+            COM_BufInsertText(server, "_altmsort "..mapcode.." "..mapnum)
         end
-
-        local altsong = allsongs[P_RandomRange(1, #allsongs)] --Pick one, randomly
-
-        A.CurrentDefsong = mapheaderinfo[mapnum].musname
-        A.CurrentMap = A.Maps[mapcode][altsong]
-        A.CurrentMap.song = altsong
-
-        if A.CurrentMap.song != mapheaderinfo[mapnum].musname then
-            play(A.CurrentMap.song)
-        end
-
     else
+
+        altmusic_transition = true
 
         local music       = mapheaderinfo[mapnum].musname
         local altmusic    = mapheaderinfo[mapnum].altmusic
@@ -122,6 +132,7 @@ local MapLoad = function(mapnum)
         local bmatchpoint = mapheaderinfo[mapnum].bmatchpoint
 
         if not(altmusic and music) then
+            altmusic_transition = false
             return
         end
 
@@ -156,7 +167,8 @@ addHook("MapLoad", MapLoad)
 
 addHook("MusicChange", function(oldname, newname)
     if altmusic_transition then --Transitioning?
-        --return true --No new music.
+        S_FadeOutStopMusic(MUSICRATE/4, consoleplayer)
+        return true --No new music.
     end
 
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)

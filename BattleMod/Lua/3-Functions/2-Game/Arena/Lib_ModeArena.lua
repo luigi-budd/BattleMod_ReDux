@@ -245,13 +245,33 @@ local function forcewin()
 			or (A.Bounty and A.Bounty == player)
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
-				local win = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.win) or winmusic
+				
+				local win = winmusic
+
+				if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.win) then
+					if type(ALTMUSIC.CurrentMap.win) == "table" then
+						win = tostring(ALTMUSIC.CurrentMap.win[P_RandomRange(1, #ALTMUSIC.CurrentMap.win)])
+					else
+						win = tostring(ALTMUSIC.CurrentMap.win)
+					end
+				end
+
 				mapmusname = win
 				S_ChangeMusic(win, false)
 				--COM_BufInsertText(player,"tunes "..win)
 			else
 				if player.mo then player.mo.loss = true end
-				local loss = (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.loss) or lossmusic
+				
+				local loss = lossmusic
+
+				if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.loss) then
+					if type(ALTMUSIC.CurrentMap.loss) == "table" then
+						loss = tostring(ALTMUSIC.CurrentMap.loss[P_RandomRange(1, #ALTMUSIC.CurrentMap.loss)])
+					else
+						loss = tostring(ALTMUSIC.CurrentMap.loss)
+					end
+				end
+
 				mapmusname = loss
 				S_ChangeMusic(loss, false)
 				--COM_BufInsertText(player,"tunes "..loss)
