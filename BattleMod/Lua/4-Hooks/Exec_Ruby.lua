@@ -8,7 +8,7 @@ end,MT_RUBY)
 
 addHook("MobjThinker",R.Thinker,MT_RUBY)
 
-addHook("MobjFuse",function(mo)
+/*addHook("MobjFuse",function(mo)
 	mo.flags = $|MF_SPECIAL
 	return true
-end,MT_RUBY)
+end,MT_RUBY)*/

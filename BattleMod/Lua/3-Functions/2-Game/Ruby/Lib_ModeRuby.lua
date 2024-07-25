@@ -63,7 +63,7 @@ end
 local function free(mo)
 	if not (mo and mo.valid) then return end
 	mo.fuse = freetics
-	mo.flags = $&~MF_SPECIAL
+	--mo.flags = $&~MF_SPECIAL
 	mo.flags = $|MF_GRENADEBOUNCE
 	mo.idle = idletics
 end
