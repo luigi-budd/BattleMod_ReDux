@@ -41,10 +41,10 @@ states[S_METALSONIC_RINGSPARK2] = {
 --states[S_METALSONIC_RINGSPARK3] = {SPR_PLAY, SPR2_RSPF, 1, nil, nil, 1, S_PLAY_STND} --sfx_kc56
 
 
-spr2defaults[SPR2_RSPF] = SPR2_SPNG
+--spr2defaults[SPR2_RSPF] = SPR2_SPNG
 
-sfxinfo[clawenemy].caption = "\x82".."DASH SLICER CLAW".."\x80"
-sfxinfo[clawteam].caption = "Dash Slicer Claw"
+sfxinfo[sfx_hclwe].caption = "\x82".."DASH SLICER CLAW".."\x80"
+sfxinfo[sfx_hclwt].caption = "Dash Slicer Claw"
 
-sfxinfo[ringenemy].caption = "\x82".."RING SPARK FIELD".."\x80"
-sfxinfo[ringteam].caption = "Ring Spark Field"
+sfxinfo[sfx_rgspke].caption = "\x82".."RING SPARK FIELD".."\x80"
+sfxinfo[sfx_rgspkt].caption = "Ring Spark Field"
