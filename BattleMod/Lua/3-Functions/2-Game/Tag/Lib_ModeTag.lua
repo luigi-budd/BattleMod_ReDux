@@ -141,12 +141,16 @@ B.TagControl = function()
 	end
 	//double runners score for surviving the whole round
 	if B.Exiting and B.TagPreRound == 2
+		local runwin = false
 		for player in players.iterate do
 			if not player.battletagIT
 				P_AddPlayerScore(player, player.score)
+				runwin = true
 			end
 		end
-		print("All runners have their score doubled for surviving the round.")
+		if runwin
+			print("All runners have their score doubled for surviving the round.")
+		end
 		B.TagPreRound = 3
 	end
 end
@@ -162,7 +166,8 @@ B.TagDamageControl = function(target, inflictor, source)
 		return
 	end
 	
-	if B.MyTeam(target, inflictor) or B.MyTeam(target, source)
+	if B.MyTeam(target.player, inflictor.player) or B.MyTeam(target.player, 
+			source.player)
 		return false
 	else
 		return true

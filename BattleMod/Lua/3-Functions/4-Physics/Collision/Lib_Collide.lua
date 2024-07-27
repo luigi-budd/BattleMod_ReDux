@@ -60,7 +60,7 @@ B.GetInteractionType = function(smo,tmo)
 			return 1
 		end*/
 		if B.MyTeam(smo.player, tmo.player)
-			return 1
+			return 0
 		else
 			return 3
 		end
