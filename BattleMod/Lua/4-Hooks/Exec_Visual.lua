@@ -156,9 +156,9 @@ local function BattleTagITtag(mo)
 		mo.eflags = tracer.eflags
 		local zheight
 		if tracer.eflags & MFE_VERTICALFLIP
-			zheight = tracer.height / 2 * -1
+			zheight = tracer.height / 2 * -1 - tracer.height / 3
 		else
-			zheight = tracer.height
+			zheight = tracer.height + tracer.height / 3
 		end
 		P_MoveOrigin(mo, tracer.x, tracer.y, tracer.z + zheight)
 	else
