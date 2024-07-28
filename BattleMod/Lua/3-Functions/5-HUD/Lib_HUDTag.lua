@@ -21,7 +21,8 @@ B.TagGenHUD = function(v, player, cam)
 		v.drawString(x, y, text, flags, "center")
 	end
 	//radar function
-	if B.TagPreRound > 1
+	if B.TagPreRound > 1 and (timelimit * 60 * TICRATE - player.realtime <= 
+			120 * TICRATE)
 		local px = player.mo.x
 		local py = player.mo.y
 		local pz = player.mo.z
