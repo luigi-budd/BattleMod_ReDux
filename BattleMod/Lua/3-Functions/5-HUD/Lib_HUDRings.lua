@@ -160,7 +160,7 @@ B.RingsHUD = function(v, player, cam)
 					if not B.CanDoAction(player) then
 						if B.TagGametype() and not (player.pflags & PF_TAGIT or
 								player.battletagIT)
-							text = "\x86RUN!!"
+							text = "\x86Guard" .. "\x80" .. " 10"
 						else
 							text = "\x86" + $
 						end
@@ -298,9 +298,9 @@ B.RingsHUD = function(v, player, cam)
 	)
 	
 	local guardtext = guardoverride and player.guardtext or "\x82Guard"
-	if B.TagGametype() and not (player.pflags & PF_TAGIT)
-		guardtext = $ + "\x80" + " 10"
-	end
+	/*if B.TagGametype() and not (player.pflags & PF_TAGIT)
+		guardtext = $ + "\x85" + " 10"
+	end*/
 	patch = v.cachePatch("PARRYBT")
 	if canguard or guardoverride then
 		v.draw(x-10,y-1,patch,flags)
