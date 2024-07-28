@@ -30,14 +30,26 @@ B.IsValidPlayer = function(player)
 			player.mo.valid and not player.spectator
 end
 
+local function IT_Spawner(player)
+	if not B.IsValidPlayer(player) or not player.battletagIT
+		return
+	end
+	
+	if player.ITindiBT != nil
+		player.ITindiBT = nil
+	end
+	local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BATTLETAG_IT)
+	IT.tracerplayer = player
+	player.ITindiBT = IT
+end
+
 B.TagConverter = function(player)
 	if not B.IsValidPlayer(player) or player.battletagIT
 		return
 	end
 	
 	player.battletagIT = true
-	local IT = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BATTLETAG_IT)
-	IT.tracerplayer = player
+	IT_Spawner(player)
 	player.BTblindfade = 0
 	P_ResetScore(player)
 	player.score = 0
@@ -124,6 +136,9 @@ B.TagControl = function()
 					totaltaggers = $ + 1
 					if player.BTblindfade > 0
 						player.BTblindfade = $ - 1
+					end
+					if player.ITindiBT == nil or not player.ITindiBT.valid
+						IT_Spawner(player)
 					end
 				end
 				//have runners earn points every second they're alive and well
