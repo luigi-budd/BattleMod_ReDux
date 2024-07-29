@@ -70,4 +70,5 @@ function B.NetVars.Sync(network)
 	B.TagPreRound = network($)
 	B.TagPreTimer = network($)
 	B.TagPlayers = network($)
+	B.TagRunners = network($)
 end

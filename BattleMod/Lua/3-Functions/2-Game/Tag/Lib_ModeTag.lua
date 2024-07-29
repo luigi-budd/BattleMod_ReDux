@@ -24,10 +24,17 @@ end
 B.TagPreRound = 0
 B.TagPreTimer = 0
 B.TagPlayers = 0
+B.TagRunners = {}
 
 B.IsValidPlayer = function(player)
-	return player != nil and player.valid and player.mo != nil and
-			player.mo.valid and not player.spectator
+	local p = player
+	if player != nil and player.valid and player.player
+		p = player.player
+	elseif player == nil or not player.valid
+		return false
+	end
+	return p != nil and p.valid and p.mo != nil and p.mo.valid and not 
+			p.spectator
 end
 
 local function IT_Spawner(player)
@@ -124,6 +131,7 @@ B.TagControl = function()
 		//constantly keep track of how many active players and taggers there are
 		local totaltaggers = 0
 		B.TagPlayers = PlayerCounter()
+		B.TagRunners = {}
 		for player in players.iterate do
 			if B.IsValidPlayer(player)
 				//have spectators joining in become taggers, also as failsafe
@@ -140,21 +148,38 @@ B.TagControl = function()
 					if player.ITindiBT == nil or not player.ITindiBT.valid
 						IT_Spawner(player)
 					end
-				end
-				//have runners earn points every second they're alive and well
-				if not player.battletagIT and player.realtime % TICRATE == 0
-						and player.playerstate == PST_LIVE and not
-						player.powers[pw_flashing]
-					P_AddPlayerScore(player, 5)
+				else
+					table.insert(B.TagRunners, player)
+					//have runners earn points every second they're alive and well
+					if player.realtime % TICRATE == 0 and player.playerstate == 
+							PST_LIVE and not player.powers[pw_flashing]
+						P_AddPlayerScore(player, 5)
+					end
 				end
 			end
 		end
-		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers
+		//spawn in pointers for taggers during pinch
+		if B.Pinch
+			for player in players.iterate do
+				if B.IsValidPlayer(player) and player.battletagIT and 
+						player.btagpointers == nil
+					player.btagpointers = {}
+					for i, runners in pairs(B.TagRunners) do
+						local pointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0,
+								MT_BTAG_POINTER)
+						pointer.wait = 3
+						pointer.tracer = player.mo
+						pointer.target = runners.mo
+						table.insert(player.btagpointers, pointer)
+					end
+				end
+			end
+		end
+		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers and not B.Exiting
 			print("All players have been tagged!")
-			G_ExitLevel()
+			B.Exiting = true
 		end
 	end
-	//double runners score for surviving the whole round
 	if B.Exiting and B.TagPreRound == 2
 		local runwin = false
 		for player in players.iterate do
@@ -163,6 +188,7 @@ B.TagControl = function()
 				runwin = true
 			end
 		end
+		//double runners score for surviving the whole round
 		if runwin
 			print("All runners have their score doubled for surviving the round.")
 		end

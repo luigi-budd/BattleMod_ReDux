@@ -115,4 +115,4 @@ states[S_SUPPERSPIN_WAVE_END] = {
 }
 
 sfxinfo[sfx_spwvt].caption = "Spin Wave Ready"
-sfxinfp[sfx_spwve].caption = "\x82".."SPIN WAVE READY".."\x80"
+sfxinfo[sfx_spwve].caption = "\x82".."SPIN WAVE READY".."\x80"
