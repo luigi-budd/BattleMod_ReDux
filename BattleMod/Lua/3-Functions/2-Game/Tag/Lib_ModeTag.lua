@@ -25,6 +25,7 @@ B.TagPreRound = 0
 B.TagPreTimer = 0
 B.TagPlayers = 0
 B.TagRunners = {}
+B.TagTaggers = {}
 
 B.IsValidPlayer = function(player)
 	local p = player
@@ -60,17 +61,18 @@ B.TagConverter = function(player)
 	player.BTblindfade = 0
 	P_ResetScore(player)
 	player.score = 0
+	for i, p in ipairs(B.TagRunners) do
+		if p == player
+			table.remove(B.TagRunners, i)
+			break
+		end
+	end
+	table.insert(B.TagTaggers, player)
 	print(player.name .. " is now IT!")
 end
 
 local function PlayerCounter()
-	local tplayers = 0
-	for player in players.iterate do
-		if B.IsValidPlayer(player)
-			tplayers = $ + 1
-		end
-	end
-	return tplayers
+	
 end
 
 B.TagControl = function()
@@ -83,14 +85,27 @@ B.TagControl = function()
 		COM_BufInsertText(server, "timelimit 5")
 	end
 	
+	//iterate through all players to get them sorted into "teams"
+	B.TagPlayers = 0
+	B.TagRunners = {}
+	B.TagTaggers = {}
+	for player in players.iterate do
+		if B.IsValidPlayer(player)
+			B.TagPlayers = $ + 1
+			if player.battletagIT
+				table.insert(B.TagTaggers, player)
+			else
+				table.insert(B.TagRunners, player)
+			end
+		end
+	end
+	
 	if B.PreRoundWait()
-		B.TagPlayers = PlayerCounter()
 		return
 	end
 	//assign some taggers as soon as pre-round ends
 	if B.TagPreRound == 0
 		local i = 0
-		B.TagPlayers = PlayerCounter()
 		local maxtaggers = 0
 		if B.TagPlayers > 4
 			maxtaggers = min(max($ / 4, 1), 5)
@@ -108,18 +123,16 @@ B.TagControl = function()
 		B.TagPreTimer = 10 * TICRATE
 	//run through the second pre-round, where taggers are frozen and blindfolded
 	elseif B.TagPreRound == 1
-		B.TagPlayers = PlayerCounter()
-		for player in players.iterate do
-			if B.IsValidPlayer(player)
-				if player.battletagIT
-					player.pflags = $ | PF_FULLSTASIS
-					if player.BTblindfade < 10
-						player.BTblindfade = $ + 1
-					end
-				//ensure the first player that joins is a tagger, if there's none
-				elseif B.TagPlayers == 1
-					B.TagConverter(player)
-				end
+		//ensure the first player that joins is a tagger, if there's none
+		if B.TagPlayers == 1
+			for i, player in ipairs(B.TagRunners) do
+				B.TagConverter(player)
+			end
+		end
+		for i, player in ipairs(B.TagTaggers) do
+			player.pflags = $ | PF_FULLSTASIS
+			if player.BTblindfade < 10
+				player.BTblindfade = $ + 1
 			end
 		end
 		if B.TagPreTimer > 0
@@ -130,44 +143,33 @@ B.TagControl = function()
 	else
 		//constantly keep track of how many active players and taggers there are
 		local totaltaggers = 0
-		B.TagPlayers = PlayerCounter()
-		B.TagRunners = {}
-		for player in players.iterate do
-			if B.IsValidPlayer(player)
-				//have spectators joining in become taggers, also as failsafe
-				//exception for if there's only 2 active players in a game
-				if player.battlespawning != nil and player.battlespawning > 0 
-						and not player.battletagIT and B.TagPlayers != 2
-					B.TagConverter(player)
-				end
-				if player.battletagIT
-					totaltaggers = $ + 1
-					if player.BTblindfade > 0
-						player.BTblindfade = $ - 1
-					end
-					if player.ITindiBT == nil or not player.ITindiBT.valid
-						IT_Spawner(player)
-					end
-				else
-					table.insert(B.TagRunners, player)
-					//have runners earn points every second they're alive and well
-					if player.realtime % TICRATE == 0 and player.playerstate == 
-							PST_LIVE and not player.powers[pw_flashing]
-						P_AddPlayerScore(player, 5)
-					end
-				end
+		for i, player in ipairs(B.TagRunners) do
+			//have spectators joining in become taggers, also as failsafe
+			//exception for if there's only 2 active players in a game
+			if player.battlespawning != nil and player.battlespawning > 0 
+					and B.TagPlayers != 2
+				B.TagConverter(player)
+			//have runners earn points every second they're alive and well
+			elseif player.realtime % TICRATE == 0 and player.playerstate == 
+					PST_LIVE and not player.powers[pw_flashing]
+				P_AddPlayerScore(player, 5)
 			end
 		end
-		//spawn in pointers for taggers during pinch
-		if B.Pinch
-			for player in players.iterate do
-				if B.IsValidPlayer(player) and player.battletagIT and 
-						player.btagpointers == nil
+		for i, player in ipairs(B.TagTaggers) do
+			totaltaggers = $ + 1
+			if player.BTblindfade > 0
+				player.BTblindfade = $ - 1
+			end
+			if player.ITindiBT == nil or not player.ITindiBT.valid
+				IT_Spawner(player)
+			end
+			//spawn in pointers for taggers during pinch
+			if B.Pinch
+				if player.btagpointers == nil
 					player.btagpointers = {}
-					for i, runners in pairs(B.TagRunners) do
+					for i, runners in ipairs(B.TagRunners) do
 						local pointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0,
 								MT_BTAG_POINTER)
-						pointer.wait = 3
 						pointer.tracer = player.mo
 						pointer.target = runners.mo
 						table.insert(player.btagpointers, pointer)
@@ -182,11 +184,9 @@ B.TagControl = function()
 	end
 	if B.Exiting and B.TagPreRound == 2
 		local runwin = false
-		for player in players.iterate do
-			if not player.battletagIT
-				P_AddPlayerScore(player, player.score)
-				runwin = true
-			end
+		for i, player in ipairs(B.TagRunners) do
+			P_AddPlayerScore(player, player.score)
+			runwin = true
 		end
 		//double runners score for surviving the whole round
 		if runwin

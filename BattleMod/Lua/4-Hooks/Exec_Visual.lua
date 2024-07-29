@@ -169,19 +169,12 @@ addHook("MobjThinker", BattleTagITtag, MT_BATTLETAG_IT)
 
 //thinker for pointer
 local function BattleTagPointers(mo)
-	//failsafe
-	if mo.wait > 0
-		mo.wait = $ - 1
-		return
-	end
-	print("Am I alive?")
 	if not B.IsValidPlayer(mo.tracer) or not B.IsValidPlayer(mo.target) or
 			not mo.tracer.player.battletagIT or mo.target.player.battletagIT
 		P_RemoveMobj(mo)
 		return
 	end
 	
-	print("I'm alive?")
 	//change the appearance based on perspective
 	local cam
 	if displayplayer == mo.tracer.player

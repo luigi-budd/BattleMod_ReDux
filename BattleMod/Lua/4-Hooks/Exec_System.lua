@@ -47,6 +47,7 @@ addHook("MapChange",function(map)
 	B.TagPreTimer = 0
 	B.TagPlayers = 0
 	B.TagRunners = {}
+	B.TagTaggers = {}
 end)
 
 addHook("MapLoad",function(map)
