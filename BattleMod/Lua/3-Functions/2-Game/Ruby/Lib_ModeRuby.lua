@@ -62,8 +62,9 @@ end
 
 local function free(mo)
 	if not (mo and mo.valid) then return end
+	--print(true)
 	mo.fuse = freetics
-	--mo.flags = $&~MF_SPECIAL
+	mo.flags = $&~MF_SPECIAL
 	mo.flags = $|MF_GRENADEBOUNCE
 	mo.idle = idletics
 end
@@ -208,6 +209,7 @@ local capture = function(mo, player)
 end
 
 R.PreThinker = function()
+	--print(R.ID and R.ID.valid and R.ID.fuse)
 	for player in players.iterate do
 		if player and player.mo then
 			-- Press tossflag to toss ruby
@@ -272,8 +274,8 @@ R.Thinker = function(mo)
 		mo.light = P_SpawnMobjFromMobj(mo, 0,0,20*mo.scale, MT_INVINCIBLE_LIGHT)
 	else
 		P_MoveOrigin(mo.light, mo.x, mo.y, mo.z)
-		mo.tics = TICRATE
-		mo.fuse = mo.tics
+		--mo.tics = TICRATE
+		--mo.fuse = mo.tics
 	end
 	local light = mo.light
 	if mo.target
