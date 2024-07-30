@@ -270,10 +270,11 @@ R.Thinker = function(mo)
 	mo.angle = $+rotatespd
 	
 	--Glow
-	if not (mo.light and mo.light.valid)
+	if not (mo.light and mo.light.valid) then
 		mo.light = P_SpawnMobjFromMobj(mo, 0,0,20*mo.scale, MT_INVINCIBLE_LIGHT)
 	else
-		P_MoveOrigin(mo.light, mo.x, mo.y, mo.z)
+		local zmo = (mo.flags2&MF2_OBJECTFLIP) and (mo.z) or (mo.z+mo.height-(20*mo.scale))
+		P_MoveOrigin(mo.light, mo.x, mo.y, zmo)
 		--mo.tics = TICRATE
 		--mo.fuse = mo.tics
 	end
