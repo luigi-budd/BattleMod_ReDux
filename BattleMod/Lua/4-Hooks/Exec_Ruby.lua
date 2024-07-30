@@ -12,3 +12,10 @@ addHook("MobjFuse",function(mo)
 	mo.flags = $|MF_SPECIAL
 	return true
 end,MT_RUBY)
+
+addHook("MobjRemoved", function(mo)
+	if mo.light and mo.light.valid then
+		P_RemoveMobj(mo.light)
+		return nil
+	end
+end, MT_RUBY)
