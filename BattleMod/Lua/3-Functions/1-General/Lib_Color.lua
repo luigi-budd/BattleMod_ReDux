@@ -57,15 +57,9 @@ function B.SpawnFlash(mo, tics, circle)
 
 		local subflash = P_SpawnGhostMobj(mo, 0,0,0, MT_THOK)
 		subflash.fuse = tics or mobjinfo[MT_THOK].tics
-		subflash.target = mo
+		subflash.target = fmo
 		subflash.dispoffset = 2
 		--Toggle Colorized
-		if fmo.colorized then
-			subflash.colorized = false
-		else
-			subflash.colorized = true
-		end
-		
 		if fmo.colorized then
 			subflash.colorized = false
 		else
