@@ -25,6 +25,7 @@ end
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
 local running_command = false
 local played_once = false
+local already_ran = false
 local lastmap = {}
 --local already_ran = false
 
@@ -40,7 +41,7 @@ A.CurrentDefsong = nil
 
 addHook("NetVars", function(n)
     altmusic_transition = n($) --Just in case
-    running_command = n($)
+    --running_command = n($)
     played_once = n($)
     lastmap = n($)
     --already_ran = n($)
@@ -66,24 +67,24 @@ local function play(song)
     mapmusname = song --Just in case!
 end
 
-addHook("HUD", function(v, player)
-    --v.drawString(0, 0, "{"..(lastmap[1] or "nil")..","..(lastmap[2] or "nil").."}", V_SNAPTORIGHT|V_PERPLAYER|V_ALLOWLOWERCASE|V_50TRANS)
-    if consoleplayer.already_ran then
+addHook("ThinkFrame", do
+    if already_ran then
         --print(true)
-        if A.CurrentMap and A.CurrentMap.song and (A.CurrentMap.song != mapheaderinfo[gamemap].musname) then
+        if A.CurrentMap and A.CurrentMap.song then
             play(A.CurrentMap.song)
             --print(true)
         end
-        consoleplayer.already_ran = false
+        already_ran = false
+        return
     end
-
-    --print(lastmap and #lastmap)
-end, "titlecard")
+end)
 
 addHook("MapChange", function(mapnum) --Runs before MapLoad
+
+
     if mapheaderinfo[mapnum].altmusic or rawget(A, G_BuildMapName(mapnum):lower())then
-        altmusic_transition = (mapheaderinfo[mapnum].musname)
-        --already_ran = false
+        altmusic_transition = true
+        A.CurrentDefSong = mapheaderinfo[mapnum].musname
     end
 
 
@@ -95,7 +96,6 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     table.insert(lastmap, 1, mapnum)
 
     A.CurrentMap = {}
-    A.CurrentDefsong = nil
     
     local mapcode = G_BuildMapName(mapnum):lower()  
     
@@ -104,7 +104,26 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
         --A.songlist = nil
         --altmusic_transition = true
         if isserver and not(running_command) then
-            COM_BufInsertText(server, "_altmsort "..mapcode.." "..mapnum)
+
+            local songlist = {}
+
+            local songarg = " "
+
+            for k, v in pairs(ALTMUSIC[mapcode]) do
+                table.insert(songlist, k)
+            end
+        
+            if not(rawget(ALTMUSIC[mapcode], mapheaderinfo[mapnum].musname:upper())) then
+                table.insert(songlist, mapheaderinfo[mapnum].musname:upper()) --add default song if not already added
+            end
+
+            for k, v in ipairs(songlist) do
+                songarg = $..v.." "
+            end
+
+            local command = "_altmsort "..mapcode.." "..mapnum..songarg
+
+            COM_BufInsertText(server, command)
             running_command = true
         end
     else
@@ -146,28 +165,23 @@ end)
 
 addHook("IntermissionThinker", clearvars)
 
-COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
+COM_AddCommand("_altmsort", function(player, mapcode, mapnum, ...)
     if player != server then
         return
     end
+
+    local songlist = {...}
+
+    local printie = "_altmsort '"..mapcode.."' '"..mapnum.."'"
 
     --running_command = true
 
     local songtable = ALTMUSIC[mapcode]
 
-    local songlist = {}
-
-    for k, v in pairs(songtable) do
-        table.insert(songlist, k)
-    end
-
-    if not(rawget(songtable, mapheaderinfo[mapnum].musname:upper())) then
-        --table.insert(songlist, mapheaderinfo[mapnum].musname:upper()) --add default song if not already added
-    end
+    
 
     local altsong = songlist[P_RandomRange(1, #songlist)] --Pick one, randomly
 
-    A.CurrentDefsong = mapheaderinfo[mapnum].musname:lower()
     A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
     A.CurrentMap.song = altsong
 
@@ -177,7 +191,7 @@ COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
     --print(A.CurrentMap)
     --print(A.CurrentMap.song)
     running_command = false
-    consoleplayer.already_ran = true
+    already_ran = true
 end, COM_ADMIN)
 
 
@@ -185,7 +199,7 @@ end, COM_ADMIN)
 addHook("MusicChange", function(oldname, newname)
 
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)
-    local validMap = (gamemap and mapheaderinfo[gamemap].musname)
+    local validMap = (altmusic_transition)
 
     local function newsong()
         if validMap and A.CurrentMap.song and (A.CurrentMap.song != A.CurrentDefsong) and (newname == A.CurrentDefsong) then
@@ -202,7 +216,7 @@ addHook("MusicChange", function(oldname, newname)
         --end
     end
 
-    if newname and altmusic_transition and ((newname == altmusic_transition) and (lastmap and rawget(lastmap, 1) and mapheaderinfo[lastmap[1]].musname != newname)) then
+    if altmusic_transition and (newname == A.CurrentDefSong) and not(A.CurrentMap and A.CurrentMap.song) then
         transmask()
         return altmusic or true
     end
