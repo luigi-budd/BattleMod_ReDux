@@ -24,6 +24,9 @@ end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
 local running_command = false
+local played_once = false
+local lastmap = {}
+--local already_ran = false
 
 A.CurrentMap = {
     song = nil,
@@ -33,23 +36,19 @@ A.CurrentMap = {
     win = nil,
     loss = nil
 }
-
 A.CurrentDefsong = nil
 
 addHook("NetVars", function(n)
     altmusic_transition = n($) --Just in case
     running_command = n($)
+    played_once = n($)
+    lastmap = n($)
+    --already_ran = n($)
     A.CurrentMap = n($)
     A.CurrentDefsong = n($)
 end)
 
-addHook("MapChange", function(mapnum) --Runs before MapLoad
-    if mapheaderinfo[mapnum].altmusic or rawget(A, G_BuildMapName(mapnum):lower())then
-        altmusic_transition = true --Transitioning!
-    end
-end)
-
-addHook("IntermissionThinker", do
+local function clearvars()
     if A.CurrentMap then
         A.CurrentMap = {}
     end
@@ -57,7 +56,8 @@ addHook("IntermissionThinker", do
     if A.CurrentDefsong then
         A.CurrentDefsong = nil
     end
-end)
+    altmusic_transition = false
+end
 
 local function play(song)
     altmusic_transition = false --no longer transitioning
@@ -66,44 +66,33 @@ local function play(song)
     mapmusname = song --Just in case!
 end
 
-COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
-    if player != server then
-        return
+addHook("HUD", function(v, player)
+    --v.drawString(0, 0, "{"..(lastmap[1] or "nil")..","..(lastmap[2] or "nil").."}", V_SNAPTORIGHT|V_PERPLAYER|V_ALLOWLOWERCASE|V_50TRANS)
+    if consoleplayer.already_ran then
+        --print(true)
+        if A.CurrentMap and A.CurrentMap.song and (A.CurrentMap.song != mapheaderinfo[gamemap].musname) then
+            play(A.CurrentMap.song)
+            --print(true)
+        end
+        consoleplayer.already_ran = false
     end
 
-    running_command = true
+    --print(lastmap and #lastmap)
+end, "titlecard")
 
-    local songtable = ALTMUSIC[mapcode]
-
-    local songlist = {}
-
-    for k, v in pairs(songtable) do
-        table.insert(songlist, k)
+addHook("MapChange", function(mapnum) --Runs before MapLoad
+    if mapheaderinfo[mapnum].altmusic or rawget(A, G_BuildMapName(mapnum):lower())then
+        altmusic_transition = (mapheaderinfo[mapnum].musname)
+        --already_ran = false
     end
 
-    if not(rawget(songtable, mapheaderinfo[mapnum].musname:upper())) then
-        table.insert(songlist, mapheaderinfo[mapnum].musname:upper()) --add default song if not already added
+
+
+    if lastmap and (#lastmap == 3) then
+        lastmap[3] = nil
     end
 
-    local altsong = songlist[P_RandomRange(1, #songlist)] --Pick one, randomly
-
-    A.CurrentDefsong = mapheaderinfo[mapnum].musname:lower()
-    A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
-    A.CurrentMap.song = altsong
-
-    --print(A.CurrentMap.pinch)
-
-    --print(A.CurrentDefsong)
-    --print(A.CurrentMap)
-    --print(A.CurrentMap.song)
-
-    if A.CurrentMap.song != mapheaderinfo[mapnum].musname then
-        play(A.CurrentMap.song)
-    end
-    running_command = false
-end, COM_ADMIN)
-
-local MapLoad = function(mapnum)
+    table.insert(lastmap, 1, mapnum)
 
     A.CurrentMap = {}
     A.CurrentDefsong = nil
@@ -116,6 +105,7 @@ local MapLoad = function(mapnum)
         --altmusic_transition = true
         if isserver and not(running_command) then
             COM_BufInsertText(server, "_altmsort "..mapcode.." "..mapnum)
+            running_command = true
         end
     else
 
@@ -146,32 +136,82 @@ local MapLoad = function(mapnum)
         }
 
         A.CurrentDefsong = music
-        if A.CurrentMap.song != music then
-            play(A.CurrentMap.song)
-        end
+
+       -- already_ran = true
 
     end
 
-    
 
-end
+end)
 
-addHook("MapLoad", MapLoad)
+addHook("IntermissionThinker", clearvars)
+
+COM_AddCommand("_altmsort", function(player, mapcode, mapnum)
+    if player != server then
+        return
+    end
+
+    --running_command = true
+
+    local songtable = ALTMUSIC[mapcode]
+
+    local songlist = {}
+
+    for k, v in pairs(songtable) do
+        table.insert(songlist, k)
+    end
+
+    if not(rawget(songtable, mapheaderinfo[mapnum].musname:upper())) then
+        --table.insert(songlist, mapheaderinfo[mapnum].musname:upper()) --add default song if not already added
+    end
+
+    local altsong = songlist[P_RandomRange(1, #songlist)] --Pick one, randomly
+
+    A.CurrentDefsong = mapheaderinfo[mapnum].musname:lower()
+    A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
+    A.CurrentMap.song = altsong
+
+    --print(A.CurrentMap.pinch)
+
+    --print(A.CurrentDefsong)
+    --print(A.CurrentMap)
+    --print(A.CurrentMap.song)
+    running_command = false
+    consoleplayer.already_ran = true
+end, COM_ADMIN)
 
 
 
 addHook("MusicChange", function(oldname, newname)
-    if altmusic_transition then --Transitioning?
-        --S_FadeOutStopMusic(1, consoleplayer)
-        --return true --No new music.
-    end
 
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)
     local validMap = (gamemap and mapheaderinfo[gamemap].musname)
 
-   if validMap and A.CurrentMap.song and (A.CurrentMap.song != A.CurrentDefsong) and (newname == A.CurrentDefsong) then
-        return A.CurrentMap.song
-   end
+    local function newsong()
+        if validMap and A.CurrentMap.song and (A.CurrentMap.song != A.CurrentDefsong) and (newname == A.CurrentDefsong) then
+            return A.CurrentMap.song
+        end
+    end
+
+    local altmusic = newsong()
+
+    local function transmask()
+        --if altmusic_transition then --Transitioning?
+            S_StopMusic()
+            --return true --No new music.
+        --end
+    end
+
+    if newname and altmusic_transition and ((newname == altmusic_transition) and (lastmap and rawget(lastmap, 1) and mapheaderinfo[lastmap[1]].musname != newname)) then
+        transmask()
+        return altmusic or true
+    end
+
+    if altmusic then
+        return altmusic
+    end
+
+  
 
 end)
 
