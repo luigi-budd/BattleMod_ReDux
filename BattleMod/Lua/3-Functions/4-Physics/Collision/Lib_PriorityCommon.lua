@@ -104,9 +104,9 @@ B.Priority_Ability = function(player)
 		end
 		if melee then
 			if player.melee_state == 1//st_hold
-				B.SetPriority(player,0,1,nil,0,1,"hammer charge")
+				B.SetPriority(player,0,0,nil,0,0,"hammer charge")
 			else
-				B.SetPriority(player,1,0,"amy_melee",1,3,"hammer strike")
+				B.SetPriority(player,1,0,"amy_melee",2,1,"hammer strike")
 			end
 		end
 		//Fang

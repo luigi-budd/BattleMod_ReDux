@@ -3,7 +3,7 @@ local B = CBW_Battle
 local ground_special = 1
 local air_special = 10
 local piko_special = 11
-local cooldown = TICRATE * 3/2
+local cooldown = TICRATE * 9/2
 local swirl1 = S_LHRT
 local swirl2 = S_LHRT
 local min_tornado_speed = 6
@@ -21,7 +21,7 @@ B.Action.PikoTornado_Priority = function(player)
 	end
 
 	if player.actionstate == ground_special or player.actionstate == air_special then
-		B.SetPriority(player,2,3,nil,2,3,"piko spin technique")
+		B.SetPriority(player,2,3,"tails_fly",1,0,"piko spin technique")
 	end
 end
 
