@@ -156,9 +156,9 @@ local function BattleTagITtag(mo)
 		mo.eflags = tracer.eflags
 		local zheight
 		if tracer.eflags & MFE_VERTICALFLIP
-			zheight = tracer.height / 2 * -1
+			zheight = tracer.height / 2 * -1 - tracer.height / 3
 		else
-			zheight = tracer.height
+			zheight = tracer.height + tracer.height / 3
 		end
 		P_MoveOrigin(mo, tracer.x, tracer.y, tracer.z + zheight)
 	else
@@ -166,3 +166,80 @@ local function BattleTagITtag(mo)
 	end
 end
 addHook("MobjThinker", BattleTagITtag, MT_BATTLETAG_IT)
+
+//thinker for pointer
+local function BattleTagPointers(mo)
+	if not B.IsValidPlayer(mo.tracer) or not B.IsValidPlayer(mo.target) or
+			not mo.tracer.player.battletagIT or mo.target.player.battletagIT
+		P_RemoveMobj(mo)
+		return
+	end
+	
+	//change the appearance based on perspective
+	local cam
+	if displayplayer == mo.tracer.player
+		cam = camera
+	elseif secondarydisplayplayer == mo.tracer.player
+		cam = camera2
+	end
+	if cam != nil
+		if cam.chase
+			mo.frame = $ | FF_PAPERSPRITE & ~FF_FLOORSPRITE
+			mo.renderflags = $ & ~RF_NOSPLATBILLBOARD
+			mo.spriteroll = ANGLE_270
+		else
+			mo.frame = $ | FF_FLOORSPRITE & ~FF_PAPERSPRITE
+			mo.renderflags = $ | RF_NOSPLATBILLBOARD
+			mo.spriteroll = 0
+		end
+	end
+	mo.drawonlyforplayer = mo.tracer.player
+	mo.color = mo.target.player.skincolor
+	local x = mo.tracer.x
+	local y = mo.tracer.y
+	local z = mo.tracer.z
+	local rx = mo.target.x
+	local ry = mo.target.y
+	local rz = mo.target.z
+	//keep track of how close the targeted runner is
+	local h_dist = R_PointToDist2(x, y, rx, ry)
+	mo.closedist = R_PointToDist2(0, z, h_dist, rz)
+	//point towards the targeted runner
+	mo.angle = R_PointToAngle2(x, y, rx, ry)
+	local hight = mo.tracer.height / 2
+	if mo.tracer.eflags & MFE_VERTICALFLIP
+		hight = 0
+	end
+	P_MoveOrigin(mo, x + P_ReturnThrustX(mo, mo.angle, 75 * mo.tracer.scale), 
+			y + P_ReturnThrustY(mo, mo.angle, 75 * mo.tracer.scale), z + hight)
+	//change the appearance based on distance of targeted runner
+	local blink
+	if mo.closedist <= 100 * FRACUNIT
+		blink = 1
+	elseif mo.closedist <= 1000 * FRACUNIT
+		mo.scale = mo.tracer.scale
+		blink = 3
+	elseif mo.closedist <= 3000 * FRACUNIT
+		mo.scale = mo.tracer.scale - (mo.tracer.scale / 4)
+		blink = 6
+	elseif mo.closedist <= 7500 * FRACUNIT
+		mo.scale = mo.tracer.scale / 2
+		blink = 12
+	else
+		mo.scale = mo.tracer.scale / 4
+		blink = 24
+	end
+	if leveltime % blink == 0
+		if blink == 1
+			mo.flags2 = $ | MF2_DONTDRAW
+		else
+			mo.flags2 = $ & ~MF2_DONTDRAW
+			if mo.frame & FF_ADD
+				mo.frame = $ & ~FF_ADD
+			else
+				mo.frame = $ | FF_ADD
+			end
+		end
+	end
+end
+addHook("MobjThinker", BattleTagPointers, MT_BTAG_POINTER)

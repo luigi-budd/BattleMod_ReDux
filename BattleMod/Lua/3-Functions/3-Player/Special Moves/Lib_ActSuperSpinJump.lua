@@ -59,7 +59,11 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	--print(string.format("%.4f", player.dashspeed))
 	//Action info
 	if spinwavereq then
-		if not(player.textflash_flashing) then --wittle hacky
+		if (player.textflash_flashing) then --wittle hacky
+			if (leveltime % 8) == 0 then
+				B.SpawnFlash(mo, 10, true)
+			end
+		else
 			B.SpawnFlash(mo, 10, true)
 			B.teamSound(mo, player, sfx_spwvt, sfx_spwve, 255, false)
 		end

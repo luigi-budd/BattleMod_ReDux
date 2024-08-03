@@ -38,6 +38,7 @@ function B.SpawnFlash(mo, tics, circle)
 	mainflash.fuse = tics or mobjinfo[MT_THOK].tics
 	mainflash.target = mo
 	mainflash.dispoffset = 2
+	mainflash.renderflags = $|RF_FULLBRIGHT
 	--Toggle Colorized
 	if mo.colorized then
 		mainflash.colorized = false
@@ -57,15 +58,10 @@ function B.SpawnFlash(mo, tics, circle)
 
 		local subflash = P_SpawnGhostMobj(mo, 0,0,0, MT_THOK)
 		subflash.fuse = tics or mobjinfo[MT_THOK].tics
-		subflash.target = mo
+		subflash.target = fmo
 		subflash.dispoffset = 2
+		subflash.renderflags = $|RF_FULLBRIGHT
 		--Toggle Colorized
-		if fmo.colorized then
-			subflash.colorized = false
-		else
-			subflash.colorized = true
-		end
-		
 		if fmo.colorized then
 			subflash.colorized = false
 		else
@@ -86,6 +82,7 @@ function B.SpawnFlash(mo, tics, circle)
 		circle.sprite = SPR_STAB
 		circle.frame =  _G["A"]
 		--circle.angle = mo.angle + ANGLE_90
+		circle.renderflags = $|RF_FULLBRIGHT
 		circle.fuse = 7
 		circle.scale = mo.scale / 3
 		circle.destscale = 10*mo.scale

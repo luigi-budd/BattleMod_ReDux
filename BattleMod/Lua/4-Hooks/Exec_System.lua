@@ -19,6 +19,7 @@ addHook("MapChange",function(map)
         player.caps = 0
 		player.battletagIT = false
 		player.BTblindfade = 0
+		player.btagpointers = nil
 	end
 	D.Reset()
 	R.Reset()
@@ -45,6 +46,8 @@ addHook("MapChange",function(map)
 	B.TagPreRound = 0
 	B.TagPreTimer = 0
 	B.TagPlayers = 0
+	B.TagRunners = {}
+	B.TagTaggers = {}
 end)
 
 addHook("MapLoad",function(map)

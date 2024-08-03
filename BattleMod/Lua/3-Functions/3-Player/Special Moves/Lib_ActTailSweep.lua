@@ -284,7 +284,11 @@ B.Action.TailSwipe = function(mo,doaction)
 	
 	player.actionrings = 10
 	if player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then
-		if not(player.textflash_flashing) then --wittle hacky
+		if (player.textflash_flashing) then --wittle hacky
+			if (leveltime % 8) == 0 then
+				B.SpawnFlash(mo, 10, true)
+			end
+		else
 			B.SpawnFlash(mo, 10, true)
 			B.teamSound(mo, player, sfx_tswit, sfx_tswie, 255, false)
 		end

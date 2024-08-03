@@ -70,6 +70,11 @@ B.InitPlayer = function(player)
 	player.gradualspeed = 0
 	player.didslipbutton = 0
 	player.nodamage = 0
+	//variables for battle tag
+	player.battletagIT = false
+	player.BTblindfade = 0
+	player.ITindiBT = nil
+	player.btagpointers = nil
 	if player.respawnpenalty == nil then
 		player.respawnpenalty = 0
 	end
