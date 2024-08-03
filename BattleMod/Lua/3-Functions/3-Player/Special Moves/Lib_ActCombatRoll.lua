@@ -1,5 +1,5 @@
 local B = CBW_Battle
-local cooldown = TICRATE*3/2
+local cooldown = TICRATE*9/2
 local xythrust = 38
 local zthrust = 9
 local dropspeed = 20
@@ -55,7 +55,6 @@ B.Action.CombatRoll = function(mo,doaction)
 	if springdrop_trigger
 		//Apply cost, cooldown, state
 		B.PayRings(player)
-		B.ApplyCooldown(player,cooldown)
 		player.actionstate = 1
 		player.actiontime = 1
 		//Apply momentum
@@ -76,6 +75,7 @@ B.Action.CombatRoll = function(mo,doaction)
 	if player.actionstate == 1
 	and bouncing
 	and (mo.eflags & MFE_JUSTHITFLOOR)
+	B.ApplyCooldown(player,cooldown)
 		player.nobombjump = true
 		for n = 0, 4
 			local bomb = B.throwbomb(mo)
