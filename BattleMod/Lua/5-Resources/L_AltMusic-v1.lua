@@ -9,7 +9,14 @@ if not ALTMUSIC then
     rawset(_G, "ALTMUSIC",{})
 end
 
+
 local A = ALTMUSIC
+
+local function newsong()
+    if A.CurrentMap.song and (A.CurrentMap.song != A.CurrentDefsong) and (newname == A.CurrentDefsong) then
+        return (S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or A.CurrentDefsong
+    end
+end
 
 local splitString = function(string)
     if not string then
@@ -40,13 +47,21 @@ A.CurrentMap = {
 A.CurrentDefsong = nil
 
 addHook("NetVars", function(n)
-    altmusic_transition = n($) --Just in case
+    --altmusic_transition = n($) --Just in case
     --running_command = n($)
     played_once = n($)
     lastmap = n($)
     --already_ran = n($)
     A.CurrentMap = n($)
     A.CurrentDefsong = n($)
+    A.songpos = n($)
+end)
+
+addHook("PlayerJoin", function(playernum)
+    if consoleplayer.jointime < 1 then
+        mapmusname = " "
+        already_ran = true
+    end
 end)
 
 local function clearvars()
@@ -62,6 +77,7 @@ end
 
 local function play(song)
     altmusic_transition = false --no longer transitioning
+
     S_ChangeMusic(song) --play the song!
 
     mapmusname = song --Just in case!
@@ -71,7 +87,7 @@ addHook("ThinkFrame", do
     if already_ran then
         --print(true)
         if A.CurrentMap and A.CurrentMap.song then
-            play(A.CurrentMap.song)
+            play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
             --print(true)
         end
         already_ran = false
@@ -198,14 +214,13 @@ end, COM_ADMIN)
 
 addHook("MusicChange", function(oldname, newname)
 
+    if not(consoleplayer) then
+        S_StopMusic()
+        return true
+    end
+
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)
     local validMap = (altmusic_transition)
-
-    local function newsong()
-        if validMap and A.CurrentMap.song and (A.CurrentMap.song != A.CurrentDefsong) and (newname == A.CurrentDefsong) then
-            return A.CurrentMap.song
-        end
-    end
 
     local altmusic = newsong()
 
@@ -218,7 +233,13 @@ addHook("MusicChange", function(oldname, newname)
 
     if altmusic_transition and (newname == A.CurrentDefSong) and not(A.CurrentMap and A.CurrentMap.song) then
         transmask()
-        return altmusic or true
+        if altmusic then
+            altmusic_transition = false
+            return altmusic
+        else
+            return true
+        end
+        --return altmusic or true
     end
 
     if altmusic then
