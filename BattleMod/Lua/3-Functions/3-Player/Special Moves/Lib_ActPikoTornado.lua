@@ -61,6 +61,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	//Action Info
 	if player.actionstate == piko_special
 	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT)
+	and not mo.state == S_PLAY_MELEE_FINISH or P_IsObjectOnGround(mo)
 		--print(player.actiontime)
 		player.actionrings = 5
 		player.actiontext = B.TextFlash("Piko Wave", (doaction == 1), player)
