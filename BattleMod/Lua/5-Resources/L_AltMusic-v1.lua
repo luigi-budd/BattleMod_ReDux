@@ -95,7 +95,23 @@ addHook("ThinkFrame", do
     end
 end)
 
+addHook("HUD", function(v, player)
+    local string = "{"
+    for k, v in ipairs(lastmap) do
+        if k == #lastmap then
+            string = $..v.."}"
+        else
+            string = $..v..","
+        end
+    end
+
+    v.drawString(320,8, string, V_SNAPTOTOP|V_SNAPTORIGHT|V_PERPLAYER|V_ALLOWLOWERCASE|V_50TRANS)
+end, "game")
+
 addHook("MapChange", function(mapnum) --Runs before MapLoad
+
+    A.CurrentMap = {}
+    A.CurrentDefSong = nil
 
 
     if mapheaderinfo[mapnum].altmusic or rawget(A, G_BuildMapName(mapnum):lower())then
@@ -110,8 +126,6 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     end
 
     table.insert(lastmap, 1, mapnum)
-
-    A.CurrentMap = {}
     
     local mapcode = G_BuildMapName(mapnum):lower()  
     
@@ -214,7 +228,8 @@ end, COM_ADMIN)
 
 addHook("MusicChange", function(oldname, newname)
 
-    if not(consoleplayer) then
+    if not(consoleplayer) and (gamestate == GS_LEVEL) and not(titlemapinaction) then
+        altmusic_transition = true
         S_StopMusic()
         return true
     end
@@ -222,7 +237,23 @@ addHook("MusicChange", function(oldname, newname)
     local validPlayer = (consoleplayer and consoleplayer.realmo and consoleplayer.realmo.valid)
     local validMap = (altmusic_transition)
 
-    local altmusic = newsong()
+    local altmusic
+
+    if CBW_Battle and CBW_Battle.Overtime then
+        if A.CurrentMap.overtime then
+            altmusic = (S_MusicExists(A.CurrentMap.overtime) and A.CurrentMap.overtime)
+        end
+    elseif CBW_Battle and CBW_Battle.Pinch then
+        if A.CurrentMap.pinch then
+            altmusic = (S_MusicExists(A.CurrentMap.pinch) and A.CurrentMap.pinch)
+        end
+    elseif CBW_Battle and CBW_Battle.MatchPoint then
+        if A.CurrentMap.matchpoint then
+            altmusic = (S_MusicExists(A.CurrentMap.matchpoint) and A.CurrentMap.matchpoint)
+        end
+    end
+
+    altmusic = $ or newsong()
 
     local function transmask()
         --if altmusic_transition then --Transitioning?
