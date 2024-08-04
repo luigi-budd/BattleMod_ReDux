@@ -108,6 +108,14 @@ end)
     v.drawString(320,8, string, V_SNAPTOTOP|V_SNAPTORIGHT|V_PERPLAYER|V_ALLOWLOWERCASE|V_50TRANS)
 end, "game")*/
 
+addHook("PlayerQuit", function(player)
+    if player == consoleplayer then
+        A.CurrentMap = {}
+        A.CurrentDefSong = nil
+        already_ran = true
+    end
+end)
+
 addHook("MapChange", function(mapnum) --Runs before MapLoad
 
     A.CurrentMap = {}
@@ -242,14 +250,34 @@ addHook("MusicChange", function(oldname, newname)
     if CBW_Battle and CBW_Battle.Overtime then
         if A.CurrentMap.overtime then
             altmusic = (S_MusicExists(A.CurrentMap.overtime) and A.CurrentMap.overtime)
+        else
+            altmusic = "BPNCH2"
         end
     elseif CBW_Battle and CBW_Battle.Pinch then
         if A.CurrentMap.pinch then
             altmusic = (S_MusicExists(A.CurrentMap.pinch) and A.CurrentMap.pinch)
+        else
+            altmusic = "BPNCH1"
         end
     elseif CBW_Battle and CBW_Battle.MatchPoint then
         if A.CurrentMap.matchpoint then
             altmusic = (S_MusicExists(A.CurrentMap.matchpoint) and A.CurrentMap.matchpoint)
+        end
+    end
+
+    if consoleplayer and consoleplayer.mo and consoleplayer.mo.valid and consoleplayer.mo.loss then
+        if A.CurrentMap.loss then
+            altmusic = (S_MusicExists(A.CurrentMap.loss) and A.CurrentMap.loss)
+        else
+            altmusic = "BLOSE"
+        end
+    else
+        if CBW_Battle and CBW_Battle.Exiting then
+            if A.CurrentMap.win then
+                altmusic = (S_MusicExists(A.CurrentMap.win) and A.CurrentMap.win)
+            else
+                altmusic = "BWIN"
+            end
         end
     end
 
