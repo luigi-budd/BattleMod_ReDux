@@ -84,6 +84,20 @@ local function play(song)
 end
 
 addHook("ThinkFrame", do
+    for player in players.iterate do
+        if player.quittime > 0 then
+            player.altmusic_rjto = true
+        end
+
+        if (player.quittime == 0) and player.altmusic_rjto then
+            if player == consoleplayer then
+                mapmusname = " "
+                already_ran = true
+            end
+            player.altmusic_rjto = nil
+        end
+    end
+    --print(tostring(A.CurrentMap and A.CurrentMap.song).."|"..tostring(already_ran).."|"..mapmusname.."|"..tostring(consoleplayer and consoleplayer.jointime))
     if already_ran then
         --print(true)
         if A.CurrentMap and A.CurrentMap.song then
@@ -235,6 +249,10 @@ end, COM_ADMIN)
 
 
 addHook("MusicChange", function(oldname, newname)
+
+    if gamestate != GS_LEVEL then
+        return nil
+    end
 
     if not(consoleplayer) and (gamestate == GS_LEVEL) and not(titlemapinaction) then
         altmusic_transition = true
