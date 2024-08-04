@@ -95,7 +95,7 @@ addHook("ThinkFrame", do
     end
 end)
 
-addHook("HUD", function(v, player)
+/*addHook("HUD", function(v, player)
     local string = "{"
     for k, v in ipairs(lastmap) do
         if k == #lastmap then
@@ -106,7 +106,7 @@ addHook("HUD", function(v, player)
     end
 
     v.drawString(320,8, string, V_SNAPTOTOP|V_SNAPTORIGHT|V_PERPLAYER|V_ALLOWLOWERCASE|V_50TRANS)
-end, "game")
+end, "game")*/
 
 addHook("MapChange", function(mapnum) --Runs before MapLoad
 
