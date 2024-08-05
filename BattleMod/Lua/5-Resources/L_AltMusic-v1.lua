@@ -31,7 +31,6 @@ end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
 local running_command = false
-local played_once = false
 local already_ran = false
 local lastmap = {}
 --local already_ran = false
@@ -47,14 +46,9 @@ A.CurrentMap = {
 A.CurrentDefsong = nil
 
 addHook("NetVars", function(n)
-    --altmusic_transition = n($) --Just in case
-    --running_command = n($)
-    played_once = n($)
     lastmap = n($)
-    --already_ran = n($)
     A.CurrentMap = n($)
     A.CurrentDefsong = n($)
-    A.songpos = n($)
 end)
 
 addHook("PlayerJoin", function(playernum)
@@ -134,6 +128,9 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
 
     A.CurrentMap = {}
     A.CurrentDefSong = nil
+    altmusic_transition = false
+    running_command = false
+
 
 
     if mapheaderinfo[mapnum].altmusic or rawget(A, G_BuildMapName(mapnum):lower())then
