@@ -3,7 +3,7 @@ local B = CBW_Battle
 local ground_special = 1
 local air_special = 10
 local piko_special = 11
-local cooldown = TICRATE * 9/2
+local cooldown = TICRATE * 4/2
 local swirl1 = S_LHRT
 local swirl2 = S_LHRT
 local min_tornado_speed = 6
@@ -21,7 +21,7 @@ B.Action.PikoTornado_Priority = function(player)
 	end
 
 	if player.actionstate == ground_special or player.actionstate == air_special then
-		B.SetPriority(player,2,3,"tails_fly",1,0,"piko spin technique")
+		B.SetPriority(player,3,1,"tails_fly",1,0,"piko spin technique")
 	end
 end
 
@@ -57,13 +57,13 @@ B.Action.PikoTornado = function(mo,doaction)
 		end
 	return end
 	player.actiontime = $+1
-	player.actionrings = 10
+	player.actionrings = 15
 	//Action Info
 	if player.actionstate == piko_special
 	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT)
 	and not mo.state == S_PLAY_MELEE_FINISH or P_IsObjectOnGround(mo)
 		--print(player.actiontime)
-		player.actionrings = 5
+		player.actionrings = 10
 		player.actiontext = B.TextFlash("Piko Wave", (doaction == 1), player)
 	elseif player.melee_state == st_release
 		return
