@@ -11,7 +11,7 @@ local nearground = function(mo,flip)
 end
 
 B.GuardControl = function(player)
-	if CV.Guard.value == 0 
+	if CV.Guard.value == 0
 	or (B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
 			and player.actioncooldown > 0 and player.guard == 0)
 	or player.iseggrobo
@@ -57,7 +57,7 @@ B.Guard = function(player,buttonpressed)
 	end
 	//Neutral
 	if (player.guard == 0) then
-		if buttonpressed == 1 then
+		if buttonpressed == 1 and CV.parrytoggle.value then
 			player.pflags = $ &~ PF_JUMPED
 			player.skidtime = 0
 			if player.powers[pw_flashing] then
