@@ -277,6 +277,11 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		B.TagTeamSwitch(target, inflictor, source)
 		B.TagConverter(target.player)
 	end
+	--ring penalty :3
+	if CV.RingPenalty.value then
+		local penalty = killer and 10 or 5
+		player.ringpenalty = $ and $+penalty or penalty
+	end
 end, MT_PLAYER)
 
 --Disallow revenge jettysyns and spawning players from collecting items

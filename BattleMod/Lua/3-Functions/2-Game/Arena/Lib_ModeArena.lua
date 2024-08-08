@@ -35,7 +35,8 @@ A.StartRings = function(player)
 	player.xtralife = 9 //Prevent players from gaining extra lives in the format
 	if B.SuddenDeath then return end
 	if not(A.CheckRevenge(player)) then
-		player.rings = CV.ArenaStartRings.value
+		local penalty = player.ringpenalty or 0
+		player.rings = CV.StartRings.value - penalty
 	else
 		player.rings = 0
 	end
@@ -71,6 +72,7 @@ A.ResetLives = function()
 		player.revenge = false
 		player.respawnpenalty = 0
 		player.lifeshards = 0
+		player.ringpenalty = 0
 	end
 	if not(gametyperules&GTR_LIVES) or not(B.BattleGametype()) then return end
 	local L = CV.SurvivalStock.value
