@@ -249,7 +249,7 @@ B.exhaust = function(player)
 	local ringspark = ((player.actionstate == state_ringspark) and player.energyattack_ringsparktimer and (player.energyattack_ringsparktimer > ringsparkExhaust))
 	local floaty = (player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING))
 
-	if floaty then
+	if floaty and not(ringspark) then
 		if not player.prevfloat then
 			player.exhaustmeter = max(0,$-FRACUNIT/20)
 		end
@@ -283,8 +283,8 @@ B.exhaust = function(player)
 	end
 
 	--Ring Spark exhaust
-	if ringspark then
-		player.prevfloat = true
+	if ringspark and not(floaty) then
+		player.prevfloat = false
 		player.exhaustmeter = max(0,$-FRACUNIT/100)
 	end
 	

@@ -57,9 +57,11 @@ local blastbuffer = 15 --Time between each auto-shot
 local dashslice_buildup = TICRATE/3
 
 local resetdashmode = function(p)
+	local myskin = (p.mo and p.mo.valid and p.mo.skin) or p.skin
 	p.dashmode = 0
-	p.normalspeed = skins[p.skin].normalspeed
-	p.jumpfactor = skins[p.skin].jumpfactor
+	p.normalspeed = skins[myskin].normalspeed
+	p.jumpfactor = skins[myskin].jumpfactor
+	p.runspeed = skins[myskin].runspeed
 	--print(p.jumpfactor)
 end
 
@@ -565,10 +567,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if player.actionstate == state_ringspark then
+
+		player.skidtime = 0
+		player.charflags = ($|SF_NOSKID)
 	
 		if player.exhaustmeter > 1 then
-
-			player.skidtime = 0
 
 			player.ringsparkclock = $+1 
 		
@@ -576,8 +579,6 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.airdodge = -1
 				player.canguard = false
 			end
-	
-			player.charflags = ($|SF_NOSKID)
 			player.runspeed = 0
 			mo.frame = 0
 			--mo.sprite2 = SPR2_RUN_
