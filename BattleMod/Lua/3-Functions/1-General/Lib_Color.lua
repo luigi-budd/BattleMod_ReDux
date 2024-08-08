@@ -103,24 +103,20 @@ end
 B.TextFlash = function(text, reset, player)
 	local colors = {"\x81","\x88"}
 
-	local originaltext = text
-
 	local bin = 0
 
 	if leveltime % 4 then
 		bin = 1
 	end
 
-	if player then
-		player.textflash_flashing = true
-	end
-
-	local newtext = colors[bin+1]..originaltext.."\x80"
-
 	if (reset) then
 		player.textflash_flashing = false
 		return text:sub(2)
 	else
-		return (newtext)
+		assert(text, "Text must be provided if not resetting!")
+		if player then
+			player.textflash_flashing = true
+		end
+		return (colors[bin+1]..text.."\x80")
 	end
 end
