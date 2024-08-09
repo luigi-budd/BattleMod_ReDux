@@ -11,6 +11,7 @@ end
 
 
 local A = ALTMUSIC
+local B = CBW_Battle
 
 local function newsong()
     if A.CurrentMap.song and (A.CurrentMap.song != A.CurrentDefsong) and (newname == A.CurrentDefsong) then
@@ -31,6 +32,7 @@ end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
 local already_ran = false
+local preround = false
 
 A.CurrentMap = {
     song = nil,
@@ -74,6 +76,16 @@ local function play(song)
 end
 
 addHook("ThinkFrame", do
+
+    if (A.CurrentMap.song == A.CurrentMap.preround) then
+        if B.PreRoundWait() then
+            --Slay
+        else
+            A.CurrentMap.song = A.CurrentMap.musname
+            already_ran = true
+        end
+    end
+
     for player in players.iterate do
         if player.quittime > 0 then
             player.altmusic_rjto = true
@@ -87,7 +99,7 @@ addHook("ThinkFrame", do
             player.altmusic_rjto = nil
         end
     end
-    
+
     if already_ran then
         --print(true)
         if A.CurrentMap and A.CurrentMap.song then
@@ -145,7 +157,7 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     
         A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
         A.CurrentMap.musname = altsong
-        A.CurrentMap.song = A.CurrentMap.musname
+        A.CurrentMap.song = A.CurrentMap.preround or A.CurrentMap.musname
 
         play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
     
@@ -159,6 +171,7 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
         local bloss       = mapheaderinfo[mapnum].bloss
         local bovertime   = mapheaderinfo[mapnum].bovertime
         local bmatchpoint = mapheaderinfo[mapnum].bmatchpoint
+        local preround    = mapheaderinfo[mapnum].bpreround
 
         local choices = {music, altmusic}
     
@@ -171,11 +184,12 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
             win = bwin,
             loss = bloss,
             overtime = bovertime,
-            matchpoint = bmatchpoint
+            matchpoint = bmatchpoint,
+            preround = bpreround
         }
 
         A.CurrentDefsong = music
-        A.CurrentMap.song = A.CurrentMap.musname
+        A.CurrentMap.song = A.CurrentMap.preround or A.CurrentMap.musname
         play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
     end
 
