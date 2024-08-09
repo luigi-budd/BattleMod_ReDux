@@ -151,6 +151,7 @@ B.PinchMusic = function(player)
 			else
 				pinch = tostring(ALTMUSIC.CurrentMap.pinch)
 			end
+			ALTMUSIC.CurrentMap.song = pinch
 		end
 	
 		B.DebugPrint("Starting pinch music",DF_GAMETYPE)
@@ -174,6 +175,7 @@ B.OvertimeMusic = function(player)
 			else
 				over = tostring(ALTMUSIC.CurrentMap.overtime)
 			end
+			ALTMUSIC.CurrentMap.song = over
 		end
 
 		B.DebugPrint("Starting overtime music",DF_GAMETYPE)
@@ -197,6 +199,7 @@ B.MatchPointMusic = function(player)
 		--print(matchpoint)
 
 		B.DebugPrint("Starting matchpoint music",DF_GAMETYPE)
+		ALTMUSIC.CurrentMap.song = matchpoint
 		mapmusname = matchpoint
 		S_ChangeMusic(matchpoint)
 		--COM_BufInsertText(player,"tunes "..matchpoint)

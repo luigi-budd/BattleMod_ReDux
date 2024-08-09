@@ -258,8 +258,7 @@ local function forcewin()
 					end
 				end
 
-				mapmusname = win
-				S_ChangeMusic(win, false)
+				A.CurrentMap.song = win
 				--COM_BufInsertText(player,"tunes "..win)
 			else
 				if player.mo then player.mo.loss = true end
@@ -274,8 +273,7 @@ local function forcewin()
 					end
 				end
 
-				mapmusname = loss
-				S_ChangeMusic(loss, false)
+				A.CurrentMap.song = loss
 				--COM_BufInsertText(player,"tunes "..loss)
 			end
 		end
