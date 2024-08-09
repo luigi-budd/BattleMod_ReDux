@@ -509,7 +509,7 @@ A.UpdateGame = function()
 				end
 			end
 
-			if B.Timeout == R.CapAnimTime-(R.CapAnimTime/4) then
+			/*if B.Timeout == R.CapAnimTime-(R.CapAnimTime/4) then
 
 				for mo in mobjs.iterate() do
 
@@ -521,7 +521,7 @@ A.UpdateGame = function()
 
 				end
 
-			end
+			end*/
 
 
 		end
