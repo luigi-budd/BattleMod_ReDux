@@ -558,7 +558,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			
 		player.exhaustmeter = FRACUNIT
 		
-		player.pflags = ($|PF_THOKKED) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED) --his ass is NOT spindashing
+		player.pflags = ($|(not(P_IsObjectOnGround(mo)) and PF_THOKKED)) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED|PF_STARTJUMP) --his ass is NOT spindashing
 		player.secondjump = 2 --No Floating allowed
 		if (player.actiontime > preptime_ringspark) then--If it's been 17 tics
 			player.actiontime = 0
@@ -629,7 +629,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.dashmode = 0 --Normal
 				player.jumpfactor = 0 --No Jumping
 				--print(player.jumpfactor)
-				player.pflags = ($|PF_THOKKED) & ~(PF_SPINNING|PF_STARTDASH) --No Spinning
+				player.pflags = ($|((not(P_IsObjectOnGround(mo)) and PF_THOKKED) or 0)) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED|PF_STARTJUMP)
 				player.skidtime = 0 --No skidding
 				player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK --We can attack enemies
 			else --If we let go, reset
