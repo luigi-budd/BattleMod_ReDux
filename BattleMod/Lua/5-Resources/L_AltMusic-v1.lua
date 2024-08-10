@@ -146,9 +146,17 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
 
         table.sort(songlist, sort_alphabetical)
 
+        local hasdef = false
     
-        if not(rawget(ALTMUSIC[mapcode], mapheaderinfo[mapnum].musname:upper())) then
-            table.insert(songlist, mapheaderinfo[mapnum].musname:upper()) --add default song if not already added
+        for k, v in ipairs(songlist) do
+            if (v:upper() == mapheaderinfo[mapnum].musname:upper()) then
+                hasdef = true
+                break
+            end
+        end
+
+        if not(hasdef) then
+            table.insert(songlist, mapheaderinfo[mapnum].musname:upper())
         end
 
         local songtable = ALTMUSIC[mapcode]
