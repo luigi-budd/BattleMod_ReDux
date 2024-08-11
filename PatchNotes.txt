@@ -33,6 +33,7 @@ Modding features
 Major gameplay changes
 	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_newhud to "off"
 	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
+	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased if the death was provoked by a player).
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
 	- Characters will take twice as long to exhaust in non-survival gametypes
@@ -118,9 +119,15 @@ Tails
 		- Pierces through objects
 		- Is no longer instantly deleted when in contact with a slope or spawned inside a wall
 		- Projectile colors are tied to the player's
+		- Has the same recoil properties as Tail Sweep
 	New ability: Tail Sweep
 		A disjoint area attack that is tiny and brief, but can be charged for more distance and duration
-		- Decreased actionstate ATK and DEF to 0
+		- During recoil (actionstate):
+			- ATK and DEF are set to zero
+			- Movement is mostly unrestricted
+			- Allows jump, but doing so won't provide spin state
+		- Can be cancelled by pressing the guard button
+		- Does not send Tails upwards unless the jump button is held
 		- Added a wind-up state which must happen for at least 0.33s before the attack happens, but can be charged for an additional 1.5s
 		- Lower player gravity during wind-up
 		- Projectiles have much lower speed, spread and duration when not charged
@@ -128,7 +135,7 @@ Tails
 		- Decreased attack (1 -> 0)
 		- Reverted cooldown increase depending on Tails's exhaustion level
 		- Can be cancelled by pressing the guard button
-		- When colliding with a teammate or a player that does not have any atk or def, Tails begins to carry them
+		- When colliding with a teammate or an enemy with defense lower than 2, Tails begins to carry them
 			- If the player he collided with was an enemy, that player cannot escape the carry, but can stunbreak immediately for 35 rings initially
 			- Every time the enemy tries to jump away, the stunbreak cost will decrease by 5, but if they are thrown, it will increase back by 15
 			- The stunbreak cost will always have a minimum of 0 rings and a maximum of 35 rings
@@ -214,7 +221,8 @@ Console
 		battle_coyotefactor
 		battle_recoveryjump
 		battle_requirerings
-		survival_bounty
+		battle_bounty
+		battle_startrings
 		battleconfig
 		battleconfig_roulette
 		battleconfig_nospinshield

@@ -45,7 +45,7 @@ local cooldown_blast = TICRATE * 5/4
 local cooldown_slice = TICRATE * 2
 local cooldown_cancel = TICRATE
 local cooldown_ringspark = TICRATE * 2 --2 Second cooldown
-local cooldown_multiblast = TICRATE * 4
+local cooldown_multiblast = TICRATE * 155/100
 local preptime_ringspark = 17 --Ring spark prep takes 17 tics
 local forcetime_ringspark = TICRATE/2 --Ring spark is forced to be active for at least half a second
 local speed_ringspark = FRACUNIT * 18 --Limited speed
@@ -57,9 +57,11 @@ local blastbuffer = 15 --Time between each auto-shot
 local dashslice_buildup = TICRATE/3
 
 local resetdashmode = function(p)
+	local myskin = (p.mo and p.mo.valid and p.mo.skin) or p.skin
 	p.dashmode = 0
-	p.normalspeed = skins[p.skin].normalspeed
-	p.jumpfactor = skins[p.skin].jumpfactor
+	p.normalspeed = skins[myskin].normalspeed
+	p.jumpfactor = skins[myskin].jumpfactor
+	p.runspeed = skins[myskin].runspeed
 	--print(p.jumpfactor)
 end
 
@@ -227,6 +229,7 @@ local resetRingSpark = function(mo, player)
 	end
 	mo.frame = 0
 	mo.sprite = SPR_PLAY
+	player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 		
 
@@ -555,8 +558,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		B.DrawSVSprite(player, 2) --S_METALSONIC_RINGSPARK1
 			
 		player.exhaustmeter = FRACUNIT
+
+		local coolflag = PF_THOKKED
+
+		if P_IsObjectOnGround(mo) then
+			coolflag = 0
+		end
 		
-		player.pflags = ($|PF_THOKKED) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED) --his ass is NOT spindashing
+		player.pflags = ($|coolflag) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED|PF_STARTJUMP) --his ass is NOT spindashing
 		player.secondjump = 2 --No Floating allowed
 		if (player.actiontime > preptime_ringspark) then--If it's been 17 tics
 			player.actiontime = 0
@@ -565,10 +574,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if player.actionstate == state_ringspark then
+
+		player.skidtime = 0
+		player.charflags = ($|SF_NOSKID)
 	
 		if player.exhaustmeter > 1 then
-
-			player.skidtime = 0
 
 			player.ringsparkclock = $+1 
 		
@@ -576,8 +586,6 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.airdodge = -1
 				player.canguard = false
 			end
-	
-			player.charflags = ($|SF_NOSKID)
 			player.runspeed = 0
 			mo.frame = 0
 			--mo.sprite2 = SPR2_RUN_
@@ -628,9 +636,15 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.dashmode = 0 --Normal
 				player.jumpfactor = 0 --No Jumping
 				--print(player.jumpfactor)
-				player.pflags = ($|PF_THOKKED) & ~(PF_SPINNING|PF_STARTDASH) --No Spinning
+				local coolflag = PF_THOKKED
+
+				if P_IsObjectOnGround(mo) then
+					coolflag = 0
+				end
+				
+				player.pflags = ($|coolflag) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED|PF_STARTJUMP) --his ass is NOT spindashing
 				player.skidtime = 0 --No skidding
-				player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK --We can attack enemies
+				player.powers[pw_strong] = $|STR_ATTACK --We can attack enemies
 			else --If we let go, reset
 				resetRingSpark(mo, player)
 			end

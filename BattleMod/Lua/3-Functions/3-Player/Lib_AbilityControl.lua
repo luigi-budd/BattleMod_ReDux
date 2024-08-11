@@ -249,7 +249,7 @@ B.exhaust = function(player)
 	local ringspark = ((player.actionstate == state_ringspark) and player.energyattack_ringsparktimer and (player.energyattack_ringsparktimer > ringsparkExhaust))
 	local floaty = (player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING))
 
-	if floaty then
+	if floaty and not(ringspark) then
 		if not player.prevfloat then
 			player.exhaustmeter = max(0,$-FRACUNIT/20)
 		end
@@ -283,8 +283,8 @@ B.exhaust = function(player)
 	end
 
 	--Ring Spark exhaust
-	if ringspark then
-		player.prevfloat = true
+	if ringspark and not(floaty) then
+		player.prevfloat = false
 		player.exhaustmeter = max(0,$-FRACUNIT/100)
 	end
 	
@@ -292,11 +292,6 @@ B.exhaust = function(player)
 	if (P_IsObjectOnGround(mo) or P_PlayerInPain(player)) and not player.actionstate then
 		if not override then
 			player.exhaustmeter = (G_GametypeUsesLives() and B.ArenaGametype()) and FRACUNIT or FRACUNIT*2
-			//attempt to reduce default exhaust for runners in tag
-			if B.TagGametype() and not (player.battletagIT or 
-					player.pflags & PF_TAGIT)
-				player.exhaustmeter = FRACUNIT - FRACUNIT / 3
-			end
 			player.ledgemeter = FRACUNIT
 		elseif override and not(type(override) == "number" and override > 1) then
 			player.ledgemeter = FRACUNIT
@@ -319,6 +314,13 @@ B.exhaust = function(player)
 			local WHAT = P_MobjFlip(mo) > 0 and P_MoveOrigin or P_SetOrigin --for real tho can someone explain this
 			WHAT(player.sweatobj, player.mo.x, player.mo.y, player.mo.z + sweatheight)
 		end
+	end
+	
+	//attempt to reduce max exhaust for runners in tag
+	local bt_maxexhaust = FRACUNIT - FRACUNIT / 3
+	if B.TagGametype() and not (player.battletagIT or 
+			player.pflags & PF_TAGIT) and player.exhaustmeter > bt_maxexhaust
+		player.exhaustmeter = bt_maxexhaust
 	end
 end
 

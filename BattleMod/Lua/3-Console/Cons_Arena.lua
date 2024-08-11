@@ -6,12 +6,6 @@ CV.SurvivalStock = CV_RegisterVar{
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 1, MAX = 99}
 }
-CV.ArenaStartRings = CV_RegisterVar{
-	name = "battle_startrings",
-	defaultvalue = 50,
-	flags = CV_NETVAR,
-	PossibleValue = {MIN = 0, MAX = 999}
-}
 CV.Revenge = CV_RegisterVar{
 	name = "survival_revenge",
 	defaultvalue = 2,
@@ -25,7 +19,7 @@ CV.SuddenDeath = CV_RegisterVar{
 	PossibleValue = CV_OnOff
 }
 CV.Bounty = CV_RegisterVar{
-	name = "survival_bounty",
+	name = "battle_bounty",
 	defaultvalue = 1,
 	flags = CV_NETVAR,
 	PossibleValue = CV_OnOff

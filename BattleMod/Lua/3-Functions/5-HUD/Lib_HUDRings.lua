@@ -266,6 +266,7 @@ B.RingsHUD = function(v, player, cam)
 	
 	local canguard = (player.canguard
 		and CV.Guard.value
+		and CV.parrytoggle.value
 		and P_IsObjectOnGround(mo)
 		and not player.actionstate
 		and not guardoverride

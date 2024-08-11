@@ -35,7 +35,8 @@ A.StartRings = function(player)
 	player.xtralife = 9 //Prevent players from gaining extra lives in the format
 	if B.SuddenDeath then return end
 	if not(A.CheckRevenge(player)) then
-		player.rings = CV.ArenaStartRings.value
+		local penalty = player.ringpenalty or 0
+		player.rings = CV.StartRings.value - penalty
 	else
 		player.rings = 0
 	end
@@ -71,6 +72,7 @@ A.ResetLives = function()
 		player.revenge = false
 		player.respawnpenalty = 0
 		player.lifeshards = 0
+		player.ringpenalty = 0
 	end
 	if not(gametyperules&GTR_LIVES) or not(B.BattleGametype()) then return end
 	local L = CV.SurvivalStock.value
@@ -256,8 +258,7 @@ local function forcewin()
 					end
 				end
 
-				mapmusname = win
-				S_ChangeMusic(win, false)
+				A.CurrentMap.song = win
 				--COM_BufInsertText(player,"tunes "..win)
 			else
 				if player.mo then player.mo.loss = true end
@@ -272,8 +273,7 @@ local function forcewin()
 					end
 				end
 
-				mapmusname = loss
-				S_ChangeMusic(loss, false)
+				A.CurrentMap.song = loss
 				--COM_BufInsertText(player,"tunes "..loss)
 			end
 		end
@@ -507,7 +507,7 @@ A.UpdateGame = function()
 				end
 			end
 
-			if B.Timeout == R.CapAnimTime-(R.CapAnimTime/4) then
+			/*if B.Timeout == R.CapAnimTime-(R.CapAnimTime/4) then
 
 				for mo in mobjs.iterate() do
 
@@ -519,7 +519,7 @@ A.UpdateGame = function()
 
 				end
 
-			end
+			end*/
 
 
 		end

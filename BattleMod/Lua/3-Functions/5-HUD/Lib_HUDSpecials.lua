@@ -135,7 +135,9 @@ B.ActionHUD=function(v, player, cam)
 	yoffset = $+10
 	local patch = v.cachePatch("PARRYBT")
 	local textcolor = 0
-	local canguard = (player.canguard and not player.actionstate)
+	local canguard = (player.canguard
+		and CV.parrytoggle.value
+		and not player.actionstate)
 	local candodge = (player.canguard
 		and CV.airtoggle.value
 		and player.mo.state ~= S_PLAY_PAIN

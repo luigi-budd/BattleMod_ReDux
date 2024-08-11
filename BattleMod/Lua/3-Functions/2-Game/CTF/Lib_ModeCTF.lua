@@ -592,9 +592,9 @@ end
 
 F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 	for p in players.iterate do
-		if not(p.mo and p.mo.valid) then return end
+		if not(p.mo and p.mo.valid) then continue end
 		local pmo = p.mo
-		local conditions = {(p.gotflag), (B.Arena.Bounty and B.Arena.Bounty == p)}
+		local conditions = {(p.gotflag), (B.ArenaGametype() and p.wanted)}
 		local canhaveicon = false
 		for n=1, #conditions do
 			if conditions[n] then canhaveicon = true end
@@ -604,7 +604,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 				P_RemoveMobj(pmo.flag_indicator)
 				pmo.flag_indicator = nil
 			end
-			return
+			continue
 		end
 
 		-- if we're here, at least one of the conditions met, so let's create a generic indicator! (if there isn't any)
@@ -621,8 +621,6 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 				-- TODO: mobjinfo stuff for flags so we don't have to keep comparing ctfteam to fixed numbers
 			elseif conditions[2] then -- crown
 				icon.sprite = SPR_CRWN
-				icon.spritexoffset = $-(pmo.radius/2) --boi wat da hell boi
-				icon.spriteyoffset = $+(pmo.height/2)
 			else -- what
 				icon.sprite = SPR_UNKN
 			end

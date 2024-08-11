@@ -111,3 +111,17 @@ CV.dodgetime = CV_RegisterVar{
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 0, MAX = 10}
 }
+
+CV.StartRings = CV_RegisterVar{
+	name = "battle_startrings",
+	defaultvalue = 50,
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 0, MAX = 999}
+}
+
+CV.RingPenalty = CV_RegisterVar{
+	name = "battle_ringpenalty",
+	defaultvalue = 1,
+	flags = CV_NETVAR,
+	PossibleValue = CV_OnOff
+}
