@@ -64,6 +64,7 @@ B.Priority_Ability = function(player)
 	local dashing = player.dashmode > 3*TICRATE and not(player.pflags&PF_STARTDASH)
 	local prepdash = player.dashmode > 3*TICRATE and player.pflags&PF_STARTDASH
 	local guard = (player.guard == -1)
+	local tumble = player.tumble
 	
 	if super
 		B.SetPriority(player,99,99,nil,99,99,"super aura")
@@ -119,6 +120,12 @@ B.Priority_Ability = function(player)
 			B.SetPriority(player,3,1,nil,3,1,"dash attack")
 		elseif prepdash then
 			B.SetPriority(player,1,1,nil,1,1,"charged dash attack")
+		end
+		if tumble then 
+			B.SetPriority(player,0,0,nil,0,0,nil)
+		end
+		if P_PlayerInPain(player) then 
+			B.SetPriority(player,0,0,nil,0,0,nil)
 		end
 	end
 end
