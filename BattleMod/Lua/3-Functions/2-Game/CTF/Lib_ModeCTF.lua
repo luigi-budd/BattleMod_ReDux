@@ -640,7 +640,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
 		if (displayplayer and p == displayplayer and not splitscreen)
-			pmo.flag_indicator.scale = FRACUNIT * 2/3
+			pmo.flag_indicator.scale = pmo.scale * 2/3
 			pmo.flag_indicator.frame = $ | FF_TRANS30
 		end
 	end
