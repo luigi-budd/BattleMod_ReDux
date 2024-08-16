@@ -250,35 +250,19 @@ local function forcewin()
 				
 				local win = winmusic
 
-				if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.win) then
-					if type(ALTMUSIC.CurrentMap.win) == "table" then
-						win = tostring(ALTMUSIC.CurrentMap.win[P_RandomRange(1, #ALTMUSIC.CurrentMap.win)])
-					else
-						win = tostring(ALTMUSIC.CurrentMap.win)
-					end
-				end
-
-				A.CurrentMap.song = win
-				--COM_BufInsertText(player,"tunes "..win)
+				COM_BufInsertText(player,"tunes "..win)
 			else
 				if player.mo then player.mo.loss = true end
 				
 				local loss = lossmusic
 
-				if (ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.loss) then
-					if type(ALTMUSIC.CurrentMap.loss) == "table" then
-						loss = tostring(ALTMUSIC.CurrentMap.loss[P_RandomRange(1, #ALTMUSIC.CurrentMap.loss)])
-					else
-						loss = tostring(ALTMUSIC.CurrentMap.loss)
-					end
-				end
-
-				A.CurrentMap.song = loss
-				--COM_BufInsertText(player,"tunes "..loss)
+				COM_BufInsertText(player,"tunes "..loss)
 			end
 		end
 	end
 end
+
+COM_AddCommand("forcewin", forcewin, COM_LOCAL)
 
 A.Exiting = function()
 	if B.Exiting then
