@@ -28,9 +28,16 @@ CV.DiamondPointRadius = CV_RegisterVar{
 	PossibleValue = {MIN = 0, MAX = 100000}
 }
 
+CV.DiamondSpawnDelay = CV_RegisterVar{
+	name = "diamond_spawn_delay",
+	defaultvalue = 250,
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 0, MAX = 100000}
+}
+
 CV.DiamondPointUnlockTime = CV_RegisterVar{
 	name = "diamond_point_unlock_time",
-	defaultvalue = 500,
+	defaultvalue = 250,
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 0, MAX = 100000}
 }
