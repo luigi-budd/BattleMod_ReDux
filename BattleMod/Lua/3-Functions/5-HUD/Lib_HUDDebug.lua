@@ -131,15 +131,16 @@ B.DebugHUD = function(v, player, cam)
 	end
 	--Gametypes
 	if debug&DF_GAMETYPE then
+			left_addheader("GAMETYPE EXTRA")
+			left_addline("RedScore",B.RedScore)
+			left_addline("BlueScore",B.BlueScore)
+			left_addline("Pinch",B.Pinch)
+			left_addline("Overtime",B.Overtime)
+			left_addline("SuddenDeath",B.SuddenDeath)
+			left_addline("PinchTics",B.PinchTics)
+			left_addline("Exiting",B.Exiting)
+			left_addline("Timeout",B.Timeout)
 			addheader("GAMETYPE")
-			addline("RedScore",B.RedScore)
-			addline("BlueScore",B.BlueScore)
-			addline("Pinch",B.Pinch)
-			addline("Overtime",B.Overtime)
-			addline("SuddenDeath",B.SuddenDeath)
-			addline("PinchTics",B.PinchTics)
-			addline("Exiting",B.Exiting)
-			addline("Timeout",B.Timeout)
 			
 		if B.ArenaGametype() then
 			subheader("ARENA")
@@ -165,6 +166,18 @@ B.DebugHUD = function(v, player, cam)
 		end
 		
 		if B.DiamondGametype() then
+			subheader("DIAMOND")
+			addline("Diamond", D.Diamond != nil)
+			addline("DiamondIndicator", D.DiamondIndicator != nil)
+			addline("LastDiamondPointNum", D.LastDiamondPointNum)
+			addline("Spawns", #D.Spawns)
+			addline("CapturePoints", #D.CapturePoints)
+			addline("ActivePoint", D.ActivePoint != nil)
+			addline("Active", D.Active != nil)
+			addline("SpawnGrace", D.SpawnGrace)
+			addline("PointUnlockTime", D.PointUnlockTime)
+			addline("CurrentPointNum", D.CurrentPointNum)
+			addline("LastPointNum", D.LastPointNum)
 			subheader("RUBY")
 			addline("Spawned",(D.ID ~= nil and D.ID.valid))
 			if(D.ID and D.ID.valid and D.ID.target and D.ID.target.player) then

@@ -10,18 +10,15 @@ D.DiamondIndicator = nil
 
 -- for the capture points and stuff
 D.CapturePoints = {}
---D.PointIsActive = false
---D.CurrentPointNum = 0
 D.ActivePoint = nil
 D.Active = false
+D.SpawnGrace = 0
 D.PointUnlockTime = 0
 D.CurrentPointNum = 0
 D.LastPointNum = 0
 
-
-local rotatespd = ANG20
---local diamondtext = "\x83".."Diamond".."\x80"
 local diamondtext = "\x87".."Warp Topaz".."\x80"
+local rotatespd = ANG20
 
 local function Wrap(num,size)
 	if num > size then
@@ -35,7 +32,18 @@ D.GameControl = function()
 	then return end
 
 	if D.Diamond == nil or not(D.Diamond.valid) then
-		D.SpawnDiamond()
+		if not(D.SpawnGrace) then
+			D.SpawnGrace = CV.DiamondSpawnDelay.value
+			for p in players.iterate do
+				p.gotcrystal = false
+				p.gotcrystal_time = 0
+			end
+		elseif leveltime % 2 == 0 then
+			D.SpawnGrace = max(0,$-1)
+			if not(D.SpawnGrace) then
+				D.SpawnDiamond()
+			end
+		end
 	end
 	if D.DiamondIndicator == nil then
 		D.DiamondIndicator = P_SpawnMobj(0, 0, 0, MT_GOTDIAMOND)
@@ -57,6 +65,7 @@ end
 
 D.GenerateSpawns = function()
 	if not(B.DiamondGametype()) then return end
+	D.SpawnGrace = 0
 	for thing in mapthings.iterate
 		local t = thing.type
 		if t == 3630 --Diamond Spawn object

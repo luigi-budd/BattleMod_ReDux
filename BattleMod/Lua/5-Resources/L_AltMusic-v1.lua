@@ -31,7 +31,10 @@ local splitString = function(string)
 end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
-local already_ran = false
+A.already_ran = false
+
+local already_ran = A.already_ran
+
 local preround = false
 
 A.CurrentMap = {
@@ -70,17 +73,19 @@ end
 local function play(song)
     altmusic_transition = false --no longer transitioning
 
-    S_ChangeMusic(song) --play the song!
+    if (consoleplayer) then
+        S_ChangeMusic(song) --play the song!
 
-    mapmusname = song --Just in case!
+        mapmusname = song --Just in case!
+    end
 end
 
 addHook("ThinkFrame", do
 
+    --print(A.CurrentMap.song)
+
     if (A.CurrentMap.song == A.CurrentMap.preround) then
-        if B.PreRoundWait() then
-            --Slay
-        else
+        if not(B.PreRoundWait()) then
             A.CurrentMap.song = A.CurrentMap.musname
             already_ran = true
         end
@@ -185,7 +190,20 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     
         local song = choices[P_RandomRange(1, #choices)]
 
-    
+
+
+        if type(bwin) == "table" then
+            bwin = tostring(A.CurrentMap.bwin[P_RandomRange(1, #A.CurrentMap.bwin)])
+        else
+            bwin = tostring(A.CurrentMap.bwin)
+        end
+
+        if type(bloss) == "table" then
+            bloss = tostring(A.CurrentMap.bloss[P_RandomRange(1, #A.CurrentMap.bloss)])
+        else
+            bloss = tostring(A.CurrentMap.bloss)
+        end
+
         A.CurrentMap = {
             musname = song,
             pinch = bpinch,
@@ -216,6 +234,17 @@ addHook("MusicChange", function(oldname, newname)
         altmusic_transition = true
         S_StopMusic()
         return true
+    end
+
+    local win = (A and A.CurrentMap and A.CurrentMap.win)
+    local loss = (A and A.CurrentMap and A.CurrentMap.loss)
+
+    if win and (newname == "BWIN") then
+        return win, nil, false
+    end
+
+    if loss and (newname == "BLOSE") then
+        return loss, nil, false
     end
 
 end)

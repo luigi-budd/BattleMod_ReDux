@@ -34,6 +34,12 @@ end
 D.HUD = function(v, player, cam)
 	local id = D.Diamond
 	if not (B.HUDMain) then return end
+	if D.SpawnGrace then --whatever...
+		local xoff = 320/2
+		local yoff = 24
+		if player.battleconfig_newhud then yoff = $+12 end
+		v.drawString(xoff,yoff,D.SpawnGrace/TICRATE,V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER,"center")
+	end
 	if not (id and id.valid) then return end
 	if not (player.realmo) then return end
 -- 	if B.PreRoundWait() then return end

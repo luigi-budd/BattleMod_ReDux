@@ -613,7 +613,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			local icon = P_SpawnMobjFromMobj(pmo,0,0,0,MT_GOTFLAG)
 			icon.frame = FF_FULLBRIGHT
 			icon.fuse = 0
-			icon.tics = -1
+			icon.tics = 2
 			
 			-- then, update it based on which condition was met
 			if conditions[1] then -- flag
@@ -626,6 +626,8 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			end
 			
 			pmo.flag_indicator = icon -- assign the icon to be the player's indicator
+		else
+			pmo.flag_indicator.tics = max($,2)
 		end
 
 		-- finally, update the indicator's position
@@ -640,7 +642,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
 		if (displayplayer and p == displayplayer and not splitscreen)
-			pmo.flag_indicator.scale = FRACUNIT * 2/3
+			pmo.flag_indicator.scale = pmo.scale * 2/3
 			pmo.flag_indicator.frame = $ | FF_TRANS30
 		end
 	end

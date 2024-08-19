@@ -153,7 +153,7 @@ B.RingsHUD = function(v, player, cam)
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
 			local text = player.actiontext or player.lastactiontext or 0
-			if text then
+			if text and not(player.gotflagdebuff) then
 				if player.actionstate then
 					text = "\x82" + $
 				else
