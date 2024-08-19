@@ -57,7 +57,7 @@ B.Action.PikoTornado = function(mo,doaction)
 		end
 	return end
 	player.actiontime = $+1
-	player.actionrings = 10
+	player.actionrings = 15
 	//Action Info
 	if player.actionstate == piko_special
 	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT)
