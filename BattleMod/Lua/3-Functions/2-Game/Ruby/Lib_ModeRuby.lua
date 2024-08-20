@@ -166,20 +166,23 @@ local capture = function(mo, player)
 			return
 		end
  		local sfx
+		local loss
 		if G_GametypeHasTeams() then
 			if (p.ctfteam == player.ctfteam) or p.spectator or splitscreen then
 				sfx = sfx_s3k68
 			else
 				sfx = sfx_lose
+				loss = true
 			end
 		else
 			if (p == player) then
 				sfx = sfx_s3k68
 			else
 				sfx = sfx_lose
+				loss = true
 			end
 		end
-		S_StartSound(nil, B.LongSound(player, sfx), p)
+		S_StartSound(nil, B.LongSound(player, sfx, loss), p)
 	end
 	P_RemoveMobj(mo)
 	if R.CheckPoint and R.CheckPoint.valid

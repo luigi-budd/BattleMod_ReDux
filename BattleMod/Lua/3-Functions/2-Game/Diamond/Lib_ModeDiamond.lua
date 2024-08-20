@@ -546,20 +546,23 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			end
 			S_StartSound(nil, sfx_s243, p)
 			local sfx
+			local lose
 			if G_GametypeHasTeams() then
 				if (p.ctfteam == player.ctfteam) or p.spectator or splitscreen then
 					sfx = sfx_s3k68
 				else
 					sfx = sfx_lose
+					lose = true
 				end
 			else
 				if (p == player) then
 					sfx = sfx_s3k68
 				else
 					sfx = sfx_lose
+					lose = true
 				end
 			end
-			S_StartSound(nil, B.ShortSound(player, sfx), p)
+			S_StartSound(nil, B.ShortSound(player, sfx, lose), p)
 		end
 		if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
 		or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 1)
