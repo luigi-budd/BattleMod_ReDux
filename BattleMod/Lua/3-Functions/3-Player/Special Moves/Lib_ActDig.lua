@@ -7,8 +7,8 @@ local state_drilldive = 2
 local state_burrowed = 3
 local state_rising = 4
 local setburrowtime = TICRATE/2 //Time in tics before the player can move after burrowing
-local rockblasttime_x = 35 //Time in tics before horizontal rockblast disappears
-local rockblasttime_y = 47 //Time in tics before vertical rockblast disappears
+local rockblasttime_x = 25 //Time in tics before horizontal rockblast disappears
+local rockblasttime_y = 32 //Time in tics before vertical rockblast disappears
 local zthreshold = 8 //Z Distance from ground (in fracunits) that will cause Knuckles to resurface
 
 B.Action.Dig_Priority = function(player)
