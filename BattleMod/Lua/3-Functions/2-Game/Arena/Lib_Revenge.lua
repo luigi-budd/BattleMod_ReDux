@@ -2,8 +2,8 @@ local B = CBW_Battle
 local CV = B.Console
 local A = B.Arena
 
-local attack_lag1 = TICRATE/2 //Start-up lag
-local attack_lag2 = TICRATE/2 //End lag
+local attack_lag1 = TICRATE/3 //Start-up lag
+local attack_lag2 = TICRATE/3 //End lag
 local attack_lag3 = TICRATE //Firing cooldown
 local state_attacking = 1
 local state_endlag = 2
