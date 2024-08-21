@@ -13,10 +13,10 @@ local zthreshold = 8 //Z Distance from ground (in fracunits) that will cause Knu
 
 B.Action.Dig_Priority = function(player)
 	if player.actionstate == state_drilldive then
-		B.SetPriority(player,2,2,nil,2,2,"drill dive")
+		B.SetPriority(player,1,0,"fang_springdrop",2,1,"drill dive")
 	end
 	if player.actionstate == state_rising then
-		B.SetPriority(player,1,1,nil,1,1,"rising drill")
+		B.SetPriority(player,1,0,"tails_fly",2,1,"rising drill")
 	end
 end
 
