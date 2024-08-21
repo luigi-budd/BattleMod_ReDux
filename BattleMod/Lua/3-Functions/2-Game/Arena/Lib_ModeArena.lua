@@ -560,8 +560,6 @@ A.UpdateGame = function()
 							if extralives
 								if extralives < highscore-1 or extralives == 1
 									table.insert(player.shieldstock, SH_PITY)
-								else
-									table.insert(player.shieldstock, SH_FORCE|1)
 								end
 							end
 						end
