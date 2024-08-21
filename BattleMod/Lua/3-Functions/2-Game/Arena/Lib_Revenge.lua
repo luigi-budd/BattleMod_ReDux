@@ -36,7 +36,7 @@ A.JettySynFlags = function(player,stat)
 		player.charability = CA_NONE
 		player.charability2 = CA2_NONE
 		player.jumpfactor = 0
-		player.normalspeed = FRACUNIT*12
+		player.normalspeed = FRACUNIT*25
 		player.powers[pw_shield] = SH_PROTECTWATER
 	return true end
 	//Disable
