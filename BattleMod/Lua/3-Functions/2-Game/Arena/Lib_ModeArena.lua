@@ -262,7 +262,7 @@ local function forcewin()
 	end
 end
 
-COM_AddCommand("forcewin", forcewin, COM_LOCAL)
+--COM_AddCommand("forcewin", forcewin, COM_LOCAL)
 
 A.Exiting = function()
 	if B.Exiting then
