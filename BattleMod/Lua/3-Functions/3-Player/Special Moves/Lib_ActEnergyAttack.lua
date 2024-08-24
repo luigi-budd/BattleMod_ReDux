@@ -54,7 +54,7 @@ local vertwidth = ANG15/2 //Vertical spread
 local blastcount1 = 3
 local blastcount2 = 5
 local blastbuffer = 15 --Time between each auto-shot
-local dashslice_buildup = TICRATE/3
+local dashslice_buildup = TICRATE/5
 
 local resetdashmode = function(p)
 	local myskin = (p.mo and p.mo.valid and p.mo.skin) or p.skin
