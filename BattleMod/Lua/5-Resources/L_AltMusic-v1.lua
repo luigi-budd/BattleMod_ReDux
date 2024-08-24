@@ -139,7 +139,7 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     end
 
     local mapcode = G_BuildMapName(mapnum):lower()  
-    
+
     if rawget(A, mapcode) then
 
         local songlist = {}
@@ -171,7 +171,15 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
 
         local altsong = songlist[P_RandomRange(1, #songlist)] --Pick one, randomly
     
-        A.CurrentMap = (rawget(songtable, altsong) and songtable[altsong]) or {}
+        local currentmap = (rawget(songtable, altsong) and songtable[altsong]) or {}
+
+        if (type(currentmap) ~= "table") then
+            currentmap = {
+                musname = altsong
+            }
+        end
+
+        A.CurrentMap = currentmap
         A.CurrentMap.musname = altsong
         A.CurrentMap.song = A.CurrentMap.preround or A.CurrentMap.musname
 
@@ -193,19 +201,6 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     
         local song = choices[P_RandomRange(1, #choices)]
 
-
-
-        if type(bwin) == "table" then
-            bwin = tostring(A.CurrentMap.bwin[P_RandomRange(1, #A.CurrentMap.bwin)])
-        else
-            bwin = tostring(A.CurrentMap.bwin)
-        end
-
-        if type(bloss) == "table" then
-            bloss = tostring(A.CurrentMap.bloss[P_RandomRange(1, #A.CurrentMap.bloss)])
-        else
-            bloss = tostring(A.CurrentMap.bloss)
-        end
 
         A.CurrentMap = {
             musname = song,
