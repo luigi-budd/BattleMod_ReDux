@@ -85,6 +85,9 @@ addHook("ThinkFrame", do
     --print(A.CurrentMap.song)
 
     if (A.CurrentMap.song == A.CurrentMap.preround) then
+        if (leveltime == ((CV_FindVar("hidetime").value-3)*TICRATE)) then
+            S_FadeOutStopMusic(MUSICRATE*3)
+        end
         if not(B.PreRoundWait()) then
             A.CurrentMap.song = A.CurrentMap.musname
             already_ran = true
