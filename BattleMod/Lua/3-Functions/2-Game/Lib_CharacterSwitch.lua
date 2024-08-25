@@ -38,6 +38,8 @@ addHook("PlayerThink", function(player) -- death timer test
 		end
 		
 		local change = 0
+		local f = #skins[skinnum] + 2
+		local b = #skins[skinnum]
 		if player.selectchar then
 			local deadzone = 20
 			local right = player.realsidemove >= deadzone
@@ -47,15 +49,36 @@ addHook("PlayerThink", function(player) -- death timer test
 				if right and (scrollright or not player.roulette_prev_right) then
 					repeat 
 						skinnum = $+1
+						if bannedskins[f] then skinnum = $+1 end
 						if skinnum >= #skins then skinnum = 0 end
+						if bannedskins[skinnum+1] then skinnum = $+1 end
+						local i = skinnum
+						while bannedskins[i] 
+							i = $+1
+							skinnum = i - 1
+						end
 						newskin()
 					until skinchanged == true
 					change = 1
 				end
 				if left and (scrollleft or not player.roulette_prev_left)
-					skinnum = $-1
-					if skinnum < 0 then skinnum = #skins-1 end
-					newskin()
+					repeat
+						skinnum = $-1
+						if bannedskins[b] then skinnum = $-1 end
+						local i = skinnum
+						while bannedskins[i+1] 
+							i = $-1
+							skinnum = i
+						end
+						if skinnum < 0	then skinnum = #skins-1
+							local y = skinnum
+							while bannedskins[y+1] 
+								y = $-1
+								skinnum = y
+							end
+						end
+						newskin()
+					until skinchanged == true
 					change = -1
 				end
 				player.roulette_prev_right = (right and $+1) or 0

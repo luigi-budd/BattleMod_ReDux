@@ -51,10 +51,18 @@ local DeathCharSwitch = function(v,player,cam)
 			//end
 			
 			yoffs = $ + scale*3
+
+			local clr
+			if bannedskins[character+1] then
+				clr = SKINCOLOR_JET
+				cflags = $ | V_REVERSESUBTRACT
+			else
+				clr = skins[character].prefcolor
+			end
 			
 			v.drawScaled(
 				xoffs+(8*FRACUNIT), yoffs, scale, v.getSprite2Patch(character, SPR2_LIFE), cflags|trans,
-				v.getColormap(character, skins[character].prefcolor)
+				v.getColormap(character, clr)
 			)
 		end
 		v.draw(160-16, 100-9, v.cachePatch("M_FSEL"), V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER)
