@@ -23,6 +23,7 @@ B.Action.CombatRoll = function(mo,doaction)
 	player.actionrings = 10
 	if player.pflags&PF_BOUNCING
 		player.actiontext = "Spring Drop"
+		player.actionrings = 5
 	end
 	
 	//Perform Thrust
