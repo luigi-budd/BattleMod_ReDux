@@ -122,8 +122,9 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					spinwave.color = player.skincolor
 				end
 			elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB then //Do high jump
-				mo.spritexscale = FRACUNIT * 4/5
-				mo.spriteyscale = FRACUNIT * 5/4
+				mo.spritexscale = FRACUNIT * 2/3
+				mo.spriteyscale = FRACUNIT * 3/2
+				player.squashstretch = 1
 				
 				player.actionstate = state_superspinjump
 -- 				P_DoJump(player,true)
@@ -146,6 +147,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				mo.state = S_PLAY_ROLL
 				player.pflags = jumpflags
 				player.secondjump = 0
+				player.squashstretch = 1
 			end
 		end
 	return end
@@ -213,7 +215,6 @@ B.Action.SuperSpinJump=function(mo,doaction)
 
 	//SuperSpinJump state
 	if player.actionstate == state_superspinjump 
-		player.squashstretch = 1
 		B.ControlThrust(mo,FRACUNIT,nil,jumpfriction,nil)
 		mo.spritexscale = max(FRACUNIT * 4/5, min($ + FRACUNIT/30, FRACUNIT))
 		mo.spriteyscale = max(FRACUNIT, min($ - FRACUNIT/30, FRACUNIT * 5/4))
@@ -265,7 +266,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		end
 		
 		local trail = P_SpawnGhostMobj(mo)
-		P_SetOrigin(trail, trail.x, trail.y, zheight)
+		P_MoveOrigin(trail, trail.x, trail.y, zheight)
 		trail.fuse = 30
 		trail.state = S_THOK
 		trail.frame = TR_TRANS70|A
