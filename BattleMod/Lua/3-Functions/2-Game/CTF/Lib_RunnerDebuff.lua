@@ -25,8 +25,14 @@ B.GotFlagStats = function(player)
 				player.mo.state = S_PLAY_WALK
 			end
 			player.pflags = $ &~ (PF_JUMPED|PF_SPINNING) -- Disallow spin attack status while in fall/walk anims
-			local zlimit = player.jumpfactor*10
-			player.mo.momz = max(min($,zlimit),-zlimit)
+		end
+		local zlimit = player.jumpfactor*10
+		player.mo.momz = max(min($,zlimit),-zlimit)
+		local xylimit = player.normalspeed*5/4
+		for i=1, 100 do
+			if FixedHypot(player.mo.momx, player.mo.momy) <= xylimit then break end
+			local speedangle = R_PointToAngle2(0, 0, player.mo.momx, player.mo.momy) 
+			P_Thrust(player.mo, speedangle, -player.mo.scale)
 		end
 	end
 	//Unregister debuff and apply normal stats
