@@ -31,7 +31,7 @@ B.StunBreak = function(player, doguard)
 	elseif (player.tumble)
 		-- let us break out of non-parried tumbles
 		canBreak = not player.tumble_nostunbreak
-		break_tics = player.tumble_time and player.tumble_time*2/3 or 0	-- half of the tumble needs to be up
+		break_tics = 7
 		break_cost = 15
 		
 		-- store the type of stun break
