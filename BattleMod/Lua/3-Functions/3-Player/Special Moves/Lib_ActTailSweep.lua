@@ -7,6 +7,7 @@ local cooldown_sweep = TICRATE*7/5 --1.4s
 local cooldown_dash = TICRATE*2
 local cooldown_throw = cooldown_dash
 local cooldown_cancel = TICRATE
+local cooldown_spinswipe = TICRATE * 2
 local sideangle = ANG30 - ANG10
 local throw_strength = 30
 local throw_lift = 10
@@ -445,6 +446,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Activate swipe
 	if swipetrigger then
 		B.PayRings(player)
+		B.ApplyCooldown(player, cooldown_spinswipe)
 
 		--Set state
 		player.actionstate = state_sweep

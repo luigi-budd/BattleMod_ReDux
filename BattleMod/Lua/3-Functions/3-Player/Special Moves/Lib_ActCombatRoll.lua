@@ -1,5 +1,6 @@
 local B = CBW_Battle
-local cooldown = TICRATE*9/2
+local cooldown = TICRATE * 9/2
+local cooldown2 = TICRATE * 3
 local xythrust = 38
 local zthrust = 9
 local dropspeed = 20
@@ -75,7 +76,7 @@ B.Action.CombatRoll = function(mo,doaction)
 	if player.actionstate == 1
 	and bouncing
 	and (mo.eflags & MFE_JUSTHITFLOOR)
-	B.ApplyCooldown(player,cooldown)
+	B.ApplyCooldown(player,cooldown2)
 		player.nobombjump = true
 		for n = 0, 4
 			local bomb = B.throwbomb(mo)

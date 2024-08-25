@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local cooldown1 = TICRATE
 local cooldown2 = TICRATE * 9/4 //2.25s
+local cooldown3 = TICRATE * 4
 local state_superspinjump = 1
 local state_groundpound_rise = 2
 local state_groundpound_fall = 3
@@ -242,7 +243,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			player.actionstate = 0
 		end
 		if P_IsObjectOnGround(mo) then
-			B.ApplyCooldown(player,cooldown2)
+			B.ApplyCooldown(player,cooldown3)
 			player.lockmove = false
 			player.actionstate = 0
 		end
