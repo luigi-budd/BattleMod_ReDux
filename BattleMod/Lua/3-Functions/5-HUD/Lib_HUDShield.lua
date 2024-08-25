@@ -58,7 +58,7 @@ B.ShieldHUD = function(v, player, cam)
 	local yoffset = hudinfo[HUD_POWERUPS].y
 	
 	if player.battleconfig_newhud and not(player.powers[pw_shield] or player.powers[pw_sneakers]
-	or player.powers[pw_flashing] or player.powers[pw_invulnerability])
+	or player.gotflag or player.powers[pw_flashing] or player.powers[pw_invulnerability])
 	then
 		drawshield(v, player, xoffset, yoffset, player.powers[pw_shield], FRACUNIT>>1)
 	end
