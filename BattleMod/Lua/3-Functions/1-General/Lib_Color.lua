@@ -111,7 +111,7 @@ B.TextFlash = function(text, reset, player)
 
 	if (reset) then
 		player.textflash_flashing = false
-		return text:sub(2)
+		return text and text:sub(2)
 	else
 		assert(text, "Text must be provided if not resetting!")
 		if player then
