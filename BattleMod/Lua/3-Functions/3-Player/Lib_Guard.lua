@@ -16,7 +16,7 @@ B.GuardControl = function(player)
 			and player.actioncooldown > 0 and player.guard == 0)
 	or player.iseggrobo
 	or player.isjettysyn
-	or player.tumble
+	or (player.tumble and player.tumble_nostunbreak)
 		player.canguard = false
 	return end
 
