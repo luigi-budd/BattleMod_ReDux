@@ -8,9 +8,6 @@ local captime = CV.RubyCaptureTime.value * TICRATE
 R.HUD = function(v, player, cam)
 	if not (B.HUDMain) then return end
 
-
-	if not (player.realmo) then return end
-
 	--Ruby Run
 	if (B.Timeout > 1) or ((B.Timeout < (TICRATE + (TICRATE/5))) and player.exiting) or R.RubyFade == 10 then
 		v.fadeScreen(R.FadeColor, R.RubyFade)
@@ -20,6 +17,8 @@ R.HUD = function(v, player, cam)
 		v.fadeScreen(R.FadeColor, R.RubyFade)
 	end
 	--Fade
+
+	if not (player.realmo and player.realmo.valid) then return end
 
 	local ruby = R.ID
 	if not (ruby and ruby.valid) then return end
