@@ -53,16 +53,3 @@ jobs:
       - name: Upload to Discord
         run: |
           curl -F 'payload_json={"content": "Commit - [${{ steps.truncatedString.outputs.string }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" ${{ secrets.DISCORD_WEBHOOK_URL }}   
-
-      
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.3.4
-        with:
-          # Artifact name
-          name: BattleReDux_TEST-${{ github.run_number }}_${{ github.ref_name }} # optional, default is artifact
-          # A file, directory or wildcard pattern that describes what to upload
-          path: ./*.pk3
-          
-          compression-level: 0
-          
-          overwrite: false
