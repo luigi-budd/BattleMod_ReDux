@@ -1,9 +1,4 @@
-Version 10
-		- [Ring Rally]
-			- Team based gametype where both sides collect rings and take them back to a collection sector in their base. This gametype doesn't have a pointlimit and instead is a rush to collect rings until the timer runs out
-			Teams can intercept each others ring collection or even go to each other's bases and steal rings from their base themselves.
-	
-
+# Version 10
 Modding features
 	- A player's guard can be set to -1 before they take damage to represent guard breaks / whiffed guards
 	- It is now possible to apply mo.cantouchteam (timer) on player objects for their next collision
@@ -25,9 +20,10 @@ Modding features
 Major gameplay changes
 	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_newhud to "off"
 	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
-	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased if the death was provoked by a player).
+	- Blockable projectiles can now be blocked with sweetspot defenses
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
+	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased if the death was provoked by a player).
 	- Characters will take twice as long to exhaust in non-survival gametypes
 	- Fire trails from elemental shields only damage if the player doesn't have any rings, otherwise, the player loses a ring when in contact with them
 	Guard 
@@ -48,13 +44,18 @@ Major gameplay changes
 		- Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
 		- Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
 		- Added a rejoin lockout timer when entering spectator mode
-Major gameplay changes 
-	- The exhaustmeter is doubled in non-survival gamemodes
+	Tumble
+		- By default, tumbles can't last longer than 3 seconds. This is lowered to 1 second if the player was in i-frames
+		- Massively reduced stunbreak buffer time (66% of the tumble's duration -> 0.2s)
 Minor gameplay changes
 	- Lower default battle_collisiontimer (12 -> 5)
 	- Collisions will no longer occur between players during PreRound
 	- Added a 3 frame window (customizable via the console variable battle_coyotetime) where players can still jump from walking off a ledge/slope
 	- Added new VFX flair for invulnerability, sneakers and slipstream
+	- Players are no longer awarded a force shield in overtime for surviving with 3 lives
+	Jettysyn
+		- Lowered shot startup and end lag (0.5s -> 0.33s)
+		- Increased normalspeed (12 -> 25)
 Character roulette
 	- Can now be toggled with TOSSFLAG, or hidden by default with the command battleconfig_roulette
 Survival, Team Survival, Arena, Team Arena
@@ -63,7 +64,7 @@ Survival, Team Survival, Arena, Team Arena
 Battle CTF
 	- Flag debuff now also applies a fixed jumpfactor of 100%
 	- Holding a flag no longer hinders acceleration and top speed
-	- CTF flags can't be touched by players that are in guard or airdodge
+	- CTF flags can't be touched by players that are in guard, airdodge, or actionstates with atk (example: The falling part of ground pound. Sonic will collect the flag only when landing.)
 	- Players cannot lose i-frames when in contact with flags
 	- Tossing the flag manually does not apply intangible time to it
 	- Flag toss now has a more horizontal angle
@@ -75,15 +76,19 @@ Diamond, Team Diamond
 	- Diamond has been renamed to Warp Heist
 	- Team Diamond has been renamed to Team Warp Heist
 	- Diamond's mechanics have been reworked. Instead of holding the diamond for set duration until you gain points, a control point will spawn around the map as will the Warp topaz. Your goal is to take the warp topaz to the control 	  point to gain your points.
-	
+New mode: Ring Rally
+	- Team based gametype where both sides collect rings and take them back to a collection sector in their base. This gametype doesn't have a pointlimit and instead is a rush to collect rings until the timer runs out
+	- Teams can intercept each others ring collection or even go to each other's bases and steal rings from their base themselves.
 New mode: Ruby Run
 	- This brand new game mode combines CTF and Ruby gameplay - a Ruby will spawn at the center of the map, and each team must try to bring the ruby to the enemy base!
 	- Added support for Ruby Run to all vanilla CTF maps.
 Sonic
 	Speed Thok
+		- Speed increased (45frac -> 50frac)
 		- Thok will now always use the highest speed available (player's current speed or actionspd)
-		- Maximum speed of actionspd times 2
-		- Different vfx and sfx if the player's current speed was higher than actionspd
+			- Player's current speed also accounts for vertical speed, meaning Sonic can build speed by thok-ing when rising from his jump or a monitor bounce
+			- Maximum speed of actionspd times 2
+			- Different vfx and sfx if the player's current speed was higher than actionspd
 	Super Spin Jump
 		- Removed sweetspot angle (constant priority: 2/2)
 		- After the move ends, Sonic remains in the jump state and can use abilities
@@ -94,10 +99,9 @@ Sonic
 		- Changed shockwave projectile sprite
 		- Lesser vertical momentum when colliding with inanimate objects, regains jump ability
 		- Removed Sonic's options to perform a bounce or a drop dash when Ground Pound hits the floor
-	New ability: Spin Wave
+	New ability: Spin Wave (10 rings, 4s cooldown)
 		- Available after spindash has been charged at least 60%
 		- A projectile move that will shoot forward in a straight line and send Sonic backwards in recoil
-		- Has the same cost and cooldown as Ground Pound
 Tails
 	Decreased weight (100 -> 90)
 	Fly
@@ -121,6 +125,7 @@ Tails
 		- Lower player gravity during wind-up
 		- Projectiles have much lower speed, spread and duration when not charged
 	Flight Dash
+		- Increased cooldown (1.4s -> 2s)
 		- Decreased attack (1 -> 0)
 		- Reverted cooldown increase depending on Tails's exhaustion level
 		- Can be cancelled by pressing the guard button
@@ -131,20 +136,32 @@ Tails
 		- More influenced by player speed
 		- Thrown opponents have (2/1) priority, cannot airdodge, can damage their own teammates, and will take damage if they slam into a wall with enough speed
 Knuckles
-	- While battleconfig_glidestrafe is enabled (it's enabled by default), is allowed to always face the camera while gliding
-		- This is a SkinVar flag internally, SKINVARS_GLIDESTRAFE
+	- While battleconfig_glidestrafe is enabled (it's enabled by default), is allowed to always face the camera while gliding (SKINVARS_GLIDESTRAFE)
+	Glide
+		- Rounded actionspd (28 -> 38)
+	Rock blast
+		- Lowered duration of horizontal rocks (35tics -> 25tics) and vertical rocks (47tics -> 32tics)
+	Drill dive
+		- Can no longer be cancelled
+		- Adjusted priority (2/2 all around -> 1/0 with a 2/1 sweetspot on the bottom)
+	Rising drill
+		- Adjusted proirity (1/1 all around -> 1/0 with a 2/1 sweetspot on the top)
 Amy
 	- While battleconfig_hammerstrafe is disabled (it's disabled by default), is no longer forced to always attack towards the camera
 	- Reverted abilities to piko tornado and piko jump
+	- Increased ring cost of all battle specials (10 -> 15)
 	- Hammer jump turns into piko launch when holding down the spin button, which works essentially the same but horizontally
 	- No longer curls on uncharged hammerjump
 	- When curled, swinging the hammer spawns an arc of heart projectiles
 	- Increased thrustfactor by 3 when in the air
+	Twin spin
+		- Adjusted sweetspot priority (3/3 -> 3/1)
 	Piko Tornado
 		- Increased cooldown (1s -> 1.5s)
 		- Lower duration when not in 2D (5s -> 4s)
 		- No longer restrains Amy's controls when winding up
 		- Projectile speed is depending on what Amy's speed was when launching the projectile (minimum of 6 fracunits)
+		- Spawning a second tornado causes the previous one to despawn
 	Piko Jump -> Tornado Jump
 		- Increased cooldown (1s -> 1.5s)
 		- When colliding with the tornado, the action text will flash to indicate that a tornado jump is available
@@ -153,14 +170,21 @@ Amy
 		- If curled and boosted by a tornado, will spawn a ring of piko wave projectiles
 	Piko Wave
 		- Is now a battle special, available after charging at least 60% of the hammer Attack
-		- Costs 5 rings and applies 1s of cooldown on use
+		- Applies 1.5s of cooldown on use
 Fang
+	Popgun
+		- Increased weapondelay (22tics -> 32tics)
+		- Increased shot speed (51frac -> 70frac)
 	Tail Bounce
 		- Removed momentum cut when starting and ending the pogo state
+		- Heavily increased cooldown (1.5s -> 4.5s)
 	Spring drop
 		- Drops 4 bombs when landing
+		- Lowered ring cost (10 -> 5)
+		- Increased cooldown (1.5s -> 3s)
 Metal Sonic
 	Energy Blast
+		- Rounded shotspeed (28frac -> 30frac)
 		- Charging the energy blast will increase the amount of blasts instead of changing the shape of the attack
 			- Up to a maximum of 3 blasts, each additional blast costs 5 rings
 	Dash Slicer Claw (Energy Charge + Jump)
@@ -172,7 +196,6 @@ Metal Sonic
 		- Adjusted claw projectiles for gravflip
 	Dash Burst -> Ring Spark Field (Energy Charge + Spin)
 		- New move, can only work if you have rings
-		- [TODO] Charge bonus
 		- To keep active, hold either Spin or battle special
 		- Drains rings when used, draining speed increases after a certain amount of time
 		- Exhausts after a certain amount of time
@@ -185,15 +208,14 @@ Maintenance
 	- Severely reworked battleconfig saving and loading system
 	- Shields in the shield stock are rendered in the correct swapping order
 	- Fixed shield swapping not working when there's two of the same shield in a row
-	- By default, tumbles can't last longer than 3 seconds
 	- Sonic can no longer perform a frame perfect jump when touching the floor during a ground pound
 	- Tails's tail swipes can no longer spawn inside of walls
 	- Tails no longer automatically attacks when landing after taking damage during an attack
 	- Knuckles can no longer glide-skid and guard at the same time
 	- Amy's tornado jump no longer temporarily sets legacy controls
 	- Amy no longer triggers twin spin automatically after a hammer-jump
-	- [TODO: Double-Check after Ket's guard is implemented] Fang can no longer fire and guard at the same time
-	- [TODO: Double-Check after Ket's guard is implemented] The guard button will not be suggested for tumbling players
+	- Fang can no longer fire and guard at the same time
+	- The guard button will not be suggested for tumbling players
 	- Fixed visual bugs involving Tails's tails (e.g. recoil)
 	- Fixed visual bugs involving players being reset on springs (e.g. forcing walk/fall frames)
 	- Fixed sometimes not being able to jump after no longer being a jettysyn
@@ -201,6 +223,7 @@ Maintenance
 	- Golden monitors no longer have gravity
 	- Players no longer visually flash during PreRound and GAME SET
 	- Player 2 bots can no longer collect item bubbles
+	- Probably a lot of things we forgot to write in here
 Console
 	Added variables and commands
 		battle_airdodge
@@ -217,12 +240,3 @@ Console
 		battleconfig_glidestrafe
 		battleconfig_hammerstrafe
 		battleconfig_slipstreambutton
-#
-
-??? (Implemented in one of the versions below. Pls someone actually write what each ver. did):
-	- Roulette banskin stuff
-	- Actiondebt no longer deletes all rings when exiting actionstate
-	- Amy can't perfect-frame spin+jump to build up speed
-	- Fang can no longer spam thunder shield
-	- Metal can no longer spam whirlwind shield
-	- Probably several other things
