@@ -82,8 +82,6 @@ end
 
 addHook("ThinkFrame", do
 
-    --print(A.CurrentMap.song)
-
     if (A.CurrentMap.song == A.CurrentMap.preround) then
         if (leveltime == ((CV_FindVar("hidetime").value-3)*TICRATE)) then
             S_FadeOutStopMusic(MUSICRATE*3)
@@ -130,12 +128,13 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
 
     A.CurrentMap = {}
     A.CurrentDefSong = nil
-    altmusic_transition = false
+    altmusic_transition = true
 
 
-    if mapheaderinfo[mapnum].altmusic or rawget(A, G_BuildMapName(mapnum):lower())then
-        altmusic_transition = true
+    if (mapheaderinfo[mapnum].altmusic or mapheaderinfo[mapnum].bpreround) or rawget(A, G_BuildMapName(mapnum):lower())then
         A.CurrentDefSong = mapheaderinfo[mapnum].musname
+    else
+        altmusic_transition = false
     end
 
     local mapcode = G_BuildMapName(mapnum):lower()  
@@ -197,7 +196,8 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
         local bmatchpoint = mapheaderinfo[mapnum].bmatchpoint
         local preround    = mapheaderinfo[mapnum].bpreround
 
-        local choices = {music, altmusic}
+
+        local choices = (altmusic and {music, altmusic}) or {music}
     
         local song = choices[P_RandomRange(1, #choices)]
 
@@ -215,6 +215,7 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
         A.CurrentDefsong = music
         A.CurrentMap.song = A.CurrentMap.preround or A.CurrentMap.musname
         play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
+        already_ran = true
     end
 
 
@@ -224,11 +225,7 @@ addHook("IntermissionThinker", clearvars)
 
 addHook("MusicChange", function(oldname, newname)
 
-    if (gamestate != GS_LEVEL) then
-        return nil
-    end
-
-    if not(consoleplayer) and (gamestate == GS_LEVEL) and not(titlemapinaction) then
+    if (not(consoleplayer) and (gamestate == GS_LEVEL) and not(titlemapinaction)) then
         altmusic_transition = true
         S_StopMusic()
         return true
