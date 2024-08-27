@@ -43,6 +43,17 @@ jobs:
       - name: SRB2Compile
         run: |
          python3 .github\workflows\SRB2C.py -zip ".\BattleMod\" ".\" "ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3"  
+
+      - name: Shortened Hash
+        uses: 2428392/gh-truncate-string-action@v1
+        id: truncatedString
+        with:
+            stringToTruncate: ${{ github.sha }}
+            maxLength: 6
+      - name: Upload to Discord
+        run: |
+          curl -F 'payload_json={"content": "Commit - [${{ steps.truncatedString.outputs.string }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" ${{ secrets.DISCORD_WEBHOOK_URL }}   
+
       
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.4
@@ -55,14 +66,3 @@ jobs:
           compression-level: 0
           
           overwrite: false
-
-      - name: Shortened Hash
-        uses: 2428392/gh-truncate-string-action@v1
-        id: truncatedString
-        with:
-            stringToTruncate: ${{ github.sha }}
-            maxLength: 6
-      - name: Upload to Discord
-        run: |
-          curl -F 'payload_json={"content": "Commit - [${{ steps.truncatedString.outputs.string }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" ${{ secrets.DISCORD_WEBHOOK_URL }}   
-          
