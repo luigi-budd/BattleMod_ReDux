@@ -13,6 +13,7 @@ A.SpawnLives = 3
 A.GameOvers = 0
 R.CapAnimTime = TICRATE*3+(TICRATE/2) --Time the Ruby capture animation takes
 R.RubyFade = 0 --Value for the ruby's fade transition
+R.RubyWinTimeout = R.CapAnimTime
 
 local lossmusic = "BLOSE"
 local winmusic = "BWIN"
@@ -212,6 +213,7 @@ A.TeamGetRanks = function()
 end
 ]]
 
+
 local function forcewin()
 	local doexit = false
 	local extended = (not splitscreen) and not(G_GametypeHasTeams() and redscore == bluescore)
@@ -238,10 +240,13 @@ local function forcewin()
 		B.Exiting = true
 		B.Timeout = (extended) and 5*TICRATE or 1
 		for player in players.iterate
-			S_StopMusic(player)
+			if not(PlayingWinOrLoss(player)) then
+				S_StopMusic(player)
+			end
 			COM_BufInsertText(player,"cecho  ") //Override ctf messages
 			if not(extended) then continue end
 			if (player.spectator)
+			--or (player.mo and player.mo.valid and not(player.mo.loss))
 			or (player.ctfteam == 1 and redscore > bluescore)
 			or (player.ctfteam == 2 and bluescore > redscore)
 			or (A.Bounty and A.Bounty == player)
@@ -250,47 +255,27 @@ local function forcewin()
 				
 				local win = winmusic
 
-				COM_BufInsertText(player,"tunes "..win)
+				--print("win")
+
+				if not(PlayingWinOrLoss(player)) then
+					COM_BufInsertText(player,"tunes "..win)
+				end
 			else
 				if player.mo then player.mo.loss = true end
 				
 				local loss = lossmusic
 
-				COM_BufInsertText(player,"tunes "..loss)
+				--print("loss")
+
+				if not(PlayingWinOrLoss(player)) then
+					COM_BufInsertText(player,"tunes "..loss)
+				end
 			end
 		end
 	end
 end
 
 --COM_AddCommand("forcewin", forcewin, COM_LOCAL)
-
-A.Exiting = function()
-	if B.Exiting then
-		B.Timeout = max(0,$-1)
-		if B.Timeout then
-			for player in players.iterate do
-				if not player.spectator then
-					player.powers[pw_nocontrol] = max($, 2)
-				end
-				player.nodamage = TICRATE
-			end
-		else
-			for player in players.iterate do
-				if player.mo and player.mo.loss
-				and player.mo.state != S_PLAY_LOSS and P_IsObjectOnGround(player.mo)
-				then
-					player.mo.state = S_PLAY_LOSS
-				end
-				if player.exiting then continue end
-				P_DoPlayerExit(player)
-			end
-		end
-	end
-end
-
-local tiebreaker_t = function()
-	print("\x82".."Tiebreaker!")
-end
 
 local function stretchx(player)
 	if not (player.mo and player.mo.valid) then return end
@@ -319,6 +304,116 @@ local function stretchy(player)
 		player.followmobj.spriteyscale = $+stretchy
 	end
 	--mo.spriteyoffset = $-(stretchy*mo.spritexscale)
+end
+
+local function rubyMovement(player, timeout)
+	if not(player.mo and player.mo.valid) then
+		return
+	end
+
+	if (timeout == nil) then return end
+	local divisor = 10
+
+	player.mo.momx = $-($/divisor)
+	player.mo.momy = $-($/divisor)
+
+	player.mo.flags = $|MF_NOCLIPHEIGHT|MF_NOCLIP
+
+	if timeout == R.CapAnimTime then
+		player.mo.momz = player.mo.scale
+	end
+
+	player.mo.momz = max($+(player.mo.scale/2), 0)
+
+
+	local invtime = ((timeout-R.CapAnimTime)/2)
+
+	if player.ruby_capped then
+		--if B.Timeout <= R.CapAnimTime-(R.CapAnimTime/3) then
+			player.drawangle = $+(ANG1*invtime)
+		--end
+
+		player.mo.momx = $/2
+		player.mo.momy = $/2
+
+		player.pflags = $ & ~(PF_SPINNING)
+		if player.mo.state != S_PLAY_FALL then
+			player.mo.state = S_PLAY_FALL
+		end
+	end
+
+	if (player.mo.state == S_PLAY_STND) or (player.mo.state == S_PLAY_WAIT) then
+		player.mo.state = S_PLAY_FALL
+	end
+
+	player.squashstretch = 1
+end
+
+local function rubyAnim(timeout)
+	local one_andathird = (TICRATE + (TICRATE/5))
+	local one_andtwothirds = (TICRATE + (TICRATE/3))
+
+	if (timeout == nil) then return end
+
+	if timeout == one_andtwothirds then
+		S_StartSound(nil, sfx_cdfm56)
+	elseif timeout < one_andtwothirds and timeout > one_andathird then
+		for player in players.iterate do
+			stretchx(player)
+		end
+	elseif timeout == one_andathird then
+		R.RubyFade = 0
+		for player in players.iterate do
+			resetstretch(player.mo)
+			resetstretch(player.followmobj)
+		end
+	elseif timeout < one_andathird then
+		if (R.RubyFade < 10) then
+			R.RubyFade = $+1
+		end
+		for player in players.iterate do
+			stretchy(player)
+		end
+	end
+end
+
+A.Exiting = function()
+	if B.Exiting then
+
+
+		B.Timeout = max(0,$-1)
+
+		if gametype == GT_RUBYRUN
+			R.RubyWinTimeout = $-1
+			for player in players.iterate do
+				rubyMovement(player, R.RubyWinTimeout)
+			end
+			rubyAnim(R.RubyWinTimeout)
+		end
+
+		if B.Timeout then
+			for player in players.iterate do
+				if not player.spectator then
+					player.powers[pw_nocontrol] = max($, 2)
+				end
+				player.nodamage = TICRATE
+			end
+		else
+			for player in players.iterate do
+				if player.mo and player.mo.loss
+				and player.mo.state != S_PLAY_LOSS and P_IsObjectOnGround(player.mo)
+				then
+					player.mo.state = S_PLAY_LOSS
+				end
+				if player.exiting then continue end
+				P_DoPlayerExit(player)
+			end
+		end
+	end
+end
+
+local tiebreaker_t = function()
+	print("\x82".."Tiebreaker!")
 end
 
 A.UpdateGame = function()
@@ -410,104 +505,22 @@ A.UpdateGame = function()
 		forcewin()
 	return end --Exit function
 	
-	if B.Timeout and not B.Exiting then
+	
 
 
+	if B.Timeout and not(B.Exiting) then
 		B.Timeout = $-1
 
-		for player in players.iterate do
-			
-			player.exiting = max($, B.Timeout+2)
-
-
-			if gametype == GT_RUBYRUN then
-				if not (player.mo and player.mo.valid) then
-					continue
-				end
-
-				local divisor = 10
-
-				player.mo.momx = $-($/divisor)
-				player.mo.momy = $-($/divisor)
-
-				player.mo.flags = $|MF_NOCLIPHEIGHT|MF_NOCLIP
-
-				if B.Timeout == R.CapAnimTime then
-					player.mo.momz = player.mo.scale
-				end
-
-				player.mo.momz = max($+(player.mo.scale/2), 0)
-
-
-				local invtime = ((B.Timeout-R.CapAnimTime)/2)
-
-				if player.ruby_capped then
-					--if B.Timeout <= R.CapAnimTime-(R.CapAnimTime/3) then
-						player.drawangle = $+(ANG1*invtime)
-					--end
-
-					player.mo.momx = $/2
-					player.mo.momy = $/2
-
-					player.pflags = $ & ~(PF_SPINNING)
-					if player.mo.state != S_PLAY_FALL then
-						player.mo.state = S_PLAY_FALL
-					end
-				end
-
-				if (player.mo.state == S_PLAY_STND) or (player.mo.state == S_PLAY_WAIT) then
-					player.mo.state = S_PLAY_FALL
-				end
-
-				player.squashstretch = 1
-
-			end
-
-		end
-
 		if gametype == GT_RUBYRUN then
-
-			local one_andathird = (TICRATE + (TICRATE/5))
-			local one_andtwothirds = (TICRATE + (TICRATE/3))
-
-			if B.Timeout == one_andtwothirds then
-				S_StartSound(nil, sfx_cdfm56)
-			elseif B.Timeout < one_andtwothirds and B.Timeout > one_andathird then
-				for player in players.iterate do
-					stretchx(player)
-				end
-			elseif B.Timeout == one_andathird then
-				R.RubyFade = 0
-				for player in players.iterate do
-					resetstretch(player.mo)
-					resetstretch(player.followmobj)
-				end
-			elseif B.Timeout < one_andathird then
-				if (R.RubyFade < 10) then
-					R.RubyFade = $+1
-				end
-				for player in players.iterate do
-					stretchy(player)
-				end
+			for player in players.iterate do
+				rubyMovement(player, B.Timeout)
 			end
-
-			/*if B.Timeout == R.CapAnimTime-(R.CapAnimTime/4) then
-
-				for mo in mobjs.iterate() do
-
-					if not(mo and mo.valid) then
-						continue
-					end
-
-					
-
-				end
-
-			end*/
-
-
+			rubyAnim(B.Timeout)
 		end
 
+		for player in players.iterate do
+			player.exiting = max($, B.Timeout+2)
+		end
 		
 		if B.Timeout == 0 then
 			for player in players.iterate do
