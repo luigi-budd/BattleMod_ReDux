@@ -713,3 +713,43 @@ end
 --	redscore = F.RedScore
 --	bluescore = F.BlueScore
 --end
+
+-- Checks if the flags are valid every tic.
+-- This is a bandaid fix for an issue where flags can spontaneously disappear when respawning
+-- If that issue gets fixed, this whole function will probably be removed.
+F.AreFlagsAtBase = function()
+	if leveltime < 10 then return end -- ?
+	if gamestate ~= GS_LEVEL then return end
+	if gametype ~= GT_BATTLECTF then return end
+
+	local redflag_valid  	= F.RedFlag and F.RedFlag.valid
+	local blueflag_valid  	= F.BlueFlag and F.BlueFlag.valid
+
+	-- If the flags aren't valid (nonexistent), let's check if anyone's holding them
+	if not (redflag_valid or blueflag_valid) then
+		-- Let's check if someone has the red/blue flags
+		local holds_redflag = nil
+		local holds_blueflag = nil
+		for p in players.iterate do
+			if not (p and p.mo and p.mo.valid) then continue end
+			if p.gotflag then
+				if  p.ctfteam == 1 then -- red mf
+					holds_blueflag = "player"
+				elseif p.ctfteam == 2 then -- blue mf
+					holds_redflag = "player"
+				end
+			end
+		end
+
+		if not holds_blueflag then
+            print('The'..'\x84 Blue flag'..'\128 has been forcefully respawned.')
+            S_StartSound(nil, sfx_notadd)
+            spawnFlag(2)
+		end
+		if not holds_redflag then
+			print('The'..'\x85 Red flag'..'\128 has been forcefully respawned.')
+			S_StartSound(nil, sfx_notadd)
+            spawnFlag(1)
+		end
+	end
+end
