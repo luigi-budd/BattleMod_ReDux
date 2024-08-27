@@ -13,3 +13,14 @@ CV.CTFrespawngrace = CV_RegisterVar{
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 0, MAX = 15}
 }
+
+--[[
+COM_AddCommand("killflags", function(player)
+    for mo in mobjs.iterate() do
+        if mo.type == MT_CREDFLAG or mo.type == MT_CBLUEFLAG then
+        	mo.wasgrabbed = true
+            P_KillMobj(mo)
+        end
+    end
+end)
+*/--]]
