@@ -240,9 +240,7 @@ local function forcewin()
 		B.Exiting = true
 		B.Timeout = (extended) and 5*TICRATE or 1
 		for player in players.iterate
-			if not(PlayingWinOrLoss(player)) then
-				S_StopMusic(player)
-			end
+			S_StopMusic(player)
 			COM_BufInsertText(player,"cecho  ") //Override ctf messages
 			if not(extended) then continue end
 			if (player.spectator)
@@ -257,9 +255,7 @@ local function forcewin()
 
 				--print("win")
 
-				if not(PlayingWinOrLoss(player)) then
-					COM_BufInsertText(player,"tunes "..win)
-				end
+				COM_BufInsertText(player,"tunes "..win)
 			else
 				if player.mo then player.mo.loss = true end
 				
@@ -267,9 +263,7 @@ local function forcewin()
 
 				--print("loss")
 
-				if not(PlayingWinOrLoss(player)) then
-					COM_BufInsertText(player,"tunes "..loss)
-				end
+				COM_BufInsertText(player,"tunes "..loss)
 			end
 		end
 	end
@@ -379,9 +373,13 @@ end
 
 A.Exiting = function()
 	if B.Exiting then
-
-
 		B.Timeout = max(0,$-1)
+
+		for player in players.iterate do
+			if player.actiontext and player.textflash_flashing then
+				player.actiontext = B.TextFlash($, true, player)
+			end
+		end
 
 		if gametype == GT_RUBYRUN
 			R.RubyWinTimeout = $-1
