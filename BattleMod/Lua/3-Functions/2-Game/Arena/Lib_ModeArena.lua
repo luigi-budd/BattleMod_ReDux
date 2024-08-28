@@ -218,7 +218,7 @@ local function forcewin()
 	local doexit = false
 	local extended = (not splitscreen) and not(G_GametypeHasTeams() and redscore == bluescore)
 	local player_scores = {}
-	for player in players.iterate
+	for player in players.iterate do
 		table.insert(player_scores, player.score)
 		if (extended) then
 			if player.powers[pw_sneakers] then player.powers[pw_sneakers] = $+1 end
@@ -235,41 +235,31 @@ local function forcewin()
 	end)
 	if doexit == true and not(B.Exiting) then
 		B.DebugPrint("Game set conditions triggered.")
+		A.GetRanks()
 		S_StartSound(nil,sfx_lvpass)
 		S_StartSound(nil,sfx_nxbump)
 		B.Exiting = true
 		B.Timeout = (extended) and 5*TICRATE or 1
-		for player in players.iterate
+
+		for player in players.iterate do
 			S_StopMusic(player)
 			COM_BufInsertText(player,"cecho  ") //Override ctf messages
 			if not(extended) then continue end
 			if (player.spectator)
-			--or (player.mo and player.mo.valid and not(player.mo.loss))
 			or (player.ctfteam == 1 and redscore > bluescore)
 			or (player.ctfteam == 2 and bluescore > redscore)
-			or (A.Bounty and A.Bounty == player)
+			or (player.wanted)
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
-				
-				local win = winmusic
-
-				--print("win")
-
-				COM_BufInsertText(player,"tunes "..win)
+				COM_BufInsertText(player,"tunes "..winmusic)
 			else
-				if player.mo then player.mo.loss = true end
-				
-				local loss = lossmusic
-
-				--print("loss")
-
-				COM_BufInsertText(player,"tunes "..loss)
+				player.loss = true
+				COM_BufInsertText(player,"tunes "..lossmusic)
 			end
 		end
 	end
 end
-
---COM_AddCommand("forcewin", forcewin, COM_LOCAL)
+COM_AddCommand("forcewin", forcewin)
 
 local function stretchx(player)
 	if not (player.mo and player.mo.valid) then return end
@@ -398,7 +388,7 @@ A.Exiting = function()
 			end
 		else
 			for player in players.iterate do
-				if player.mo and player.mo.loss
+				if player.loss and player.mo and player.mo.valid 
 				and player.mo.state != S_PLAY_LOSS and P_IsObjectOnGround(player.mo)
 				then
 					player.mo.state = S_PLAY_LOSS

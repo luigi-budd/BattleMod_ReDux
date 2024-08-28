@@ -151,7 +151,7 @@ A.GameSetHUD = function(v,player,cam)
 		end
 		local finaltext = "COOOOOL"
 		local finalcolors = rainbow
-		if player.mo and player.mo.loss then
+		if player.loss then
 			finaltext = "TOO BAD"
 			finalcolors = SKINCOLOR_CRIMSON
 		end

@@ -491,7 +491,7 @@ B.TestScript = function(player)
 	A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
 	A_GiveShield(shieldgiver, SH_FLAMEAURA)
 	A_GiveShield(shieldgiver, SH_THUNDERCOIN)
-	player.mo.loss = true
+	player.loss = true
 	player.mo.state = S_PLAY_LOSS
 end
 
