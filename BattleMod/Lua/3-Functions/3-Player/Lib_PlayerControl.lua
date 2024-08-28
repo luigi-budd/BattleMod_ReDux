@@ -121,6 +121,9 @@ B.InitPlayer = function(player)
 		player.lastcolor = 0
 	end
 	player.roulette = player.battleconfig_roulette == nil and true or player.battleconfig_roulette
+	if not (B.Exiting) then
+		player.loss = nil
+	end
 end
 
 B.ResetPlayerProperties = function(player,jumped,thokked)
