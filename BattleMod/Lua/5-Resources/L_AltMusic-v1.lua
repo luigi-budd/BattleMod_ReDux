@@ -32,12 +32,13 @@ end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
 A.already_ran = false
+A.block_restoremusic = false
 
 local already_ran = A.already_ran
 
 local preround = false
 
-local block_restoremusic = false
+local block_restoremusic = A.block_restoremusic
 
 A.CurrentMap = {
     song = nil,

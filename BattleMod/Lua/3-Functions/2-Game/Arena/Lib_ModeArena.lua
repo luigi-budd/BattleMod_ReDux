@@ -401,6 +401,9 @@ A.Exiting = function()
 				end
 				if player.exiting then continue end
 				P_DoPlayerExit(player)
+				if player == consoleplayer then
+					A.block_restoremusic = false
+				end
 			end
 		end
 	end
