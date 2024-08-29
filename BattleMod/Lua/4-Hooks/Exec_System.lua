@@ -48,6 +48,9 @@ addHook("MapChange",function(map)
 	B.TagPlayers = 0
 	B.TagRunners = {}
 	B.TagTaggers = {}
+	R.RubyFade = 0
+	R.player_respawntime = 0
+	R.RubyWinTimeout = R.CapAnimTime
 end)
 
 addHook("MapLoad",function(map)
