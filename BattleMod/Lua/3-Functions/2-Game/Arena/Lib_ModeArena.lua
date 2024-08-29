@@ -225,7 +225,9 @@ local function forcewin()
 			if player.powers[pw_invulnerability] then player.powers[pw_invulnerability] = $+1 end
 			if player.powers[pw_super] and leveltime%TICRATE==1 then player.rings = $+1 end
 		else
-			S_StopMusic(player)
+			if not(player.win or player.loss) then
+				S_StopMusic(player)
+			end
 		end
 		if player.exiting then continue end
 		doexit = true
@@ -255,10 +257,10 @@ local function forcewin()
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
 				player.win = true
-				COM_BufInsertText(player,"tunes "..lossmusic)
+				COM_BufInsertText(player,"tunes "..winmusic)
 			else
 				player.loss = true
-				COM_BufInsertText(player,"tunes "..winmusic)
+				COM_BufInsertText(player,"tunes "..lossmusic)
 			end
 		end
 	end

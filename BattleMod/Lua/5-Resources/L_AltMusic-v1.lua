@@ -37,6 +37,8 @@ local already_ran = A.already_ran
 
 local preround = false
 
+local block_restoremusic = false
+
 A.CurrentMap = {
     song = nil,
     pinch = nil,
@@ -68,14 +70,16 @@ local function clearvars()
         A.CurrentDefsong = nil
     end
     altmusic_transition = false
+    block_restoremusic = false
 end
 
 local function play(song)
     altmusic_transition = false --no longer transitioning
 
-    if (consoleplayer) then
+    if (consoleplayer) and not(B.Exiting) then
         S_ChangeMusic(song) --play the song!
 
+        print(true)
         mapmusname = song --Just in case!
     end
 end
@@ -129,6 +133,7 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     A.CurrentMap = {}
     A.CurrentDefSong = nil
     altmusic_transition = true
+    block_restoremusic = false
 
 
     if (mapheaderinfo[mapnum].altmusic or mapheaderinfo[mapnum].bpreround) or rawget(A, G_BuildMapName(mapnum):lower())then
@@ -221,6 +226,8 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
 
 end)
 
+
+
 addHook("IntermissionThinker", clearvars)
 
 addHook("MusicChange", function(oldname, newname)
@@ -234,11 +241,18 @@ addHook("MusicChange", function(oldname, newname)
     local win = (A and A.CurrentMap and A.CurrentMap.win)
     local loss = (A and A.CurrentMap and A.CurrentMap.loss)
 
+    if (block_restoremusic) then
+        return true
+    end
+
+
     if win and (newname == "BWIN") then
+        block_restoremusic = true
         return win, nil, false
     end
 
     if loss and (newname == "BLOSE") then
+        block_restoremusic = true
         return loss, nil, false
     end
 
