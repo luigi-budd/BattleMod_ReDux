@@ -122,6 +122,7 @@ B.InitPlayer = function(player)
 	end
 	player.roulette = player.battleconfig_roulette == nil and true or player.battleconfig_roulette
 	if not (B.Exiting) then
+		player.win = nil
 		player.loss = nil
 	end
 end

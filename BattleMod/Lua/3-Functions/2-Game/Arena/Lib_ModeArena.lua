@@ -242,6 +242,9 @@ local function forcewin()
 		B.Timeout = (extended) and 5*TICRATE or 1
 
 		for player in players.iterate do
+			if player.win or player.loss then
+				continue
+			end
 			S_StopMusic(player)
 			COM_BufInsertText(player,"cecho  ") //Override ctf messages
 			if not(extended) then continue end
@@ -251,6 +254,7 @@ local function forcewin()
 			or (player.wanted)
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
+				player.win = true
 				COM_BufInsertText(player,"tunes "..winmusic)
 			else
 				player.loss = true
@@ -259,7 +263,7 @@ local function forcewin()
 		end
 	end
 end
-COM_AddCommand("forcewin", forcewin)
+--COM_AddCommand("forcewin", forcewin, COM_ADMIN)
 
 local function stretchx(player)
 	if not (player.mo and player.mo.valid) then return end
