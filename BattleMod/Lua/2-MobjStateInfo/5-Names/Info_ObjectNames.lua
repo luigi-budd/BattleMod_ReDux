@@ -1,5 +1,6 @@
 //sonic
 mobjinfo[MT_GROUNDPOUND].name = "ground pound shockwave"
+mobjinfo[MT_SUPERSPINWAVE].name = "spin wave"
 //tails
 mobjinfo[MT_SONICBOOM].name = "air cutter"
 //knuckles
