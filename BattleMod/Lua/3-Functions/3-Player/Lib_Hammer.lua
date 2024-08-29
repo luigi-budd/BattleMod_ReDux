@@ -5,6 +5,9 @@ local st_hold = 1
 local st_release = 2
 local st_jump = 3
 
+local piko_special = 11
+local piko_cooldown = TICRATE * 3/2
+
 local function twin(player)
 	local pflags = player.pflags
 	player.panim = PA_ABILITY
@@ -193,16 +196,29 @@ B.HammerControl = function(player)
 	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and P_IsObjectOnGround(mo)
 		local spin = player.melee_charge >= FRACUNIT
 		player.buttonhistory = $ | BT_JUMP | BT_SPIN
-		local piko_special = 11
-		local cooldown = TICRATE * 3/2
 		if player.actionstate == piko_special and P_IsObjectOnGround(mo) then
-			B.ApplyCooldown(player,cooldown)
+			B.ApplyCooldown(player, piko_cooldown)
 			B.SpawnWave(player, 0, false)
 			player.actionstate = 0
 		elseif (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin then
 			B.hammerjump(player, spin)
 		end
 		player.melee_state = st_idle
+	end
+end
+
+B.PostHammerControl = function(player)
+	local mo = player.mo
+
+	if not(mo and mo.valid and B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
+		return
+	end
+
+	-- fix piko wave while in a rising platform...
+	if player.actionstate == piko_special and mo.state == S_PLAY_MELEE_LANDING then
+		B.ApplyCooldown(player, piko_cooldown)
+		B.SpawnWave(player, 0, false)
+		player.actionstate = 0
 	end
 end
 

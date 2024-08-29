@@ -208,7 +208,9 @@ end
 B.PlayerPostThinkFrame = function(player)
 	player.buttonhistory = player.cmd.buttons
 	
-	--Lock jump timer
+	B.PostHammerControl(player)
+	
+	-- Lock jump timer
 	if player.lockjumpframe then
 		player.lockjumpframe = $ - 1
 	end
