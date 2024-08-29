@@ -255,10 +255,10 @@ local function forcewin()
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
 				player.win = true
-				COM_BufInsertText(player,"tunes "..winmusic)
+				COM_BufInsertText(player,"tunes "..lossmusic)
 			else
 				player.loss = true
-				COM_BufInsertText(player,"tunes "..lossmusic)
+				COM_BufInsertText(player,"tunes "..winmusic)
 			end
 		end
 	end
