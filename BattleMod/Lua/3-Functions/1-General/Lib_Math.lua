@@ -35,32 +35,25 @@ B.GetHudQuarterTrans = function(v)
     return transLevelToQuarterTransFlag[v.localTransFlag() >> V_ALPHASHIFT]
 end
 
-local baseChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@"
+B.TIMETRANS = function(time, speed, prefix, suffix, minimum, cap, debug)
+    speed = speed or 1
+	prefix = $ or "V_"
+	suffix = $ or "TRANS"
+    local level = (time / speed / 10) * 10
+    level = max(10, min(100, level))
+    
+	if minimum then level = max($, minimum / 10 * 10) end
+	if cap then level = min($, cap / 10 * 10) end
 
---[[/*
-B.BaseConv = function(number, base, chars)
-	if not chars then
-		chars = baseChars
-	end
-
-	local outstring = ""
-
-	if (number == 0) then
-		return "0";
-	end
-
-	local i = 0
-
-	while (number > 0) do
-		local index = number % base
-		outstring[i] = chars[index]
-		number = $ / base
-
-		i = i + 1
-	end
-
-	string.reverse(outstring)
-
-	return outstring
+    if level == 100 then
+		if debug then print(level) end
+    else
+		if debug then print(level) end
+        return _G[prefix .. (100 - level) .. suffix]
+    end
 end
-*/]]
+
+B.Wrap = function(value, minValue, maxValue)
+	local range = maxValue - minValue + 1
+	return ((value - minValue) % range + range) % range + minValue
+end

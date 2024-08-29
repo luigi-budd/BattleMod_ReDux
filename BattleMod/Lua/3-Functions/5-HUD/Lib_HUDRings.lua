@@ -4,24 +4,6 @@ local TF_GRAY = 1
 local TF_YELLOW = 2
 local TF_RED = 3
 
-B.TIMETRANS = function(time, speed, prefix, suffix, minimum, cap, debug)
-    speed = speed or 1
-	prefix = $ or "V_"
-	suffix = $ or "TRANS"
-    local level = (time / speed / 10) * 10
-    level = max(10, min(100, level))
-    
-	if minimum then level = max($, minimum / 10 * 10) end
-	if cap then level = min($, cap / 10 * 10) end
-
-    if level == 100 then
-		if debug then print(level) end
-    else
-		if debug then print(level) end
-        return _G[prefix .. (100 - level) .. suffix]
-    end
-end
-
 B.RingsHUD = function(v, player, cam)
 	if not (B.HUDMain)
 	or not (player.battleconfig_newhud)
