@@ -80,7 +80,7 @@ local function play(song)
     if (consoleplayer) and not(B.Exiting) then
         S_ChangeMusic(song) --play the song!
 
-        print(true)
+        --print(true)
         mapmusname = song --Just in case!
     end
 end
