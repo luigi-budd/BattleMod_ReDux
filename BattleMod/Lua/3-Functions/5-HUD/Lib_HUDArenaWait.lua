@@ -77,25 +77,6 @@ B.DrawSpriteString = function(v, x, y, scale, font, text, gap, flags, colormap, 
 	end
 end
 
-B.TimeTrans = function(time, speed, minimum, cap, prefix, suffix, debug)
-    speed = speed or 1
-	prefix = prefix or "V_"
-	suffix = suffix or "TRANS"
-
-    local level = (time / speed / 10) * 10
-    level = max(10, min(100, level))
-
-    if minimum then level = max($, minimum / 10 * 10) end
-	if cap then level = min($, cap / 10 * 10) end
-	if debug then print(level) end
-    
-    if level == 100 then
-        return 0
-    else
-        return _G[prefix .. (100 - level) .. suffix]
-    end
-end
-
 --Game set!
 local lerpamt = FRACUNIT
 local lerpamt2 = FRACUNIT
@@ -137,7 +118,7 @@ A.GameSetHUD = function(v,player,cam)
 	then
 		lerpamt2 = B.FixedLerp(0,FRACUNIT,$*90/100)
 		subtract2 = B.FixedLerp(180,0,lerpamt2)
-		local trans = B.TimeTrans(exittime*2 - delay*2)
+		local trans = B.TIMETRANS(exittime*2 - delay*2)
 		local x3 = 320/2
 		if leveltime%2 == 0 and not paused then
 			local rainbows = {rainbow, b_rainbow, r_rainbow}

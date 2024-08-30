@@ -17,6 +17,7 @@ hud.add(B.ActionHUD)
 hud.add(B.ShieldHUD)
 hud.add(B.TeammateHUD)
 hud.add(B.TimerHUD)
+hud.add(B.StartRingsHUD)
 
 --Gamemode info
 hud.add(CP.HUD)
@@ -44,6 +45,7 @@ hud.add(B.DebugHUD)
 hud.add(B.TagGenHUD)
 
 --Score screen
+hud.add(B.StatsHUD, "scores")
 hud.add(F.RankingHUD, "scores")
 hud.add(B.TagRankHUD, "scores")
 

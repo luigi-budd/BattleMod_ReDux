@@ -280,6 +280,7 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	--ring penalty :3
 	if CV.RingPenalty.value then
 		local penalty = killer and 10 or 5
+		player.lastpenalty = penalty
 		player.ringpenalty = $ and $+penalty or penalty
 	end
 end, MT_PLAYER)
