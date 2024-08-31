@@ -231,7 +231,7 @@ B.RingsHUD = function(v, player, cam)
 	end
 
 	--Shake
-	if player.shakemobj or true then
+	if player.shakemobj then
 		local frame = B.Wrap(leveltime/2, 0, states[S_SHAKE].var1-1)
 		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, v.getSpritePatch("SHAK", frame), flags_hudtrans)
 	end
