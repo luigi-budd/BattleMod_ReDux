@@ -230,6 +230,12 @@ B.RingsHUD = function(v, player, cam)
 		end
 	end
 
+	--Shake
+	if player.shakemobj or true then
+		local frame = B.Wrap(leveltime/2, 0, states[S_SHAKE].var1-1)
+		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, v.getSpritePatch("SHAK", frame), flags_hudtrans)
+	end
+
 	--Ring spent effect
 	if player.spentrings then
 		local scale2 = FRACUNIT*5 - (player.spentrings * (FRACUNIT*4)/(TICRATE/2))
