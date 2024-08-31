@@ -595,7 +595,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 	for p in players.iterate do
 		if not(p.mo and p.mo.valid) then continue end
 		local pmo = p.mo
-		local conditions = {(p.gotflag), (B.ArenaGametype() and p.wanted)}
+		local conditions = {(p.gotflag), (CV.Bounty.value and B.ArenaGametype() and p.wanted)}
 		local canhaveicon = false
 		for n=1, #conditions do
 			if conditions[n] then canhaveicon = true end
