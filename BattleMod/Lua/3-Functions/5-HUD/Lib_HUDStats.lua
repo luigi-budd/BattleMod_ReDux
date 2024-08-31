@@ -1,15 +1,19 @@
 local B = CBW_Battle
 local CV = B.Console
 
-B.GetStartRings = function(player, previous)
-    if previous then
-        return (CV.StartRings.value - (player.ringpenalty-player.lastpenalty or 0)) or 0
+B.GetStartRings = function(player, beforedeath)
+    if beforedeath then
+        local previous = (player.ringpenalty or 0) - (player.lastpenalty or 0)
+        return CV.StartRings.value - previous
     else
         return (CV.StartRings.value - (player.ringpenalty or 0)) or 0
     end
 end
 
 B.StatsHUD = function(v)
+    if not (B.BattleGametype() and CV.RingPenalty.value) then
+        return
+    end
     local player
     for p in players.iterate do
         if p == displayplayer then
@@ -30,25 +34,34 @@ B.StatsHUD = function(v)
 end
 
 B.StartRingsHUD = function(v, player)
-    if not (
-        player.deadtimer
-        or (player.ringpenalty and player.ringpenalty >= CV.StartRings.value)
+    if not (player.deadtimer
+        and CV.RingPenalty.value
+        and B.BattleGametype()
+        and B.GetStartRings(player, true)
     ) then
         return
     end
-    local x = 320/2 - 6
-    local y = 240/2
-    local flags = V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT
-    local rflags = 0
+    local x = (320/2) - 6
+    local y = (240/2)
+    local flags = V_PERPLAYER|V_SNAPTOTOP
+    local srflags = flags|V_YELLOWMAP
     local color = nil
-    if player.deadtimer > TICRATE*4 then -- hide completely
+    if player.deadtimer > TICRATE*3 then -- hide completely
         return
-    elseif player.deadtimer > TICRATE*2 then -- fade out
-        flags = $ | ( B.TIMETRANS(TICRATE*8 - player.deadtimer*2) or 0 )
+    elseif player.deadtimer > TICRATE*2 then -- fade and move out
+        local time = player.deadtimer - TICRATE*2
+        local progressrate = FRACUNIT / (TICRATE*2)
+        x = ease.outcubic(time*progressrate, $, 40) --x = $ - time
+        y = ease.outcubic(time*progressrate, $, 180) --y = $ + time
+        local V_TIMETRANS = B.TIMETRANS(100 - (time*3)) or 0
+        flags = $ | V_TIMETRANS
+        srflags = $ | V_TIMETRANS
     elseif player.deadtimer > TICRATE then -- flash red and bounce
-        v.drawString(x+8, y+16, "-"..player.lastpenalty, flags|V_YELLOWMAP, "center")
-        flags = $ | V_REDMAP
-        rflags = V_50TRANS
+        srflags = ($ | V_REDMAP) &~ V_YELLOWMAP
+        if (leveltime % 8 >= 4) then
+            v.drawString(x+8, y+16, "-"..player.lastpenalty, srflags, "center")
+        end
+        flags = $ | V_INVERTMAP
         color = SKINCOLOR_RED
         local y2 = y - (TICRATE*5/2) + player.deadtimer*2
         x = $ + v.RandomRange(-1, 1)
@@ -56,9 +69,14 @@ B.StartRingsHUD = function(v, player)
     elseif player.deadtimer == TICRATE then -- sfx
         S_StartSound(nil, sfx_antiri, player)
     else -- fade in
-        flags = $ | ( B.TIMETRANS(player.deadtimer*3) or 0 )
+        local V_TIMETRANS = B.TIMETRANS(player.deadtimer*3) or 0
+        flags = $ | V_TIMETRANS
+        srflags = $ | V_TIMETRANS
     end
     local patch = v.cachePatch("NRNG1")
-    v.draw(x, y, patch, flags | rflags, v.getColormap(TC_RAINBOW, color))
-    v.drawString(x+8, y+3, B.GetStartRings(player, player.deadtimer < TICRATE), flags, "center")
+    local spacing = 10
+    local displayrings = B.GetStartRings(player, player.deadtimer < TICRATE)
+    v.draw(x-spacing, y, patch, flags, v.getColormap(TC_RAINBOW, color))
+    --v.drawString(x+8-spacing, y+4, "SR", srflags, "thin-center")
+    v.drawString(x+8+spacing, y+4, displayrings, flags, "center")
 end

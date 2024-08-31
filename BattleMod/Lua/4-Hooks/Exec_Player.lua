@@ -278,7 +278,7 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		B.TagConverter(target.player)
 	end
 	--ring penalty :3
-	if CV.RingPenalty.value then
+	if CV.RingPenalty.value and B.BattleGametype() then
 		local penalty = killer and 10 or 5
 		player.lastpenalty = penalty
 		player.ringpenalty = $ and $+penalty or penalty
