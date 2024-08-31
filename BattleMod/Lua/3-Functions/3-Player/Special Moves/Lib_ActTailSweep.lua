@@ -33,7 +33,7 @@ B.Action.TailSwipe_Priority = function(player)
 	end
 end
 
-B.cutterattract = function(mo, dimension)
+B.SoftHoming = function(mo, dimension)
 	local followmo = mo.followmo
 	local speed = mo.cutterspeed or followmo.scale
 	if followmo[dimension] > mo[dimension] then
@@ -173,21 +173,25 @@ local function uncolorize(mo)
 	end
 end
 
-local function carrystun(otherplayer)
+B.CarryStun = function(otherplayer, strugglerings, strugglestun, noshake, nostunbreak, nopain)
 	//gameplay
+	strugglerings = $ or 5
+	strugglestun = $ or TICRATE/2
 	otherplayer.airdodge = -1
 	otherplayer.jumpstasistimer = 2 --because giving PF_JUMPSTASIS doesnt work apparently
 	otherplayer.landlag = otherplayer.powers[pw_nocontrol]
 	if (otherplayer.realbuttons & BT_JUMP) and not(otherplayer.powers[pw_nocontrol])
 		S_StartSound(otherplayer.mo, sfx_s3kd7s)
-		otherplayer.customstunbreakcost = max(0,$-5)
-		otherplayer.powers[pw_nocontrol] = max($,TICRATE/2)
+		otherplayer.customstunbreakcost = max(0,$-strugglerings)
+		otherplayer.powers[pw_nocontrol] = max($,strugglestun)
 		otherplayer.canstunbreak = 0
 		otherplayer.mo.hitstun_tics = otherplayer.powers[pw_nocontrol]
-		local shake = P_SpawnMobjFromMobj(otherplayer.mo, 0, 0, 0, MT_THOK)
-		shake.state = S_SHAKE
-		otherplayer.shakemobj = shake
-	else
+		if noshake then
+			local shake = P_SpawnMobjFromMobj(otherplayer.mo, 0, 0, 0, MT_THOK)
+			shake.state = S_SHAKE
+			otherplayer.shakemobj = shake
+		end
+	elseif not nostunbreak then
 		otherplayer.canstunbreak = max($,2)
 	end
 	//shake vfx follows
@@ -195,6 +199,9 @@ local function carrystun(otherplayer)
 		P_MoveOrigin(otherplayer.shakemobj, otherplayer.mo.x, otherplayer.mo.y, otherplayer.mo.z + (otherplayer.mo.height/2))
 	end
 	//pain animation
+	if nopain then
+		return
+	end
 	if otherplayer.followmobj
 		if otherplayer.mo.skin == "tails"
 			otherplayer.followmobj.state = S_TAILSOVERLAY_PAIN
@@ -246,7 +253,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				continue
 			end
 			if not B.MyTeam(otherplayer.mo, mo)
-				carrystun(otherplayer)
+				B.CarryStun(otherplayer)
 			end
 			carrying = true 
 			break //we carrying, dont even bother checking other players
@@ -604,8 +611,8 @@ B.Action.TailSwipe = function(mo,doaction)
 			refmobj.flags2 = $ | MF2_DONTDRAW
 			P_SetOrigin(refmobj, mo.x + cut_x, mo.y + cut_y, mo.z + (mo.height/2))
 			player.aircutter.followmo = refmobj
-			B.cutterattract(player.aircutter, "x")
-			B.cutterattract(player.aircutter, "y")
+			B.SoftHoming(player.aircutter, "x")
+			B.SoftHoming(player.aircutter, "y")
 			player.aircutter.momz = 0
 			P_MoveOrigin(player.aircutter, player.aircutter.x, player.aircutter.y, mo.z + (mo.height/2))
 		end

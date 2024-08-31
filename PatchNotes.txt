@@ -5,18 +5,23 @@ Modding features
 	- Returning "true" in func_postcollide will override collision effects, like returning "true" in func_collide overrides physics
 	- Carrying players will no longer collide with their partner, unless mo.cantouchteam is used
 	- Guard text will always show up if player.canguard is set to a value higher than 1
-	- New player variable: player.guardtext (Similar to player.action2text, only effective when player.canguard is higher than 1)
-	- New player variable: player.realbuttons (provides access to the player's buttons even if they have pw_nocontrol)
-	- New player variable: player.lastmoveblock (Updates to leveltime whenever the hook "MobjMoveBlocked" is called)
-	- New player variable: player.ledgemeter (emergency exhaust, player.exhaustmeter can't exceed it when grabbing a ledge)
-	- New player variable: player.ledgegrabcooldown
-	- New player variable: player.landlag (puts the player in recoil as they touch the floor)
-	- New player variables: player.customstunbreaktics, player.customstunbreakcost (only works with player.canstunbreak)
-	- New player timer: player.nodamage (prevents the player from taking damage with no indication - used in PreRound and GAME SET)
-	- New player timer: player.noshieldactive (Also resets to 0 on land)
-	- New player timer: player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state. If below 0, prevents stunbreak)
-	- New function: B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
-	- New function: B.Console.AddBattleConfig(configname, func, defaultvalue)
+	New functions:
+		- B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
+		- B.Console.AddBattleConfig(configname, func, defaultvalue)
+		- B.SoftHoming(mo, dimension)
+		- B.CarryStun(otherplayer, strugglerings, strugglestun, noshake, nostunbreak, nopain)
+	New player vriables:
+		- player.guardtext (Similar to player.action2text, only effective when player.canguard is higher than 1)
+		- player.realbuttons (provides access to the player's buttons even if they have pw_nocontrol)
+		- player.lastmoveblock (Updates to leveltime whenever the hook "MobjMoveBlocked" is called)
+		- player.ledgemeter (emergency exhaust, player.exhaustmeter can't exceed it when grabbing a ledge)
+		- player.ledgegrabcooldown
+		- player.landlag (puts the player in recoil as they touch the floor)
+		- player.customstunbreaktics & player.customstunbreakcost (only works with player.canstunbreak)
+		Timer variables:
+			- player.nodamage (prevents the player from taking damage with no indication - used in PreRound and GAME SET)
+			- player.noshieldactive (Also resets to 0 on land)
+			- player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state. If below 0, prevents stunbreak)
 Major gameplay changes
 	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_newhud to "off"
 	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
