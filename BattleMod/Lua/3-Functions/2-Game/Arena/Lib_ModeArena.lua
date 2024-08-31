@@ -242,6 +242,12 @@ local function forcewin()
 		S_StartSound(nil,sfx_nxbump)
 		B.Exiting = true
 		B.Timeout = (extended) and 5*TICRATE or 1
+		local winner
+		local playercount = -1
+
+		for player in players.iterate do
+			playercount = $+1
+		end
 
 		for player in players.iterate do
 			if player.win or player.loss then
@@ -261,6 +267,30 @@ local function forcewin()
 			else
 				player.loss = true
 				COM_BufInsertText(player,"tunes "..((ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.loss and lossmusic) or winmusic))
+			end
+
+			if not(winner) and (playercount == 0) or (not(G_GametypeHasTeams()) and (player.wanted or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2]))) then
+				winner = player
+			end
+
+		end
+
+		if MapVote and MapVoteNet then
+			local NET = MapVoteNet
+			local MV = MapVote
+			local skin = MV.Skins[NET.nextcategory][NET.nextskin] or {}
+			if G_GametypeHasTeams()
+				if (redscore > bluescore) then
+					NET.backcolor = skin.redteamcolor or SKINCOLOR_RED
+				elseif (bluescore > redscore) then
+					NET.backcolor = skin.blueteamcolor or SKINCOLOR_BLUE
+				else
+					NET.backcolor = skin.tiecolor or SKINCOLOR_GREY
+				end
+			else
+				if winner then
+					NET.backcolor = winner.skincolor or SKINCOLOR_GREY
+				end
 			end
 		end
 	end
