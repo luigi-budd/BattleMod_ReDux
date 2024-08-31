@@ -186,7 +186,7 @@ B.CarryStun = function(otherplayer, strugglerings, strugglestun, noshake, nostun
 		otherplayer.powers[pw_nocontrol] = max($,strugglestun)
 		otherplayer.canstunbreak = 0
 		otherplayer.mo.hitstun_tics = otherplayer.powers[pw_nocontrol]
-		if noshake then
+		if not noshake then
 			local shake = P_SpawnMobjFromMobj(otherplayer.mo, 0, 0, 0, MT_THOK)
 			shake.state = S_SHAKE
 			otherplayer.shakemobj = shake
