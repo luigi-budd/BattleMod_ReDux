@@ -33,8 +33,8 @@ local function sparkle(mo)
 	end
 end
 
-local function spinhammer(mo, land)
-	mo.state = land and S_PLAY_MELEE_LANDING or S_PLAY_MELEE
+local function spinhammer(mo, stnd)
+	mo.state = stnd and S_PLAY_STND or S_PLAY_MELEE
 	mo.frame = 0
 	mo.sprite2 = SPR2_MLEL
 end
