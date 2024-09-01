@@ -47,6 +47,7 @@ B.TIMETRANS = function(time, speed, prefix, suffix, minimum, cap, debug)
 
     if level == 100 then
 		if debug then print(level) end
+        return 0
     else
 		if debug then print(level) end
         return _G[prefix .. (100 - level) .. suffix]
