@@ -16,7 +16,7 @@ B.RingsHUD = function(v, player, cam)
 	local V_HUDTRANSQUARTER = B.GetHudQuarterTrans(v)
 	local flags = V_PERPLAYER|V_SNAPTOBOTTOM|V_SNAPTOLEFT
 	local flags_hudtrans = V_PERPLAYER|V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTOLEFT
-	local x = 40
+	local x = 39
 	local y = 180
 	local shake = 0
 	local patch
@@ -74,7 +74,7 @@ B.RingsHUD = function(v, player, cam)
 		ringpatchname = "HUD_RINGG"
 	end
 	local ringpatch = v.cachePatch(ringpatchname)
-	v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
+	v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
 
 	--Actions
 	if B.StunBreakAllowed(player) then
@@ -209,7 +209,7 @@ B.RingsHUD = function(v, player, cam)
 		elseif abs(player.ringhudflash) == 2 then
 			flash_trans = TR_TRANS80
 		end
-		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, flashpatch, flags | flash_trans)
+		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, flashpatch, flags | flash_trans)
 	end
 	
 	v.drawNum(x + num_offsetx, y + num_offsety, player.rings, flags_hudtrans)
@@ -226,21 +226,21 @@ B.RingsHUD = function(v, player, cam)
 			nodraw = true
 		end
 		if not nodraw then
-			v.drawScaled((x+12)*FRACUNIT + FRACUNIT/2, (y-14)*FRACUNIT, scale, v.getSpritePatch(sprite, frame), flags_hudtrans)
+			v.drawScaled((x+12)*FRACUNIT, (y-14)*FRACUNIT, scale, v.getSpritePatch(sprite, frame), flags_hudtrans)
 		end
 	end
 
 	--Shake
 	if player.shakemobj and player.shakemobj.valid then
 		local frame = B.Wrap(leveltime/2, 0, states[S_SHAKE].var1-1)
-		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, v.getSpritePatch("SHAK", frame), flags_hudtrans)
+		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, v.getSpritePatch("SHAK", frame), flags_hudtrans)
 	end
 
 	--Ring spent effect
 	if player.spentrings then
 		local scale2 = FRACUNIT*5 - (player.spentrings * (FRACUNIT*4)/(TICRATE/2))
 		local transrights = B.TIMETRANS(player.spentrings * 6) or 0
-		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale2, ringpatch, flags|transrights)
+		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale2, ringpatch, flags|transrights)
 	end
 
 	--GUARD
