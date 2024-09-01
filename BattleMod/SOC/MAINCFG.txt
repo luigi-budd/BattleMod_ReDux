@@ -272,6 +272,19 @@ SkyNum = 68
 SkyboxScaleX = 64
 SkyboxScaleY = 64
 
+Level I1
+Levelname = Iron Warehouse
+NextLevel = 3
+Act = 0
+Music = KIRFAC
+SkyNum = 6060
+TypeOfLevel = Battlectf
+Lua.Author = STJR, Smol
+SelectHeading = Smol's Battlemaps
+Lua.BattleItems_GlobalRate = 55
+Lua.BattleItems_Roulette = 200
+Lua.BattleItems_LocalRate = 40
+
 #Ruby Run
 
 Level R1
