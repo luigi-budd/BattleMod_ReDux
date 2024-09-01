@@ -177,6 +177,7 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 	//gameplay
 	strugglerings = $ or 5
 	struggletime = $ or TICRATE/3 -- player can only struggle again after this time is over
+	otherplayer.strugglerings = -strugglerings --for hud... lmao...
 	otherplayer.airdodge = -1
 	otherplayer.jumpstasistimer = 2 -- because giving PF_JUMPSTASIS doesnt work apparently
 	otherplayer.landlag = otherplayer.powers[pw_nocontrol]

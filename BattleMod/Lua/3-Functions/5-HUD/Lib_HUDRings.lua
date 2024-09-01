@@ -126,7 +126,11 @@ B.RingsHUD = function(v, player, cam)
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
 			local text = player.actiontext or player.lastactiontext or 0
-			if text and not(player.gotflagdebuff or shaking) then
+			if shaking and player.jumpstasistimer and player.strugglerings then
+				text = "          "..player.strugglerings.." COST"
+				text = (leveltime%2==0) and "\131"+$ or "\139"+$
+			end
+			if text and not(player.gotflagdebuff) then
 				if player.actionstate then
 					text = "\x82" + $
 				else
