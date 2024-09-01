@@ -171,7 +171,7 @@ B.ActionHUD=function(v, player, cam)
 			end
 		end
 	end
-	if not(text) then
+	if not(text and (canguard or candodge)) then
 		return
 	end
 	text = textcolor .. " " .. $

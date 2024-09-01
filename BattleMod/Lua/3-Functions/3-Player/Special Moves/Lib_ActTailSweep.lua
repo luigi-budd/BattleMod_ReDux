@@ -173,17 +173,30 @@ local function uncolorize(mo)
 	end
 end
 
-B.CarryStun = function(otherplayer, strugglerings, strugglestun, noshake, nostunbreak, nopain)
+B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostunbreak, nopain)
 	//gameplay
 	strugglerings = $ or 5
-	strugglestun = $ or TICRATE/2
+	struggletime = $ or TICRATE/3 -- player can only struggle again after this time is over
 	otherplayer.airdodge = -1
-	otherplayer.jumpstasistimer = 2 --because giving PF_JUMPSTASIS doesnt work apparently
+	otherplayer.jumpstasistimer = 2 -- because giving PF_JUMPSTASIS doesnt work apparently
 	otherplayer.landlag = otherplayer.powers[pw_nocontrol]
-	if (otherplayer.realbuttons & BT_JUMP) and not(otherplayer.powers[pw_nocontrol])
+	local pressed = (otherplayer.realbuttons & BT_JUMP)
+	local tapped = pressed and not (otherplayer.holdingjump)
+	local held = pressed and (leveltime % (TICRATE/2) == 0)
+	if pressed then -- IM SO SORRY but i hate messing with inputs when pw_nocontrol is going on
+		otherplayer.holdingjump = true
+	else
+		otherplayer.holdingjump = false
+	end
+	if (tapped or held) and not(otherplayer.powers[pw_nocontrol])
 		S_StartSound(otherplayer.mo, sfx_s3kd7s)
 		otherplayer.customstunbreakcost = max(0,$-strugglerings)
-		otherplayer.powers[pw_nocontrol] = max($,strugglestun)
+		if not (otherplayer.customstunbreakcost) then
+			otherplayer.canstunbreak = 2
+			B.StunBreak(otherplayer, true)
+			return
+		end
+		otherplayer.powers[pw_nocontrol] = max($,struggletime)
 		otherplayer.canstunbreak = 0
 		otherplayer.mo.hitstun_tics = otherplayer.powers[pw_nocontrol]
 		if not noshake then
@@ -191,7 +204,7 @@ B.CarryStun = function(otherplayer, strugglerings, strugglestun, noshake, nostun
 			shake.state = S_SHAKE
 			otherplayer.shakemobj = shake
 		end
-	elseif not nostunbreak then
+	elseif not (otherplayer.powers[pw_nocontrol] or nostunbreak) then
 		otherplayer.canstunbreak = max($,2)
 	end
 	//shake vfx follows
@@ -264,6 +277,8 @@ B.Action.TailSwipe = function(mo,doaction)
 	local exhaust = max(0,200-(player.actiontime*100/threshold2))
 	if player.actionstate == state_charging
 		player.action2text = "Exhaust "..exhaust.."%"
+		player.canguard = 2
+		player.guardtext = "Cancel"
 	end
 	
 	//Action triggers
@@ -356,7 +371,6 @@ B.Action.TailSwipe = function(mo,doaction)
 		local spdrange = (1+player.speed)/(3*mo.scale)
 		local chargerange = (1+chargepercentage)/16
 		local range = spdrange + chargerange
-		player.canguard = false
 		player.pflags = $&~(PF_SPINNING)
 		if player.ledgemeter then
 			player.ledgemeter = max(0,$-(FRACUNIT*2/(threshold2*2)))

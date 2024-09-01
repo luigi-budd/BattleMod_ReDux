@@ -36,6 +36,7 @@ B.RingsHUD = function(v, player, cam)
 	local action_offsety_line = -8
 	local cooldownbar_offsetx = -6
 	local cooldownnum_offsetx = 5
+	local shaking = player.shakemobj and player.shakemobj.valid
 	if player.rings >= 1000 then
 		num_offsetx = $ + 12
 	elseif player.rings >= 100 then
@@ -77,6 +78,15 @@ B.RingsHUD = function(v, player, cam)
 	v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
 
 	--Actions
+	local function roundToMultipleOf5(num)
+		local remainder = num % 5
+		if remainder >= 3 then
+			return num + (5 - remainder)
+		else
+			return num - remainder
+		end
+	end
+
 	if B.StunBreakAllowed(player) then
 		local text = "Stun Break"
 		local cost = player.stunbreakcosttext
@@ -112,30 +122,11 @@ B.RingsHUD = function(v, player, cam)
 				local p = v.getSpritePatch("CDBR", leveltime/4 % 4, 0, n*ANG1*spacing)
 				v.draw(x, y-9, p, flags_hudtrans)
 			end
-			--[[
-			local barpatch = v.cachePatch("HUD_CDBAR"+(leveltime/2 % 4))
-			local barlength = 80 * player.actioncooldown / prev
-			local prev = player.lastcooldown or player.actioncooldown
-			if barlength then
-				for i = 0, barlength do
-					v.draw(x + action_offsetx + cooldownbar_offsetx + i, y + action_offsety, barpatch, flags_hudtrans)
-				end
-			end
-			]]
-			local function roundToMultipleOf5(num)
-				local remainder = num % 5
-				if remainder >= 3 then
-					return num + (5 - remainder)
-				else
-					return num - remainder
-				end
-			end
 			local text = "\x86" + G_TicsToSeconds(player.actioncooldown) + "." + roundToMultipleOf5(G_TicsToCentiseconds(player.actioncooldown))
-			--v.drawString(x + action_offsetx + cooldownbar_offsetx + cooldownnum_offsetx + barlength, y + action_offsety, text, flags_hudtrans, "thin")
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
 			local text = player.actiontext or player.lastactiontext or 0
-			if text and not(player.gotflagdebuff) then
+			if text and not(player.gotflagdebuff or shaking) then
 				if player.actionstate then
 					text = "\x82" + $
 				else
@@ -231,9 +222,34 @@ B.RingsHUD = function(v, player, cam)
 	end
 
 	--Shake
-	if player.shakemobj and player.shakemobj.valid then
+	if shaking then
 		local frame = B.Wrap(leveltime/2, 0, states[S_SHAKE].var1-1)
 		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, v.getSpritePatch("SHAK", frame), flags_hudtrans)
+	end
+
+	--Mash!!
+	if player.powers[pw_carry] and player.mo and player.mo.valid
+	and player.mo.tracer and player.mo.tracer.valid and not B.MyTeam(player, player.mo.tracer) then
+		local color = v.getColormap(nil, player.mo.tracer.color)
+		local frame = (player.realbuttons & BT_JUMP) and "A" or "B"
+		v.drawScaled(172*FRACUNIT, 140*FRACUNIT, scale, v.cachePatch("MASH"..frame), flags_hudtrans, color)
+		if leveltime % 4 >= 2 then
+			v.drawScaled(172*FRACUNIT, 140*FRACUNIT, scale, v.cachePatch("MASHC"), flags_hudtrans, color)
+		end
+		--Opponent cooldown
+		local opponent = player.mo.tracer.player
+		if opponent and opponent.actioncooldown then
+			local barpatch = v.cachePatch("HUD_CDBAR"+(leveltime/2 % 4))
+			local prev = opponent.lastcooldown or opponent.actioncooldown
+			local barlength = 80 * opponent.actioncooldown / prev
+			if barlength then
+				for i = 0, barlength do
+					v.draw(172 + i, 170, barpatch, flags_hudtrans)
+				end
+			end
+			local text = "\x86" + G_TicsToSeconds(opponent.actioncooldown) + "." + roundToMultipleOf5(G_TicsToCentiseconds(opponent.actioncooldown))
+			v.drawString(172 + cooldownnum_offsetx + barlength, 170, text, flags_hudtrans, "thin")
+		end
 	end
 
 	--Ring spent effect
@@ -246,7 +262,7 @@ B.RingsHUD = function(v, player, cam)
 	--GUARD
 	local mo = player.mo
 	if not(mo and mo.valid) then return end
-	if player.tumble and not (mo and mo.valid) then return end
+	if player.tumble then return end
 	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1 and not player.deadtimer
 
 	x = $+20
@@ -257,7 +273,6 @@ B.RingsHUD = function(v, player, cam)
 		and CV.parrytoggle.value
 		and P_IsObjectOnGround(mo)
 		and not player.actionstate
-		and not guardoverride
 		and not P_PlayerInPain(player)
 		and not player.guard
 		and not player.actionstate
