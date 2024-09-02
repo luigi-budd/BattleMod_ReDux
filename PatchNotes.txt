@@ -58,6 +58,7 @@ Minor gameplay changes
 	- Added a 3 frame window (customizable via the console variable battle_coyotetime) where players can still jump from walking off a ledge/slope
 	- Added new VFX flair for invulnerability, sneakers and slipstream
 	- Players are no longer awarded a force shield in overtime for surviving with 3 lives
+	- Players are intangible while spawning
 	Jettysyn
 		- Lowered shot startup and end lag (0.5s -> 0.33s)
 		- Increased normalspeed (12 -> 25)
