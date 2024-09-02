@@ -177,7 +177,11 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	
 	if inflictor and inflictor.valid
 		if inflictor.hit_sound and target and target.valid
-			S_StartSound(target, inflictor.hit_sound)
+			if type(inflictor.hit_sound) == "function" then
+				inflictor.hit_sound(target,inflictor,source,damage,damagetype)
+			else
+				S_StartSound(target, inflictor.hit_sound)
+			end
 		end
 		
 		if inflictor.spawnfire and source.player and source.player.playerstate == PST_LIVE and (source.player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL
@@ -212,7 +216,11 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	if target.player return end
 	
 	if inflictor.hit_sound and target and target.valid
-		S_StartSound(target, inflictor.hit_sound)
+		if type(inflictor.hit_sound) == "function" then
+			inflictor.hit_sound(target,inflictor,source,damage,damagetype)
+		else
+			S_StartSound(target, inflictor.hit_sound)
+		end
 	end
 end)
 
