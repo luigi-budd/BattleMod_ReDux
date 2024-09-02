@@ -20,6 +20,7 @@ addHook("MapChange",function(map)
 		player.battletagIT = false
 		player.BTblindfade = 0
 		player.btagpointers = nil
+		player.BT_antiAFK = TICRATE * 60
 	end
 	D.Reset()
 	R.Reset()

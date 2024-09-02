@@ -75,6 +75,7 @@ B.InitPlayer = function(player)
 	player.BTblindfade = 0
 	player.ITindiBT = nil
 	player.btagpointers = nil
+	player.BT_antiAFK = TICRATE * 60
 	if player.respawnpenalty == nil then
 		player.respawnpenalty = 0
 	end

@@ -91,6 +91,22 @@ B.TagControl = function()
 	B.TagTaggers = {}
 	for player in players.iterate do
 		if B.IsValidPlayer(player)
+			//anti-afk script, let's go
+			local horispeed = FixedHypot(player.mo.momx - player.cmomx, 
+					player.mo.momy - player.cmomy)
+			local speed = FixedHypot(horispeed, player.mo.momz)
+			if player.speed > 5 * player.mo.scale
+				if player.BT_antiAFK < TICRATE * 60
+					player.BT_antiAFK = TICRATE * 60
+				end
+			elseif B.TagPreRound > 1
+				if player.BT_antiAFK <= 0
+					player.spectator = true
+					continue
+				end
+				player.BT_antiAFK = $ - 1
+			end
+			print(player.BT_antiAFK / TICRATE)
 			B.TagPlayers = $ + 1
 			if player.battletagIT
 				table.insert(B.TagTaggers, player)
@@ -164,7 +180,7 @@ B.TagControl = function()
 				IT_Spawner(player)
 			end
 			//spawn in pointers for taggers during pinch
-			//if B.Pinch
+			if B.Pinch
 				if player.btagpointers == nil
 					player.btagpointers = {}
 					for i, runners in ipairs(B.TagRunners) do
@@ -175,7 +191,7 @@ B.TagControl = function()
 						table.insert(player.btagpointers, pointer)
 					end
 				end
-			//end
+			end
 		end
 		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers and not B.Exiting
 			print("All players have been tagged!")
