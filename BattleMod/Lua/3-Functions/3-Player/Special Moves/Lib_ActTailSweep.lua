@@ -183,7 +183,8 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 	otherplayer.landlag = otherplayer.powers[pw_nocontrol]
 	local pressed = (otherplayer.realbuttons & BT_JUMP)
 	local tapped = pressed and not (otherplayer.holdingjump)
-	local held = pressed and (leveltime % (TICRATE/2) == 0)
+	local holdmashspeed = TICRATE*2/5 -- if holding down the button, mash every 0.4s
+	local held = pressed and (leveltime % holdmashspeed == 0)
 	if pressed then -- IM SO SORRY but i hate messing with inputs when pw_nocontrol is going on
 		otherplayer.holdingjump = true
 	else
