@@ -175,6 +175,9 @@ local function BattleTagPointers(mo)
 		return
 	end
 	
+	if mo.transfade == nil
+		mo.transfade = 0
+	end
 	//change the appearance based on perspective
 	local cam
 	if displayplayer == mo.tracer.player
@@ -219,15 +222,19 @@ local function BattleTagPointers(mo)
 	elseif mo.closedist <= 1000 * FRACUNIT
 		mo.scale = mo.tracer.scale
 		blink = 3
+		mo.transfade = 2
 	elseif mo.closedist <= 3000 * FRACUNIT
 		mo.scale = mo.tracer.scale - (mo.tracer.scale / 4)
 		blink = 6
+		mo.transfade = 3
 	elseif mo.closedist <= 7500 * FRACUNIT
 		mo.scale = mo.tracer.scale / 2
 		blink = 12
+		mo.transfade = 4
 	else
 		mo.scale = mo.tracer.scale / 4
 		blink = 24
+		mo.transfade = 5
 	end
 	if leveltime % blink == 0
 		if blink == 1
@@ -241,5 +248,6 @@ local function BattleTagPointers(mo)
 			end
 		end
 	end
+	mo.frame = $ & ~FF_TRANSMASK | (mo.transfade << 16)
 end
 addHook("MobjThinker", BattleTagPointers, MT_BTAG_POINTER)

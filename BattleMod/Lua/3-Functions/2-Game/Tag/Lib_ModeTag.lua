@@ -164,7 +164,7 @@ B.TagControl = function()
 				IT_Spawner(player)
 			end
 			//spawn in pointers for taggers during pinch
-			if B.Pinch
+			//if B.Pinch
 				if player.btagpointers == nil
 					player.btagpointers = {}
 					for i, runners in ipairs(B.TagRunners) do
@@ -175,7 +175,7 @@ B.TagControl = function()
 						table.insert(player.btagpointers, pointer)
 					end
 				end
-			end
+			//end
 		end
 		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers and not B.Exiting
 			print("All players have been tagged!")

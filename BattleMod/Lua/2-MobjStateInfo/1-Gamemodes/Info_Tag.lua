@@ -18,7 +18,7 @@ states[S_BATTLETAG_IT] = {
 }
 states[S_BTAG_POINTER] = {
 	sprite = SPR_TPTR,
-	frame = FF_TRANS50 | FF_FULLBRIGHT | A,
+	frame = FF_FULLBRIGHT | A,
 	tics = -1,
 	nextstate = S_BTAG_POINTER
 }
