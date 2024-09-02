@@ -77,6 +77,9 @@ Battle CTF
 	- Audio and visual cue for flag toss
 	- Returning flags grants 200 points
 	- Adjusted got flag indicator
+Zone Control, Team Zone Control
+	- Renamed from Control Point, Team Control Point
+	- Removed "Contested point" mechanic from Team Zone Control
 Diamond, Team Diamond
 	- The Diamond has been replaced by the Warp Topaz, including new sprites, sounds, and visual effects
 	- Diamond has been renamed to Warp Heist
