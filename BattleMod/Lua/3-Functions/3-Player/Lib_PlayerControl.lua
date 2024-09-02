@@ -372,7 +372,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 end
 
 B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
-	if not (player.mo and player.mo.valid) then
+	if player.nodamage or not (player.mo and player.mo.valid) then
 		return
 	end
 
