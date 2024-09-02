@@ -101,12 +101,14 @@ B.TagControl = function()
 				end
 			elseif B.TagPreRound > 1
 				if player.BT_antiAFK <= 0
+					P_KillMobj(player.mo, nil, nil, DMG_SPECTATOR)
 					player.spectator = true
 					continue
+				elseif player.BT_antiAFK == TICRATE * 30
+					S_StartSound(player.mo, sfx_s3kb2, player)
 				end
 				player.BT_antiAFK = $ - 1
 			end
-			print(player.BT_antiAFK / TICRATE)
 			B.TagPlayers = $ + 1
 			if player.battletagIT
 				table.insert(B.TagTaggers, player)
@@ -195,6 +197,9 @@ B.TagControl = function()
 		end
 		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers and not B.Exiting
 			print("All players have been tagged!")
+			B.Exiting = true
+		elseif B.TagPlayers > 1 and totaltaggers <= 0 and not B.Exiting
+			print("No taggers active! Ending round...")
 			B.Exiting = true
 		end
 	end
