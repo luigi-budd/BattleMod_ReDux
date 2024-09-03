@@ -633,7 +633,7 @@ B.StartRingsPenalty = function(player, penalty)
 		return --Gametype doesn't benefit from StartRings
 	end
 	player.ringpenalty = $ or 0
-	if player.ringpenalty >= CV.RingPenalty.value then
+	if player.ringpenalty >= CV.StartRings.value then
 		return --Player is already maxed out on penalty
 	end
 	if B.Overtime then
