@@ -29,7 +29,6 @@ B.PlayerBattleSpawnStart = function(player)
 	player.battlespawning = 48
 	S_StartSound(player.mo,sfx_s3kb8)
 	spawnanim(player)
-	player.heart = nil
 	if not player.revenge
 		A.JettySynFlags(player,false)
 		B.ResetPlayerProperties(player,false,false)

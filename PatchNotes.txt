@@ -163,12 +163,15 @@ Amy
 	- No longer curls on uncharged hammerjump
 	- When curled, swinging the hammer spawns an arc of heart projectiles
 	- Increased thrustfactor by 3 when in the air
+	Pink Shield
+		- By default, hearts will only give shields if the player does not have any shields
 	Twin spin
 		- Adjusted sweetspot priority (3/3 -> 3/1)
 	Piko Tornado
 		- Increased cooldown (1s -> 1.5s)
 		- Lower duration when not in 2D (5s -> 4s)
 		- No longer restrains Amy's controls when winding up
+		- Is capable of filling all empty shield slots with pink shields
 		- Projectile speed is depending on what Amy's speed was when launching the projectile (minimum of 6 fracunits)
 		- Spawning a second tornado causes the previous one to despawn
 	Piko Jump -> Tornado Jump
