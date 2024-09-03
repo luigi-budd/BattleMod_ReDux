@@ -156,7 +156,7 @@ local function BattleTagITtag(mo)
 		mo.eflags = tracer.eflags
 		local zheight
 		if tracer.eflags & MFE_VERTICALFLIP
-			zheight = tracer.height / 2 * -1 - tracer.height / 3
+			zheight = tracer.height / 2 * -1
 		else
 			zheight = tracer.height + tracer.height / 3
 		end

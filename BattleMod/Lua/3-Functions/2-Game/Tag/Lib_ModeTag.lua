@@ -103,6 +103,7 @@ B.TagControl = function()
 				if player.BT_antiAFK <= 0
 					P_KillMobj(player.mo, nil, nil, DMG_SPECTATOR)
 					player.spectator = true
+					print(player.name .. " is AFK!")
 					continue
 				elseif player.BT_antiAFK == TICRATE * 30
 					S_StartSound(player.mo, sfx_s3kb2, player)
