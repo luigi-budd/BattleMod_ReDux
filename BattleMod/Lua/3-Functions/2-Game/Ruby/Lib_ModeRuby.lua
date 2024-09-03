@@ -311,18 +311,17 @@ R.Thinker = function(mo)
 	end
 	
 	-- Remove object if on "remove ctf flag" sector type
-	if not(mo.target and mo.target.valid) and P_IsObjectOnGround(mo)
-	and GetSecSpecial(sector.special, SSF_RETURNFLAG) == 2
-	or mo.target and mo.target.valid and P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG)
--- 		print('fell into removal sector')
-		if mo.target and mo.target.valid
-			P_DoPlayerPain(mo.target.player)
-			B.PrintGameFeed(player," dropped the "..rubytext..".")
-		end
+	--if not(mo.target and mo.target.valid) --and P_IsObjectOnGround(mo)
+--	and GetSecSpecial(sector.special, SSF_RETURNFLAG) == 2
+	--or mo.target and mo.target.valid and P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG)
+--		print('fell into removal sector')
+--		if mo.target and mo.target.valid
+--			B.PrintGameFeed(player," dropped the "..rubytext..".")
+--		end
 		
-		P_RemoveMobj(mo)
-		return
-	end
+--		P_RemoveMobj(mo)
+--		return
+--	end
 	for player in players.iterate do
 		-- !!! I'm not sure why I resorted to an iterate function. I guess it's one way to ensure no other player thinks they have a crystal, but it's not cheap. Should be optimized later.
 		if not player.mo 
