@@ -224,6 +224,7 @@ Maintenance
 	- Amy's tornado jump no longer temporarily sets legacy controls
 	- Amy no longer triggers twin spin automatically after a hammer-jump
 	- Fang can no longer fire and guard at the same time
+	- Fang visually looks towards objects when he can shoot them
 	- The guard button will not be suggested for tumbling players
 	- Fixed visual bugs involving Tails's tails (e.g. recoil)
 	- Fixed visual bugs involving players being reset on springs (e.g. forcing walk/fall frames)
