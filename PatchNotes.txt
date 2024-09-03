@@ -254,3 +254,4 @@ Console
 		battleconfig_glidestrafe
 		battleconfig_hammerstrafe
 		battleconfig_slipstreambutton
+		battleconfig_minimalhud

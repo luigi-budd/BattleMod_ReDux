@@ -17,10 +17,9 @@ end
 
 //Waiting to join
 A.WaitJoinHUD = function(v, player, cam)
-	if not (B.HUDAlt) then return end
+	if player.battleconfig_minimalhud or not (B.HUDAlt) then return end
 	if not (gametyperules&GTR_LIVES) or (gametyperules&GTR_FRIENDLY) then return end //Competitive lives only
-	local dead = (player.spectator and not(A.SpawnLives))
-		or (player.playerstate == PST_DEAD and player.revenge)
+	local dead = (player.spectator and not(A.SpawnLives)) or (player.playerstate == PST_DEAD and player.revenge)
 	if not (dead) then return end
 	if not(CV.Revenge.value) or B.SuddenDeath then
 -- 		local t = "\x85".."You've been ELIMINATED!"

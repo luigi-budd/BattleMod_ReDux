@@ -66,8 +66,7 @@ local DeathCharSwitch = function(v,player,cam)
 			)
 		end
 		v.draw(160-16, 100-9, v.cachePatch("M_FSEL"), V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER)
-		--v.drawString(160, 192, yellow.."TOSSFLAG: "..white.."Close roulette", V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_PERPLAYER, "center")
-	elseif player.deadtimer and player.battleconfig_roulette then
+	elseif player.deadtimer and player.battleconfig_roulette and not (player.battleconfig_minimalhud) then
 		v.drawString(160, 192, yellow.."TOSSFLAG: "..white.."Change character", V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_PERPLAYER, "center")
 	end
 end
