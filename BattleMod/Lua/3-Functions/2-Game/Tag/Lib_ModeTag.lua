@@ -91,6 +91,24 @@ B.TagControl = function()
 	B.TagTaggers = {}
 	for player in players.iterate do
 		if B.IsValidPlayer(player)
+			//anti-afk script, let's go
+			local horispeed = FixedHypot(player.mo.momx - player.cmomx, 
+					player.mo.momy - player.cmomy)
+			local speed = FixedHypot(horispeed, player.mo.momz)
+			if player.speed > 5 * player.mo.scale
+				if player.BT_antiAFK < TICRATE * 60
+					player.BT_antiAFK = TICRATE * 60
+				end
+			elseif B.TagPreRound > 1
+				if player.BT_antiAFK <= 0
+					P_KillMobj(player.mo, nil, nil, DMG_SPECTATOR)
+					player.spectator = true
+					continue
+				elseif player.BT_antiAFK == TICRATE * 30
+					S_StartSound(player.mo, sfx_s3kb2, player)
+				end
+				player.BT_antiAFK = $ - 1
+			end
 			B.TagPlayers = $ + 1
 			if player.battletagIT
 				table.insert(B.TagTaggers, player)
@@ -179,6 +197,9 @@ B.TagControl = function()
 		end
 		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers and not B.Exiting
 			print("All players have been tagged!")
+			B.Exiting = true
+		elseif B.TagPlayers > 1 and totaltaggers <= 0 and not B.Exiting
+			print("No taggers active! Ending round...")
 			B.Exiting = true
 		end
 	end

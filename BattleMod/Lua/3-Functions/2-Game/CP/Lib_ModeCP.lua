@@ -286,6 +286,9 @@ CP.SeizePoint = function()
 			print("\x84 Blue Team captured the Control Point!")
 			bluescore = $+1
 		end
+		if not victor then
+			return
+		end
 		if consoleplayer and consoleplayer.ctfteam == victor then
 			S_StartSound(nil,B.ShortSound(consoleplayer, CP.WinSFX, false), consoleplayer)
 		else
@@ -393,7 +396,7 @@ CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)
 			team[t] = $+1
 		end
 	end
-	if G_GametypeHasTeams() and team[1] > 0 and team[2] > 0 then	//Contested point
+	--[[if G_GametypeHasTeams() and team[1] > 0 and team[2] > 0 then	//Contested point
 		if team[1] != team[2] then //Uneven player amounts
 			CP.Blocked = false
 			//Color flash
@@ -425,7 +428,7 @@ CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)
 		end
 		CP.LeadCapAmt = max(CP.TeamCapAmt[1],CP.TeamCapAmt[2])
 
-	elseif G_GametypeHasTeams() then	// Team capturing
+	else]]if G_GametypeHasTeams() then	// Team capturing
 		CP.Blocked = false
 		for t = 1,2
 			local amt = team[t]

@@ -12,6 +12,7 @@ local spawnanim = function(player)
 	//Intangibility
 	mo.flags = $|MF_NOCLIPTHING
 	player.powers[pw_flashing] = TICRATE*2
+	player.nodamage = player.powers[pw_flashing]
 	//Do State
 	player.panim = PA_ROLL
 	mo.state = S_PLAY_ROLL

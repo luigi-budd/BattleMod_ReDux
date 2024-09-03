@@ -54,5 +54,5 @@
 ## Resources ripped from games:
 - Chess pieces pulled from Secret of Mana, "Poltergeist" (spritesheet from The Spriters Resource)
 - Metal Sonic "claw" sprites pulled from RPG Maker 2003
-- Battle "shield" pulled from Sonic Battle
+- Battle "shield" and a hit effect pulled from Sonic Battle
 - Various sound effects pulled from Super Smash Bros. Melee and Super Smash Bros. Ultimate (from The Sounds Resource)

@@ -58,20 +58,65 @@ B.TagGenHUD = function(v, player, cam)
 			v.drawString(x, y, tostring(radar) .. "fu", flags, "center")
 		end
 	end
+	//anti-AFK warnings
+	if player.BT_antiAFK <= TICRATE * 30 and player.BT_antiAFK > 0
+		local warning = "Move or be spectator in " ..
+				tostring(player.BT_antiAFK / TICRATE) .. " seconds!"
+		v.drawString(x, v.height() / v.dupy() / 2, warning, flags | V_REDMAP, 
+				"center")
+	end
 end
 
+local BASEVIDWIDTH = 320
 B.TagRankHUD = function(v)
-	if gametype != GT_BATTLETAG
+	if gametype != GT_BATTLETAG then
 		return
 	end
-	
+
+	-- Draw "IT" (Modified from F.RankingHUD)
+	local plrs = 0
+	local x, y = 0 --40, 32
+
+	local players_sorted = {}
+	for p in players.iterate do
+		table.insert(players_sorted, p)
+	end
+
+	table.sort(players_sorted, function(a, b)
+		if a.score == b.score then
+		return #a > #b
+		else
+		return (a.score > b.score)
+		end
+	end)
+
+	for i=1, #players_sorted do
+		local p = players_sorted[i]
+		if p.spectator then continue end
+
+		local cond = (not CV_FindVar("compactscoreboard").value) and (plrs <= 9)
+		plrs = $+1
+		if cond then
+			x = 32
+			y = (plrs * 16) + 16
+		else
+			x = 14
+			y = (plrs * 9) + 20
+		end
+
+		local iconscale = cond and FRACUNIT/2 or FRACUNIT/4
+		local fx = cond and x-28 or x-10
+		local fy = cond and y-4 or y
+
+		if p.battletagIT then
+			v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, v.cachePatch("TAGICO"))
+		end
+	end
+
+	-- Blindfold
 	for player in players.iterate do
-		if player.battletagIT
-			//v.drawString(14, 5, "placeholder", V_PERPLAYER, "center")
-			if displayplayer == player and player.BTblindfade > 0 and 
-					camera2 == nil
-				v.fadeScreen(31, player.BTblindfade)
-			end
+		if player.battletagIT and displayplayer == player and player.BTblindfade > 0 and camera2 == nil
+			v.fadeScreen(31, player.BTblindfade)
 		end
 	end
 end

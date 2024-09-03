@@ -64,7 +64,6 @@ B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 		shake2.state = S_SHAKE
 		mo[n1].hitstun_tics = TICRATE/3
 		mo[n2].hitstun_tics = TICRATE/3
-		--B.DoPlayerFlinch(plr[n1], 12+mo[n1].hitstun_tics, angle, -plr[n1].speed/2,false)
 		if P_IsObjectOnGround(mo[n1]) then
 			P_InstaThrust(mo[n1], mo[n1].angle, 0)
 			mo[n1].momz = P_MobjFlip(mo[n1])
@@ -183,7 +182,8 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 	otherplayer.landlag = otherplayer.powers[pw_nocontrol]
 	local pressed = (otherplayer.realbuttons & BT_JUMP)
 	local tapped = pressed and not (otherplayer.holdingjump)
-	local held = pressed and (leveltime % (TICRATE/2) == 0)
+	local holdmashspeed = TICRATE*2/5 -- if holding down the button, mash every 0.4s
+	local held = pressed and (leveltime % holdmashspeed == 0)
 	if pressed then -- IM SO SORRY but i hate messing with inputs when pw_nocontrol is going on
 		otherplayer.holdingjump = true
 	else

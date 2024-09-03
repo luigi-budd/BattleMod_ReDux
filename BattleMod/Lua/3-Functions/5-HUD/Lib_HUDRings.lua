@@ -231,9 +231,10 @@ B.RingsHUD = function(v, player, cam)
 		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, v.getSpritePatch("SHAK", frame), flags_hudtrans)
 	end
 
-	--Mash!!
+	--Mash!! (so many checks :sob:)
 	if player.powers[pw_carry] and player.mo and player.mo.valid
-	and player.mo.tracer and player.mo.tracer.valid and not B.MyTeam(player, player.mo.tracer) then
+	and player.mo.tracer and player.mo.tracer.valid and player.mo.tracer.player
+	and not B.MyTeam(player, player.mo.tracer.player) then
 		local color = v.getColormap(nil, player.mo.tracer.color)
 		local frame = (player.realbuttons & BT_JUMP) and "A" or "B"
 		v.drawScaled(172*FRACUNIT, 140*FRACUNIT, scale, v.cachePatch("MASH"..frame), flags_hudtrans, color)

@@ -75,6 +75,7 @@ B.InitPlayer = function(player)
 	player.BTblindfade = 0
 	player.ITindiBT = nil
 	player.btagpointers = nil
+	player.BT_antiAFK = TICRATE * 60
 	if player.respawnpenalty == nil then
 		player.respawnpenalty = 0
 	end
@@ -372,7 +373,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 end
 
 B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
-	if not (player.mo and player.mo.valid) then
+	if player.nodamage or not (player.mo and player.mo.valid) then
 		return
 	end
 

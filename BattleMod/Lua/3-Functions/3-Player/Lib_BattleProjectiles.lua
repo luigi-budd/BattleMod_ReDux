@@ -159,6 +159,7 @@ B.PlayerCorkDamage = function(pmo,mo,source)
 		local hthrust = mo.block_hthrust
 		local vthrust = mo.block_vthrust
 		local blockstun = mo.block_stun
+		local thrusttype = mo.block_thrusttype or P_InstaThrust
 		local sound = sfx_s3k7b
 		if mo.block_sound
 			sound = mo.block_sound
@@ -172,12 +173,12 @@ B.PlayerCorkDamage = function(pmo,mo,source)
 			B.ResetPlayerProperties(pmo.player,false,false)
 			
 			if P_IsObjectOnGround(pmo) then
-				P_InstaThrust(pmo,mo.angle,mo.scale*hthrust)
+				thrusttype(pmo,mo.angle,mo.scale*hthrust)
 				pmo.state = S_PLAY_SKID
 			else
 				pmo.momz = $/2
 				B.ZLaunch(pmo, mo.scale*vthrust, true)
-				P_InstaThrust(pmo,mo.angle,mo.scale*hthrust / 2)
+				thrusttype(pmo,mo.angle,mo.scale*hthrust / 2)
 			end
 			
 			S_StartSound(pmo,sound)
