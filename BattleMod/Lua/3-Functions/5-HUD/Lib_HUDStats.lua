@@ -35,9 +35,10 @@ end
 
 B.StartRingsHUD = function(v, player)
     if not (player.deadtimer
+        and player.lastpenalty
         and CV.RingPenalty.value
         and B.BattleGametype()
-        and B.GetStartRings(player, true)
+        and B.GetStartRings(player, true) >= 0
     ) then
         return
     end

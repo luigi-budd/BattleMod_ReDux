@@ -28,7 +28,7 @@ Major gameplay changes
 	- Blockable projectiles can now be blocked with sweetspot defenses
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
-	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased if the death was provoked by a player).
+	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased slightly if the death was provoked by a player; doubled if in overtime)
 	- Characters will take twice as long to exhaust in non-survival gametypes
 	- Fire trails from elemental shields only damage if the player doesn't have any rings, otherwise, the player loses a ring when in contact with them
 	Guard 
@@ -48,6 +48,7 @@ Major gameplay changes
 		- Removed respawn time penalty for multiple deaths
 		- Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
 		- Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
+		- Respawn time is now always 9 seconds during overtimes
 		- Added a rejoin lockout timer when entering spectator mode
 	Tumble
 		- By default, tumbles can't last longer than 3 seconds. This is lowered to 1 second if the player was in i-frames
