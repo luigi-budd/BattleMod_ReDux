@@ -91,6 +91,13 @@ B.TagControl = function()
 	B.TagTaggers = {}
 	for player in players.iterate do
 		if B.IsValidPlayer(player)
+			//attempt to move players that have quit to spectator
+			if player.quittime != nil and player.quittime > TICRATE * 3
+				P_KillMobj(player.mo, nil, nil, DMG_SPECTATOR)
+				player.spectator = true
+				print(player.name .. " left the game!")
+				continue
+			end
 			//anti-afk script, let's go
 			local horispeed = FixedHypot(player.mo.momx - player.cmomx, 
 					player.mo.momy - player.cmomy)
