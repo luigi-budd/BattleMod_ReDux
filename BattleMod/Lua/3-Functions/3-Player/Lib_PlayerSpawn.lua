@@ -34,6 +34,9 @@ B.PlayerBattleSpawnStart = function(player)
 		A.JettySynFlags(player,false)
 		B.ResetPlayerProperties(player,false,false)
 	end
+	if not(player.powers[pw_shield]&SH_NOSTACK) then
+		B.SpawnWithShield(player)
+	end
 	return true
 end
 

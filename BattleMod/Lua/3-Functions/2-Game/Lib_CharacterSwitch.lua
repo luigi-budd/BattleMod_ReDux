@@ -33,7 +33,6 @@ addHook("PlayerThink", function(player) -- death timer test
 			S_StartSound(nil,sfx_menu1,player)
 			S_StartSound(nil,sfx_kc50,player)
 			B.GetSkinVars(player)
-			B.SpawnWithShield(player)
 			skinchanged = true
 		end
 		

@@ -229,6 +229,7 @@ Maintenance
 	- Fixed visual bugs involving Tails's tails (e.g. recoil)
 	- Fixed visual bugs involving players being reset on springs (e.g. forcing walk/fall frames)
 	- Fixed sometimes not being able to jump after no longer being a jettysyn
+	- Fixed pity shields not being given when starting a server
 	- Players cannot take damage while in a zoomtube
 	- Golden monitors no longer have gravity
 	- Players no longer visually flash during PreRound and GAME SET
