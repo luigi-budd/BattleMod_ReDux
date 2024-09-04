@@ -8,8 +8,8 @@ B.GetInteractionType = function(smo,tmo)
 		then 
 		return 0 //Invalid interaction
 	end
-	if (smo.player and smo.player.spectator)
-		or (tmo.player and tmo.player.spectator)
+	if (smo.player and (smo.player.spectator or smo.player.battlespawning))
+		or (tmo.player and (tmo.player.spectator or tmo.player.battlespawning))
 		then
 		return 0 //Still invalid
 	end

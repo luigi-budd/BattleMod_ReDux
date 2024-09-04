@@ -177,7 +177,11 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	
 	if inflictor and inflictor.valid
 		if inflictor.hit_sound and target and target.valid
-			S_StartSound(target, inflictor.hit_sound)
+			if type(inflictor.hit_sound) == "function" then
+				inflictor.hit_sound(target,inflictor,source,damage,damagetype)
+			else
+				S_StartSound(target, inflictor.hit_sound)
+			end
 		end
 		
 		if inflictor.spawnfire and source.player and source.player.playerstate == PST_LIVE and (source.player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL
@@ -212,7 +216,11 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	if target.player return end
 	
 	if inflictor.hit_sound and target and target.valid
-		S_StartSound(target, inflictor.hit_sound)
+		if type(inflictor.hit_sound) == "function" then
+			inflictor.hit_sound(target,inflictor,source,damage,damagetype)
+		else
+			S_StartSound(target, inflictor.hit_sound)
+		end
 	end
 end)
 
@@ -241,47 +249,30 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		P_AddPlayerScore(player.pushed_creditplr,50)
 		B.DebugPrint(player.pushed_creditplr.name.." received 50 points for sending "..player.name.." to their demise")
 	end
+
 	--Player ran out of lives in Survival mode
 	if player.lives == 1 and B.BattleGametype() and G_GametypeUsesLives()
 		B.PrintGameFeed(player," ran out of lives!")
 		A.GameOvers = $+1
 	end
-	--Death time penalty
-	local numplayers = 0
-	for p in players.iterate
-		if (not p.spectator)
-			numplayers = $ + 1
-		end
-	end
-	if B.BattleGametype() 
-		if not(G_GametypeUsesLives())
-			if not(B.ArenaGametype())
-				player.deadtimer = (2 - max(3, min(CV.RespawnTime.value, numplayers / 2))) * TICRATE
-			end
-		elseif player.lives == 1 and CV.Revenge.value
-			player.deadtimer = (2 - 5)*TICRATE
-		end
-	end
+
+	--Death time and StartRings penalties
+	B.DeathtimePenalty(player)
+	B.StartRingsPenalty(player, killer and 10 or 5)
+
+	--Award rings and lifeshards for kills
 	if not (target.player and target.player.revenge)
 		A.KillReward(killer, target)
 	end
 	
-	player.spectatortime = player.deadtimer -TICRATE*3
-
 	if (target.player and not target.player.squashstretch)
 		target.spritexscale = FRACUNIT
 		target.spriteyscale = FRACUNIT
 	end
-	//have runners who died after second pre-round switch teams
+	--Have runners who died after second pre-round switch teams
 	if B.TagGametype() and B.TagPreRound > 1 and target.player != nil
 		B.TagTeamSwitch(target, inflictor, source)
 		B.TagConverter(target.player)
-	end
-	--ring penalty :3
-	if CV.RingPenalty.value and B.BattleGametype() then
-		local penalty = killer and 10 or 5
-		player.lastpenalty = penalty
-		player.ringpenalty = $ and $+penalty or penalty
 	end
 end, MT_PLAYER)
 

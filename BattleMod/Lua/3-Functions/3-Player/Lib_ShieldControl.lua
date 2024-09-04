@@ -162,13 +162,13 @@ B.SpawnWithShield = function(player)
 	end
 end
 
-B.AddPinkShield = function(player,sourceplayer)
+B.AddPinkShield = function(player,sourceplayer,tornado)
 	if (player.charability2 == CA2_MELEE) then return end //Non-Amy players only
 	if not(player.powers[pw_shield])
 		P_AddPlayerScore(sourceplayer,25)
 		P_SwitchShield(player,4)
 		S_StartSound(player.mo,sfx_shield)
-	elseif(CV.ShieldStock.value and gametyperules&GTR_PITYSHIELD and #player.shieldstock < player.shieldmax) then
+	elseif(tornado and CV.ShieldStock.value and gametyperules&GTR_PITYSHIELD and #player.shieldstock < player.shieldmax) then
 		S_StartSound(player.mo,sfx_monton)
 		player.shieldstock[#player.shieldstock+1] = SH_PINK
 		P_AddPlayerScore(sourceplayer,25)

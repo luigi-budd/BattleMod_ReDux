@@ -126,20 +126,22 @@ B.RingsHUD = function(v, player, cam)
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
 			local text = player.actiontext or player.lastactiontext or 0
+			if player.battleconfig_minimalhud then
+				text = player.actionstate and "--" or ""
+			end
 			if shaking and player.jumpstasistimer and player.strugglerings then
 				text = "          "..player.strugglerings.." COST"
-				text = (leveltime%2==0) and "\131"+$ or "\139"+$
+				text = (leveltime%2==0) and "\131"+text or "\139"+text
 			end
 			if text and not(player.gotflagdebuff) then
 				if player.actionstate then
-					text = "\x82" + $
+					text = "\x82" + text
 				else
 					if not B.CanDoAction(player) then
-						if B.TagGametype() and not (player.pflags & PF_TAGIT or
-								player.battletagIT)
-							text = "\x86Guard" .. "\x80" .. " 10"
+						if B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
+							text = player.battleconfig_minimalhud and ("\x86Guard" .. "\x80" .. " 10") or "\x80" .. "10"
 						else
-							text = "\x86" + $
+							text = "\x86" + text
 						end
 					end
 					if player.actionrings and not(player.actioncooldown) then
@@ -154,24 +156,28 @@ B.RingsHUD = function(v, player, cam)
 						end
 					end
 				end
-				v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
-				action_offsety = $ + action_offsety_line
-			end
-			if (player.action2text) then
-				local text = player.action2text
-				local textflags = player.action2textflags
-				if textflags == TF_GRAY then
-					text = "\x86"+$
-				elseif textflags == TF_YELLOW then
-					text = "\x82"+$
-				elseif textflags == TF_RED then
-					text = "\x85"+$
+				if player.battleconfig_minimalhud then
+					v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 				else
-					text = "\x80"+$
+					v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
 				end
-				v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
 				action_offsety = $ + action_offsety_line
 			end
+		end
+		if (player.action2text and not player.battleconfig_minimalhud) then
+			local text = player.action2text
+			local textflags = player.action2textflags
+			if textflags == TF_GRAY then
+				text = "\x86"+$
+			elseif textflags == TF_YELLOW then
+				text = "\x82"+$
+			elseif textflags == TF_RED then
+				text = "\x85"+$
+			else
+				text = "\x80"+$
+			end
+			v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
+			action_offsety = $ + action_offsety_line
 		end
 		if (player.gotflagdebuff) then
 			local color = SKINCOLOR_WHITE
@@ -311,7 +317,7 @@ B.RingsHUD = function(v, player, cam)
 		guardtext = $ + "\x85" + " 10"
 	end*/
 	patch = v.cachePatch("PARRYBT")
-	if canguard or guardoverride then
+	if (canguard or guardoverride) and not (player.battleconfig_minimalhud) then
 		v.draw(x-10,y-1,patch,flags)
 		v.drawString(x,y,guardtext,flags,"thin")
 	end
@@ -339,7 +345,7 @@ B.RingsHUD = function(v, player, cam)
 				end
 				v.drawString(x-1,y-19,color+"!",flags,"thin")
 			end
-		else
+		elseif not (player.battleconfig_minimalhud) then
 			patch = v.cachePatch("DODGEBT")
 			v.draw(x-5,y-18,patch,flags)
 		end

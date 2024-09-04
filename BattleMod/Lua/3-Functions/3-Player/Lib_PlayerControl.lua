@@ -520,7 +520,6 @@ B.PlayerSetupPhase = function(player)
 		S_StartSound(nil,sfx_menu1,player)
 		S_StartSound(nil,sfx_kc50,player)
 		B.GetSkinVars(player)
-		B.SpawnWithShield(player)
 		skinchanged = true
 	end
 	
@@ -607,4 +606,39 @@ B.PlayerSetupPhase = function(player)
 	
 	--Update history
 	player.buttonhistory = player.cmd.buttons
+end
+
+B.DeathtimePenalty = function(player)
+	local numplayers = 0
+	for p in players.iterate
+		if (not p.spectator)
+			numplayers = $ + 1
+		end
+	end
+	if B.BattleGametype() 
+		if not(G_GametypeUsesLives())
+			if not(B.ArenaGametype())
+				local defaultrespawntime = 2 - max(3, min(CV.RespawnTime.value, numplayers / 2))
+				player.deadtimer = (B.Overtime and -6 or defaultrespawntime) * TICRATE
+			end
+		elseif player.lives == 1 and CV.Revenge.value
+			player.deadtimer = (2 - 5)*TICRATE
+		end
+	end
+	player.spectatortime = player.deadtimer -TICRATE*3
+end
+
+B.StartRingsPenalty = function(player, penalty)
+	if not(CV.RingPenalty.value and B.BattleGametype()) then
+		return --Gametype doesn't benefit from StartRings
+	end
+	player.ringpenalty = $ or 0
+	if player.ringpenalty >= CV.StartRings.value then
+		return --Player is already maxed out on penalty
+	end
+	if B.Overtime then
+		penalty = $*2
+	end
+	player.ringpenalty = min(CV.StartRings.value, $+penalty)
+	player.lastpenalty = penalty
 end

@@ -150,7 +150,7 @@ local function drawFlagfromP(v)
 
 
 		local redflag = F.RedFlag
-				local blueflag = F.BlueFlag
+		local blueflag = F.BlueFlag
 		-- Display a countdown timer showing how much time left until the flag returns to base. 
 		local scr_flags = V_YELLOWMAP|V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
 		if blueflag and blueflag.valid and blueflag.fuse > 1 then
@@ -270,7 +270,7 @@ F.RankingHUD = function(v)
 		if p.spectator then continue end
 		--if p.ctfteam == 0 then continue end
 
-		local cond = (redplayers <= 9 or blueplayers <= 9)
+		local cond = (not CV_FindVar("compactscoreboard").value) and (redplayers <= 9 or blueplayers <= 9)
 		if p.ctfteam == 1 then
 			redplayers = $+1
 			--if (redplayers > 8) then continue end

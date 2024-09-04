@@ -64,7 +64,6 @@ B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 		shake2.state = S_SHAKE
 		mo[n1].hitstun_tics = TICRATE/3
 		mo[n2].hitstun_tics = TICRATE/3
-		--B.DoPlayerFlinch(plr[n1], 12+mo[n1].hitstun_tics, angle, -plr[n1].speed/2,false)
 		if P_IsObjectOnGround(mo[n1]) then
 			P_InstaThrust(mo[n1], mo[n1].angle, 0)
 			mo[n1].momz = P_MobjFlip(mo[n1])

@@ -12,6 +12,7 @@ local base_battleconfigs = {
 	{"battleconfig_roulette", true},
 	{"battleconfig_nospinshield", false},
 	{"battleconfig_newhud", true},
+	{"battleconfig_minimalhud", false},
 	{"battleconfig_minimap", true},
 	{"battleconfig_glidestrafe", true},
 	{"battleconfig_hammerstrafe", false},

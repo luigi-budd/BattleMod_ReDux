@@ -110,8 +110,16 @@ addHook("MobjMoveCollide",function(mover,collide)
 	B.SwipeTouch(mover,collide)
 end,MT_SONICBOOM)
 
+local slasheffect = function(target)
+	local slash = P_SpawnMobjFromMobj(target, 0, 0, (target.height/2)*P_MobjFlip(target), MT_THOK)
+	slash.state = S_SLASH
+	slash.dispoffset = 2
+	slash.scale = $*3/2
+	S_StartSound(target, sfx_hit02)
+end
+
 addHook("MobjSpawn",function(mo)
-	mo.hit_sound = sfx_hit02
+	mo.hit_sound = slasheffect
 end,MT_SONICBOOM)
 
 
