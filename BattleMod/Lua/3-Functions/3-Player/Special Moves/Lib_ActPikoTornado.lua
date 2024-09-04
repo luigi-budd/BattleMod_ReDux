@@ -417,7 +417,7 @@ B.DustDevilTouch = function(dustdevil,collide)
 		end
 	end
 	if(friendly)
-		B.AddPinkShield(collide.player,dustdevil.target.player)
+		B.AddPinkShield(collide.player,dustdevil.target.player, true)
 	end
 	return true
 end

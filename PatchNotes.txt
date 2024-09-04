@@ -28,7 +28,7 @@ Major gameplay changes
 	- Blockable projectiles can now be blocked with sweetspot defenses
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
-	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased if the death was provoked by a player).
+	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased slightly if the death was provoked by a player; doubled if in overtime)
 	- Characters will take twice as long to exhaust in non-survival gametypes
 	- Fire trails from elemental shields only damage if the player doesn't have any rings, otherwise, the player loses a ring when in contact with them
 	Guard 
@@ -48,6 +48,7 @@ Major gameplay changes
 		- Removed respawn time penalty for multiple deaths
 		- Respawn timer now increases based on playercount, ranging from 3 to 8 seconds by default
 		- Respawn time is now always 5 seconds when spawning as a jetty-syn in survival
+		- Respawn time is now always 9 seconds during overtimes
 		- Added a rejoin lockout timer when entering spectator mode
 	Tumble
 		- By default, tumbles can't last longer than 3 seconds. This is lowered to 1 second if the player was in i-frames
@@ -163,12 +164,15 @@ Amy
 	- No longer curls on uncharged hammerjump
 	- When curled, swinging the hammer spawns an arc of heart projectiles
 	- Increased thrustfactor by 3 when in the air
+	Pink Shield
+		- By default, hearts will only give shields if the player does not have any shields
 	Twin spin
 		- Adjusted sweetspot priority (3/3 -> 3/1)
 	Piko Tornado
 		- Increased cooldown (1s -> 1.5s)
 		- Lower duration when not in 2D (5s -> 4s)
 		- No longer restrains Amy's controls when winding up
+		- Is capable of filling all empty shield slots with pink shields
 		- Projectile speed is depending on what Amy's speed was when launching the projectile (minimum of 6 fracunits)
 		- Spawning a second tornado causes the previous one to despawn
 	Piko Jump -> Tornado Jump
@@ -224,10 +228,12 @@ Maintenance
 	- Amy's tornado jump no longer temporarily sets legacy controls
 	- Amy no longer triggers twin spin automatically after a hammer-jump
 	- Fang can no longer fire and guard at the same time
+	- Fang visually looks towards objects when he can shoot them
 	- The guard button will not be suggested for tumbling players
 	- Fixed visual bugs involving Tails's tails (e.g. recoil)
 	- Fixed visual bugs involving players being reset on springs (e.g. forcing walk/fall frames)
 	- Fixed sometimes not being able to jump after no longer being a jettysyn
+	- Fixed pity shields not being given when starting a server
 	- Players cannot take damage while in a zoomtube
 	- Golden monitors no longer have gravity
 	- Players no longer visually flash during PreRound and GAME SET
@@ -249,3 +255,4 @@ Console
 		battleconfig_glidestrafe
 		battleconfig_hammerstrafe
 		battleconfig_slipstreambutton
+		battleconfig_minimalhud

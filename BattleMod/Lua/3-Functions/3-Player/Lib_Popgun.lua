@@ -102,9 +102,11 @@ local function newGunslinger(player)
 	and (player.pflags&PF_JUMPED or onground)
 		-- Same code as vanilla, but without the clause for speed.
 		-- You naturally lose your speed via friction.
+		-- v10 EDIT: Now Fang automatically looks towards lockons
 
 		local lockon = newGunLook(player)
 		if (lockon and lockon.valid)
+			player.drawangle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
 			P_SpawnLockOn(player, lockon, mobjinfo[MT_LOCKON].spawnstate)
 		end
 		//Trigger firing action
