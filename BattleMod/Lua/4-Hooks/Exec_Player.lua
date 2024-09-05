@@ -174,6 +174,8 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	--Establish enemy player as the last pusher (for hazard kills)
 	B.PlayerCreditPusher(target.player,inflictor)
 	B.PlayerCreditPusher(target.player,source)
+
+	local damager = nil
 	
 	if inflictor and inflictor.valid
 		if inflictor.hit_sound and target and target.valid
@@ -198,11 +200,25 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 				end
 			end
 		end
+		if inflictor.player then
+			damager = inflictor.player
+		end
+	elseif source and source.player
+		damager = source.player
 	end
 	
 	local player = target.player
-	if player and player.valid and (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON--no more arma revenge boom
-		player.powers[pw_shield] = SH_PITY
+	if player and player.valid then
+		if (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON then --no more arma revenge boom
+			player.powers[pw_shield] = SH_PITY
+		end
+		if player.wanted and damager and not G_GametypeUsesLives() then --extra score for damaging wanted players
+			P_AddPlayerScore(damager, 50)
+			local sparkle = P_SpawnMobjFromMobj(target,0,0,0,MT_SPARK)
+			sparkle.scale = $*2
+			sparkle.colorized = true
+			sparkle.color = SKINCOLOR_BONE
+		end
 	end
 	
 	//have runners damaged by taggers switch teams

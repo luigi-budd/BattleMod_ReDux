@@ -66,7 +66,8 @@ Minor gameplay changes
 Character roulette
 	- Can now be toggled with TOSSFLAG, or hidden by default with the command battleconfig_roulette
 Survival, Team Survival, Arena, Team Arena
-	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable survival_bounty)
+	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable battle_bounty)
+		- Additionally, in arena, hitting wanted players will award extra score
 	- The highest rank player can always be located with the radar or compass
 Battle CTF
 	- Flag debuff now also applies a fixed jumpfactor of 100%
