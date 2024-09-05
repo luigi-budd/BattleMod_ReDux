@@ -192,7 +192,7 @@ B.RingsHUD = function(v, player, cam)
 				local flagcolors = {SKINCOLOR_BLUE, SKINCOLOR_RED}
 				color = flagcolors[player.ctfteam]
 			end
-			v.draw(x + action_offsetx, y - 1 + action_offsety, patch, flags, color and v.getColormap(TC_RAINBOW, color) or nil)
+			v.draw(x + action_offsetx, y - 1 + action_offsety, patch, flags, color and v.getColormap(TC_DEFAULT, color) or nil)
 		end
 	end
 	
