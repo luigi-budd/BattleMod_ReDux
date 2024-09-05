@@ -164,6 +164,7 @@ B.TagControl = function()
 		if B.TagPreTimer > 0
 			B.TagPreTimer = $ - 1
 		else
+			S_StartSound(nil, sfx_tgrlsd)
 			B.TagPreRound = 2
 		end
 	else
