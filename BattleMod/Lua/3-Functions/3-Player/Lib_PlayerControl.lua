@@ -488,16 +488,30 @@ B.Tumble = function(player)
 	player.pflags = $ | PF_FULLSTASIS
 end
 
-B.TestScript = function(player)
-	--B.ZLaunch(player.mo, 8*FRACUNIT)
-	--B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
-	local shieldgiver = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_THOK)
-	shieldgiver.target = player.mo
-	A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
-	A_GiveShield(shieldgiver, SH_FLAMEAURA)
-	A_GiveShield(shieldgiver, SH_THUNDERCOIN)
-	player.loss = true
-	player.mo.state = S_PLAY_LOSS
+B.TestScript = function(player, ...)
+	if not (... and tonumber(...)) then
+		B.ZLaunch(player.mo, 8*FRACUNIT)
+		B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
+		return "Tumble"
+	else
+		local switchcase = tonumber(...)
+		if switchcase == 1 then
+			local shieldgiver = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_THOK)
+			shieldgiver.target = player.mo
+			A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
+			A_GiveShield(shieldgiver, SH_FLAMEAURA)
+			A_GiveShield(shieldgiver, SH_THUNDERCOIN)
+			return "Triple shields"
+		elseif switchcase == 2 then
+			player.loss = true
+			player.mo.state = S_PLAY_LOSS
+			return "Loss"
+		elseif switchcase == 3 then
+			player.lifeshards = 2
+			return "Lifeshards"
+		end
+	end
+	-- wheres my switch case :sob: ~lu
 end
 
 B.PlayerCreditPusher = function(player,source)
