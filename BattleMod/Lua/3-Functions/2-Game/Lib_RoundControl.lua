@@ -27,8 +27,11 @@ B.GetPinch = function()
 	local pointlimit 	= CV_FindVar("pointlimit").value
 	local pre_pinch 	= (t.value*60-pinchtime)
 	local timeleft 		= pre_pinch-leveltime/TICRATE
+	if t.value and gametyperules&GTR_FIXGAMESET then
+		timeleft = $-(60*TICRATE)
+	end
 	local pinch 		= timeleft < 0
-	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0)
+	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and timeleft <= 0)
 	local suddendeath 	= (B.Gametypes.SuddenDeath[gametype] and overtime and CV.SuddenDeath.value == 1)
 	local matchpoint    = G_GametypeHasTeams() and ((redscore+1 == pointlimit) or (bluescore+1 == pointlimit)) and not(pinch) and not(overtime)
 

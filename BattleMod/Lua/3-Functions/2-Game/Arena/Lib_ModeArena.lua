@@ -138,9 +138,9 @@ A.ForceRespawn = function(player)
 	end
 end
 
-A.GetRanks = function()
+A.GetRanks = function(force)
 	if G_GametypeHasTeams() then
-		return A.TeamGetRanks()
+		return A.TeamGetRanks(force)
 	end
 	local p = A.Fighters
 	A.Placements = {}
@@ -164,7 +164,7 @@ A.GetRanks = function()
 				break
 			end
 		end
-		if player.rank == 1 and A.Bounty
+		if player.rank == 1 and (A.Bounty or force)
 			player.wanted = true
 		else
 			player.wanted = false
@@ -172,7 +172,7 @@ A.GetRanks = function()
 	end
 end
 
-A.TeamGetRanks = function()
+A.TeamGetRanks = function(force)
 	local b = A.BlueFighters
 	local r = A.RedFighters
 	//Rank players
@@ -188,7 +188,7 @@ A.TeamGetRanks = function()
 				bplayer.brank = $+1
 			end
 		end
-		if bplayer.brank == 1
+		if bplayer.brank == 1 and (A.Bounty or force)
 			--bplayer.bwanted = true
 			bplayer.wanted = true
 		else
@@ -208,7 +208,7 @@ A.TeamGetRanks = function()
 				rplayer.rrank = $+1
 			end
 		end
-		if rplayer.rrank == 1
+		if rplayer.rrank == 1 and (A.Bounty or force)
 			--rplayer.rwanted = true
 			rplayer.wanted = true
 		else
@@ -219,7 +219,7 @@ A.TeamGetRanks = function()
 end
 
 
-local function forcewin()
+A.ForceWin = function()
 	local doexit = false
 	local extended = (not splitscreen) and not(G_GametypeHasTeams() and redscore == bluescore)
 	local player_scores = {}
@@ -242,7 +242,7 @@ local function forcewin()
 	end)
 	if doexit == true and not(B.Exiting) then
 		B.DebugPrint("Game set conditions triggered.")
-		A.GetRanks()
+		A.GetRanks(true)
 		S_StartSound(nil,sfx_lvpass)
 		S_StartSound(nil,sfx_nxbump)
 		B.Exiting = true
@@ -300,7 +300,6 @@ local function forcewin()
 		end
 	end
 end
---COM_AddCommand("forcewin", forcewin, COM_ADMIN)
 
 local function stretchx(player)
 	if not (player.mo and player.mo.valid) then return end
@@ -504,6 +503,9 @@ A.UpdateGame = function()
 	local timelimit = 60*TICRATE*CV_FindVar("timelimit").value
 	local timeleft = timelimit-leveltime
 	local pointlimit = CV_FindVar("pointlimit").value
+	if timelimit and gametyperules&GTR_FIXGAMESET then
+		timeleft = $-(60*TICRATE)
+	end
 	//Find out the highest score and how many people/teams are holding it
 	local count = 0
 	local highscore = 0
@@ -534,7 +536,7 @@ A.UpdateGame = function()
 		or (count == 1 and timelimit and timeleft <= 0) --//Time condition met with one person/team in the lead
 		)
 	then
-		forcewin()
+		A.ForceWin()
 	return end --Exit function
 	
 	
@@ -581,7 +583,7 @@ A.UpdateGame = function()
 		if not(G_GametypeHasTeams())
 			//Game must have exactly one player with the highest score in order to force end the game
 			if count == 1 and not(survival)
-				forcewin()
+				A.ForceWin()
 			else //Sudden death?
 				if survival
 					A.SpawnLives = 0
@@ -618,7 +620,7 @@ A.UpdateGame = function()
 		//Get team victor conditions
 		if G_GametypeHasTeams()
 			if bluescore != redscore and not(survival) then
-				forcewin()
+				A.ForceWin()
 			else
 				if survival
 					for player in players.iterate
@@ -642,14 +644,14 @@ A.UpdateGame = function()
 	if survival and not(G_GametypeHasTeams()) and not(B.PreRoundWait())then
 		if #A.Fighters < 2 then return end //Not enough players to determine winner/loser
 		if survival and #A.Survivors < 2 then //Only one survivor left (or none)
-			forcewin()
+			A.ForceWin()
 		return end
 	end
 	//Last team standing
 	if survival and G_GametypeHasTeams() and not(B.PreRoundWait())then
 		if not(#A.BlueFighters and #A.RedFighters) then return end //Not enough players on each team
 		if not(#A.RedSurvivors and #A.BlueSurvivors) then //Only one team standing (or none)
-			forcewin()
+			A.ForceWin()
 		return end
 	end
 	//Bounty system
