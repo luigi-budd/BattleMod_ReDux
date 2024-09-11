@@ -203,7 +203,7 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 		if inflictor.player then
 			damager = inflictor.player
 		end
-	elseif source and source.player
+	elseif source and source.player then
 		damager = source.player
 	end
 	
@@ -212,7 +212,7 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 		if (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON then --no more arma revenge boom
 			player.powers[pw_shield] = SH_PITY
 		end
-		if player.wanted and damager and not G_GametypeUsesLives() then --extra score for damaging wanted players
+		if player.wanted and damager and not (G_GametypeUsesLives() or B.CPGametype()) then --extra score for damaging wanted players
 			P_AddPlayerScore(damager, 50)
 			local sparkle = P_SpawnMobjFromMobj(target,0,0,0,MT_SPARK)
 			sparkle.scale = $*2

@@ -139,6 +139,9 @@ A.ForceRespawn = function(player)
 end
 
 A.GetRanks = function()
+	if G_GametypeHasTeams() then
+		return A.TeamGetRanks()
+	end
 	local p = A.Fighters
 	A.Placements = {}
 	//Rank players
@@ -169,7 +172,6 @@ A.GetRanks = function()
 	end
 end
 
---[[
 A.TeamGetRanks = function()
 	local b = A.BlueFighters
 	local r = A.RedFighters
@@ -187,9 +189,11 @@ A.TeamGetRanks = function()
 			end
 		end
 		if bplayer.brank == 1
-			bplayer.bwanted = true
+			--bplayer.bwanted = true
+			bplayer.wanted = true
 		else
-			bplayer.bwanted = false
+			--bplayer.bwanted = false
+			bplayer.wanted = false
 		end
 	end
 	for n = 1, #r
@@ -205,13 +209,14 @@ A.TeamGetRanks = function()
 			end
 		end
 		if rplayer.rrank == 1
-			rplayer.rwanted = true
+			--rplayer.rwanted = true
+			rplayer.wanted = true
 		else
-			rplayer.rwanted = false
+			--rplayer.rwanted = false
+			rplayer.wanted = false
 		end
 	end
 end
-]]
 
 
 local function forcewin()
@@ -648,7 +653,7 @@ A.UpdateGame = function()
 		return end
 	end
 	//Bounty system
-	if B.ArenaGametype() then
+	if B.ArenaGametype() or B.CPGametype() then
 		if (A.Bounty and not(A.Bounty.valid)) then
 			A.Bounty = nil
 		end
@@ -711,7 +716,7 @@ A.KillReward = function(killer, target)
 	S_StartSound(nil, sfx_s249, killer)
 	
 	if killer.mo and killer.mo.valid and killer.playerstate == PST_LIVE and not killer.revenge then
-		local killedbounty = target.player.wanted
+		local killedbounty = target.player.wanted and not B.CPGametype()
 		local scorebonus = killedbounty and 150 or 100 --arena only
 		local lifeshardbonus = killedbounty and 3 or 1 --survival only
 		local ringbonus = killedbounty and 50 or 20 --all gametypes

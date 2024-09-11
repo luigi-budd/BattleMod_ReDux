@@ -180,6 +180,7 @@ B.RadarHUD = function(v, player, cam)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
 			patch = v.cachePatch("RAD_CROWN")
+			if B.CPGametype() then color = SKINCOLOR_SILVER end
 			scale = FRACUNIT / 6
 			center = true
 		end
