@@ -53,7 +53,9 @@ Major gameplay changes
 		- Added a rejoin lockout timer when entering spectator mode
 	Tumble
 		- By default, tumbles can't last longer than 3 seconds. This is lowered to 1 second if the player was in i-frames
-		- Massively reduced stunbreak buffer time (66% of the tumble's duration -> 0.2s)
+		- Massively reduced minimum amount of tumble time required for a stunbreak (66% of the tumble's duration -> 0.2s)
+	Invulnerability (power-up)
+		- Is no longer affected by B.DoPlayerTumble (it is still affected by parry, as it removes invulnerabilities)
 Minor gameplay changes
 	- Lower default battle_collisiontimer (12 -> 5)
 	- Collisions will no longer occur between players during PreRound
