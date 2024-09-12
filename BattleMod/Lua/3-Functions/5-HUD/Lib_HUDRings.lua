@@ -88,7 +88,7 @@ B.RingsHUD = function(v, player, cam)
 	end
 
 	if B.StunBreakAllowed(player) then
-		local text = "Stun Break"
+		local text = player.battleconfig_minimalhud and "" or "Stun Break"
 		local cost = player.stunbreakcosttext
 		if cost != nil and player.rings >= cost then
 			if leveltime % 3 == 0 then
