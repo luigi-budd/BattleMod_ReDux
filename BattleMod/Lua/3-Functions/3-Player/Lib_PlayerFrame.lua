@@ -107,24 +107,28 @@ B.PlayerThinkFrame = function(player)
 		player.squashstretch = nil
 	end
 
-	-- Other
-	if (pmo and P_IsObjectOnGround(pmo)) then
-		player.noshieldactive = 0
-	elseif (player.noshieldactive and player.noshieldactive>0) then
-		player.noshieldactive = $-1
-	end
-	if (pmo and pmo.cantouchteam and pmo.cantouchteam>0) then
-		pmo.cantouchteam = $-1
-	end
+	-- Other timers
 	if (player.nodamage and player.nodamage>0) then
 		player.nodamage = $-1
 	end
-	if (pmo and P_IsObjectOnGround(pmo)) then
-		player.canstunbreak = (player.canstunbreak and player.canstunbreak<-1) and $ or 0
-	elseif (player.canstunbreak and player.canstunbreak>0) then
-		player.canstunbreak = $-1
+	if pmo.cantouchteam and pmo.cantouchteam>0 then
+		pmo.cantouchteam = $-1
 	end
-	
+	if pmo.temproll and pmo.temproll>0 then
+		pmo.temproll = $-1
+		if not(pmo.temproll) then
+			pmo.state = S_PLAY_SPRING
+		end
+	end
+
+	-- Aerial timers
+	if P_IsObjectOnGround(pmo) then
+		player.noshieldactive = 0
+		player.canstunbreak = (player.canstunbreak and player.canstunbreak<-1) and $ or 0
+	else
+		player.canstunbreak = ($ and $>0) and $-1 or 0
+		player.noshieldactive = ($ and $>0) and $-1 or 0
+	end
 
 	--Shield Stock usage
 	B.ShieldStock(player)

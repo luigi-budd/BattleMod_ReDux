@@ -117,7 +117,7 @@ B.Guard = function(player,buttonpressed)
 			mo.guardflash = player.guardtics&2
 			if mo.guardflash then
 				mo.colorized = true
-				mo.color = SKINCOLOR_WHITE
+				mo.color = SKINCOLOR_PITCHWHITE
 			end
 		end
 	end
@@ -137,7 +137,8 @@ B.Guard = function(player,buttonpressed)
 		player.powers[pw_nocontrol] = 0
 		mo.sprite2 = SPR2_TRNS
 		mo.frame = min(6,$+1)
-		player.powers[pw_flashing] = TICRATE*3/4
+--		player.powers[pw_flashing] = TICRATE*3/4
+		player.nodamage = TICRATE*3/4
 		mo.flags2 = $&~MF2_DONTDRAW
 		player.lockmove = true
 -- 		if player.cmd.forwardmove or player.cmd.sidemove then
@@ -226,6 +227,7 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 					target.player.battletagIT)
 				P_AddPlayerScore(target.player, 50)
 			end
+			//TODO: searchblockmap that deflects all projectiles owned by the inflictor
 		else
 			P_DamageMobj(inflictor,target,target)
 		end
@@ -247,6 +249,7 @@ B.BattleShieldThinker = function(mobj)
 	P_MoveOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z+(mobj.target.height/2))
 	
 	mobj.colorized = true
+	mobj.blendmode = AST_ADD
 	mobj.color = SKINCOLOR_WHITE
 	
 	//After-effects
@@ -270,4 +273,5 @@ B.NegaShieldThinker = function(mobj)
 	mobj.colorized = true
 	mobj.color = SKINCOLOR_BLACK
 	mobj.flags2 = $^^MF2_DONTDRAW
+	mobj.blendmode = AST_MODULATE
 end

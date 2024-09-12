@@ -244,7 +244,7 @@ B.RingsHUD = function(v, player, cam)
 		local color = v.getColormap(nil, player.mo.tracer.color)
 		local frame = (player.realbuttons & BT_JUMP) and "A" or "B"
 		v.drawScaled(172*FRACUNIT, 140*FRACUNIT, scale, v.cachePatch("MASH"..frame), flags_hudtrans, color)
-		if leveltime % 4 >= 2 then
+		if (not shaking) and leveltime % 4 >= 2 then
 			v.drawScaled(172*FRACUNIT, 140*FRACUNIT, scale, v.cachePatch("MASHC"), flags_hudtrans, color)
 		end
 		--Opponent cooldown
