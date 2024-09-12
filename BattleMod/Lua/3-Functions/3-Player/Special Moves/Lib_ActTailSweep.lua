@@ -579,6 +579,8 @@ B.Action.TailSwipe = function(mo,doaction)
 				else
 					otherplayer.customstunbreakcost = min($+15,35)
 				end
+			else
+				B.ResetPlayerProperties(otherplayer, true, false)
 			end
 			otherplayer.powers[pw_nocontrol] = 0
 			otherplayer.landlag = 0
@@ -767,6 +769,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				S_StartSound(mo,sfx_s251)
 				player.buttonhistory = $ | player.battleconfig_guard
 				B.ResetPlayerProperties(player,false,false)
+				B.ApplyCooldown(player,cooldown_cancel)
 				P_SpawnGhostMobj(mo)
 			elseif not(throwed) then
 				B.ApplyCooldown(player,cooldown_dash)

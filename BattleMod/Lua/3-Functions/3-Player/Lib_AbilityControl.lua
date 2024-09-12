@@ -359,7 +359,10 @@ B.tailsthrow = function(player)
 	B.StunBreak(player, doguard) --this shouldn't have been necessary
 
 	local mo = player.mo
-	if (not mo) or (P_IsObjectOnGround(mo)) then
+	if player.panim != PA_ROLL
+	or (not mo)
+	or P_IsObjectOnGround(mo)
+	then
 		player.tailsthrown = 0
 		return
 	end
