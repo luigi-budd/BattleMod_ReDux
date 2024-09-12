@@ -60,8 +60,9 @@ B.Guard = function(player,buttonpressed)
 		if buttonpressed == 1 and CV.parrytoggle.value then
 			player.pflags = $ &~ PF_JUMPED
 			player.skidtime = 0
-			if player.powers[pw_flashing] then
+			if player.powers[pw_flashing] or player.nodamage then
 				player.powers[pw_flashing] = 0
+				player.nodamage = 0
 				player.guardbuffer = 2
 			end
 			player.dashmode = 0 --You can't bump people with dashmode parry
@@ -184,11 +185,22 @@ B.GuardTrigger = function(target, inflictor, source, damage, damagetype)
 	return true end
 end
 
+B.StartSoundFromNewSource = function(origin, sound, duration, volume, player)
+	local audiosource = P_SpawnMobjFromMobj(origin, 0, 0, 0, MT_THOK)
+	audiosource.tics = duration or TICRATE
+	audiosource.flags2 = $ | MF2_DONTDRAW
+	if volume then
+		S_StartSoundAtVolume(audiosource, sound, volume, player)
+	else
+		S_StartSound(audiosource, sound, player)
+	end
+end
+
 //Standard parry trigger action
 G.Parry = function(target, inflictor, source, damage, damagetype)
 	if target.player.guard == 1 and inflictor and inflictor.valid 
-		S_StartSound(target,sfx_cdpcm9)
-		S_StartSound(target,sfx_s259)
+		B.StartSoundFromNewSource(target, sfx_cdpcm9)
+		B.StartSoundFromNewSource(target, sfx_s259)
 		target.player.guard = 2
 		target.player.guardtics = TICRATE/4 //9
 		B.ControlThrust(target,FRACUNIT/2)

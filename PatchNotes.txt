@@ -7,6 +7,7 @@ Modding features
 	- Guard text will always show up if player.canguard is set to a value higher than 1
 	New functions:
 		- B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
+		- B.StartSoundFromNewSource(origin, sound, duration, volume, player)
 		- B.Console.AddBattleConfig(configname, func, defaultvalue)
 		- B.SoftHoming(mo, dimension)
 		- B.CarryStun(otherplayer, strugglerings, strugglestun, noshake, nostunbreak, nopain)

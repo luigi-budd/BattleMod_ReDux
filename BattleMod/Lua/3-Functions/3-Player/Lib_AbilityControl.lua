@@ -430,7 +430,9 @@ B.invinciblespark = function(player)
 		return
 	end
 	if player.powers[pw_invulnerability] then
-		if player.powers[pw_invulnerability] == 20*TICRATE-1 and not (player.invbarrier and player.invbarrier.valid) then
+		if player.invbarrier and player.invbarrier.valid then
+			P_MoveOrigin(player.invbarrier, mo.x, mo.y, (P_MobjFlip(mo) and mo.z+mo.height/2) or mo.z-mo.height/2)
+		else
 			player.invbarrier = P_SpawnMobjFromMobj(mo, 0,0,20*mo.scale, MT_INVINCIBLE_LIGHT)
 			player.invbarrier.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
 			player.invbarrier.blendmode = AST_ADD
@@ -439,10 +441,7 @@ B.invinciblespark = function(player)
 			player.invbarrier.colorized = true
 			player.invbarrier.color = SKINCOLOR_BONE
 		end
-		if player.invbarrier and player.invbarrier.valid then
-			P_MoveOrigin(player.invbarrier, mo.x, mo.y, (P_MobjFlip(mo) and mo.z+mo.height/2) or mo.z-mo.height/2)
-		end
-		if not S_SoundPlaying(mo, sfx_huprsa) then
+		if (not S_SoundPlaying(mo, sfx_huprsa)) and player.powers[pw_invulnerability] > TICRATE*5 then
 			if player ~= displayplayer and not splitscreen then
 				S_StartSound(mo, sfx_huprsa)
 			else
@@ -452,8 +451,8 @@ B.invinciblespark = function(player)
 	elseif player.invbarrier and player.invbarrier.valid then
 		P_RemoveMobj(player.invbarrier)
 		mo.renderflags = $&~RF_FULLBRIGHT
+	elseif S_SoundPlaying(mo, sfx_huprsa) then
 		S_StopSound(mo, sfx_huprsa)
-		return
 	end
 end
 
