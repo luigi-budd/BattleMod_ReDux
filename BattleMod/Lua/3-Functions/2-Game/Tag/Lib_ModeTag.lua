@@ -82,7 +82,7 @@ B.TagControl = function()
 	end
 	
 	//failsafe to ensure a time limit is active
-	if (timelimit == nil or timelimit <= 0) and (server)
+	if (timelimit == nil or timelimit <= 1) and (server)
 		COM_BufInsertText(server, "timelimit 6")
 	end
 	
