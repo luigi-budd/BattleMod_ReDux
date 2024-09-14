@@ -647,6 +647,10 @@ B.StartRingsPenalty = function(player, penalty)
 	if not(CV.RingPenalty.value and B.BattleGametype()) then
 		return --Gametype doesn't benefit from StartRings
 	end
+	if player.lastpenalty and player.lastpenalty == "Autobalanced" then
+		player.lastpenalty = 0
+		return
+	end
 	player.ringpenalty = $ or 0
 	if player.ringpenalty >= CV.StartRings.value then
 		return --Player is already maxed out on penalty
