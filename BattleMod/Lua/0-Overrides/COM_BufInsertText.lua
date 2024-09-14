@@ -19,7 +19,7 @@ end
 rawset(_G, "COM_BufInsertText", command_queue)
 
 COM_AddCommand(cons_queue, function(p)
-    if p ~= consoleplayer then return end
+    if (p ~= consoleplayer) and (p ~= server) then return end
     received = true
     execute_next()
 end)
