@@ -45,7 +45,7 @@ local baseSparkle = function(player, team)
 end
 
 local baseTransaction = function(player, team)
-	if player.tossdelay
+	if player.tossdelay or B.Exiting then
 		return true
 	end
 	-- Get current team score

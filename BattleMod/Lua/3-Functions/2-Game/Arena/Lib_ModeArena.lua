@@ -424,6 +424,9 @@ A.Exiting = function()
 				if not player.spectator then
 					player.powers[pw_nocontrol] = max($, 2)
 				end
+				if player.powers[pw_underwater] then
+					player.powers[pw_underwater] = max(30*TICRATE,$)
+				end
 				player.nodamage = TICRATE
 			end
 		else
