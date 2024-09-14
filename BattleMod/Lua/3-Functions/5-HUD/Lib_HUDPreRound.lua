@@ -67,7 +67,7 @@ B.PreRoundHUD = function(v,player,cam)
 				v.getColormap(character, clr)
 			)
 		end
-		if not (player.battleconfig_minimalhud) then
+		if not (consoleplayer.battleconfig_minimalhud) then
 			v.drawString(160, 192, yellow.."TOSSFLAG: "..white.."Close roulette", V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_PERPLAYER, "center")
 		end
 		v.draw(160-16, 100-9, v.cachePatch("M_FSEL"), V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER)
