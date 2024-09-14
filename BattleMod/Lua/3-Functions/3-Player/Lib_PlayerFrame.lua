@@ -180,6 +180,10 @@ B.PlayerThinkFrame = function(player)
 		player.lastactiontext = nil
 	end
 	B.DoBackdraft(player)
+
+	if player.skidtime and player.powers[pw_nocontrol] and leveltime % 3 == 1 then
+		S_StartSound(mobj,sfx_s3k7e)
+	end
 	
 
 	--Special thinkers

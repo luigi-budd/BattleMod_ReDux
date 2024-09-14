@@ -92,9 +92,6 @@ B.RestoreTailsFollowMobj = function(p, mobj) -- cry
 		)
 		mobj.angle = p.drawangle
 		mobj.restorebuffer = p.skidtime --+1 frame
-		if leveltime%3 == 1
-			S_StartSound(mobj,sfx_s3k7e)
-		end
 		return true
 	end
 end
