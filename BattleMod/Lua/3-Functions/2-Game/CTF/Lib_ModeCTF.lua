@@ -9,8 +9,11 @@ F.RedScore = 0
 F.BlueScore = 0
 F.RedFlag = nil
 F.BlueFlag = nil
-F.RedFlagPos = {x=0,y=0,z=0, mtopts=0} -- mtopts: MapThing options (e.g. flipped gravity, etc)
-F.BlueFlagPos = {x=0,y=0,z=0, mtopts=0}
+
+-- mtopts: MapThing options (e.g. flipped gravity, etc)
+-- spawnpoint: used to assign spawnpoint to the object (mapthing_t)
+F.RedFlagPos = {x=0,y=0,z=0, mtopts=0, spawnpoint=nil}
+F.BlueFlagPos = {x=0,y=0,z=0, mtopts=0, spawnpoint=nil}
 
 F.TrackRed = function(mo)
 	F.RedFlag = mo
@@ -133,9 +136,10 @@ end
 -- TODO: sanity check (don't create more than 1 of one flag)
 -- 1: Red team
 -- 2: Blue team
-local function spawnFlag(fteam)
+local function spawnFlag(fteam, mt)
 	local flagtype = fteam == 1 and MT_CREDFLAG or MT_CBLUEFLAG
 	local flagpos = (fteam == 1) and F.RedFlagPos or F.BlueFlagPos
+	local spawnpoint = flagpos.spawnpoint
 
 	local x = flagpos.x
 	local y = flagpos.y
@@ -161,22 +165,25 @@ local function spawnFlag(fteam)
 	-- rev: cept these, not source code (:
 	flagmo.mtopts = mtopts
 	flagmo.atbase = true
+	flagmo.spawnpoint = spawnpoint
 end
 
 local function getFlagpos()
 	for mt in mapthings.iterate do
-		if mt.type == 310 then -- RED FLAG
+		if mt.type == 310 then -- MT_REDFLAG
 			F.RedFlagPos.x = mt.x<<FRACBITS
 			F.RedFlagPos.y = mt.y<<FRACBITS
 			F.RedFlagPos.z = mt.z<<FRACBITS
 			F.RedFlagPos.mtopts = mt.options
+			F.RedFlagPos.spawnpoint = mt
 			F.RedFlag = {}
 			spawnFlag(1)
-		elseif mt.type == 311 then  -- BLUE FLAG
+		elseif mt.type == 311 then  -- MT_BLUEFLAG
 			F.BlueFlagPos.x = mt.x<<FRACBITS
 			F.BlueFlagPos.y = mt.y<<FRACBITS
 			F.BlueFlagPos.z = mt.z<<FRACBITS
 			F.BlueFlagPos.mtopts = mt.options
+			F.BlueFlagPos.spawnpoint = mt
 			F.BlueFlag = {}
 			spawnFlag(2)
 		end
@@ -208,8 +215,10 @@ F.PlayerFlagBurst = function(p, toss)
 		end
 		p.gotflag = 0
 		local type = p.ctfteam == 1 and MT_CBLUEFLAG or MT_CREDFLAG
+		local spawnpoint = p.ctfteam == 1 and F.RedFlagPos.spawnpoint or F.BlueFlagPos.spawnpoint
 		local mo = p.mo
 		local flag = P_SpawnMobj(mo.x, mo.y, mo.z, type)
+		flag.spawnpoint = spawnpoint
 		flag.jostletimer = 8
 		if (mo.eflags & MFE_VERTICALFLIP) then
 			flag.flags2 = $|MF2_OBJECTFLIP
@@ -725,6 +734,7 @@ end
 -- Checks if the flags are valid every tic.
 -- This is a bandaid fix for an issue where flags can spontaneously disappear when respawning
 -- If that issue gets fixed, this whole function will probably be removed.
+--[[/*
 F.AreFlagsAtBase = function()
 	if leveltime < 10 then return end -- ?
 	if gamestate ~= GS_LEVEL then return end
@@ -761,3 +771,4 @@ F.AreFlagsAtBase = function()
 		end
 	end
 end
+*/--]]

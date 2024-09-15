@@ -1,8 +1,11 @@
+local REDFLAG = MT_CREDFLAG 	-- MT_REDFLAG
+local BLUFLAG = MT_CBLUEFLAG 	-- MT_BLUEFLAG
+
 local CTFlagReturnNerf = function(mo, toucher)
 	local flagcolor = 0
-	if mo.type == MT_REDFLAG then
+	if mo.type == REDFLAG then
 		flagcolor = 1
-	elseif mo.type == MT_BLUEFLAG  then
+	elseif mo.type == BLUFLAG  then
 		flagcolor = 2
 	end
 	if toucher.player.ctfteam == flagcolor and not toucher.player.powers[pw_flashing] then
@@ -31,8 +34,8 @@ local CTFlagNoGrabCooldown = function(mo)
 			end
 		end
 	end
-	if (P_MobjTouchingSectorSpecial(mo, 4, 3) and mo.type == MT_REDFLAG) or
-		(P_MobjTouchingSectorSpecial(mo, 4, 4) and mo.type == MT_BLUEFLAG) then // check if ctf flag is in its base
+	if (P_MobjTouchingSectorSpecial(mo, 4, 3) and mo.type == REDFLAG) or
+		(P_MobjTouchingSectorSpecial(mo, 4, 4) and mo.type == BLUFLAG) then // check if ctf flag is in its base
 			spawnpoint.roll = flagreturn*TICRATE // set flag retun time back to normal
 			if mo.fuse
 				mo.fuse = 1 // return instantly if droped in its base
@@ -43,11 +46,11 @@ local CTFlagNoGrabCooldown = function(mo)
 	end
 end
 
-addHook("MobjThinker", CTFlagNoGrabCooldown, MT_REDFLAG)
-addHook("MobjThinker", CTFlagNoGrabCooldown, MT_BLUEFLAG)
+addHook("MobjThinker", CTFlagNoGrabCooldown, REDFLAG)
+addHook("MobjThinker", CTFlagNoGrabCooldown, BLUFLAG)
 
-addHook("TouchSpecial", CTFlagReturnNerf, MT_REDFLAG)
-addHook("TouchSpecial", CTFlagReturnNerf, MT_BLUEFLAG)
+addHook("TouchSpecial", CTFlagReturnNerf, REDFLAG)
+addHook("TouchSpecial", CTFlagReturnNerf, BLUFLAG)
 
 addHook("PlayerThink", function(player) // if at your base with the enemy flag reduce your flags return time
 	if player.mo and player.mo.valid and player.gotflag then
@@ -55,9 +58,9 @@ addHook("PlayerThink", function(player) // if at your base with the enemy flag r
 			(P_PlayerTouchingSectorSpecial(player, 4, 4) and player.ctfteam == 2) then
 			local flagcolor = 0
 			if player.ctfteam == 1 then
-				flagcolor = 310 //MT_REDFLAG, we need the thing's type number not the object's type number
+				flagcolor = 310 //REDFLAG, we need the thing's type number not the object's type number
 			elseif player.ctfteam == 2 then
-			flagcolor = 311 //MT_BLUEFLAG
+			flagcolor = 311 //BLUFLAG
 			end
 			for mthing in mapthings.iterate do
 				if flagcolor and mthing.type == flagcolor then 

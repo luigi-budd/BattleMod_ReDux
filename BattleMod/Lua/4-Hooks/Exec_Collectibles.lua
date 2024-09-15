@@ -43,8 +43,6 @@ addHook("MobjFuse", F.RespawnFlag, MT_CBLUEFLAG)
 -- If object gets removed
 addHook("MobjRemoved", F.FlagRemoved, MT_CREDFLAG)
 addHook("MobjRemoved", F.FlagRemoved, MT_CBLUEFLAG)
--- Check if flags are supposed to be at their base.. every tic
-addHook("ThinkFrame", F.AreFlagsAtBase)
 
 -- Player: prevent shield specials and ability specials.
 addHook("AbilitySpecial", F.GotFlagCheck)
