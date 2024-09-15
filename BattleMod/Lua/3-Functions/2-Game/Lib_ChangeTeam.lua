@@ -52,6 +52,10 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 			end
 		end
 	end
+
+	if (autobalance or scramble) then
+		player.lastpenalty = "Autobalanced"
+	end
 	
 	if not(gametyperules&GTR_LIVES) or not(B.BattleGametype()) then return end //Competitive lives only
 	if (autobalance or scramble) then

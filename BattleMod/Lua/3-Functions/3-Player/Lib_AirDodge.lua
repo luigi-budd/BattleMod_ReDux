@@ -36,6 +36,7 @@ B.AirDodge = function(player)
 		and not player.powers[pw_nocontrol]
 		and not player.powers[pw_carry]
 		and not P_IsObjectOnGround(mo)
+		and not mo.temproll
 		
 		local angle = B.GetInputAngle(player)
 		

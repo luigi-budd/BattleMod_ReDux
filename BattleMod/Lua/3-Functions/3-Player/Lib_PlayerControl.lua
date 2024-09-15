@@ -70,6 +70,7 @@ B.InitPlayer = function(player)
 	player.gradualspeed = 0
 	player.didslipbutton = 0
 	player.nodamage = 0
+	player.temproll = 0
 	//variables for battle tag
 	player.battletagIT = false
 	player.BTblindfade = 0
@@ -373,7 +374,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 end
 
 B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
-	if player.nodamage or not (player.mo and player.mo.valid) then
+	if player.nodamage or player.powers[pw_invulnerability] or not (player.mo and player.mo.valid) then
 		return
 	end
 
@@ -488,16 +489,30 @@ B.Tumble = function(player)
 	player.pflags = $ | PF_FULLSTASIS
 end
 
-B.TestScript = function(player)
-	--B.ZLaunch(player.mo, 8*FRACUNIT)
-	--B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
-	local shieldgiver = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_THOK)
-	shieldgiver.target = player.mo
-	A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
-	A_GiveShield(shieldgiver, SH_FLAMEAURA)
-	A_GiveShield(shieldgiver, SH_THUNDERCOIN)
-	player.loss = true
-	player.mo.state = S_PLAY_LOSS
+B.TestScript = function(player, ...)
+	if not (... and tonumber(...)) then
+		B.ZLaunch(player.mo, 8*FRACUNIT)
+		B.DoPlayerTumble(player, 75, 0, 8*FRACUNIT, true)
+		return "Tumble"
+	else
+		local switchcase = tonumber(...)
+		if switchcase == 1 then
+			local shieldgiver = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_THOK)
+			shieldgiver.target = player.mo
+			A_GiveShield(shieldgiver, SH_BUBBLEWRAP)
+			A_GiveShield(shieldgiver, SH_FLAMEAURA)
+			A_GiveShield(shieldgiver, SH_THUNDERCOIN)
+			return "Triple shields"
+		elseif switchcase == 2 then
+			player.loss = true
+			player.mo.state = S_PLAY_LOSS
+			return "Loss"
+		elseif switchcase == 3 then
+			player.lifeshards = 2
+			return "Lifeshards"
+		end
+	end
+	-- wheres my switch case :sob: ~lu
 end
 
 B.PlayerCreditPusher = function(player,source)
@@ -631,6 +646,10 @@ end
 B.StartRingsPenalty = function(player, penalty)
 	if not(CV.RingPenalty.value and B.BattleGametype()) then
 		return --Gametype doesn't benefit from StartRings
+	end
+	if player.lastpenalty and player.lastpenalty == "Autobalanced" then
+		player.lastpenalty = 0
+		return
 	end
 	player.ringpenalty = $ or 0
 	if player.ringpenalty >= CV.StartRings.value then

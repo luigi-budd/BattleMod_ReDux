@@ -45,7 +45,7 @@ local baseSparkle = function(player, team)
 end
 
 local baseTransaction = function(player, team)
-	if player.tossdelay
+	if player.tossdelay or B.Exiting then
 		return true
 	end
 	-- Get current team score
@@ -57,7 +57,7 @@ local baseTransaction = function(player, team)
 	end
 	if player.ctfteam == team
 		-- Deposit rings
-		if player.rings > 0
+		if player.rings > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
 			P_GivePlayerRings(player, -1)
 			P_AddPlayerScore(player, 1)
@@ -72,7 +72,7 @@ local baseTransaction = function(player, team)
 		end
 	else
 		-- Steal rings
-		if score > 0
+		if score > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
 			P_AddPlayerScore(player, 1)
 			P_GivePlayerRings(player, 1)
@@ -128,7 +128,7 @@ local flashColor = function(colormin,colormax, rate)
 end
 
 local getBase = function(player)
-	if not P_IsObjectOnGround(player.mo) then return 0 end
+	if not P_IsObjectOnGround(player.mo) then return end
 
 	--// rev: credits to JAB, he figured this one out. This will work for both UDMF / Binary maps
 	if P_MobjTouchingSectorSpecialFlag(player.mo, SSF_REDTEAMBASE) then

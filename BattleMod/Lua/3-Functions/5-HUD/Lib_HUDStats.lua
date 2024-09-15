@@ -34,6 +34,9 @@ B.StatsHUD = function(v)
 end
 
 B.StartRingsHUD = function(v, player)
+    if B.Exiting then
+        return
+    end
     if not (player.deadtimer
         and player.lastpenalty
         and CV.RingPenalty.value

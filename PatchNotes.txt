@@ -7,10 +7,11 @@ Modding features
 	- Guard text will always show up if player.canguard is set to a value higher than 1
 	New functions:
 		- B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
+		- B.StartSoundFromNewSource(origin, sound, duration, volume, player)
 		- B.Console.AddBattleConfig(configname, func, defaultvalue)
 		- B.SoftHoming(mo, dimension)
 		- B.CarryStun(otherplayer, strugglerings, strugglestun, noshake, nostunbreak, nopain)
-	New player vriables:
+	New player variables:
 		- player.guardtext (Similar to player.action2text, only effective when player.canguard is higher than 1)
 		- player.realbuttons (provides access to the player's buttons even if they have pw_nocontrol)
 		- player.lastmoveblock (Updates to leveltime whenever the hook "MobjMoveBlocked" is called)
@@ -22,6 +23,7 @@ Modding features
 			- player.nodamage (prevents the player from taking damage with no indication - used in PreRound and GAME SET)
 			- player.noshieldactive (Also resets to 0 on land)
 			- player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state. If below 0, prevents stunbreak)
+			- player.mo.temproll (Prevents air dodge. When it reaches zero, the player goes to spring state)
 Major gameplay changes
 	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_newhud to "off"
 	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
@@ -52,21 +54,27 @@ Major gameplay changes
 		- Added a rejoin lockout timer when entering spectator mode
 	Tumble
 		- By default, tumbles can't last longer than 3 seconds. This is lowered to 1 second if the player was in i-frames
-		- Massively reduced stunbreak buffer time (66% of the tumble's duration -> 0.2s)
+		- Massively reduced minimum amount of tumble time required for a stunbreak (66% of the tumble's duration -> 0.2s)
+	Invulnerability (power-up)
+		- Is no longer affected by B.DoPlayerTumble (it is still affected by parry, as it removes invulnerabilities)
 Minor gameplay changes
 	- Lower default battle_collisiontimer (12 -> 5)
 	- Collisions will no longer occur between players during PreRound
 	- Added a 3 frame window (customizable via the console variable battle_coyotetime) where players can still jump from walking off a ledge/slope
-	- Added new VFX flair for invulnerability, sneakers and slipstream
+	- Added new VFX flair for invulnerability, sneakers, slipstream, guard trigger and stunbreak
 	- Players are no longer awarded a force shield in overtime for surviving with 3 lives
 	- Players are intangible while spawning
+	Stunbreak
+		- Applies invulnerability instead of i-frames
+		- Player temporarily goes into spin state and restores air dodge
 	Jettysyn
 		- Lowered shot startup and end lag (0.5s -> 0.33s)
 		- Increased normalspeed (12 -> 25)
 Character roulette
 	- Can now be toggled with TOSSFLAG, or hidden by default with the command battleconfig_roulette
 Survival, Team Survival, Arena, Team Arena
-	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable survival_bounty)
+	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable battle_bounty)
+		- Additionally, in arena, hitting wanted players will award extra score
 	- The highest rank player can always be located with the radar or compass
 Battle CTF
 	- Flag debuff now also applies a fixed jumpfactor of 100%
@@ -242,17 +250,18 @@ Maintenance
 Console
 	Added variables and commands
 		battle_airdodge
-		battle_dodgecooldown
-		battle_coyotetime
+		battle_bounty
 		battle_coyotefactor
+		battle_coyotetime
+		battle_dodgecooldown
 		battle_recoveryjump
 		battle_requirerings
-		battle_bounty
 		battle_startrings
+		battle_stunbreak
 		battleconfig
-		battleconfig_roulette
-		battleconfig_nospinshield
 		battleconfig_glidestrafe
 		battleconfig_hammerstrafe
-		battleconfig_slipstreambutton
+		battleconfig_nospinshield
 		battleconfig_minimalhud
+		battleconfig_roulette
+		battleconfig_slipstreambutton

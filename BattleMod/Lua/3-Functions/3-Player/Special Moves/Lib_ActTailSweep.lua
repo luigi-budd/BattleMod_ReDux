@@ -11,6 +11,7 @@ local cooldown_spinswipe = TICRATE * 2
 local sideangle = ANG30 - ANG10
 local throw_strength = 30
 local throw_lift = 10
+local throw_enemystuntime = TICRATE*2/3
 local thrustpower = 16
 local threshold1 = TICRATE/3 --0.3s
 local threshold2 = threshold1+(TICRATE*3/2) --minimum charging time + 1.5s
@@ -52,7 +53,7 @@ B.SoftHoming = function(mo, dimension)
 end
 
 B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if (pain[n1] or pain[n2]) or not(plr[n1] and plr[n1].valid) then
+	if pain[n1] or not(plr[n1] and plr[n1].valid) then
 		return
 	end
 	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < 2))
@@ -86,6 +87,7 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 		plr[n1].pflags = $ &~ (PF_JUMPED|PF_NOJUMPDAMAGE|PF_SPINNING|PF_STARTDASH)
 		plr[n1].pflags = $|PF_CANCARRY
 		P_SetOrigin(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+mo[n2].height)
+		plr[n2].powers[pw_carry] = CR_NONE
 		B.CarryState(plr[n1],plr[n2])
 		P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
 		S_StartSound(mo[n1], sfx_s3ka0)
@@ -579,6 +581,9 @@ B.Action.TailSwipe = function(mo,doaction)
 				else
 					otherplayer.customstunbreakcost = min($+15,35)
 				end
+				otherplayer.powers[pw_nocontrol] = max($, throw_enemystuntime)
+			else
+				B.ResetPlayerProperties(otherplayer, true, false)
 			end
 			otherplayer.powers[pw_nocontrol] = 0
 			otherplayer.landlag = 0
@@ -767,6 +772,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				S_StartSound(mo,sfx_s251)
 				player.buttonhistory = $ | player.battleconfig_guard
 				B.ResetPlayerProperties(player,false,false)
+				B.ApplyCooldown(player,cooldown_cancel)
 				P_SpawnGhostMobj(mo)
 			elseif not(throwed) then
 				B.ApplyCooldown(player,cooldown_dash)

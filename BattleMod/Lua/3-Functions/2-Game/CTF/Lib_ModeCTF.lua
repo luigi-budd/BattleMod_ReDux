@@ -595,10 +595,13 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 	for p in players.iterate do
 		if not(p.mo and p.mo.valid) then continue end
 		local pmo = p.mo
-		local conditions = {(p.gotflag), (CV.Bounty.value and B.ArenaGametype() and p.wanted)}
+		local conditions = {(p.gotflag), (p.wanted)}
 		local canhaveicon = false
 		for n=1, #conditions do
-			if conditions[n] then canhaveicon = true end
+			if conditions[n] then
+				canhaveicon = true
+				break
+			end
 		end
 		if not(canhaveicon) then -- no conditions were met! so simply delete indicator
 			if pmo.flag_indicator then
@@ -615,6 +618,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			icon.frame = FF_FULLBRIGHT
 			icon.fuse = 0
 			icon.tics = 2
+			icon.colorized = false
 			
 			-- then, update it based on which condition was met
 			if conditions[1] then -- flag
@@ -622,6 +626,10 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 				-- TODO: mobjinfo stuff for flags so we don't have to keep comparing ctfteam to fixed numbers
 			elseif conditions[2] then -- crown
 				icon.sprite = SPR_CRWN
+				if B.CPGametype() then
+					icon.colorized = true
+					icon.color = SKINCOLOR_SILVER
+				end
 			else -- what
 				icon.sprite = SPR_UNKN
 			end

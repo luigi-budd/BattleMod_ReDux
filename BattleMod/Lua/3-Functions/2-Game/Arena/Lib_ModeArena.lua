@@ -138,7 +138,10 @@ A.ForceRespawn = function(player)
 	end
 end
 
-A.GetRanks = function()
+A.GetRanks = function(force)
+	if G_GametypeHasTeams() then
+		return A.TeamGetRanks(force)
+	end
 	local p = A.Fighters
 	A.Placements = {}
 	//Rank players
@@ -161,7 +164,7 @@ A.GetRanks = function()
 				break
 			end
 		end
-		if player.rank == 1
+		if player.rank == 1 and (A.Bounty or force)
 			player.wanted = true
 		else
 			player.wanted = false
@@ -169,8 +172,7 @@ A.GetRanks = function()
 	end
 end
 
---[[
-A.TeamGetRanks = function()
+A.TeamGetRanks = function(force)
 	local b = A.BlueFighters
 	local r = A.RedFighters
 	//Rank players
@@ -186,10 +188,12 @@ A.TeamGetRanks = function()
 				bplayer.brank = $+1
 			end
 		end
-		if bplayer.brank == 1
-			bplayer.bwanted = true
+		if bplayer.brank == 1 and (A.Bounty or force)
+			--bplayer.bwanted = true
+			bplayer.wanted = true
 		else
-			bplayer.bwanted = false
+			--bplayer.bwanted = false
+			bplayer.wanted = false
 		end
 	end
 	for n = 1, #r
@@ -204,17 +208,18 @@ A.TeamGetRanks = function()
 				rplayer.rrank = $+1
 			end
 		end
-		if rplayer.rrank == 1
-			rplayer.rwanted = true
+		if rplayer.rrank == 1 and (A.Bounty or force)
+			--rplayer.rwanted = true
+			rplayer.wanted = true
 		else
-			rplayer.rwanted = false
+			--rplayer.rwanted = false
+			rplayer.wanted = false
 		end
 	end
 end
-]]
 
 
-local function forcewin()
+A.ForceWin = function()
 	local doexit = false
 	local extended = (not splitscreen) and not(G_GametypeHasTeams() and redscore == bluescore)
 	local player_scores = {}
@@ -237,7 +242,7 @@ local function forcewin()
 	end)
 	if doexit == true and not(B.Exiting) then
 		B.DebugPrint("Game set conditions triggered.")
-		A.GetRanks()
+		A.GetRanks(true)
 		S_StartSound(nil,sfx_lvpass)
 		S_StartSound(nil,sfx_nxbump)
 		B.Exiting = true
@@ -295,7 +300,6 @@ local function forcewin()
 		end
 	end
 end
---COM_AddCommand("forcewin", forcewin, COM_ADMIN)
 
 local function stretchx(player)
 	if not (player.mo and player.mo.valid) then return end
@@ -420,6 +424,9 @@ A.Exiting = function()
 				if not player.spectator then
 					player.powers[pw_nocontrol] = max($, 2)
 				end
+				if player.powers[pw_underwater] then
+					player.powers[pw_underwater] = max(30*TICRATE,$)
+				end
 				player.nodamage = TICRATE
 			end
 		else
@@ -499,6 +506,9 @@ A.UpdateGame = function()
 	local timelimit = 60*TICRATE*CV_FindVar("timelimit").value
 	local timeleft = timelimit-leveltime
 	local pointlimit = CV_FindVar("pointlimit").value
+	if timelimit and gametyperules&GTR_FIXGAMESET then
+		timeleft = $-(60*TICRATE)
+	end
 	//Find out the highest score and how many people/teams are holding it
 	local count = 0
 	local highscore = 0
@@ -529,7 +539,7 @@ A.UpdateGame = function()
 		or (count == 1 and timelimit and timeleft <= 0) --//Time condition met with one person/team in the lead
 		)
 	then
-		forcewin()
+		A.ForceWin()
 	return end --Exit function
 	
 	
@@ -576,7 +586,7 @@ A.UpdateGame = function()
 		if not(G_GametypeHasTeams())
 			//Game must have exactly one player with the highest score in order to force end the game
 			if count == 1 and not(survival)
-				forcewin()
+				A.ForceWin()
 			else //Sudden death?
 				if survival
 					A.SpawnLives = 0
@@ -613,7 +623,7 @@ A.UpdateGame = function()
 		//Get team victor conditions
 		if G_GametypeHasTeams()
 			if bluescore != redscore and not(survival) then
-				forcewin()
+				A.ForceWin()
 			else
 				if survival
 					for player in players.iterate
@@ -637,24 +647,28 @@ A.UpdateGame = function()
 	if survival and not(G_GametypeHasTeams()) and not(B.PreRoundWait())then
 		if #A.Fighters < 2 then return end //Not enough players to determine winner/loser
 		if survival and #A.Survivors < 2 then //Only one survivor left (or none)
-			forcewin()
+			A.ForceWin()
 		return end
 	end
 	//Last team standing
 	if survival and G_GametypeHasTeams() and not(B.PreRoundWait())then
 		if not(#A.BlueFighters and #A.RedFighters) then return end //Not enough players on each team
 		if not(#A.RedSurvivors and #A.BlueSurvivors) then //Only one team standing (or none)
-			forcewin()
+			A.ForceWin()
 		return end
 	end
 	//Bounty system
-	if B.ArenaGametype() then
+	if B.ArenaGametype() or B.CPGametype() then
 		if (A.Bounty and not(A.Bounty.valid)) then
 			A.Bounty = nil
 		end
 		if #A.Survivors <= 2 then
 			A.Bounty = nil
 			return //Not enough players to begin bounty system
+		end
+		//Disallow bounty if disabled
+		if not (CV.Bounty.value) then
+			return
 		end
 		//Disallow bounty in survival until someone gets a lifeshard
 		if survival and not(A.Bounty) then
@@ -670,7 +684,7 @@ A.UpdateGame = function()
 				return
 			end
 		end
-		//Assign bounty to the player with highest lives or score
+		//Assign bounty to the player with highest lives or score (Deprecated, use p.wanted)
 		for n = 1, #A.Survivors
 			local p = A.Survivors[n]
 			if not(A.Bounty) then
@@ -696,45 +710,48 @@ A.UpdateGame = function()
 end
 
 A.KillReward = function(killer, target)
-	if not (killer and killer.valid) return end
+	if not (killer and killer.valid) then return end
 	if B.SuddenDeath then return end
 	local survival = G_GametypeUsesLives() and B.ArenaGametype()
 	
-	if killer.lifeshards == nil
+	if killer.lifeshards == nil then
 		killer.lifeshards = 0
 	end
 	
 	S_StartSound(nil, sfx_s249, killer)
 	
-	if killer.mo and killer.mo.valid and killer.playerstate == PST_LIVE and not killer.revenge
-		local killedbounty = CV.Bounty.value and target and target.player and target.player == A.Bounty
-		local ringbonus = killedbounty and 50 or 20
-		local lifeshardbonus = killedbounty and 3 or 1
+	if killer.mo and killer.mo.valid and killer.playerstate == PST_LIVE and not killer.revenge then
+		local killedbounty = target.player.wanted and not B.CPGametype()
+		local scorebonus = killedbounty and 150 or 100 --arena only
+		local lifeshardbonus = killedbounty and 3 or 1 --survival only
+		local ringbonus = killedbounty and 50 or 20 --all gametypes
 
-		if killer.lives >= CV.SurvivalStock.value or not survival
-			killer.lifeshards = 0
-			P_AddPlayerScore(killer, 200)
+		if not survival then
+			P_AddPlayerScore(killer, scorebonus)
 		else
 			killer.lifeshards = $ + lifeshardbonus
+			if killer.lives >= CV.SurvivalStock.value then
+				killer.lifeshards = 0
+			end
 		end
 		
 		killer.rings = $ + ringbonus
 		S_StartSound(killer.mo, sfx_itemup, killer)
 		S_StartSound(killer.mo, sfx_s249, killer)
 		
-		if (killer.lifeshards == 0) or not survival
+		if (killer.lifeshards == 0) or not survival then
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 9, MT_NIGHTSPARKLE, ANGLE_90)
-		elseif killer.lifeshards == 1
+		elseif killer.lifeshards == 1 then
 			S_StartSound(nil, sfx_s243, killer)
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 9, MT_NIGHTSPARKLE, ANGLE_90)
-		elseif killer.lifeshards == 2
+		elseif killer.lifeshards == 2 then
 			S_StartSound(nil, sfx_s243a, killer)
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 12, MT_NIGHTSPARKLE, ANGLE_90)
-		elseif killer.lifeshards >= 3
+		elseif killer.lifeshards >= 3 then
 			P_SpawnParaloop(killer.mo.x, killer.mo.y, killer.mo.z + (killer.mo.height / 2), 12 * FRACUNIT, 15, MT_NIGHTSPARKLE, ANGLE_90)
 		end
 		
-		if (killer.lifeshards >= 3) and survival
+		if (killer.lifeshards >= 3) and survival then
 			killer.lifeshards = $-3
 			killer.lives = $ + 1
 			P_PlayLivesJingle(killer)
@@ -742,8 +759,14 @@ A.KillReward = function(killer, target)
 			icon.scale = killer.mo.scale * 4/3
 			print("\x89" .. killer.name .. " earned an extra life!")
 		else
+			if survival and killer.lifeshards then
+				--TODO: P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_LIFESHARD)
+			end
 			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_RING_ICON)
 			icon.scale = killer.mo.scale
+			icon.colorized = true
+			icon.color = killedbounty and SKINCOLOR_ICY or SKINCOLOR_BONE
+			S_StartSound(killer.mo, sfx_itemup, killer)
 		end
 	end
 end

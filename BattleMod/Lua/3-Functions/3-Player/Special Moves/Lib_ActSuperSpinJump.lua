@@ -12,7 +12,7 @@ local pound_startthrust = 10*FRACUNIT
 local pound_downaccel = FRACUNIT*4//4
 local jumpfriction = FRACUNIT*9/10
 local poundfriction = FRACUNIT
-local reboundthrust = 10
+local reboundthrust = 13
 
 B.Action.SuperSpinJump_Priority = function(player)
 	local mo = player.mo
@@ -25,7 +25,7 @@ B.Action.SuperSpinJump_Priority = function(player)
 	end
 
 	if player.actionstate == state_superspinjump then
-		B.SetPriority(player,2,2,nil,2,2,"super spin jump")
+		B.SetPriority(player,1,1,"tails_fly",2,1,"super spin jump")
 	elseif player.actionstate == state_groundpound_rise then
 		B.SetPriority(player,1,1,nil,1,1,"rising ground pound")
 	elseif player.actionstate == state_groundpound_fall then
@@ -201,7 +201,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 					end
 				end
 					
-				P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/5)
+				P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/8)
 				B.ZLaunch(mo,reboundthrust*FRACUNIT,true)
 				mo.state = S_PLAY_SPRING
 				player.pflags = ($|PF_THOKKED)&~PF_SPINNING

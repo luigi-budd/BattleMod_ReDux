@@ -48,6 +48,9 @@ rawset(_G,"SKINVARS_GUNSLINGER",	1<<2)
 rawset(_G,"SKINVARS_ROSY",			1<<3)
 rawset(_G,"SKINVARS_GLIDESTRAFE",	1<<4)
 
+-- I hate srb2
+rawset(_G,"GTR_FIXGAMESET",	1<<0)
+
 -- Define TOLs and gametypes
 freeslot('tol_arena','tol_survival','tol_cp','tol_diamond','tol_battlectf','tol_bigarena','tol_battle','tol_eggrobotag')
 G_AddGametype({
@@ -215,8 +218,8 @@ G_AddGametype({
 	typeoflevel = TOL_TAG | TOL_MATCH | TOL_BATTLETAG,
 	rules = GTR_SPECTATORS | GTR_TIMELIMIT | GTR_HURTMESSAGES | 
 			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | 
-			GTR_DEATHMATCHSTARTS,
-	defaulttimelimit = 5,
+			GTR_DEATHMATCHSTARTS | GTR_FIXGAMESET,
+	defaulttimelimit = 5+1,
 	intermissiontype = int_match,
 	headercolor = 251,
 	rankingtype = GT_TAG,

@@ -157,6 +157,19 @@ A.MyStocksHUD = function(v, player)
 			v.drawScaled(x + offset - scale, y - scale, scale, patch, flags | V_HUDTRANS | V_FLIP, v.getColormap(player.mo.skin, player.skincolor))
 		end
 	end
+	local maxshards = 3
+	local shard_sep = stock_sep*2/3
+	y = $ + (4*FRACUNIT)
+	for i = 0, maxshards-1 do
+		local offset = -((maxshards - 1) * shard_sep / 2) + (i * shard_sep)
+		local black = v.getColormap(TC_BLINK, SKINCOLOR_PITCHBLACK)
+		local patch = v.getSpritePatch("SHRD", frameA, 0, ANGLE_45)
+		local scale = FRACUNIT/2
+		v.drawScaled(x + offset + scale, y + scale, scale, patch, flags | V_HUDTRANSHALF | V_FLIP, black)
+		if (player.lifeshards or 0) > i then
+			v.drawScaled(x + offset - scale, y - scale, scale, patch, flags | V_HUDTRANS | V_FLIP, v.getColormap(TC_RAINBOW, SKINCOLOR_PURPLE))
+		end
+	end
 end
 
 A.PlacementHUD = function(v, player)
