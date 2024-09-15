@@ -61,13 +61,8 @@ B.StunBreak = function(player, doguard)
 	and (player.rings >= break_cost)
 		player.canstunbreak = 0
 		player.tailsthrown = nil
-		local angle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
-		angle = $ + (player.cmd.angleturn << FRACBITS)
-		
-		if player.battleconfig_dodgecamera
-			angle = mo.angle
-		end
-		
+		local angle = (player.battleconfig_dodgecamera and not(player.pflags & PF_ANALOGMODE)) and mo.angle or B.GetInputAngle(player)
+
 		player.tech_timer = 0
 		
 		//State and flags
@@ -77,8 +72,12 @@ B.StunBreak = function(player, doguard)
 			S_StopSoundByID(mo, sfx_kc38)
 		end
 		B.ResetPlayerProperties(player,false,false)
-		mo.state = S_PLAY_SPRING
-		player.airdodge = -1
+		mo.state = S_PLAY_ROLL
+		mo.temproll = 19
+		player.exhaustmeter = min($, player.ledgemeter)
+		player.powers[pw_invulnerability] = mo.temproll
+		player.powers[pw_flashing] = 0
+		player.airdodge = 0
 		
 		//Launch
 		local techmomz = 7*FRACUNIT/B.WaterFactor(mo)
@@ -102,7 +101,6 @@ B.StunBreak = function(player, doguard)
 		sb.momz = mo.momz * 3/4
 		local sh = P_SpawnMobjFromMobj(mo,0,0,0,MT_BATTLESHIELD)
 		sh.target = mo
-		player.powers[pw_flashing] = 19
 		
 		//Screenshake
 		if player == consoleplayer

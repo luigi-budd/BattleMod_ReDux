@@ -17,14 +17,14 @@ CV.DevCamera = CV_RegisterVar{
 }
 
 
-COM_AddCommand("test",function(player)
+COM_AddCommand("test",function(player, ...)
 	if player != server then
 		CONS_Printf(player, "Only the server host can execute this command.")
 		return
 	end
 	if B.TestScript then
-		print("Executing test script")
-		B.TestScript(player)
+		local num = ... and tonumber(...) or "0"
+		print("Executing test script "..num..": "..(B.TestScript(player, ...) or "Undefined"))
 	else
 		CONS_Printf(player,"No test script available for loading.")
 	end

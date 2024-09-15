@@ -23,9 +23,9 @@ B.TagGenHUD = function(v, player, cam)
 	//radar function
 	if B.TagPreRound > 1 and (timelimit * 60 * TICRATE - player.realtime <= 
 			120 * TICRATE)
-		local px = player.mo.x
-		local py = player.mo.y
-		local pz = player.mo.z
+		local px = player.realmo.x
+		local py = player.realmo.y
+		local pz = player.realmo.z
 		local temp
 		local radar = INT32_MAX
 		for otherplayer in players.iterate do
@@ -33,7 +33,7 @@ B.TagGenHUD = function(v, player, cam)
 					B.MyTeam(player, otherplayer)
 				continue
 			end
-			local mo = otherplayer.mo
+			local mo = otherplayer.realmo
 			local h_dist = R_PointToDist2(px, py, mo.x, mo.y)
 			temp = R_PointToDist2(0, pz, h_dist, mo.z)
 			if temp < radar

@@ -7,6 +7,10 @@ mobjinfo[MT_TAGGINGHAND] = {
 	flags = MF_NOGRAVITY|MF_MISSILE|MF_NOSECTOR
 }
 
+//funni sound effect
+freeslot("sfx_tgrlsd")
+sfxinfo[sfx_tgrlsd].caption = "Taggers are released..."
+
 //little indicator that hovers over taggers in battle tag
 freeslot("SPR_TPTR", "S_BATTLETAG_IT", "S_BTAG_POINTER", "MT_BATTLETAG_IT", 
 		"MT_BTAG_POINTER")

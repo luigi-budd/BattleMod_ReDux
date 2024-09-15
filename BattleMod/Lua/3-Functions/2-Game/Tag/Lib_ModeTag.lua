@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local A = B.Arena
 
 B.HideTime = function()
 	if (server) then
@@ -81,8 +82,8 @@ B.TagControl = function()
 	end
 	
 	//failsafe to ensure a time limit is active
-	if (timelimit == nil or timelimit <= 0) and (server)
-		COM_BufInsertText(server, "timelimit 5")
+	if (timelimit == nil or timelimit <= 1) and (server)
+		COM_BufInsertText(server, "timelimit 6")
 	end
 	
 	//iterate through all players to get them sorted into "teams"
@@ -164,6 +165,7 @@ B.TagControl = function()
 		if B.TagPreTimer > 0
 			B.TagPreTimer = $ - 1
 		else
+			S_StartSound(nil, sfx_tgrlsd)
 			B.TagPreRound = 2
 		end
 	else
@@ -205,7 +207,7 @@ B.TagControl = function()
 		end
 		if B.TagPlayers > 1 and B.TagPlayers == totaltaggers and not B.Exiting
 			print("All players have been tagged!")
-			B.Exiting = true
+			A.ForceWin()
 		elseif B.TagPlayers > 1 and totaltaggers <= 0 and not B.Exiting
 			print("No taggers active! Ending round...")
 			B.Exiting = true

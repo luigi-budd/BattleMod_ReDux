@@ -8,6 +8,9 @@ local function GetTimer(player)
 	local hidetime = CV_FindVar("hidetime").value
 	if timelimit then
 		timelimit = $ * 60 * TICRATE
+		if gametyperules&GTR_FIXGAMESET then
+			timelimit = $-(60*TICRATE)
+		end
 	end
 	if hidetime then
 		hidetime = $ * TICRATE

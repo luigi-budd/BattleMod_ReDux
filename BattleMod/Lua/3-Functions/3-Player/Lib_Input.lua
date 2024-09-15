@@ -54,9 +54,9 @@ B.GetInputAngle = function(player)
 		if (mo.flags2&MF2_TWOD or twodlevel) then
 			return mo.angle
 		end
-		local fw = player.cmd.forwardmove
-		local sw = player.cmd.sidemove
-		-- 	local pang = player.cmd.angleturn << 16--is this netsafe?
+		local fw = player.realforwardmove or player.cmd.forwardmove
+		local sw = player.realsidemove or player.cmd.sidemove
+		-- local pang = player.cmd.angleturn << 16--is this netsafe?
 		local analog = player.pflags&PF_ANALOGMODE
 
 		local pang = mo.angle
@@ -66,7 +66,7 @@ B.GetInputAngle = function(player)
 		end
 
 		if analog then
-			pang = player.cmd.angleturn<<FRACBITS
+			pang = (player.realangleturn or player.cmd.angleturn)<<FRACBITS
 		end
 
 		local c0, s0 = cos(pang), sin(pang)
