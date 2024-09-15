@@ -209,7 +209,7 @@ addHook('ThinkFrame', do
 		if player.mo and player.rings >= 100
 			highValueSparkle(player)
 		end
-		if player.mo and player.mo.health and not player.powers[pw_flashing]
+		if player.mo and player.mo.health and not player.powers[pw_flashing] or player.actionstate > 0
 			local base = getBase(player)
 			if base == 1 -- Red base
 				if player.ctfteam == 1
