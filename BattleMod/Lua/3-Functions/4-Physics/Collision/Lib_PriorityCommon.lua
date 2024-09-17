@@ -101,7 +101,7 @@ B.Priority_Ability = function(player)
 		end
 		//Amy
 		if twinspin then 
-			B.SetPriority(player,1,2,"amy_twinspin",2,3,"aerial hammer strike")
+			B.SetPriority(player,1,1,"amy_twinspin",2,1,"aerial hammer strike")
 		end
 		if melee then
 			if player.melee_state == 1//st_hold
