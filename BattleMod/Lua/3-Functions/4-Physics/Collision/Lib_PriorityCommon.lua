@@ -119,7 +119,7 @@ B.Priority_Ability = function(player)
 		if dashing then
 			B.SetPriority(player,3,1,nil,3,1,"dash attack")
 		elseif prepdash then
-			B.SetPriority(player,1,1,nil,1,1,"charged dash attack")
+			B.SetPriority(player,1,0,nil,1,0,"charged dash attack")
 		end
 		if tumble then 
 			B.SetPriority(player,0,0,nil,0,0,nil)
