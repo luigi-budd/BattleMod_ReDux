@@ -797,10 +797,10 @@ end
 B.Action.EnergyAttack_Priority = function(player)
 	
 	if player.actionstate == state_charging then
-		B.SetPriority(player,1,1,nil,1,1,"energy charge aura")
+		B.SetPriority(player,1,0,nil,1,0,"energy charge aura")
 	end
 	if player.actionstate == state_dashslicer then
-		B.SetPriority(player,3,2,nil,3,2,"dash slicer")
+		B.SetPriority(player,3,1,nil,3,1,"dash slicer")
 	end
 	
 	if player.actionstate == state_ringsparkprep then
