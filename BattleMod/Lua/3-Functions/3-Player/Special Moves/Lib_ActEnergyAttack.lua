@@ -372,14 +372,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		return
 	end
 
-	if not(charging or chargetrigger or ((player.actionstate == state_energyblast) and player.actiontime < 100))  then
+	/*if not(charging or chargetrigger or ((player.actionstate == state_energyblast) and player.actiontime < 100))  then
 		S_StopSoundByID(mo, sfx_bechrg)
-	end
+	end*/
 	
 	//Start charging blast
 	if chargetrigger
 		B.PayRings(player,player.actionrings)
-		S_StartSound(mo, sfx_bechrg)
+		--S_StartSound(mo, sfx_bechrg)
 		player.actionstate = state_charging
 		player.actiontime = 0
 		player.energyattack_chargemeter = FRACUNIT
