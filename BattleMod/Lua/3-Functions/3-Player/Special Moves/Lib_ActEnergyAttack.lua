@@ -242,7 +242,8 @@ B.MetalAura = function(mo,target, override)
 	mo.scale = target.scale
 	mo.colorized = true --colorize
 	mo.color = target.color
-	mo.blendmode = blendtable[boolToBin((leveltime % 2 == 0))+1] --Blink blendmode
+	--mo.blendmode = blendtable[boolToBin((leveltime % 2 == 0))+1] --Blink blendmode
+	mo.frame = $|FF_TRANS60
 	if P_MobjFlip(target) == 1
 		mo.eflags = $&~MFE_VERTICALFLIP
 		P_MoveOrigin(mo,target.x,target.y,target.z+target.height/4)
@@ -400,13 +401,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Charging Blast
 	if charging then
 		//Do aim sights
-		player.actiontext = "Energy Blast  ".."\x82"..player.actionrings.."\x80" --Tell the player they can release for a blast
+		player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80" --Tell the player they can release or hold for a blast
 		B.DrawAimLine(player,mo.angle)
-		if player.actiontime > threshold2
-			--B.DrawAimLine(player,mo.angle+sideangle*(blastcount2>>1))
-			--B.DrawAimLine(player,mo.angle-sideangle*(blastcount2>>1))
-			player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80"
-		end
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
 		player.energyattack_chargemeter = max(0,$-(FRACUNIT/TICRATE/2))
