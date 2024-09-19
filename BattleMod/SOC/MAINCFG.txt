@@ -312,6 +312,7 @@ Lua.BattleItems_GlobalRate = 55
 Lua.BattleItems_Roulette = 200
 Lua.BattleItems_LocalRate = 40
 Lua.Author = Smol
+Lua.AltMusic = 3DBGGN
 
 Level W2
 NextLevel = 3
