@@ -139,7 +139,7 @@ A.ForceRespawn = function(player)
 end
 
 A.GetRanks = function(force)
-	if G_GametypeHasTeams() then
+	if B.CPGametype() and G_GametypeHasTeams() then
 		return A.TeamGetRanks(force)
 	end
 	local p = A.Fighters
