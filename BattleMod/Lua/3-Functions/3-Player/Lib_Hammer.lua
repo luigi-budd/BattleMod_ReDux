@@ -38,7 +38,7 @@ local function twin(player)
 				msl.momz = $ + mo.momz	
 			end
 		end
-		S_StartSound(msl, sfx_hoop1)
+		S_StartSound(mo, sfx_hoop1)
 	end
 
 	//Angle adjustment
