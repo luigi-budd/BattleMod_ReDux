@@ -585,7 +585,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			player.runspeed = 0
 			mo.frame = 0
 			--mo.sprite2 = SPR2_RUN_
-			B.DrawSVSprite(player, 2+player.actiontime%4)
+			B.DrawSVSprite(player, 2+(player.actiontime/2)%2)
 
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,overlayZ(mo, auraMobj, (mo.flags2 & MF2_OBJECTFLIP)), auraMobj) --Spawn One
