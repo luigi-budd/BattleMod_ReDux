@@ -406,6 +406,7 @@ A.Exiting = function()
 		B.Timeout = max(0,$-1)
 
 		for player in players.iterate do
+			player.pflags = $|PF_GODMODE
 			if player.actiontext and player.textflash_flashing then
 				player.actiontext = B.TextFlash($, true, player)
 			end
