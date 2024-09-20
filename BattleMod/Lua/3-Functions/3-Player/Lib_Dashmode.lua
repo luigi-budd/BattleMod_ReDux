@@ -72,6 +72,7 @@ local dash_overlayOn = function(player, overlay, colorize, bool) --Choose to ena
     if player.mo and player.mo.valid then
         if colorize then --Colorize?
             player.mo.colorized = true --Colorize.
+			player.mo.renderflags = $|RF_FULLBRIGHT
         end
         if not overlay then return end --Work here is done if that's all we're doing.
         if player.dashmode >= DASHMODE_THRESHOLD then --If we're still in dashmode
@@ -94,6 +95,7 @@ local dash_overlayOff = function(player, overlay, colorize) --Only disable what 
     if player.mo and player.mo.valid then
         if colorize then --Colorize?
             player.mo.colorized = false --DeColorize.
+			player.mo.renderflags = $ & ~(RF_FULLBRIGHT)
         end
         if not overlay then return end --Stop if that's all we need.
         if player.mo.dashmode_mobj and player.mo.dashmode_mobj.valid then --If we have an overlay
