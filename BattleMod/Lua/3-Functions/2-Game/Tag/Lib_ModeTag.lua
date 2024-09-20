@@ -91,6 +91,7 @@ B.TagControl = function()
 	B.TagRunners = {}
 	B.TagTaggers = {}
 	for player in players.iterate do
+		if player.solchar then player.solchar.hasallemeralds = false end
 		if B.IsValidPlayer(player)
 			//attempt to move players that have quit to spectator
 			if player.quittime != nil and player.quittime > TICRATE * 3
