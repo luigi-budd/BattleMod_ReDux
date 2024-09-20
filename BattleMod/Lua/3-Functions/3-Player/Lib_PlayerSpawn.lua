@@ -27,6 +27,7 @@ B.PlayerBattleSpawnStart = function(player)
 	if not(player.playerstate == PST_LIVE) then return false end
 	if not(B.BattleGametype()) then return false end
 	player.battlespawning = 48
+	player.mo.rubyrun_shielddespawn = nil
 	S_StartSound(player.mo,sfx_s3kb8)
 	spawnanim(player)
 	if not player.revenge

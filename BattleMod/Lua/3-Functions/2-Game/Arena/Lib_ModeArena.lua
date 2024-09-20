@@ -330,10 +330,24 @@ local function stretchy(player)
 	--mo.spriteyoffset = $-(stretchy*mo.spritexscale)
 end
 
+local function rubyDelShield(player)
+	P_RemoveShield(player)
+	player.shieldstock = {}
+	if player.mo and player.mo.valid then
+		if not(player.mo.rubyrun_shielddespawn) then
+			local nega = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_NEGASHIELD)
+			nega.target = player.mo
+			player.mo.rubyrun_shielddespawn = true
+		end
+	end
+end
+
 local function rubyMovement(player, timeout)
 	if not(player.mo and player.mo.valid) then
 		return
 	end
+
+	rubyDelShield(player)
 
 	if (timeout == nil) then return end
 	local divisor = 10
