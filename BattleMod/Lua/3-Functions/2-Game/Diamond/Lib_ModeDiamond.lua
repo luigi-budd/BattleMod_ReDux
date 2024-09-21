@@ -442,6 +442,25 @@ D.CapturePointThinker = function(mo)
 	end
 end
 
+local textmapToEsc = {
+	[0] = "\x80",
+	[V_MAGENTAMAP] = "\x81",
+	[V_YELLOWMAP] = "\x82",
+	[V_GREENMAP] = "\x83",
+	[V_BLUEMAP] = "\x84",
+	[V_REDMAP] = "\x85",
+	[V_GRAYMAP] = "\x86",
+	[V_ORANGEMAP] = "\x87",
+	[V_SKYMAP] = "\x88",
+	[V_PURPLEMAP] = "\x89",
+	[V_AQUAMAP] = "\x8A",
+	[V_PERIDOTMAP] = "\x8B",
+	[V_AZUREMAP] = "\x8C",
+	[V_BROWNMAP] = "\x8D",
+	[V_ROSYMAP] = "\x8E",
+	[V_INVERTMAP] ="\x8F"
+}
+
 D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)	
 	mo.flags2 = $&~MF2_SHADOW
 	local function randomcolor() 
@@ -564,6 +583,9 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			end
 			S_StartSound(nil, B.ShortSound(player, sfx, lose), p)
 		end
+		local playertextmap = (pcall(do return skincolors[player.mo.color].chatcolor end) and skincolors[player.mo.color].chatcolor) or 0
+		local playerEsc = (rawget(textmapToEsc, playertextmap) and textmapToEsc[playertextmap]) or "\x80"
+		local teamEsc = ((player.ctfteam == 1) and "\x85") or ((player.ctfteam == 2) and "\x84")
 		if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
 		or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 1)
 		then
@@ -575,9 +597,10 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			B.DoFirework(player.mo)
 
 			--Reuse CTF's capture HUD
+			
 			B.CTF.GameState.CaptureHUDTimer = 2*TICRATE
-			B.CTF.GameState.CaptureHUDName = player.name
-			B.CTF.GameState.CaptureHUDTeam = skincolors[player.skincolor].chatcolor
+			B.CTF.GameState.CaptureHUDName = (teamEsc or playerEsc)..player.name.."\x80"
+			B.CTF.GameState.CaptureHUDTeam = 0 --For now...
 		else
 			if player.captures == nil then
 				player.captures = 0

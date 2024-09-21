@@ -14,6 +14,8 @@ local applyflip = function(mo1, mo2)
 	else
 		mo2.flags2 = $ & ~MF2_OBJECTFLIP
 	end
+
+	return mo2
 end
 
 
@@ -72,14 +74,13 @@ local spawnslashes = function(player, mo)
 	angoff = P_RandomRange(90,270)*ANG1
 	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-	z = mo.z--overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
-	P_SpawnMobj(x,y,z,MT_DUST)
-	
+	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and FixedMul(mobjinfo[MT_DUST].height, mo.scale)) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
+	applyflip(mo, P_SpawnMobj(x,y,z,MT_DUST))
 	--Slashes
 	local dist = 46*mo.scale
 	local x,y,z,s
 	local angoff = -ANGLE_90
-	z = mo.z--overlayZ(mo, MT_SLASH, (mo.flags2 & MF2_OBJECTFLIP))
+	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and (mo.height/2)) or 0)
 	if player.actiontime&1 then
 		x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 		y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
@@ -90,7 +91,7 @@ local spawnslashes = function(player, mo)
 		s = S_SLASH1
 		S_StartSound(mo,sfx_rail1)
 	end
-	local missile = P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z)
+	local missile = applyflip(mo, P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z))
 	if missile and missile.valid then
 		--applyflip(mo, missile)
 		missile.state = s
@@ -242,7 +243,8 @@ B.MetalAura = function(mo,target, override)
 	mo.scale = target.scale
 	mo.colorized = true --colorize
 	mo.color = target.color
-	mo.blendmode = blendtable[boolToBin((leveltime % 2 == 0))+1] --Blink blendmode
+	--mo.blendmode = blendtable[boolToBin((leveltime % 2 == 0))+1] --Blink blendmode
+	mo.frame = $|FF_TRANS60
 	if P_MobjFlip(target) == 1
 		mo.eflags = $&~MFE_VERTICALFLIP
 		P_MoveOrigin(mo,target.x,target.y,target.z+target.height/4)
@@ -269,17 +271,6 @@ B.SparkAura = function(mo,target, override)
 	--if target.player.actiontime > 999 then
 	mo.flags2 = $ & ~(MF2_DONTDRAW)
 	--end
-end
-
-B.Auras = {}
-
-function B.AuraThinker()
-	for i = 1, #B.Auras do
-		local aura = B.Auras[i]
-		if aura.valid then
-			B.SparkAura(aura, aura.target)
-		end
-	end
 end
 
 ---Metal Sonic "gather" spheres-
@@ -371,14 +362,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		return
 	end
 
-	if not(charging or chargetrigger or ((player.actionstate == state_energyblast) and player.actiontime < 100))  then
+	/*if not(charging or chargetrigger or ((player.actionstate == state_energyblast) and player.actiontime < 100))  then
 		S_StopSoundByID(mo, sfx_bechrg)
-	end
+	end*/
 	
 	//Start charging blast
 	if chargetrigger
 		B.PayRings(player,player.actionrings)
-		S_StartSound(mo, sfx_bechrg)
+		--S_StartSound(mo, sfx_bechrg)
 		player.actionstate = state_charging
 		player.actiontime = 0
 		player.energyattack_chargemeter = FRACUNIT
@@ -400,13 +391,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Charging Blast
 	if charging then
 		//Do aim sights
-		player.actiontext = "Energy Blast  ".."\x82"..player.actionrings.."\x80" --Tell the player they can release for a blast
+		player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80" --Tell the player they can release or hold for a blast
 		B.DrawAimLine(player,mo.angle)
-		if player.actiontime > threshold2
-			--B.DrawAimLine(player,mo.angle+sideangle*(blastcount2>>1))
-			--B.DrawAimLine(player,mo.angle-sideangle*(blastcount2>>1))
-			player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80"
-		end
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
 		player.energyattack_chargemeter = max(0,$-(FRACUNIT/TICRATE/2))
@@ -589,12 +575,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			player.runspeed = 0
 			mo.frame = 0
 			--mo.sprite2 = SPR2_RUN_
-			B.DrawSVSprite(player, 2+player.actiontime%4)
+			B.DrawSVSprite(player, 2+(player.actiontime/2)%2)
 
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,overlayZ(mo, auraMobj, (mo.flags2 & MF2_OBJECTFLIP)), auraMobj) --Spawn One
 				mo.energyattack_sparkaura.flags2 = $|MF2_DONTDRAW
-				table.insert(B.Auras, mo.energyattack_sparkaura)
+				--table.insert(B.Auras, mo.energyattack_sparkaura)
 				mo.energyattack_sparkaura.target = mo
 			end
 			
