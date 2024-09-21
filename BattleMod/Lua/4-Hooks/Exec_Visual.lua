@@ -212,17 +212,18 @@ local function BattleTagPointers(mo)
 	//change the appearance based on distance of targeted runner
 	mo.frame = $ & ~FF_TRANSMASK
 	local blink
-	if mo.closedist <= 100 * FRACUNIT
+	mo.closedist = $ / (FRACUNIT * 60)
+	if mo.closedist <= 2
 		blink = 1
-	elseif mo.closedist <= 1000 * FRACUNIT
+	elseif mo.closedist <= 20
 		mo.scale = mo.tracer.scale
 		blink = 3
 		mo.frame = $ | FF_TRANS10
-	elseif mo.closedist <= 3000 * FRACUNIT
+	elseif mo.closedist <= 60
 		mo.scale = mo.tracer.scale - (mo.tracer.scale / 4)
 		blink = 6
 		mo.frame = $ | FF_TRANS30
-	elseif mo.closedist <= 7500 * FRACUNIT
+	elseif mo.closedist <= 180
 		mo.scale = mo.tracer.scale / 2
 		blink = 12
 		mo.frame = $ | FF_TRANS50
