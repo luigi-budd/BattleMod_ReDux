@@ -14,6 +14,8 @@ local applyflip = function(mo1, mo2)
 	else
 		mo2.flags2 = $ & ~MF2_OBJECTFLIP
 	end
+
+	return mo2
 end
 
 
@@ -72,14 +74,13 @@ local spawnslashes = function(player, mo)
 	angoff = P_RandomRange(90,270)*ANG1
 	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-	z = (((player.mo.flags2 & MF2_OBJECTFLIP) and player.mo.height) or 0) + mo.z--overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
-	P_SpawnMobj(x,y,z,MT_DUST)
-	
+	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and mobjinfo[MT_DUST].height) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
+	applyflip(mo, P_SpawnMobj(x,y,z,MT_DUST))
 	--Slashes
 	local dist = 46*mo.scale
 	local x,y,z,s
 	local angoff = -ANGLE_90
-	z = (((player.mo.flags2 & MF2_OBJECTFLIP) and player.mo.height) or 0) + mo.z
+	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and (mo.height/2)) or 0)
 	if player.actiontime&1 then
 		x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 		y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
@@ -90,7 +91,7 @@ local spawnslashes = function(player, mo)
 		s = S_SLASH1
 		S_StartSound(mo,sfx_rail1)
 	end
-	local missile = P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z)
+	local missile = applyflip(mo, P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z))
 	if missile and missile.valid then
 		--applyflip(mo, missile)
 		missile.state = s
@@ -270,17 +271,6 @@ B.SparkAura = function(mo,target, override)
 	--if target.player.actiontime > 999 then
 	mo.flags2 = $ & ~(MF2_DONTDRAW)
 	--end
-end
-
-B.Auras = {}
-
-function B.AuraThinker()
-	for i = 1, #B.Auras do
-		local aura = B.Auras[i]
-		if aura.valid then
-			B.SparkAura(aura, aura.target)
-		end
-	end
 end
 
 ---Metal Sonic "gather" spheres-
