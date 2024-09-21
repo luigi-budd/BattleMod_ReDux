@@ -580,7 +580,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,overlayZ(mo, auraMobj, (mo.flags2 & MF2_OBJECTFLIP)), auraMobj) --Spawn One
 				mo.energyattack_sparkaura.flags2 = $|MF2_DONTDRAW
-				table.insert(B.Auras, mo.energyattack_sparkaura)
+				--table.insert(B.Auras, mo.energyattack_sparkaura)
 				mo.energyattack_sparkaura.target = mo
 			end
 			
