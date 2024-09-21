@@ -74,7 +74,7 @@ local spawnslashes = function(player, mo)
 	angoff = P_RandomRange(90,270)*ANG1
 	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and mobjinfo[MT_DUST].height) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
+	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and FixedMul(mobjinfo[MT_DUST].height, mo.scale)) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
 	applyflip(mo, P_SpawnMobj(x,y,z,MT_DUST))
 	--Slashes
 	local dist = 46*mo.scale
