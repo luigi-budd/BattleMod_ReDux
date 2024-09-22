@@ -429,6 +429,9 @@ A.Exiting = function()
 		if gametype == GT_RUBYRUN
 			R.RubyWinTimeout = $-1
 			for player in players.iterate do
+				player.slipping = false
+				player.actionstate = 0
+				player.actiontime = 0
 				rubyMovement(player, R.RubyWinTimeout)
 			end
 			rubyAnim(R.RubyWinTimeout)
