@@ -5,8 +5,9 @@ R.FadeColor = 176
 
 local captime = CV.RubyCaptureTime.value * TICRATE
 
-R.HUD = function(v, player, cam)
-	if not (B.HUDMain) then return end
+R.FadeFunc = function(v, player)
+
+	player = $ or displayplayer
 
 	--Ruby Run
 	if (B.Timeout > 1) or ((B.Timeout < (TICRATE + (TICRATE/5))) and player.exiting) or R.RubyFade == 10 then
@@ -17,6 +18,12 @@ R.HUD = function(v, player, cam)
 		v.fadeScreen(R.FadeColor, R.RubyFade)
 	end
 	--Fade
+end
+
+R.HUD = function(v, player, cam)
+	if not (B.HUDMain) then return end
+
+	R.FadeFunc(v, player)
 
 	if not (player.realmo and player.realmo.valid) then return end
 
