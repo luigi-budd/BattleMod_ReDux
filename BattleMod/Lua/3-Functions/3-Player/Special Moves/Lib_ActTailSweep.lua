@@ -56,7 +56,7 @@ B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	if pain[n1] or not(plr[n1] and plr[n1].valid) then
 		return
 	end
-	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < 2))
+	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < 2 and not plr[n2].nodamage))
 		plr[n1].tailsmarker = true
 	elseif plr[n1].actionstate
 		local shake1 = P_SpawnMobjFromMobj(mo[n1], 0, 0, mo[n1].height/2, MT_THOK)
