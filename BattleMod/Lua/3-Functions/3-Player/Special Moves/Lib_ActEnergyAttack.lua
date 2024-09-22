@@ -659,6 +659,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if (player.actionstate == state_dashslicerprep) then
+		player.actiontext = "Dash Slicer Claw"
 		mo.state = S_PLAY_DASH
 		mo.frame = 0
 		mo.sprite2 = SPR2_DASH
