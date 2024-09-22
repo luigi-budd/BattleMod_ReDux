@@ -86,6 +86,7 @@ function B.SpawnFlash(mo, tics, circle)
 		circle.fuse = 7
 		circle.scale = mo.scale / 3
 		circle.destscale = 10*mo.scale
+		circle.scalespeed = mo.scale/12
 		circle.colorized = true
 		circle.blendmode = AST_OVERLAY
 		circle.color = mo.color
