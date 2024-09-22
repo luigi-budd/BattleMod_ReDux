@@ -532,6 +532,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if player.actionstate == state_ringsparkprep then
+		player.actiontext = "Ring Spark Field" --Show the player we're ring sparking
 
 		player.powers[pw_strong] = 0
 	
@@ -592,7 +593,6 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					S_StartSound(mo, sfx_s3k40)
 					mo.energyattack_sparkaura.sfx = true
 				end
-				player.actiontext = "Ring Spark Field" --Show the player we're ring sparking
 				
 				--SearchForAndDestroyMonitors(player)
 				
