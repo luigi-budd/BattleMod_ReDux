@@ -27,6 +27,9 @@ B.InputControl = function(player)
 		else
 			player.cmd.forwardmove = 0
 			player.cmd.sidemove = 0
+			if (player.pflags & PF_ANALOGMODE) then
+				player.drawangle = B.GetInputAngle(player)
+			end
 		end
 	end
 	if (player.mo and player.mo.valid) and (player.mo.state == S_PLAY_FLY_TIRED
