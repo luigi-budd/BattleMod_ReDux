@@ -332,18 +332,6 @@ B.flashingnerf = function(player)
 	end
 end
 
-B.hammerthrustfactor = function(player)
-	if not (player.mo and player.charability2 == CA2_MELEE) then return end
-	local skin = skins[player.mo.skin]
-	if not (P_IsObjectOnGround(player.mo) or player.gotflagdebuff) then
-		player.thrustfactor = skin.thrustfactor+3
-		player.hammerthrust = true
-	elseif player.hammerthrust then
-		player.thrustfactor = skin.thrustfactor
-		player.hammerthrust = false
-	end
-end
-
 B.tailsthrow = function(player)
 	if not player.tailsthrown then return end
 	local tails = player.tailsthrown.mo
@@ -482,7 +470,6 @@ B.CharAbilityControl = function(player)
 	B.weight(player)
 	B.exhaust(player)
 	B.flashingnerf(player)
-	B.hammerthrustfactor(player)
 	B.tailsthrow(player)
 	B.sneakertrail(player)
 	B.invinciblespark(player)

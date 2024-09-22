@@ -111,8 +111,9 @@ B.hammerjump = function(player,power)
 	local h = power and 6 or 2
 	local v = power and 13 or 10
 		
-	if (player.cmd.buttons & BT_SPIN)
-	or (power and not(player.cmd.buttons & BT_JUMP))
+	if (player.cmd.buttons & BT_SPIN or power and not(player.cmd.buttons & BT_JUMP))
+	and not player.gotflagdebuff
+	then
 		h = $*8
 		v = $*2/3
 	end
