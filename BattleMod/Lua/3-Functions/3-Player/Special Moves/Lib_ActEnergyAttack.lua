@@ -3,19 +3,23 @@ local B = CBW_Battle
 
 
 local applyflip = function(mo1, mo2)
-	if mo1.eflags & MFE_VERTICALFLIP then
-		mo2.eflags = $|MFE_VERTICALFLIP
-	else
-		mo2.eflags = $ & ~MFE_VERTICALFLIP
+
+	if (mo1 and mo1.valid) and (mo2 and mo2.valid) then
+		if mo1.eflags & MFE_VERTICALFLIP then
+			mo2.eflags = $|MFE_VERTICALFLIP
+		else
+			mo2.eflags = $ & ~MFE_VERTICALFLIP
+		end
+		
+		if mo1.flags2 & MF2_OBJECTFLIP then
+			mo2.flags2 = $|MF2_OBJECTFLIP
+		else
+			mo2.flags2 = $ & ~MF2_OBJECTFLIP
+		end
+
+		return mo2
 	end
 	
-	if mo1.flags2 & MF2_OBJECTFLIP then
-		mo2.flags2 = $|MF2_OBJECTFLIP
-	else
-		mo2.flags2 = $ & ~MF2_OBJECTFLIP
-	end
-
-	return mo2
 end
 
 
