@@ -246,7 +246,7 @@ B.exhaust = function(player)
 
 	local ringsparkExhaust = 25
 	local state_ringspark = 4 --Magic Number :(
-	local ringspark = ((player.actionstate == state_ringspark) and player.energyattack_ringsparktimer and (player.energyattack_ringsparktimer > ringsparkExhaust))
+	local ringspark = ((player.actionstate == state_ringspark) and mo.energyattack_ringsparktimer and (mo.energyattack_ringsparktimer > ringsparkExhaust))
 	local floaty = (player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING))
 
 	if floaty and not(ringspark) then
