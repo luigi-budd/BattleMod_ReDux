@@ -177,7 +177,7 @@ local dash_sfxThink = function(player) --Dashmode SFX
 	if not(player and player.mo and player.mo.valid) then return end
 
 	if player.dashmode >= DASHMODE_THRESHOLD then --Dashing
-		if not(playing) then
+		if not(S_SoundPlaying(player.mo, sfx_dashe)) then
 			B.teamSound(player.mo, player, sfx_nullba, sfx_dashe, dash_sfxvol, false)
 		end
 	elseif (S_SoundPlaying(player.mo, sfx_dashe)) then
