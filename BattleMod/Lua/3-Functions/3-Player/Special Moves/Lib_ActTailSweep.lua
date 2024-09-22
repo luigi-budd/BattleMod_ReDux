@@ -319,6 +319,9 @@ B.Action.TailSwipe = function(mo,doaction)
 			B.teamSound(mo, player, sfx_tswit, sfx_tswie, 255, false)
 		end
 		player.actiontext = B.TextFlash("Tail Swipe", (doaction == 1), player)
+		B.DrawAimLine(player,mo.angle+sideangle)
+		B.DrawAimLine(player,mo.angle)
+		B.DrawAimLine(player,mo.angle-sideangle)
 	elseif not(flying or player.actionstate == state_dash) then
 		player.actiontext = player.actionstate and "Tail Swipe" or "Tail Sweep"
 	elseif not(carrying)
