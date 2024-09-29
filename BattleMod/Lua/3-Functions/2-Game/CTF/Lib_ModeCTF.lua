@@ -205,10 +205,15 @@ end
 
 -- Makes an injured or dead player lose possession of the flag.
 -- if `toss` is nonzero, it indicates tossing the flag.
-F.PlayerFlagBurst = function(p, toss)
+F.PlayerFlagBurst = function(p, toss, suicideflagdrop)
 		if gametype ~= GT_BATTLECTF then return end
-		if not p.gotflag then return end -- player MUST have a flag for this to occur!
-
+		if not p.gotflag and not suicideflagdrop then 
+		return end -- player MUST have a flag for this to occur!
+		// make sure we drop flag if played died by suicide
+		if not p.gotflagdebuff and suicideflagdrop then
+			return
+		end
+		
 		if p.mo.flag_indicator then
 			P_RemoveMobj(p.mo.flag_indicator)
 			p.mo.flag_indicator = nil
