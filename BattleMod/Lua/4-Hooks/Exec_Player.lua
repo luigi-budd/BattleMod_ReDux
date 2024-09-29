@@ -28,6 +28,35 @@ addHook("PlayerSpawn",function(player)
 	B.PlayerBattleSpawnStart(player)
 end)
 
+// get the mass of springs so we can nerf powersprining while flag/diamond holding
+local function GetMassOfSpring(mo, spring)
+	if not mo.valid
+	or not spring.valid
+	or mo.z > spring.z + spring.height
+	or spring.z > mo.z + mo.height
+		return
+	end
+	
+	if spring.flags&MF_SPRING then
+		local dont_spring = false
+		if mo.player and mo.player.valid then
+			mo.powerspringnerf = (spring.info.mass/FRACUNIT)*spring.scale
+			if mo.eflags&MFE_SPRUNG then
+				dont_spring = true
+			end
+		end
+		// assume we have an object that can interact with springs
+		if not dont_spring and mo.target and mo.target.valid and mo.target.player 
+		and mo.info.mass > 0 and (mo.flags & (MF_SOLID|MF_NOCLIPHEIGHT)) then
+			mo.target.powerspringnerf = (spring.info.mass/FRACUNIT)*spring.scale
+		end
+	end
+	
+end
+
+addHook("MobjCollide", GetMassOfSpring)
+addHook("MobjMoveCollide", GetMassOfSpring)
+
 --Handle player vs player collision
 addHook("TouchSpecial", B.PlayerTouch,MT_PLAYER)
 
@@ -118,7 +147,25 @@ addHook("PlayerThink", function(player)
 	B.AutoSpectator(player)
 	-- Spring checks (Should this be dropped in `Exec_Springs.lua`?)
 	if player.mo and player.mo.valid then
+		player.suicide_watch = true // is this joke too dark?
+		// powerspring nerf
+		if player.springnerfdelay and player.mo.powerspringnerf then
+			if P_MobjFlip(player.mo) > 0 and player.mo.momz > player.mo.powerspringnerf then
+				player.mo.momz = $-(player.mo.powerspringnerf/6)
+			elseif P_MobjFlip(player.mo) < 0 and player.mo.momz-player.mo.scale < player.mo.powerspringnerf then
+				player.mo.momz = $+(player.mo.powerspringnerf/6)
+			end
+			player.mo.powerspringnerf = 0
+			player.springnerfdelay = 0
+		end
+		
 		if player.mo.eflags&MFE_SPRUNG and not (player.pflags&PF_BOUNCING) then
+			if player.gotflagdebuff and player.mo.powerspringnerf and not player.springnerfdelay then
+				if (player.mo.eflags & MFE_UNDERWATER) then
+					player.mo.powerspringnerf = $*7/6
+				end
+				player.springnerfdelay = 1 // we need to delay it so it will effect custom chars
+			end
 			B.ResetPlayerProperties(player)
 			if P_IsObjectOnGround(player.mo) and not (player.pflags&PF_SPINNING) then
 				player.mo.state = S_PLAY_WALK
@@ -159,6 +206,7 @@ end,MT_TARGETDUMMY)
 --Damage triggered
 addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	if not(target.player) then return end
+	target.player.suicide_watch = false // we can confierm the death was not by suicide
 	-- Don't take damage while in a zoom tube
 	if target.player.powers[pw_carry] == CR_ZOOMTUBE then return true end
 	-- Don't take damage during setup phase
@@ -244,10 +292,14 @@ end)
 addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	local killer
 	local player = target.player
-
+	local suicideflagdrop = false
+	
 	-- Drop flag if player has one
 	if target and target.player then
-       	F.PlayerFlagBurst(target.player, 0)
+		if not source and not inflictor and damagetype == 0 and player.suicide_watch then
+			suicideflagdrop = true
+		end
+       	F.PlayerFlagBurst(target.player, 0, suicideflagdrop)
     end
 	
 	--Standard kill
@@ -265,6 +317,8 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		P_AddPlayerScore(player.pushed_creditplr,50)
 		B.DebugPrint(player.pushed_creditplr.name.." received 50 points for sending "..player.name.." to their demise")
 	end
+
+	if player.spectator then return end // dont give the penalty to spectators
 
 	--Player ran out of lives in Survival mode
 	if player.lives == 1 and B.BattleGametype() and G_GametypeUsesLives()
