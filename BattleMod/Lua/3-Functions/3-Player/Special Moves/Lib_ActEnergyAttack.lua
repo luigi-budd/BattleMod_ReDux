@@ -3,17 +3,23 @@ local B = CBW_Battle
 
 
 local applyflip = function(mo1, mo2)
-	if mo1.eflags & MFE_VERTICALFLIP then
-		mo2.eflags = $|MFE_VERTICALFLIP
-	else
-		mo2.eflags = $ & ~MFE_VERTICALFLIP
+
+	if (mo1 and mo1.valid) and (mo2 and mo2.valid) then
+		if mo1.eflags & MFE_VERTICALFLIP then
+			mo2.eflags = $|MFE_VERTICALFLIP
+		else
+			mo2.eflags = $ & ~MFE_VERTICALFLIP
+		end
+		
+		if mo1.flags2 & MF2_OBJECTFLIP then
+			mo2.flags2 = $|MF2_OBJECTFLIP
+		else
+			mo2.flags2 = $ & ~MF2_OBJECTFLIP
+		end
+
+		return mo2
 	end
 	
-	if mo1.flags2 & MF2_OBJECTFLIP then
-		mo2.flags2 = $|MF2_OBJECTFLIP
-	else
-		mo2.flags2 = $ & ~MF2_OBJECTFLIP
-	end
 end
 
 
@@ -72,14 +78,13 @@ local spawnslashes = function(player, mo)
 	angoff = P_RandomRange(90,270)*ANG1
 	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-	z = mo.z--overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
-	P_SpawnMobj(x,y,z,MT_DUST)
-	
+	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and FixedMul(mobjinfo[MT_DUST].height, mo.scale)) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
+	applyflip(mo, P_SpawnMobj(x,y,z,MT_DUST))
 	--Slashes
 	local dist = 46*mo.scale
 	local x,y,z,s
 	local angoff = -ANGLE_90
-	z = mo.z--overlayZ(mo, MT_SLASH, (mo.flags2 & MF2_OBJECTFLIP))
+	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and (mo.height/2)) or 0)
 	if player.actiontime&1 then
 		x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 		y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
@@ -90,7 +95,7 @@ local spawnslashes = function(player, mo)
 		s = S_SLASH1
 		S_StartSound(mo,sfx_rail1)
 	end
-	local missile = P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z)
+	local missile = applyflip(mo, P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z))
 	if missile and missile.valid then
 		--applyflip(mo, missile)
 		missile.state = s
@@ -149,12 +154,12 @@ local boolToBin = function(bool) --abstraction part 2
 	end
 end
 
-local resetvars = function(player)
-	player.energyattack_chargebuffer = 0
-	player.energyattack_counter = 0
-	player.energyattack_charged = 0
-	player.energyattack_chargemeter = 0
-	player.energyattack_ringsparktimer = 0
+local resetvars = function(mo)
+	mo.energyattack_chargebuffer = 0
+	mo.energyattack_counter = 0
+	mo.energyattack_charged = 0
+	mo.energyattack_chargemeter = 0
+	mo.energyattack_ringsparktimer = 0
 end
 
 
@@ -201,15 +206,15 @@ local drainSpark = function(player)
 	P_GivePlayerRings(player, -1)
 	S_StopSoundByID(player.mo, sfx_antiri)
 	S_StartSound(player.mo, sfx_antiri, player)
-	player.energyattack_ringsparktimer = $+1
+	player.mo.energyattack_ringsparktimer = $+1
 end
 
 local stallOrFall = function(mo, player, cooldown)
-	if player.energyattack_chargebuffer > 1 then
+	if mo.energyattack_chargebuffer > 1 then
 		chargestall(mo, player)
 	else
 		chargefall(player)
-		resetvars(player)
+		resetvars(mo)
 		if cooldown then
 			B.ApplyCooldown(player,cooldown)
 		end
@@ -217,12 +222,12 @@ local stallOrFall = function(mo, player, cooldown)
 end
 
 local resetRingSpark = function(mo, player)
-	player.ringsparkclock = 0
+	mo.ringsparkclock = 0
 	player.actionstate = 0
 	player.actiontime = 0
 	resetdashmode(player)
 	B.ApplyCooldown(player,cooldown_ringspark)
-	resetvars(player)
+	resetvars(mo)
 	player.runspeed = skins[mo.skin].runspeed
 	if not(skins[mo.skin].flags & SF_NOSKID) then
 		player.charflags = $ & ~(SF_NOSKID)
@@ -242,7 +247,8 @@ B.MetalAura = function(mo,target, override)
 	mo.scale = target.scale
 	mo.colorized = true --colorize
 	mo.color = target.color
-	mo.blendmode = blendtable[boolToBin((leveltime % 2 == 0))+1] --Blink blendmode
+	--mo.blendmode = blendtable[boolToBin((leveltime % 2 == 0))+1] --Blink blendmode
+	mo.frame = $|FF_TRANS60
 	if P_MobjFlip(target) == 1
 		mo.eflags = $&~MFE_VERTICALFLIP
 		P_MoveOrigin(mo,target.x,target.y,target.z+target.height/4)
@@ -271,17 +277,6 @@ B.SparkAura = function(mo,target, override)
 	--end
 end
 
-B.Auras = {}
-
-function B.AuraThinker()
-	for i = 1, #B.Auras do
-		local aura = B.Auras[i]
-		if aura.valid then
-			B.SparkAura(aura, aura.target)
-		end
-	end
-end
-
 ---Metal Sonic "gather" spheres-
 B.EnergyGather = function(mo,target,xyangle,zangle)
 	if not(target and target.valid and target.player and target.player.actionstate == state_charging) then
@@ -305,7 +300,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
 			B.ApplyCooldown(player, cooldown_cancel)
 			resetdashmode(player)
-			resetvars(player)
+			resetvars(mo)
 			player.actiontime = 0
 			player.actionstate = 0
 		end
@@ -313,36 +308,36 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.actiontext = "Energy Charge"
 	end
 	
-	player.energyattack_chargemeter = max(0, ($ or 1))
+	mo.energyattack_chargemeter = max(0, ($ or 1))
 	
 	if (player.actionstate == state_energyblast) or (player.actionstate == state_charging) then
-		player.energyattack_chargemeter = $-1
+		mo.energyattack_chargemeter = $-1
 	end
 	
 	if player.actionstate ~= state_ringspark then--If we're not Ring Sparking 
 		player.actionrings = 10 --Everything costs 5 rings
-		player.energyattack_ringsparktimer = 0
+		mo.energyattack_ringsparktimer = 0
 	end
 
 	--print(player.playerstate == PST_LIVE)
 
 	if player.actionstate ~= state_dashslicer then
-		player.energyattack_sliceangle = nil
+		mo.energyattack_sliceangle = nil
 	end
 	
 	player.actiontime = $+1 --Timer
-	player.energyattack_chargebuffer = max(0, ($ or 1))
-	player.energyattack_chargebuffer = $-1
-	player.ringsparkclock = $ or 0
-	--print(player.energyattack_chargebuffer)
-	if player.energyattack_chargemeter < FRACUNIT and player.actionstate == state_charging then
-		player.action2text = "Charge "..100-(100*player.energyattack_chargemeter/FRACUNIT).."%"
+	mo.energyattack_chargebuffer = max(0, ($ or 1))
+	mo.energyattack_chargebuffer = $-1
+	mo.ringsparkclock = $ or 0
+	--print(mo.energyattack_chargebuffer)
+	if mo.energyattack_chargemeter < FRACUNIT and player.actionstate == state_charging then
+		player.action2text = "Charge "..100-(100*mo.energyattack_chargemeter/FRACUNIT).."%"
 	end
 	
 	if not(B.CanDoAction(player) or player.actionstate >= state_dashslicer) then
 		if B.GetSVSprite(player) then
 			B.ResetPlayerProperties(player,false,false)
-			resetvars(player)
+			resetvars(mo)
 			return 
 		end
 		return 
@@ -350,12 +345,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	
 	//Action triggers
 	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)
-	local charging = not(slashtrigger) and (player.actionstate ~= state_dashslicerprep) and player.energyattack_chargemeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
+	local charging = not(slashtrigger) and (player.actionstate ~= state_dashslicerprep) and mo.energyattack_chargemeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
 	local sparktrigger = attackready and B.PlayerButtonPressed(player,BT_SPIN,false) 
-	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((attackready and doaction == 0) or (player.energyattack_chargemeter <= 0 and doaction == 2))
+	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((attackready and doaction == 0) or (mo.energyattack_chargemeter <= 0 and doaction == 2))
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local slashtrigger = not(sparktrigger) and attackready and doaction == 2 and B.PlayerButtonPressed(player,BT_JUMP,false)
-	local charged = (player.energyattack_chargemeter <= 0) 
+	local charged = (mo.energyattack_chargemeter <= 0) 
 	local canceltrigger =
 		not(blasttrigger or sparktrigger or slashtrigger)
 		and player.actionstate == state_charging
@@ -367,21 +362,21 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if (player.actionstate == state_charging or player.actionstate == state_energyblast) and player.powers[pw_nocontrol] then
 		player.actionstate = 0
 		B.ApplyCooldown(player,cooldown_cancel)
-		resetvars(player)
+		resetvars(mo)
 		return
 	end
 
-	if not(charging or chargetrigger or ((player.actionstate == state_energyblast) and player.actiontime < 100))  then
+	/*if not(charging or chargetrigger or ((player.actionstate == state_energyblast) and player.actiontime < 100))  then
 		S_StopSoundByID(mo, sfx_bechrg)
-	end
+	end*/
 	
 	//Start charging blast
 	if chargetrigger
 		B.PayRings(player,player.actionrings)
-		S_StartSound(mo, sfx_bechrg)
+		--S_StartSound(mo, sfx_bechrg)
 		player.actionstate = state_charging
 		player.actiontime = 0
-		player.energyattack_chargemeter = FRACUNIT
+		mo.energyattack_chargemeter = FRACUNIT
 		if player.dashmode >= TICRATE*3 then
 			player.actiontime = threshold1
 		end
@@ -400,16 +395,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Charging Blast
 	if charging then
 		//Do aim sights
-		player.actiontext = "Energy Blast  ".."\x82"..player.actionrings.."\x80" --Tell the player they can release for a blast
+		player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80" --Tell the player they can release or hold for a blast
 		B.DrawAimLine(player,mo.angle)
-		if player.actiontime > threshold2
-			--B.DrawAimLine(player,mo.angle+sideangle*(blastcount2>>1))
-			--B.DrawAimLine(player,mo.angle-sideangle*(blastcount2>>1))
-			player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80"
-		end
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
-		player.energyattack_chargemeter = max(0,$-(FRACUNIT/TICRATE/2))
+		mo.energyattack_chargemeter = max(0,$-(FRACUNIT/TICRATE/2))
 		
 		--Gather spheres
 		local gather = P_SpawnMobj(mo.x,mo.y,mo.z+mo.height/2,MT_ENERGYGATHER)
@@ -458,7 +448,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Unable to charge
 	if canceltrigger then
 		B.ResetPlayerProperties(player,false,false)
-		resetvars(player)
+		resetvars(mo)
 		player.actiontime = -1
 		S_StartSound(mo,sfx_s3k7d)
 		B.ApplyCooldown(player,cooldown_cancel)
@@ -467,11 +457,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Release blast
 	if (blasttrigger) then
 		doBlast(mo, player) --blast
-		player.energyattack_chargebuffer = blastbuffer --set buffer
+		mo.energyattack_chargebuffer = blastbuffer --set buffer
 		if charged then
-			player.energyattack_charged = true --make it known
+			mo.energyattack_charged = true --make it known
 			B.PayRings(player,player.actionrings/2)
-			--player.energyattack_chargemeter = FRACUNIT
+			--mo.energyattack_chargemeter = FRACUNIT
 		else
 			stallOrFall(mo, player, cooldown_blast)
 		end
@@ -493,25 +483,25 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	
 	//Charge release state
 	if player.actionstate == state_energyblast then
-		player.energyattack_counter = $ or 0 --make counter if non-existent
-		if player.energyattack_charged then
+		mo.energyattack_counter = $ or 0 --make counter if non-existent
+		if mo.energyattack_charged then
 			local val = (player.actionrings/2)
 			player.actiontext = "Energy Blast  ".."\x82"..val.."\x80"
-			player.action2text = "Blasts Left: "..2-player.energyattack_counter
+			player.action2text = "Blasts Left: "..2-mo.energyattack_counter
 			if (doaction == 2) then --if we're charged
 				--print("charged and holding down")
-				if player.energyattack_counter < 2 then --if we have not blasted 3 times
+				if mo.energyattack_counter < 2 then --if we have not blasted 3 times
 					B.DrawAimLine(player,mo.angle) --aim lines my beloved
 					--print("counter less than two")
 					chargestall(mo, player)
-					if (player.energyattack_chargebuffer < 1) then --If the buffer has passed and we're still holding down the button
+					if (mo.energyattack_chargebuffer < 1) then --If the buffer has passed and we're still holding down the button
 						--print("buffer zero")
-						player.energyattack_counter = $+1 --Increase blast count
+						mo.energyattack_counter = $+1 --Increase blast count
 						doBlast(mo, player) --blast
 						B.PayRings(player,player.actionrings/2) --Charge
-						player.energyattack_chargebuffer = blastbuffer --set buffer
+						mo.energyattack_chargebuffer = blastbuffer --set buffer
 					else
-						if player.energyattack_chargebuffer < blastbuffer/2 then --"My cat vomitting on the floor at 3am"
+						if mo.energyattack_chargebuffer < blastbuffer/2 then --"My cat vomitting on the floor at 3am"
 							mo.state = S_PLAY_WALK
 							B.DrawSVSprite(player,1)
 						end
@@ -523,11 +513,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					else
 						stallOrFall(mo, player, cooldown_blast)
 					end
-					--resetvars(player)
+					--resetvars(mo)
 				end
 			else
 				stallOrFall(mo, player, cooldown_blast)
-				--resetvars(player)
+				--resetvars(mo)
 			end
 		else
 			stallOrFall(mo, player, cooldown_blast)
@@ -546,6 +536,9 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if player.actionstate == state_ringsparkprep then
+		player.actiontext = "Ring Spark Field" --Show the player we're ring sparking
+
+		player.powers[pw_strong] = 0
 	
 		player.airdodge = -1
 		
@@ -580,7 +573,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	
 		if player.exhaustmeter > 1 then
 
-			player.ringsparkclock = $+1 
+			mo.ringsparkclock = $+1 
 		
 			if player.actiontime <= forcetime_ringspark then
 				player.airdodge = -1
@@ -589,12 +582,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			player.runspeed = 0
 			mo.frame = 0
 			--mo.sprite2 = SPR2_RUN_
-			B.DrawSVSprite(player, 2+player.actiontime%4)
+			B.DrawSVSprite(player, 2+(player.actiontime/2)%2)
 
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,overlayZ(mo, auraMobj, (mo.flags2 & MF2_OBJECTFLIP)), auraMobj) --Spawn One
 				mo.energyattack_sparkaura.flags2 = $|MF2_DONTDRAW
-				table.insert(B.Auras, mo.energyattack_sparkaura)
+				--table.insert(B.Auras, mo.energyattack_sparkaura)
 				mo.energyattack_sparkaura.target = mo
 			end
 			
@@ -604,22 +597,21 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					S_StartSound(mo, sfx_s3k40)
 					mo.energyattack_sparkaura.sfx = true
 				end
-				player.actiontext = "Ring Spark Field" --Show the player we're ring sparking
 				
 				--SearchForAndDestroyMonitors(player)
 				
 				player.actionrings = 0 --They can tell rings are being drained
 				
-				player.energyattack_ringsparktimer = $ or 0 --State the timer if non-existant
+				mo.energyattack_ringsparktimer = $ or 0 --State the timer if non-existant
 				
-				if player.energyattack_ringsparktimer < 15 then --If we just started
+				if mo.energyattack_ringsparktimer < 15 then --If we just started
 					player.normalspeed = speed_ringspark --Slow
-					if (player.ringsparkclock % 12) == 0 then --Drain rings
+					if (mo.ringsparkclock % 12) == 0 then --Drain rings
 						drainSpark(player)
 					end
 				else --if it's been a bit
 					player.normalspeed = speed_ringspark+(speed_ringspark/2) --A bit faster
-					if (player.ringsparkclock % 8) == 0 then --Drain Faster
+					if (mo.ringsparkclock % 8) == 0 then --Drain Faster
 						drainSpark(player)
 					end
 				end
@@ -631,7 +623,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				
 				if not P_IsObjectOnGround(mo) then
 					player.normalspeed = 0
-					--player.drawangle = $ or player.energyattack_drawangle
+					--player.drawangle = $ or mo.energyattack_drawangle
 				end
 				player.dashmode = 0 --Normal
 				player.jumpfactor = 0 --No Jumping
@@ -659,7 +651,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.exhaustmeter = FRACUNIT
 		player.actionstate = state_dashslicerprep
 		if player.actiontime >= threshold2
-			player.energyattack_longerdash = true
+			mo.energyattack_longerdash = true
 		end
 		player.actiontime = 0
 		B.teamSound(player.mo, player, sfx_hclwt, sfx_hclwe, 255, false)
@@ -667,14 +659,15 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			mo.angle = player.thinkmoveangle
 		end
 		P_InstaThrust(mo, mo.angle, player.speed-(player.speed/3))
-		player.energyattack_stasis = mo.z
+		mo.energyattack_stasis = mo.z
 	end
 	
 	if (player.actionstate == state_dashslicerprep) then
+		player.actiontext = "Dash Slicer Claw"
 		mo.state = S_PLAY_DASH
 		mo.frame = 0
 		mo.sprite2 = SPR2_DASH
-		local pos = player.energyattack_stasis
+		local pos = mo.energyattack_stasis
 		P_MoveOrigin(mo, mo.x, mo.y, pos)
 		if player.actiontime >= dashslice_buildup then
 			S_StopSoundByID(mo, sfx_hclwt)
@@ -693,9 +686,9 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		mo.frame = 0
 		mo.sprite2 = SPR2_DASH
 		mo.momz = 1
-		--player.energyattack_sliceangle = $ or mo.angle
-		--player.energyattack_sliceangle = $ - ease.linear(player.realsidemove*FRACUNIT/50, 0, ANG10)
-		--player.drawangle = player.energyattack_sliceangle
+		--mo.energyattack_sliceangle = $ or mo.angle
+		--mo.energyattack_sliceangle = $ - ease.linear(player.realsidemove*FRACUNIT/50, 0, ANG10)
+		--player.drawangle = mo.energyattack_sliceangle
 		--player.realangleturn = (mo.angle/(UINT16_MAX+1))
 		local move = sliceAngle(player, player.realforwardmove, player.realsidemove, player.realangleturn<<16)
 		mo.energyattack_move = move
@@ -725,14 +718,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		end
 		
 		local duration = 17
-		if player.energyattack_longerdash then
+		if mo.energyattack_longerdash then
 			duration = $ + 4
 		end
 		
 		if not(player.actiontime >= duration) then return end
 		--Next state
 		B.ApplyCooldown(player,cooldown_slice)
-		resetvars(player)
+		resetvars(mo)
 		if (player.realbuttons & BT_JUMP)
 			mo.momx = $ * 2/3
 			mo.momy = $ * 2/3
@@ -794,23 +787,27 @@ local function stateEnforcer(player, state, actionstate)
 	end
 end
 
+local function MetalActionSuper(player)
+	player.actiontime = 0
+	player.actionstate = 0
+	resetvars(player.mo)
+	resetdashmode(player)
+	B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
+end
+
 B.Action.EnergyAttack_Priority = function(player)
 	
 	if player.actionstate == state_charging then
-		B.SetPriority(player,1,1,nil,1,1,"energy charge aura")
+		B.SetPriority(player,1,0,nil,1,0,"energy charge aura")
 	end
 	if player.actionstate == state_dashslicer then
-		B.SetPriority(player,3,2,nil,3,2,"dash slicer")
+		B.SetPriority(player,3,1,nil,3,1,"dash slicer")
 	end
 	
 	if player.actionstate == state_ringsparkprep then
 		--Vulnerable, but can't just be bump cancelled
 		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
-			player.actiontime = 0
-			player.actionstate = 0
-			resetvars(player)
-			resetdashmode(player)
-			B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
+			MetalActionSuper(player)
 		else
 			player.actionsuper = true
 		end
@@ -819,11 +816,7 @@ B.Action.EnergyAttack_Priority = function(player)
 	if player.actionstate == state_ringspark then
 		--Bump blockable projectiles
 		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
-			player.actionstate = 0
-			player.actiontime = 0
-			resetvars(player)
-			resetdashmode(player)
-			B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
+			MetalActionSuper(player)
 		else
 			player.actionsuper = true
 			B.SetPriority(player,2,3,nil,2,3,"ring spark field") --Hatin'

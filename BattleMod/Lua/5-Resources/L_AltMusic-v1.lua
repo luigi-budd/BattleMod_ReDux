@@ -56,7 +56,7 @@ addHook("NetVars", function(n)
 end)
 
 addHook("PlayerJoin", function(playernum)
-    if consoleplayer.jointime < 1 then
+    if consoleplayer and consoleplayer.jointime < 1 then
         mapmusname = " "
         already_ran = true
     end

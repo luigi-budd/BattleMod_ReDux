@@ -13,6 +13,7 @@ local spawnanim = function(player)
 	mo.flags = $|MF_NOCLIPTHING
 	player.powers[pw_flashing] = TICRATE*2
 	player.nodamage = player.powers[pw_flashing]
+	if B.RubyGametype() then player.powers[pw_flashing] = 0 end
 	//Do State
 	player.panim = PA_ROLL
 	mo.state = S_PLAY_ROLL
@@ -27,6 +28,7 @@ B.PlayerBattleSpawnStart = function(player)
 	if not(player.playerstate == PST_LIVE) then return false end
 	if not(B.BattleGametype()) then return false end
 	player.battlespawning = 48
+	player.mo.rubyrun_shielddespawn = nil
 	S_StartSound(player.mo,sfx_s3kb8)
 	spawnanim(player)
 	if not player.revenge

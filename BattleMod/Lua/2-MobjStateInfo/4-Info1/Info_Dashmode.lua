@@ -1,6 +1,5 @@
 freeslot("MT_DASHMODE_OVERLAY",
-         "sfx_dashe",
-		 "sfx_dasht"
+         "sfx_dashe"
 )
 
 mobjinfo[MT_DASHMODE_OVERLAY] = {
@@ -14,4 +13,3 @@ mobjinfo[MT_DASHMODE_OVERLAY] = {
 
 
 sfxinfo[sfx_dashe].caption = "\x82".."DASHMODE".."\x80"
-sfxinfo[sfx_dasht].caption = "Dashmode"

@@ -33,7 +33,7 @@ states[S_METALSONIC_RINGSPARK1] = {
 
 states[S_METALSONIC_RINGSPARK2] = {
 	sprite = SPR_RSPF,
-	frame = B
+	frame = B|FF_FULLBRIGHT
 }
 
 --states[S_METALSONIC_RINGSPARK1] = {SPR_PLAY, SPR2_RSPF|A, 17, nil, nil, 1, S_METALSONIC_RINGSPARK2} --sfx_monton

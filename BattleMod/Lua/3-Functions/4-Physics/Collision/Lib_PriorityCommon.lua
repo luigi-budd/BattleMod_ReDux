@@ -73,18 +73,18 @@ B.Priority_Ability = function(player)
 		
 	elseif homing
 		if attr and shieldability
-			B.SetPriority(player,1,2,nil,1,2,"attraction shot")
+			B.SetPriority(player,1,1,nil,1,1,"attraction shot")
 		else
-			B.SetPriority(player,1,2,nil,1,1,"homing attack")
+			B.SetPriority(player,1,1,nil,1,1,"homing attack")
 		end
 		
 	elseif shieldability
 		if bubble
-			B.SetPriority(player,1,2,nil,1,2,"bubble bounce")
+			B.SetPriority(player,1,1,"stomp",3,1,"bubble bounce")
 		elseif flame
-			B.SetPriority(player,1,2,nil,1,2,"flame dash")
+			B.SetPriority(player,1,1,nil,1,1,"flame dash")
 		elseif elemental
-			B.SetPriority(player,1,2,"fang_tailbounce",2,2,"elemental drop")
+			B.SetPriority(player,1,1,"stomp",2,1,"elemental drop")
 		end
 	else
 		//Sonic
@@ -101,13 +101,13 @@ B.Priority_Ability = function(player)
 		end
 		//Amy
 		if twinspin then 
-			B.SetPriority(player,1,2,"amy_twinspin",2,3,"aerial hammer strike")
+			B.SetPriority(player,1,1,"amy_twinspin",2,1,"aerial hammer strike")
 		end
 		if melee then
 			if player.melee_state == 1//st_hold
 				B.SetPriority(player,0,0,nil,0,0,"hammer charge")
 			else
-				B.SetPriority(player,1,0,"amy_melee",2,1,"hammer strike")
+				B.SetPriority(player,0,0,"amy_melee",2,1,"hammer strike")
 			end
 		end
 		//Fang

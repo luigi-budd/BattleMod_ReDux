@@ -57,7 +57,7 @@ local baseTransaction = function(player, team)
 	end
 	if player.ctfteam == team
 		-- Deposit rings
-		if player.rings > 0 and not player.actionstate
+		if player.rings > 0 and P_IsObjectOnGround(player.mo) and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
 			P_GivePlayerRings(player, -1)
 			P_AddPlayerScore(player, 1)
@@ -72,7 +72,7 @@ local baseTransaction = function(player, team)
 		end
 	else
 		-- Steal rings
-		if score > 0 and not player.actionstate
+		if score > 0 and P_IsObjectOnGround(player.mo) and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
 			P_AddPlayerScore(player, 1)
 			P_GivePlayerRings(player, 1)

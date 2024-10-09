@@ -199,7 +199,7 @@ B.Action.PikoTornado = function(mo,doaction)
 					end
 				end
 			end
-			S_StartSound(msl, sfx_hoop1)
+			S_StartSound(mo, sfx_hoop1)
 		end
 		//Neutral
 		local nearground = P_IsObjectOnGround(mo) or mo.z+mo.momz < mo.floorz

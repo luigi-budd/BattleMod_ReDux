@@ -7,7 +7,7 @@ local yo = 152
 //Enable/disable spectator controls hud
 B.SpectatorControlHUD = function(v,player,cam)
 	if not (B.HUDAlt) then return end
-	if (not (B.Exiting or consoleplayer.battleconfig_minimalhud)) and (player.spectatortime != nil
+	if (not (B.Exiting or B.Timeout or consoleplayer.battleconfig_minimalhud)) and (player.spectatortime != nil
 	and (player.spectatortime < TICRATE*9 or (player.spectatortime < TICRATE*10 and player.spectatortime&1)))
 		hud.enable("textspectator")
 	else

@@ -22,7 +22,7 @@ B.TagGenHUD = function(v, player, cam)
 	end
 	//radar function
 	if B.TagPreRound > 1 and (timelimit * 60 * TICRATE - player.realtime <= 
-			120 * TICRATE)
+			180 * TICRATE)
 		local px = player.realmo.x
 		local py = player.realmo.y
 		local pz = player.realmo.z
@@ -45,17 +45,17 @@ B.TagGenHUD = function(v, player, cam)
 		if radar == INT32_MAX
 			v.drawString(x, y, "No Players Nearby", flags | V_GRAYMAP, "center")
 		else
-			radar = $ / FRACUNIT
-			if radar <= 1000
+			radar = $ / (FRACUNIT * 60)
+			if radar <= 20
 				flags = $ | V_REDMAP
-			elseif radar <= 3000
+			elseif radar <= 60
 				flags = $ | V_YELLOWMAP
-			elseif radar <= 7500
+			elseif radar <= 180
 				flags = $ | V_GREENMAP
 			else
 				flags = $ | V_GRAYMAP
 			end
-			v.drawString(x, y, tostring(radar) .. "fu", flags, "center")
+			v.drawString(x, y, tostring(radar) .. "m", flags, "center")
 		end
 	end
 	//anti-AFK warnings

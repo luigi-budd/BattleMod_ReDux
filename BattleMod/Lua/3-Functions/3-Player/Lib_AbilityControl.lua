@@ -246,7 +246,7 @@ B.exhaust = function(player)
 
 	local ringsparkExhaust = 25
 	local state_ringspark = 4 --Magic Number :(
-	local ringspark = ((player.actionstate == state_ringspark) and player.energyattack_ringsparktimer and (player.energyattack_ringsparktimer > ringsparkExhaust))
+	local ringspark = ((player.actionstate == state_ringspark) and mo.energyattack_ringsparktimer and (mo.energyattack_ringsparktimer > ringsparkExhaust))
 	local floaty = (player.charability == CA_FLOAT and player.secondjump and (player.pflags & PF_THOKKED) and not (player.pflags & PF_JUMPED) and not (player.pflags & PF_SPINNING))
 
 	if floaty and not(ringspark) then
@@ -329,18 +329,6 @@ B.flashingnerf = function(player)
 		if B.BattleGametype() then player.powers[pw_flashing] = min($, 2*TICRATE) end
 	elseif not(P_PlayerInPain(player) or player.playerstate) then
 		player.powers[pw_flashing] = $-1
-	end
-end
-
-B.hammerthrustfactor = function(player)
-	if not (player.mo and player.charability2 == CA2_MELEE) then return end
-	local skin = skins[player.mo.skin]
-	if not (P_IsObjectOnGround(player.mo) or player.gotflagdebuff) then
-		player.thrustfactor = skin.thrustfactor+3
-		player.hammerthrust = true
-	elseif player.hammerthrust then
-		player.thrustfactor = skin.thrustfactor
-		player.hammerthrust = false
 	end
 end
 
@@ -482,7 +470,6 @@ B.CharAbilityControl = function(player)
 	B.weight(player)
 	B.exhaust(player)
 	B.flashingnerf(player)
-	B.hammerthrustfactor(player)
 	B.tailsthrow(player)
 	B.sneakertrail(player)
 	B.invinciblespark(player)

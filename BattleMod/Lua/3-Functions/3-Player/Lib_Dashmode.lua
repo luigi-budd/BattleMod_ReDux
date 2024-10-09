@@ -72,6 +72,7 @@ local dash_overlayOn = function(player, overlay, colorize, bool) --Choose to ena
     if player.mo and player.mo.valid then
         if colorize then --Colorize?
             player.mo.colorized = true --Colorize.
+			player.mo.renderflags = $|RF_FULLBRIGHT
         end
         if not overlay then return end --Work here is done if that's all we're doing.
         if player.dashmode >= DASHMODE_THRESHOLD then --If we're still in dashmode
@@ -94,6 +95,7 @@ local dash_overlayOff = function(player, overlay, colorize) --Only disable what 
     if player.mo and player.mo.valid then
         if colorize then --Colorize?
             player.mo.colorized = false --DeColorize.
+			player.mo.renderflags = $ & ~(RF_FULLBRIGHT)
         end
         if not overlay then return end --Stop if that's all we need.
         if player.mo.dashmode_mobj and player.mo.dashmode_mobj.valid then --If we have an overlay
@@ -160,13 +162,6 @@ local teamcolors = {
 
 local dash_colorizer = function(player) --Colorizes dashmode users that would show the orange flash instead of colorizing (PostThinkFrame)
 
-	if (player.followmobj and player.followmobj.valid and player.followmobj.type == MT_METALJETFUME) and (player.ctfteam > 0) and rawget(teamcolors, player.followmobj.color) then
-		player.followmobj.color = teamcolors[$][player.ctfteam]
-	end
-	
-
-	
-
 
 	if player.dashmode >= DASHMODE_THRESHOLD and (player.charflags & SF_DASHMODE) and (player.charflags & SF_MACHINE) and ((leveltime/2) & 1) then --if we're flashing & a dashmode machine
 		dash_overlayOn(player, false, true) --Colorize
@@ -181,15 +176,12 @@ end
 local dash_sfxThink = function(player) --Dashmode SFX
 	if not(player and player.mo and player.mo.valid) then return end
 
-	local playing = (S_SoundPlaying(player.mo, sfx_dashe) or S_SoundPlaying(player.mo, sfx_dasht))
-
 	if player.dashmode >= DASHMODE_THRESHOLD then --Dashing
-		if not(playing) then
-			B.teamSound(player.mo, player, sfx_dasht, sfx_dashe, dash_sfxvol, false)
+		if not(S_SoundPlaying(player.mo, sfx_dashe)) then
+			B.teamSound(player.mo, player, sfx_nullba, sfx_dashe, dash_sfxvol, false)
 		end
-	elseif playing then
+	elseif (S_SoundPlaying(player.mo, sfx_dashe)) then
 		S_StopSoundByID(player.mo, sfx_dashe)
-		S_StopSoundByID(player.mo, sfx_dasht) --If the sound is playing for some reason, stop it
 	end
 end
 

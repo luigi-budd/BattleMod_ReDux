@@ -70,6 +70,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		end
 		player.actiontext = B.TextFlash("Spin Wave", (doaction == 1), player)
 		player.actionrings = 10
+		B.DrawAimLine(player,mo.angle)
 	elseif P_IsObjectOnGround(mo) or player.mo.state == S_PLAY_LEDGE_GRAB or player.actionstate == state_superspinjump then
 		player.actiontext = "Super Spin Jump"
 		player.actionrings = 10

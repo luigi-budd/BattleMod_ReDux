@@ -139,7 +139,7 @@ A.ForceRespawn = function(player)
 end
 
 A.GetRanks = function(force)
-	if G_GametypeHasTeams() then
+	if B.CPGametype() and G_GametypeHasTeams() then
 		return A.TeamGetRanks(force)
 	end
 	local p = A.Fighters
@@ -330,10 +330,24 @@ local function stretchy(player)
 	--mo.spriteyoffset = $-(stretchy*mo.spritexscale)
 end
 
+local function rubyDelShield(player)
+	P_RemoveShield(player)
+	player.shieldstock = {}
+	if player.mo and player.mo.valid then
+		if not(player.mo.rubyrun_shielddespawn) then
+			local nega = P_SpawnMobjFromMobj(player.mo,0,0,0,MT_NEGASHIELD)
+			nega.target = player.mo
+			player.mo.rubyrun_shielddespawn = true
+		end
+	end
+end
+
 local function rubyMovement(player, timeout)
 	if not(player.mo and player.mo.valid) then
 		return
 	end
+
+	rubyDelShield(player)
 
 	if (timeout == nil) then return end
 	local divisor = 10
@@ -406,6 +420,7 @@ A.Exiting = function()
 		B.Timeout = max(0,$-1)
 
 		for player in players.iterate do
+			player.pflags = $|PF_GODMODE
 			if player.actiontext and player.textflash_flashing then
 				player.actiontext = B.TextFlash($, true, player)
 			end
@@ -414,6 +429,9 @@ A.Exiting = function()
 		if gametype == GT_RUBYRUN
 			R.RubyWinTimeout = $-1
 			for player in players.iterate do
+				player.slipping = false
+				player.actionstate = 0
+				player.actiontime = 0
 				rubyMovement(player, R.RubyWinTimeout)
 			end
 			rubyAnim(R.RubyWinTimeout)
