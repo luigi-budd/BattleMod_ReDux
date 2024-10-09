@@ -39,6 +39,7 @@ addHook("MapChange",function(map)
     F.BlueScore = 0
 	F.RedFlagPos = {x=0,y=0,z=0} -- Reset flag coords!
 	F.BlueFlagPos = {x=0,y=0,z=0} -- Reset flag coords!
+	F.DC_NoticeTimer = F.NOTICE_TIME+1
 	F.ResetPlayerFlags() -- remove any gotflag field vars
 	B.Timeout = 0
 	F.GameState.CaptureHUDTimer = 0
@@ -92,6 +93,7 @@ addHook("ThinkFrame",function()
 	B.ResetScore()
 	A.ResetScore()
 	B.Autobalance()
+	F.DelayCapActivateIndicator()
 	--F.UpdateScore()
 end)
 

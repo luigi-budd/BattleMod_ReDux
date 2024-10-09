@@ -30,6 +30,7 @@ hud.add(A.BountyHUD,player)
 hud.add(A.PlacementHUD)
 hud.add(F.CompassHUD)
 hud.add(F.TeamScoreHUD)
+hud.add(F.DelayCapNotice)
 
 --Game state info
 hud.add(B.PreRoundHUD)

@@ -377,3 +377,30 @@ F.CapHUD = function(v)
 		F.GameState.CaptureHUDTimer = $ - 1
 	end
 end
+
+F.DelayCapNotice = function(v, p, cam)
+	if 	(F.DC_NoticeTimer >= F.NOTICE_TIME) or 
+		((gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()))
+	then
+		return
+	end
+
+	local x = 160
+	local y = 66
+
+	local color = F.DC_ColorSwitch and "\x85" or "\x80"
+	local flagIcon = v.cachePatch("FLAGBT")
+	local bluFlag = v.getColormap("sonic", SKINCOLOR_BLUE)
+	local redFlag = v.getColormap("knuckles", SKINCOLOR_RED)
+
+	local text1 = color+"Overtime!"
+	local text2 = color+"Delay Capture Enabled!"
+	local text2Width = v.stringWidth(text2)
+	v.drawString(x, y, text1, V_ALLOWLOWERCASE, "center")
+	v.drawString(x, y + 12, text2, V_ALLOWLOWERCASE, "center")
+
+	local bluFlagX = (x/2)-(flagIcon.width-2)
+	local redFlagX = (x/2)+(text2Width)+flagIcon.width
+	v.draw(bluFlagX, y+12, flagIcon, V_FLIP,bluFlag)
+	v.draw(redFlagX, y+12, flagIcon, V_FLIP,redFlag)
+end

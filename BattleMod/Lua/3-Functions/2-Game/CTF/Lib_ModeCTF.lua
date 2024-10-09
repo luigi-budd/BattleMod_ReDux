@@ -14,6 +14,16 @@ F.BlueFlag = nil
 -- spawnpoint: used to assign spawnpoint to the object (mapthing_t)
 F.RedFlagPos = {x=0,y=0,z=0, mtopts=0, spawnpoint=nil}
 F.BlueFlagPos = {x=0,y=0,z=0, mtopts=0, spawnpoint=nil}
+F.RedFlagOpts = {flagbase_tag=0}
+F.BlueFlagOpts = {flagbase_tag=0}
+
+local rpos = {}
+local bpos = {}
+
+-- delay cap variables
+F.NOTICE_TIME = TICRATE*3
+F.DC_NoticeTimer = F.NOTICE_TIME+1 --inactive by default; this variable is used both for the HUD and to flash bases!
+F.DC_ColorSwitch = true -- When true flips color text to red, when false flips to white. Used to create a flickering effect
 
 F.TrackRed = function(mo)
 	F.RedFlag = mo
@@ -166,6 +176,30 @@ local function spawnFlag(fteam, mt)
 	flagmo.mtopts = mtopts
 	flagmo.atbase = true
 	flagmo.spawnpoint = spawnpoint
+	if fteam == 1 then
+		F.RedFlagOpts.flagbase_tag = flagmo.subsector.sector.tag
+	elseif fteam == 2 then
+		F.BlueFlagOpts.flagbase_tag = flagmo.subsector.sector.tag
+	end
+end
+
+local function getFlagPosAsTables()
+	local arrays = {
+		r = {},
+		b = {}
+	}
+	for mt in mapthings.iterate do
+		if mt.type == 310 then -- RED FLAG
+			arrays.r.x = mt.x<<FRACBITS
+			arrays.r.y = mt.y<<FRACBITS
+			arrays.r.z = mt.z<<FRACBITS
+		elseif mt.type == 311 then  -- BLUE FLAG
+			arrays.b.x = mt.x<<FRACBITS
+			arrays.b.y = mt.y<<FRACBITS
+			arrays.b.z = mt.z<<FRACBITS
+		end
+	end
+	return arrays
 end
 
 local function getFlagpos()
@@ -347,6 +381,7 @@ F.FlagPreThinker = function()
 			local player_rover = p.mo.floorrover
 			if player_rover then
 
+				-- TODO: break this down into functions (see function doFlagBaseRover)
 				-- look for next rover
 				local next_rover = player_rover
 				while next_rover ~= nil do
@@ -736,44 +771,169 @@ end
 --	bluescore = F.BlueScore
 --end
 
--- Checks if the flags are valid every tic.
--- This is a bandaid fix for an issue where flags can spontaneously disappear when respawning
--- If that issue gets fixed, this whole function will probably be removed.
+
+-- F.FOFOldPics = {} -- TODO -- will use later...
+F.SectorOldPics = {} -- Used to keep track of sector floorpics/ceilingpics
+local function isFlagBase(sect, fteam)
+	local secSpecial = fteam == 1 and 3 or 4
+	local ssf = fteam == 1 and SSF_REDTEAMBASE or SSF_BLUETEAMBASE
+	return (GetSecSpecial(sect.special, 4) == secSpecial) or (sect.specialflags&ssf)
+end
+
+local redGrad = {
+"~038", "~039", "~040",
+"~041", "~042", "~043",
+"~044", "~045", "~046", "~046"
+}
+local blueGrad = {
+"~151", "~152", "~153",
+"~154", "~155", "~156",
+"~157", "~158", "~159", "~159"
+}
+local minVal = 1 -- grad tables start from index 1
+local maxVal = 9 -- grad tables end at index 9 (+ index 10 is a copy because the sine wave momentarily hits 1+the max val)
+local flickerFreq = 15 -- frequency at which to flicker the texture gradients.
+
+-- Looks to see if this sector is a FOF, and if so, flashes the sector's ceiling, or resets it.
 --[[/*
-F.AreFlagsAtBase = function()
-	if leveltime < 10 then return end -- ?
-	if gamestate ~= GS_LEVEL then return end
-	if gametype ~= GT_BATTLECTF then return end
+To determine if we're dealing with a FOF, I (reverbal) have assumed certain (weak) conditions:
+	1. a FOF may not have backsectors on all its sides. This is a weak assumption because it's definitely possible for it to have sectors on all OR some of its sides.
+	2. a FOF may not have tagged linedefs. 				Same argument, but with tags.
+		In essence, we take a sector in this function and check for these conditions.
 
-	local redflag_valid  	= F.RedFlag and F.RedFlag.valid
-	local blueflag_valid  	= F.BlueFlag and F.BlueFlag.valid
+Based on the previous assumptions, if a sector has some empty backsectors or has at least one linedef with a tag, then we're dealing with a FOF.
 
-	-- If the flags aren't valid (nonexistent), let's check if anyone's holding them
-	if not (redflag_valid or blueflag_valid) then
-		-- Let's check if someone has the red/blue flags
-		local holds_redflag = nil
-		local holds_blueflag = nil
-		for p in players.iterate do
-			if not (p and p.mo and p.mo.valid) then continue end
-			if p.gotflag then
-				if  p.ctfteam == 1 then -- red mf
-					holds_blueflag = "player"
-				elseif p.ctfteam == 2 then -- blue mf
-					holds_redflag = "player"
-				end
+@sect: 		The sector to perform the checks upon
+@fteam: 	Red team or blue team? 1 for red, 2 for blue
+@teamTag: 	(not used anymore, remove it?)
+@reset: 	if it's set to anything that evaluates to truthy, resets this sector's ceiling textures back to normal (by looking at F.SectorOldPics).
+			Otherwise, performs texture flickering.
+*/--]]
+local function flashTaggedFOFSector(sect, fteam, teamTag, reset)
+	local texture = fteam == 1 and redGrad[1] or blueGrad[1]
+	local gradientIdx = minVal+FixedMul(maxVal, (sin(FixedAngle(F.DC_NoticeTimer*FU*flickerFreq)) + FU)/2) 
+
+	if isFlagBase(sect, fteam) then
+
+		-- if there's a backsector on all linedefs, it means we're in an in-game sector :skull:
+		-- if there's a linedef with a tag, it means we're on a sector outside the in-game sector.
+		-- NOTE: Probably only battle specific, but please keep flagbase control sectors in little triangles outside the map :holding_back_tears:
+		local backsecs = 0
+		local unTagged = 0
+		--print("=== Sector no. "+#sect)
+		for i=0,#sect.lines do
+			if not sect.lines[i] then continue end
+			local line = sect.lines[i]
+			local tag = line.tag
+
+			backsecs = line.backsector and $+1 or $
+			unTagged = tag == 0 and $+1 or $
+			--print("Line backsector #"+(i+1)+": ")
+			--print("  Backsector? : "+line.backsector)
+			--print("  Tag number  : "+tag)
+			if (backsecs >= (#sect.lines)) then return end
+			
+		end
+		-- If the sector has untagged linedefs equal to the amount of linedefs, we'll assume it's an in-game sector and so don't do anything with it.
+		if unTagged >= #sect.lines then return end
+		--print("Backsectors: "+backsecs+" out of "+(#sect.lines)+" backsectors")
+
+		-- If not resetting, just flash sectors
+		if not reset then
+
+			if sect.ceilingpic ~= "F_SKY1" then -- don't touch skies :q
+				if not F.SectorOldPics[sect] then F.SectorOldPics[sect] = sect.ceilingpic end
+
+					-- Gradient flash
+					sect.ceilingpic = fteam == 1 and redGrad[gradientIdx] or blueGrad[gradientIdx]
+
+					-- Normal flashing
+					--sect.ceilingpic = F.DC_ColorSwitch and texture or F.SectorOldPics[sect]
+
 			end
-		end
 
-		if not holds_blueflag then
-            print('The'..'\x84 Blue flag'..'\128 has been forcefully respawned.')
-            S_StartSound(nil, sfx_notadd)
-            spawnFlag(2)
-		end
-		if not holds_redflag then
-			print('The'..'\x85 Red flag'..'\128 has been forcefully respawned.')
-			S_StartSound(nil, sfx_notadd)
-            spawnFlag(1)
+		-- Otherwise, put everything back to normal.
+		else
+			sect.ceilingpic = F.SectorOldPics[sect] ~= nil and F.SectorOldPics[sect] or $
 		end
 	end
 end
-*/--]]
+
+-- We are checking the sector's lines to see if it's a FOF.
+-- This is kind of bad, but in essence -- 
+-- 		if the sector has any tagged linedefs, it's a FOF
+-- 		if the sector doesn't have any tagged linedefs, it's an in-map sector.
+local function flashTaggedSector(sect, fteam, teamTag, reset)
+	local texture = fteam == 1 and "REDFLR" or "BLUEFLR"
+	local gradientIdx = 1+FixedMul(9, (sin(FixedAngle(F.DC_NoticeTimer*FU*15)) + FU)/2) 
+
+	if isFlagBase(sect, fteam) then
+		for i=0,#sect.lines-1 do
+			local tag = sect.lines[i].tag
+			if tag ~= 0 then return end
+		end
+
+		-- Not resetting, so flash sector normally
+		if not reset then
+			if not F.SectorOldPics[sect] then F.SectorOldPics[sect] = sect.floorpic end
+
+			-- Gradient flash
+			sect.floorpic = fteam == 1 and redGrad[gradientIdx] or blueGrad[gradientIdx]
+
+			-- Normal flashing
+			--sect.floorpic = F.DC_ColorSwitch and texture or F.SectorOldPics[sect]
+
+		-- Resetting, put everything back to normal.
+		else
+			sect.floorpic = F.SectorOldPics[sect] ~= nil and F.SectorOldPics[sect] or $
+		end
+	end
+end
+
+-- TODO: Currently doesn't work on:
+-- Warped moonlight
+-- Deadline
+F.FlashBaseColors = function()
+	local redTag = F.RedFlagOpts.flagbase_tag
+	local bluTag = F.BlueFlagOpts.flagbase_tag
+
+	-- Reset sector/FOF textures if delaycap timer is at its limit
+	if F.DC_NoticeTimer >= (F.NOTICE_TIME-1) then 
+
+		for sect in sectors.iterate do
+			-- Reset flashed sectors
+			flashTaggedSector(sect, 1, redTag, true)
+			flashTaggedSector(sect, 2, bluTag, true)
+
+			-- Reset flashed FOF sectors
+			flashTaggedFOFSector(sect, 1, redTag, true)
+			flashTaggedFOFSector(sect, 2, bluTag, true)
+		end
+		return
+	end
+	
+	-- Iterate over sectors and FOFs to flash their textures
+	for sect in sectors.iterate do
+
+		flashTaggedSector(sect, 1, redTag)
+		flashTaggedSector(sect, 2, bluTag)
+
+		-- Check for FOFs associated with the flagbase and flash their ceilingpic if they exist
+		flashTaggedFOFSector(sect, 1, redTag)
+		flashTaggedFOFSector(sect, 2, bluTag)
+	end
+end
+
+--// Enables delay cap and subsequently enables all related variables to delay cap (delay cap notice, delay cap flag base flashing, etc)
+F.DelayCapActivateIndicator = function()
+	if (F.DC_NoticeTimer >= F.NOTICE_TIME) or
+		((gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()))
+	then 
+		return 
+	end
+
+	F.FlashBaseColors()
+
+	if (not(leveltime%3)) then F.DC_ColorSwitch = not $ end
+	F.DC_NoticeTimer = $+1
+end
