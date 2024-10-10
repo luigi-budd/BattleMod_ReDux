@@ -14,6 +14,13 @@ CV.CTFrespawngrace = CV_RegisterVar{
 	PossibleValue = {MIN = 0, MAX = 15}
 }
 
+CV.CTFdelaycap = CV_RegisterVar {
+	name = "ctf_delay_cap",
+	defaultvalue = 0,
+	flags = CV_NETVAR,
+	PossibleValue = CV_OnOff
+}
+
 --[[
 COM_AddCommand("killflags", function(player)
     for mo in mobjs.iterate() do
