@@ -17,9 +17,6 @@ F.BlueFlagPos = {x=0,y=0,z=0, mtopts=0, spawnpoint=nil}
 F.RedFlagOpts = {flagbase_tag=0}
 F.BlueFlagOpts = {flagbase_tag=0}
 
-local rpos = {}
-local bpos = {}
-
 -- delay cap variables
 F.NOTICE_TIME = TICRATE*3
 F.DC_NoticeTimer = F.NOTICE_TIME+1 --inactive by default; this variable is used both for the HUD and to flash bases!
