@@ -379,7 +379,7 @@ F.CapHUD = function(v)
 end
 
 F.DelayCapNotice = function(v, p, cam)
-	if 	(F.DC_NoticeTimer >= F.NOTICE_TIME) or 
+	if 	(F.DC_NoticeTimer >= F.NOTICE_TIME) or (F.DC_NoticeTimer < 0) or
 		((gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()))
 	then
 		return
