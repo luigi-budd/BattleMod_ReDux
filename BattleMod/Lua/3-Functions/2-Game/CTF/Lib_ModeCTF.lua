@@ -356,10 +356,10 @@ end
 local SLOWCAPPINGALLY_SFX  = sfx_s3kc3s
 local SLOWCAPPINGENEMY_SFX = sfx_s3k72
 -- If the delay cap consvar is ticked on, then start slowly capturing a point.
---@p 	: player committing the action (UNUSED)
+--@p 	: player committing the action
 --@team : 1 = red, 2 = blue
-local function delayCap(_p, team)
-	
+local function delayCap(p, team)
+
 	local dcap_timer = 0
 	for player in players.iterate() do
 		if player.spectator and not player.spectator_abuse then continue end
@@ -367,60 +367,51 @@ local function delayCap(_p, team)
 	end
 	dcap_timer = max(5, min(16, 20 - $)) * TICRATE
 
-	for p in players.iterate do
-		if p.spectator or not (p.mo and p.mo.valid and p.gotflag and p.ctfteam) then
-			p.ctf_slowcap = nil
-			continue
-		end
+	if p.spectator or not (p.mo and p.mo.valid and p.gotflag and p.ctfteam) then
+		p.ctf_slowcap = nil
+		return
+	end
 
-		local effect 		= 3
-		local mo 			= p.mo
-		local otherteam 	= team == 1 and 2 or 1
-		local homeflag 		= team == 1 and MT_CREDFLAG or MT_BLUEFLAG
-		local capturedflag 	= team == 1 and MT_CBLUEFLAG or MT_CREDFLAG
-		local cap 			= false
-		local friendly 		= (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
-		local sfx			= friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
+	local effect 		= 3
+	local mo 			= p.mo
+	local otherteam 	= team == 1 and 2 or 1
+	local homeflag 		= team == 1 and MT_CREDFLAG or MT_BLUEFLAG
+	local capturedflag 	= team == 1 and MT_CBLUEFLAG or MT_CREDFLAG
+	local cap 			= false
+	local friendly 		= (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
+	local sfx			= friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
+	
+	p.ctf_slowcap = ($ == nil) and dcap_timer or $-1
+	cap = (p.ctf_slowcap <= 0) and true or $
+	if cap then
+		capFlag(p, team)
+		p.ctf_slowcap = nil
 
-
-		if p.spectator or not (p.mo and p.mo.valid and p.gotflag and p.ctfteam) then
-			p.ctf_slowcap = nil
-			return
-		end
-		
-		p.ctf_slowcap = ($ == nil) and dcap_timer or $-1
-		cap = (p.ctf_slowcap <= 0) and true or $
-		if cap then
-			capFlag(p, team)
-			p.ctf_slowcap = nil
-			--p.dcap_time = nil
-			--return
-		elseif p.ctf_slowcap % 35 == 11 then
-			S_StartSoundAtVolume(nil, sfx, 160)
-		elseif p.ctf_slowcap % 35 == 22 then
-			S_StartSoundAtVolume(nil, sfx, 90)
-		elseif p.ctf_slowcap % 35 == 33 then
-			S_StartSoundAtVolume(nil, sfx, 20)
-		end
-		
-		-- Small visual particles while we're slow capping
-		if p.ctf_slowcap and p.ctf_slowcap % 4 == 0 then
-			for i = 0, 5 do
-				local dust = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
+	elseif p.ctf_slowcap % 35 == 11 then
+		S_StartSoundAtVolume(nil, sfx, 160)
+	elseif p.ctf_slowcap % 35 == 22 then
+		S_StartSoundAtVolume(nil, sfx, 90)
+	elseif p.ctf_slowcap % 35 == 33 then
+		S_StartSoundAtVolume(nil, sfx, 20)
+	end
+	
+	-- Small visual particles while we're slow capping
+	if p.ctf_slowcap and p.ctf_slowcap % 4 == 0 then
+		for i = 0, 5 do
+			local dust = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
+			if dust.valid then
+				dust.scale = $ / 3
+				dust.destscale = mo.scale
+				dust.state = S_SPINDUST3
+				P_Thrust(dust, mo.angle + (ANG1 * 72 * i) + p.ctf_slowcap * ANG20, mo.scale * 12)
+				if (mo.eflags & MFE_VERTICALFLIP) then -- readjust z position if needed
+					dust.z = mo.z + mo.height - dust.height
+				end
+				for j = 0, 3 do
+					if dust.valid then P_XYMovement(dust) end
+				end
 				if dust.valid then
-					dust.scale = $ / 3
-					dust.destscale = mo.scale
-					dust.state = S_SPINDUST3
-					P_Thrust(dust, mo.angle + (ANG1 * 72 * i) + p.ctf_slowcap * ANG20, mo.scale * 12)
-					if (mo.eflags & MFE_VERTICALFLIP) then -- readjust z position if needed
-						dust.z = mo.z + mo.height - dust.height
-					end
-					for j = 0, 3 do
-						if dust.valid then P_XYMovement(dust) end
-					end
-					if dust.valid then
-						P_SetObjectMomZ(dust, 3*FRACUNIT, false)
-					end
+					P_SetObjectMomZ(dust, 3*FRACUNIT, false)
 				end
 			end
 		end
@@ -439,16 +430,15 @@ F.FlagPreThinker = function()
 			then
 				F.PlayerFlagBurst(p, 1)
 			end
-
 			-- If we're not on the ground then we can't cap flag
 			if not (P_IsObjectOnGround(p.mo) or (p.mo.eflags&MFE_JUSTHITFLOOR)) then 
 				p.ctf_slowcap = nil -- Let's reset this even if delaycap is off
-				continue 
+				continue
 			end
 
 			local team = p.ctfteam == 1 and SSF_REDTEAMBASE or SSF_BLUETEAMBASE
 			local s = P_PlayerTouchingSectorSpecialFlag(p, team)
-			if not s then return end
+			if not s then continue end --then return end
 			
 			local obj_flip = (p.mo.flags2&MF2_OBJECTFLIP) == MF2_OBJECTFLIP
 			local on_base = false
