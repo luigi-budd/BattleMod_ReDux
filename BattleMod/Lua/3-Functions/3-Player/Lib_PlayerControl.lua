@@ -524,89 +524,94 @@ end
 
 B.PlayerSetupPhase = function(player)
 	if (player.spectator or player.playerstate != PST_LIVE) then return end
+
+	local forceskinned = false
+	if (CV_FindVar("forceskin").value == -1) then forceskinned = false else forceskinned = true end
 	local mo = player.mo
-	
-	local skinnum = #skins[mo.skin]
-	--If we're changing skins, this is the set of instructions we'll use
-	local skinchanged = false
-	local function newskin()
-		if not(R_SkinUsable(mo.player, skinnum)) then return end		
--- 		COM_BufInsertText(mo.player, skintext..tostring(skinnum))
-		R_SetPlayerSkin(player,skinnum)
-		S_StartSound(nil,sfx_menu1,player)
-		S_StartSound(nil,sfx_kc50,player)
-		B.GetSkinVars(player)
-		skinchanged = true
-	end
-	
-	--Roulette
-	local change = 0
-	local f = #skins[skinnum] + 2
-	local b = #skins[skinnum]
-	if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE) and player.roulette
-		local deadzone = 20
-		local right = player.cmd.sidemove >= deadzone
-		local left = player.cmd.sidemove <= -deadzone
-		local scrollright = player.roulette_prev_right > 18 and player.roulette_prev_right % 4 == 0
-		local scrollleft = player.roulette_prev_left > 18 and player.roulette_prev_left % 4 == 0
-		if right and (scrollright or not player.roulette_prev_right)
-			repeat 
-				skinnum = $+1
-				if bannedskins[f] then skinnum = $+1 end
-				if skinnum >= #skins then skinnum = 0 end
-				if bannedskins[skinnum+1] then skinnum = $+1 end
-				local i = skinnum
-				while bannedskins[i] 
-					i = $+1
-					skinnum = i - 1
-				end
-				newskin()
-			until skinchanged == true
-			change = 1
+	if not forceskinned then
+		
+		local skinnum = #skins[mo.skin]
+		--If we're changing skins, this is the set of instructions we'll use
+		local skinchanged = false
+		local function newskin()
+			if not(R_SkinUsable(mo.player, skinnum)) then return end		
+	-- 		COM_BufInsertText(mo.player, skintext..tostring(skinnum))
+			R_SetPlayerSkin(player,skinnum)
+			S_StartSound(nil,sfx_menu1,player)
+			S_StartSound(nil,sfx_kc50,player)
+			B.GetSkinVars(player)
+			skinchanged = true
 		end
-		if left and (scrollleft or not player.roulette_prev_left)
-			repeat
-				skinnum = $-1
-				if bannedskins[b] then skinnum = $-1 end
-				local i = skinnum
-				while bannedskins[i+1] 
-					i = $-1
-					skinnum = i
-				end
-				if skinnum < 0	then skinnum = #skins-1
-					local y = skinnum
-					while bannedskins[y+1] 
-						y = $-1
-						skinnum = y
+		
+		--Roulette
+		local change = 0
+		local f = #skins[skinnum] + 2
+		local b = #skins[skinnum]
+		if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE) and player.roulette
+			local deadzone = 20
+			local right = player.cmd.sidemove >= deadzone
+			local left = player.cmd.sidemove <= -deadzone
+			local scrollright = player.roulette_prev_right > 18 and player.roulette_prev_right % 4 == 0
+			local scrollleft = player.roulette_prev_left > 18 and player.roulette_prev_left % 4 == 0
+			if right and (scrollright or not player.roulette_prev_right)
+				repeat 
+					skinnum = $+1
+					if bannedskins[f] then skinnum = $+1 end
+					if skinnum >= #skins then skinnum = 0 end
+					if bannedskins[skinnum+1] then skinnum = $+1 end
+					local i = skinnum
+					while bannedskins[i] 
+						i = $+1
+						skinnum = i - 1
 					end
-				end
-				newskin()
-			until skinchanged == true
-			change = -1
+					newskin()
+				until skinchanged == true
+				change = 1
+			end
+			if left and (scrollleft or not player.roulette_prev_left)
+				repeat
+					skinnum = $-1
+					if bannedskins[b] then skinnum = $-1 end
+					local i = skinnum
+					while bannedskins[i+1] 
+						i = $-1
+						skinnum = i
+					end
+					if skinnum < 0	then skinnum = #skins-1
+						local y = skinnum
+						while bannedskins[y+1] 
+							y = $-1
+							skinnum = y
+						end
+					end
+					newskin()
+				until skinchanged == true
+				change = -1
+			end
+			player.roulette_prev_right = (right and $+1) or 0
+			player.roulette_prev_left = (left and $+1) or 0
 		end
-		player.roulette_prev_right = (right and $+1) or 0
-		player.roulette_prev_left = (left and $+1) or 0
-	end
-	
-	if (leveltime + 17 == CV_FindVar("hidetime").value*TICRATE) and player != secondarydisplayplayer
-		S_StartSound(nil, sfx_s251, player)
-	end
-	
-	--Roulette scrolling (to be used by the HUD later)
-	if change == 0
-		player.roulette_x = $*6/10
-		if abs(player.roulette_x) < FRACUNIT
-			player.roulette_x = 0
+		
+		if (leveltime + 17 == CV_FindVar("hidetime").value*TICRATE) and player != secondarydisplayplayer
+			S_StartSound(nil, sfx_s251, player)
 		end
-	else
-		player.roulette_x = (40*FRACUNIT*change)
+		
+		--Roulette scrolling (to be used by the HUD later)
+		if change == 0
+			player.roulette_x = $*6/10
+			if abs(player.roulette_x) < FRACUNIT
+				player.roulette_x = 0
+			end
+		else
+			player.roulette_x = (40*FRACUNIT*change)
+		end
+
+		--Roulette toggling
+		if B.PlayerButtonPressed(player,BT_TOSSFLAG,false) then
+			player.roulette = not player.roulette
+		end
 	end
 
-	--Roulette toggling
-	if B.PlayerButtonPressed(player,BT_TOSSFLAG,false) then
-		player.roulette = not player.roulette
-	end
-	
 	--No control
 	player.powers[pw_nocontrol] = 2
 	--Don't kill me

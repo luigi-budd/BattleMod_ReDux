@@ -11,18 +11,21 @@ B.PreRoundHUD = function(v,player,cam)
 	local lockedin = (leveltime + 17 >= CV_FindVar("hidetime").value*TICRATE)
 	if lockedin then roulette_x = 0 end
 	
+	local forceskinned = false
+	if (CV_FindVar("forceskin").value == -1) then forceskinned = false else forceskinned = true end
 	if (B.HUDAlt) and B.PreRoundWait() and player.roulette and not (B.Timeout or player.spectator) then
 		local x, y = 160, 72
 		local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER|V_ALLOWLOWERCASE
+		local rtext = forceskinned and "Forceskin in effect!" or "Select a character!" 
 		-- Display pre-round hint: We can change characters during this period.
-		v.drawString(x, y + 8, yellow.."Select a character!", flags, "center")
+		v.drawString(x, y + 8, yellow..rtext, flags, "center")
 		
 		if (leveltime <= 60) then return end
 		
 		-- Display pre-round character roulette. Show previous and next characters we're gonna change into.
 		for n = -5, 5 do
 			local blink = (leveltime % 2 and leveltime + 35 >= CV_FindVar("hidetime").value*TICRATE)
-			if (n ~= 0 and (lockedin or blink))
+			if (n ~= 0 and (lockedin or blink or forceskinned))
 				continue
 			end
 			
