@@ -207,7 +207,8 @@ local function getFlagpos()
 			F.RedFlagPos.y = mt.y<<FRACBITS
 			F.RedFlagPos.z = mt.z<<FRACBITS
 			F.RedFlagPos.mtopts = mt.options
-			F.RedFlagPos.spawnpoint = mt
+			F.RedFlagPos.spawnpoint = mt -- NOTE: this doesn't sync across games..?
+			F.RedFlagPos.mtnum = #mt
 			F.RedFlag = {}
 			spawnFlag(1)
 		elseif mt.type == 311 then  -- MT_BLUEFLAG
@@ -215,7 +216,8 @@ local function getFlagpos()
 			F.BlueFlagPos.y = mt.y<<FRACBITS
 			F.BlueFlagPos.z = mt.z<<FRACBITS
 			F.BlueFlagPos.mtopts = mt.options
-			F.BlueFlagPos.spawnpoint = mt
+			F.BlueFlagPos.spawnpoint = mt  -- NOTE: this doesn't sync across games..?
+			F.BlueFlagPos.mtnum = #mt
 			F.BlueFlag = {}
 			spawnFlag(2)
 		end
