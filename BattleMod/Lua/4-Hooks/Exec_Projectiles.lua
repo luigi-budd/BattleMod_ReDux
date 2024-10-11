@@ -221,6 +221,8 @@ end,MT_CORK)
 --Metal Sonic
 addHook("MobjThinker",function(mo)
 	mo.flags2 = $^^MF2_DONTDRAW
+	-- If verticalflip is flipped on, keep claws flipped as well
+	if (mo.eflags&MFE_VERTICALFLIP) then mo.flags2=$|MF2_OBJECTFLIP end
 end,MT_SLASH)
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit02

@@ -78,17 +78,18 @@ local spawnslashes = function(player, mo)
 	angoff = P_RandomRange(90,270)*ANG1
 	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and FixedMul(mobjinfo[MT_DUST].height, mo.scale)) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
+	z = mo.z - (((player.mo.eflags & MFE_VERTICALFLIP) and FixedMul(mobjinfo[MT_DUST].height, mo.scale)) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
 	applyflip(mo, P_SpawnMobj(x,y,z,MT_DUST))
 	--Slashes
 	local dist = 46*mo.scale
 	local x,y,z,s
 	local angoff = -ANGLE_90
-	z = mo.z - (((player.mo.flags2 & MF2_OBJECTFLIP) and (mo.height/2)) or 0)
+	local --zoffset = (player.mo.eflags&MFE_VERTICALFLIP) and (mo.height/2) or 0
+	z = mo.z -- - zoffset
 	if player.actiontime&1 then
 		x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 		y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
-		s = S_SLASH3
+		s = S_SLASH1
 	else
 		x = mo.x+P_ReturnThrustX(nil,mo.angle-angoff,dist)
 		y = mo.y+P_ReturnThrustY(nil,mo.angle-angoff,dist)
@@ -98,6 +99,7 @@ local spawnslashes = function(player, mo)
 	local missile = applyflip(mo, P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z))
 	if missile and missile.valid then
 		--applyflip(mo, missile)
+		missile.momz = 0 -- Prevent dash claws from moving vertically
 		missile.state = s
 		missile.scale = FixedMul($*2, mo.scale)
 	end
