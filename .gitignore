@@ -11,4 +11,5 @@
 linux_build.sh
 run.sh
 BattleMod/SRB2C.py
+BattleMod/SRB2MC_SIMPLE.py
 build.sh
