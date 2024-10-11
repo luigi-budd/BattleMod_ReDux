@@ -39,6 +39,7 @@ hud.add(A.RevengeHUD,player)
 hud.add(A.WaitJoinHUD,player)
 hud.add(B.SpectatorControlHUD,player)
 hud.add(F.CapHUD)
+hud.add(F.DelayCapBar)
 hud.add(A.GameSetHUD,player)
 
 --Misc.

@@ -62,6 +62,7 @@ function B.NetVars.Sync(network)
 	F.BlueFlagPos  		= network($)
 	F.RedFlagOpts  		= network($)
 	F.BlueFlagOpts 		= network($)
+	F.DelayCap  		= network($)
 	F.DC_NoticeTimer 	= network($)
 	F.DC_ColorSwitch 	= network($)
 	//Game state

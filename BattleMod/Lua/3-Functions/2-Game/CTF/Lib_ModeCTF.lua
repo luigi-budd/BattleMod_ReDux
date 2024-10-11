@@ -18,7 +18,8 @@ F.RedFlagOpts = {flagbase_tag=0}
 F.BlueFlagOpts = {flagbase_tag=0}
 
 -- delay cap variables
-F.NOTICE_TIME = TICRATE*3
+F.DelayCap = false
+F.NOTICE_TIME = TICRATE*3 -- TODO: uhh.. make it a local variable probably lol
 F.DC_NoticeTimer = F.NOTICE_TIME+1 --inactive by default; this variable is used both for the HUD and to flash bases!
 F.DC_ColorSwitch = true -- When true flips color text to red, when false flips to white. Used to create a flickering effect
 
@@ -319,12 +320,12 @@ B.DoFirework = function(mo)
 	end
 end
 
--- @flag:
--- 1: red
--- 2: blue
+
+-- Immediately captures the flag, increments team's score and ticks some variables on for visuals (fireworks, HUD, etc)
+-- This function is meant to be used only once, so make sure you have a set condition before you use this function!!!
+-- @p 	: the player who committed this action
+-- @flag: 1 = red, 2 = blue
 local function capFlag(p, flag)
-	-- Flag must be at base!!
-	if not F.IsFlagAtBase(p.ctfteam) then return end
 	p.gotflag = 0
 
 	if flag == 1 then F.RedScore = $+1 elseif flag == 2 then F.BlueScore = $+1 end
@@ -352,6 +353,81 @@ local function capFlag(p, flag)
 	
 end
 
+local SLOWCAPPINGALLY_SFX  = sfx_s3kc3s
+local SLOWCAPPINGENEMY_SFX = sfx_s3k72
+-- If the delay cap consvar is ticked on, then start slowly capturing a point.
+--@p 	: player committing the action (UNUSED)
+--@team : 1 = red, 2 = blue
+local function delayCap(_p, team)
+	
+	local dcap_timer = 0
+	for player in players.iterate() do
+		if player.spectator and not player.spectator_abuse then continue end
+		dcap_timer = $ + 1
+	end
+	dcap_timer = max(5, min(16, 20 - $)) * TICRATE
+
+	for p in players.iterate do
+		if p.spectator or not (p.mo and p.mo.valid and p.gotflag and p.ctfteam) then
+			p.ctf_slowcap = nil
+			continue
+		end
+
+		local effect 		= 3
+		local mo 			= p.mo
+		local otherteam 	= team == 1 and 2 or 1
+		local homeflag 		= team == 1 and MT_CREDFLAG or MT_BLUEFLAG
+		local capturedflag 	= team == 1 and MT_CBLUEFLAG or MT_CREDFLAG
+		local cap 			= false
+		local friendly 		= (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
+		local sfx			= friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
+
+
+		if p.spectator or not (p.mo and p.mo.valid and p.gotflag and p.ctfteam) then
+			p.ctf_slowcap = nil
+			return
+		end
+		
+		p.ctf_slowcap = ($ == nil) and dcap_timer or $-1
+		cap = (p.ctf_slowcap <= 0) and true or $
+		if cap then
+			capFlag(p, team)
+			p.ctf_slowcap = nil
+			--p.dcap_time = nil
+			--return
+		elseif p.ctf_slowcap % 35 == 11 then
+			S_StartSoundAtVolume(nil, sfx, 160)
+		elseif p.ctf_slowcap % 35 == 22 then
+			S_StartSoundAtVolume(nil, sfx, 90)
+		elseif p.ctf_slowcap % 35 == 33 then
+			S_StartSoundAtVolume(nil, sfx, 20)
+		end
+		
+		-- Small visual particles while we're slow capping
+		if p.ctf_slowcap and p.ctf_slowcap % 4 == 0 then
+			for i = 0, 5 do
+				local dust = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
+				if dust.valid then
+					dust.scale = $ / 3
+					dust.destscale = mo.scale
+					dust.state = S_SPINDUST3
+					P_Thrust(dust, mo.angle + (ANG1 * 72 * i) + p.ctf_slowcap * ANG20, mo.scale * 12)
+					if (mo.eflags & MFE_VERTICALFLIP) then -- readjust z position if needed
+						dust.z = mo.z + mo.height - dust.height
+					end
+					for j = 0, 3 do
+						if dust.valid then P_XYMovement(dust) end
+					end
+					if dust.valid then
+						P_SetObjectMomZ(dust, 3*FRACUNIT, false)
+					end
+				end
+			end
+		end
+	end
+end
+
+
 F.FlagPreThinker = function()
 	if gametype ~= GT_BATTLECTF then return end
 	for p in players.iterate do
@@ -365,7 +441,10 @@ F.FlagPreThinker = function()
 			end
 
 			-- If we're not on the ground then we can't cap flag
-			if not (P_IsObjectOnGround(p.mo) or (p.mo.eflags&MFE_JUSTHITFLOOR)) then continue end
+			if not (P_IsObjectOnGround(p.mo) or (p.mo.eflags&MFE_JUSTHITFLOOR)) then 
+				p.ctf_slowcap = nil -- Let's reset this even if delaycap is off
+				continue 
+			end
 
 			local team = p.ctfteam == 1 and SSF_REDTEAMBASE or SSF_BLUETEAMBASE
 			local s = P_PlayerTouchingSectorSpecialFlag(p, team)
@@ -417,11 +496,16 @@ F.FlagPreThinker = function()
 				on_base = true
 			end
 
-
 			if p.gotflag and on_base then
-				capFlag(p, p.ctfteam)
-			end
+				-- If the flag is home and we're home, cap
+				if F.IsFlagAtBase(p.ctfteam) then 
+					capFlag(p, p.ctfteam)
+					return
+				end
 
+				-- If delay cap is on, let's slowly start capturing..
+				if F.DelayCap then delayCap(p, p.ctfteam) end
+			end
 		end
 	end
 end
@@ -707,12 +791,12 @@ end
 -- 2: Blue
 F.IsFlagAtBase = function(fteam)
 	if fteam == 1 then -- red
-		if F.RedFlag and F.RedFlag.atbase then
+		if F.RedFlag and F.RedFlag.valid and F.RedFlag.atbase then
 			return true
 		end
 		return false
 	else -- blu
-		if F.BlueFlag and F.BlueFlag.atbase then
+		if F.BlueFlag and F.BlueFlag.valid and F.BlueFlag.atbase then
 			return true
 		end
 		return false
@@ -923,7 +1007,10 @@ end
 
 --// Enables delay cap and subsequently enables all related variables to delay cap (delay cap notice, delay cap flag base flashing, etc)
 F.DelayCapActivateIndicator = function()
-	if (B.Overtime and F.DC_NoticeTimer < 0) then F.DC_NoticeTimer = 0 end
+	if (B.Overtime and F.DC_NoticeTimer < 0) then 
+		F.DC_NoticeTimer = 0 
+		F.DelayCap = true
+	end
 	if (F.DC_NoticeTimer >= F.NOTICE_TIME) or (F.DC_NoticeTimer < 0) or
 		((gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()))
 	then 

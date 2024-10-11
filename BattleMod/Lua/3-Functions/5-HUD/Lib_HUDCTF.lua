@@ -404,3 +404,36 @@ F.DelayCapNotice = function(v, p, cam)
 	v.draw(bluFlagX, y+12, flagIcon, V_FLIP,bluFlag)
 	v.draw(redFlagX, y+12, flagIcon, V_FLIP,redFlag)
 end
+
+F.DelayCapBar = function(v) --, p, cam)
+	if (gametype ~= GT_BATTLECTF) and not F.DelayCap and not(B.DiamondGametype() or B.RubyGametype()) then return end
+	
+	if consoleplayer then
+		local slowcaps = {nil, nil}
+		for p in players.iterate do
+			if p.mo and p.mo.valid then
+				slowcaps[p.ctfteam] = p.ctf_slowcap or $
+			end
+		end
+
+		local x = 160
+		local y = 176
+		local dist = 25
+		local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_PERPLAYER
+
+		if slowcaps[1] then -- Red team is capturing
+			if slowcaps[2] then y = $-dist/2 end
+
+			local width = 1+((slowcaps[1])/10)
+			v.drawFill(x - width, y, width * 2, 4, flags | (72+slowcaps[1] % 8))
+			v.drawString(x,y - 8, "DELAYED CAPTURE", flags|V_REDMAP, "thin-center")
+		end
+
+		if slowcaps[2] then -- Blue team is capturing
+			if slowcaps[1] then y = $+dist end
+			local width = 1+ ((slowcaps[2])/10)
+			v.drawFill(x-width, y, width * 2, 4, flags | (72 + slowcaps[2] % 8))
+			v.drawString(x, y - 8, "DELAYED CAPTURE", flags|V_BLUEMAP, "thin-center")
+		end
+	end
+end
