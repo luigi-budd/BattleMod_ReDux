@@ -1,21 +1,29 @@
 '''
-# SRB2ModCompiler v2.43 by Lumyni (felixlumyni on discord)
+# SRB2ModCompiler v4.31 by Lumyni (felixlumyni on discord)
 # Requires https://www.python.org/
 # Messes w/ files, only edit this if you know what you're doing!
 '''
 
 import os
-import platform
-import subprocess
-if platform.system() == "Windows": import winreg
-import datetime
-#for zipping:
-import io
-import zipfile
-#for sys args:
-import argparse
+
+'''
+LAZY IMPORTS: 
+- argparse: Only when running the script
+- subprocess and datetime: Only in the run() function
+- winreg: Only in the set_environment_variable() and get_environment_variable() functions
+- platform: Same as above, but also in the 'cls' command
+- tkinter: Only in the file_explorer() and directory_explorer() functions
+- zipfile: Only in the unzip_pk3() and create_or_update_zip() functions
+- shutil: Only in the unzip_pk3() function
+- re: Only in the create_versioninfo() function
+'''
 
 runcount = 0
+isVerbose = False
+
+def verbose(*args, **kwargs):
+    if isVerbose:
+        print(*args, **kwargs)
 
 def main():
     vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
@@ -23,22 +31,30 @@ def main():
     GREEN = '\033[32m' if vscode else ''
     BLUE = '\033[36m' if vscode else ''
     RESETCOLOR = '\033[0m' if vscode else ''
+    BLACK = '\033[30m' if vscode else ''
+    UNDERLINE = '\033[4m' if vscode else ''
+    NOUNDERLINE = '\033[24m' if vscode else ''
     set = GREEN+"set" if get_environment_variable("SRB2C_LOC") else RED+"unset"
     print(BLUE, end="")
     print(f"Welcome to SRB2ModCompiler v2! Your system variable is {set}{BLUE}.")
     print(f"Type '{GREEN}help{BLUE}' to see available commands.")
     
     while True:
-        command = input(RESETCOLOR+"> ").lower()
+        command = input(RESETCOLOR+"> ").lower().strip()
         print(BLUE, end="")
 
         if command == "help":
-            print("Available commands:")
-            print(f"  {GREEN}<literally nothing>{BLUE} - Compile this script's directory into a mod and run it in your exe from the system variable!")
-            print(f"  {GREEN}set{BLUE} - Update the system variable that (necessary so this script knows where your SRB2 is)")
-            print(f"  {GREEN}path{BLUE} - Show the paths for both system variables")
-            print(f"  {GREEN}downloads{BLUE} - Update the secondary and optional system variable that determines where your files will be saved")
-            print(f"  {GREEN}args{BLUE} - Update your launch parameters as a file! (also optional)")
+            print(f"{UNDERLINE}Essential commands:{NOUNDERLINE}")
+            print(f"  {GREEN}<literally nothing>{BLUE} - Compile this script's directory into a mod and launch it in SRB2! {BLACK}(Requires system variable below)")
+            print(f"  {GREEN}set{BLUE} - Update the system variable that points to your SRB2 executable")
+            print(f"{UNDERLINE}Extra commands:{NOUNDERLINE}")
+            print(f"  {GREEN}verbose{BLUE} - Toggle detailed output")
+            print(f"  {GREEN}mod{BLUE} - Change the relative path of the mod you're compiling")
+            print(f"  {GREEN}downloads{BLUE} - Update the secondary system variable that determines where your pk3 files will be saved")
+            print(f"  {GREEN}unset{BLUE} - Clear all system variables")
+            print(f"  {GREEN}path{BLUE} - Show where all system variables point to")
+            print(f"  {GREEN}args{BLUE} - Update your launch parameters as a file")
+            print(f"  {GREEN}unzip{BLUE} - Decompile a pk3 back into a compile-able folder")
             print(f"  {GREEN}quit{BLUE} - Exit the program")
         elif command == "path":
             srb2_loc = get_environment_variable("SRB2C_LOC")
@@ -46,10 +62,10 @@ def main():
             print(f"SRB2C_LOC system variable path: {srb2_loc}")
             print(f"SRB2C_DL system variable path: {srb2_dl}")
         elif command == "set":
-            print(f"Type {GREEN}E{BLUE} to open the file explorer or paste the path to your SRB2 executable here.")
+            print(f"Enter {GREEN}E{BLUE} to open the file explorer or paste the path to your SRB2 executable here.")
             command = input(RESETCOLOR+">> ")
             print(BLUE, end="")
-            if command.lower() == "e":
+            if command.lower().strip() == "e":
                 choose_srb2_executable()
             else:
                 path = sanitized_exe_filepath(command)
@@ -59,10 +75,10 @@ def main():
                 else:
                     print("Operation cancelled.")
         elif command == "downloads":
-            print(f"Type {GREEN}E{BLUE} to open the file explorer or paste the path of where you want your compiled mods to be saved.")
+            print(f"Enter {GREEN}E{BLUE} to open the file explorer or paste the path of where you want your compiled mods to be saved.")
             command = input(RESETCOLOR+">> ")
             print(BLUE, end="")
-            if command.lower() == "e":
+            if command.lower().strip() == "e":
                 choose_srb2_downloads()
             else:
                 path = sanitized_directory_path(command)
@@ -80,8 +96,8 @@ def main():
             print("- NOTE: Regardless of what parameters you type in here, the script will always use the -file <MOD> parameter to run your mod")
             print('- Example: -skipintro -server +skin Tails +color Rosy +wait 1 -warp tutorial +downloading off')
             print("- (If you're still confused, refer to the 'command line parameters' page from the SRB2 Wiki)")
-            print("- If you wish to cancel, simply press enter without typing anything")
-            command = input(RESETCOLOR+">> ").lower()
+            print("- To cancel, simply press enter without typing anything")
+            command = input(RESETCOLOR+">> ").lower().strip()
             print(BLUE, end="")
             if command == "":
                 print("Operation cancelled by user.")
@@ -98,6 +114,7 @@ def main():
                             file.write(" ")
                 print(filename,"file was created/updated (in the same directory as this script)!")
         elif command == "quit":
+            print(RESETCOLOR, end="")
             break
         elif command == "":
             run()
@@ -107,20 +124,106 @@ def main():
             print("BRUH LOL")
             print("You know what I meant.")
         elif command == "run":
-            BLACK = '\033[30m' if vscode else ''
             print(BLACK+"Who are you running from?"+BLUE)
         elif command == "cls":
+            import platform
             if platform.system() == 'Windows':
                 os.system('cls')
             else:
                 os.system('clear')
+        elif command == "unzip":
+            print("Enter the name of the .pk3 file to unzip, or 'e' to use file explorer:")
+            command = input(RESETCOLOR+">> ").lower().strip()
+            print(BLUE, end="")
+            
+            if command == 'e':
+                print("Select a .pk3 file to unzip:")
+                file_path = file_explorer([("PK3 files", "*.pk3")])
+            else:
+                file_path = os.path.join(os.getcwd(), command)
+            
+            if file_path and os.path.exists(file_path):
+                output_dir = os.path.join(os.path.dirname(file_path), os.path.splitext(os.path.basename(file_path))[0])
+                output = unzip_pk3(file_path, output_dir)
+                if output == True:
+                    print(f"{GREEN}Successfully unzipped {os.path.basename(file_path)} to {os.path.basename(output_dir)}{BLUE}")
+                else:
+                    print(f"{RED}Error: {output}{BLUE}")
+            else:
+                print("Operation cancelled. No valid file selected or found.")
+        elif command == "verbose":
+            global isVerbose
+            isVerbose = not isVerbose
+            print(f"Verbose mode is now {GREEN if isVerbose else RED}{('enabled' if isVerbose else 'disabled')}{BLUE}.")
+        elif command == "mod":
+            print("- Enter the relative path of the mod to launch. Example: ../my_mod")
+            print("- Enter 'e' to use file explorer, or 'c' to delete the file and use the default (this script's directory).")
+            print("- To cancel, simply press enter without typing anything")
+            command = input(RESETCOLOR+">> ").lower().strip()
+            print(BLUE, end="")
+            if command == "":
+                print("Operation cancelled by user.")
+            elif command == "e":
+                print("Select a mod directory:")
+                mod_dir = directory_explorer()
+                if mod_dir:
+                    command = os.path.relpath(mod_dir, os.path.dirname(os.path.abspath(__file__)))
+                else:
+                    print("No directory selected. Operation cancelled.")
+                    continue
+            elif command == "c":
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                filename = ".SRB2C_MODPATH"
+                filepath = os.path.join(script_dir, filename)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    print(f"{filename} file has been deleted.")
+                else:
+                    print(f"{filename} file does not exist.")
+                continue
+            
+            if command not in ["", "e", "c"]:
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                mod_dir = os.path.join(script_dir, command)
+                if os.path.isdir(mod_dir):
+                    filename = ".SRB2C_MODPATH"
+                    filepath = os.path.join(script_dir, filename)
+                    with open(filepath, "w") as file:
+                        file.write(command)
+                    print(filename,"file was created/updated (in the same directory as this script)!")
+                    global runcount
+                    runcount = 0
+                else:
+                    print(f"{RED}Error: The directory '{mod_dir}' does not exist.{BLUE}")
         else:
             print(f"Invalid command. Type '{GREEN}help{BLUE}' to see available commands.")
+
+def find_mod_directory():
+    mod_dir = os.path.dirname(__file__)
+    srb2c_modpath = os.path.join(mod_dir, '.SRB2C_MODPATH')
+
+    if os.path.exists(srb2c_modpath):
+        with open(srb2c_modpath, 'r') as f:
+            relative_path = f.read().strip()
+    
+            new_mod_dir = os.path.normpath(os.path.join(mod_dir, relative_path))
+    
+            if os.path.exists(new_mod_dir) and os.path.isdir(new_mod_dir):
+                return new_mod_dir
+            else:
+                vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
+                YELLOW = '\033[93m' if vscode else ''
+                BLUE = '\033[94m' if vscode else ''
+                print(f"{YELLOW}Warning: Path in .SRB2C_MODPATH is invalid. Defaulting to the original directory.{BLUE}")
+    
+    return mod_dir
 
 def run():
     """
     I'm adding this comment because this function does a lot of things:
     - Requires the enviroment variable ``SRB2C_LOC``, which points to the user's SRB2 executable (if not provided, will return a warning)
+    - Tries to read the ``.SRB2C_VERSIONINFO`` file (in the same directory as this script) and generate a file based on it.
+        - If the file is not found, this step will be skipped
     - Tries to read the ``.SRB2C_ARGS`` file (in the same directory as this script) and store its contents as launch parameters.
         - If the file is not found, it will default to ``-skipintro``
     - It will zip the current directory in the ``SRB2C_DL`` enviroment variable
@@ -128,34 +231,78 @@ def run():
     - After the zip file has been created/updated, it will then run the SRB2 executable in ``SRB2C_LOC``, with the ``-file`` parameter to run it
     - Aditionally, this will print useful information such as runcount and datetime
     """
+      
+    import subprocess
+    import datetime
     global runcount
+
+    mod_dir = find_mod_directory()
+    basedirname = os.path.basename(mod_dir)
+    pk3name = "_"+basedirname+".pk3"
+
+    if runcount == 0:
+        current_dir_contents = os.listdir(mod_dir)
+        COMMON_SRB2_PARTS = ['Lua', 'Sprites', 'Skins', 'Textures', 'Sounds', 'Graphics', 'SOC']
+        found_parts = [part for part in COMMON_SRB2_PARTS if part in current_dir_contents]
+
+        verbose(current_dir_contents)
+
+        if len(found_parts) < 3:
+            vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
+            YELLOW = '\033[93m' if vscode else ''
+            BLUE = '\033[94m' if vscode else ''
+            RESETCOLOR = '\033[0m' if vscode else ''
+            print(f"{YELLOW}Warning: The directory you're trying to compile probably isn't the mod's files! Less than 3 common SRB2 parts (Lua, Sprites, SOC...) were found in the current directory ({basedirname}).{BLUE}")
+            verbose(f"Found parts: {', '.join(found_parts) if found_parts else 'None.'}")
+            proceed = input(f"{YELLOW}Are you sure you want to proceed here? (y/n): {RESETCOLOR}").lower().strip()
+            if proceed != 'y':
+                print(f"{BLUE}Operation cancelled.")
+                return
+    
     srb2_loc = get_environment_variable("SRB2C_LOC")
     srb2_dl = get_environment_variable("SRB2C_DL") if get_environment_variable("SRB2C_DL") else os.path.dirname(srb2_loc)
     vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
     if srb2_loc:
+        try:
+            create_versioninfo(datetime, subprocess)
+        except Exception as e:
+            print(f"Error creating .SRB2C_VERSIONINFO file: {e}")
+
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") # NOW! *thunder*
         gonnarun = True
-        currentdir = os.path.dirname(__file__)
-        basedirname = os.path.basename(currentdir)
-        pk3name = "_"+basedirname+".pk3"
         try:
-            with open(os.path.join(currentdir, ".SRB2C_ARGS"), "r") as file:
+            args_file = os.path.join(mod_dir, ".SRB2C_ARGS")
+            if not os.path.exists(args_file):
+                args_file = os.path.join(os.path.dirname(__file__), ".SRB2C_ARGS")
+            
+            with open(args_file, "r") as file:
                 extraargs = file.read().split()
                 if runcount == 0:
                     BLUE = '\033[36m' if vscode else ''
                     GREEN = '\033[32m' if vscode else ''
-                    print(f"[{now}] Found {GREEN}.SRB2C_ARGS{BLUE} file")
+                    verbose(f"[{now}] Found {GREEN}.SRB2C_ARGS{BLUE} file")
         except FileNotFoundError:
             if runcount == 0:
                 BLUE = '\033[36m' if vscode else ''
                 GREEN = '\033[32m' if vscode else ''
-                print(f"[{now}] {GREEN}.SRB2C_ARGS{BLUE} file not found, so we will be using the default parameter: {GREEN}-skipintro{BLUE}")
+                verbose(f"[{now}] {GREEN}.SRB2C_ARGS{BLUE} file not found, so we will be using the default parameter: {GREEN}-skipintro{BLUE}")
             extraargs = ["-skipintro"]
-        args = [srb2_loc, "-file", pk3name]
+        if "-prefile" in extraargs:
+            prefile_index = extraargs.index("-prefile")
+            if prefile_index + 1 < len(extraargs):
+                prefile = extraargs[prefile_index + 1]
+                extraargs = extraargs[:prefile_index] + extraargs[prefile_index + 2:]
+                args = [srb2_loc, "-file", prefile, pk3name]
+            else:
+                print("Warning: -prefile parameter is present but no file specified. Ignoring -prefile.")
+                args = [srb2_loc, "-file", pk3name]
+        else:
+            args = [srb2_loc, "-file", pk3name]
         args.extend(extraargs)
+
         if runcount == 0:
             print(f"- Zipping '{GREEN}{basedirname}{BLUE}', please wait a moment...")
-        create_or_update_zip(currentdir, srb2_dl, pk3name)
+        create_or_update_zip(mod_dir, srb2_dl, pk3name)
         if os.path.exists(os.path.join(srb2_dl, pk3name)):
             if runcount == 0:
                 specified = "specified" if get_environment_variable("SRB2C_DL") else "SRB2"
@@ -177,9 +324,11 @@ def run():
         print(f"SRB2C_LOC system variable not set. Please run '{GREEN}set{BLUE}' to set it.")
 
 def get_environment_variable(variable: str):
+    import platform
     sysvar = os.getenv(variable)
 
     if platform.system() == "Windows":
+        import winreg
         # On Windows, manually refresh os.environ after modifying the registry
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment', 0, winreg.KEY_READ)
         try:
@@ -194,7 +343,9 @@ def get_environment_variable(variable: str):
     return sysvar
 
 def set_environment_variable(variable, value):
+    import platform
     if platform.system() == "Windows":
+        import winreg
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 'Environment', 0, winreg.KEY_SET_VALUE)
         winreg.SetValueEx(key, variable, 0, winreg.REG_EXPAND_SZ, value)
         winreg.CloseKey(key)
@@ -257,6 +408,8 @@ def directory_explorer():
     return directory_path
 
 def create_or_update_zip(source_path: str, destination_path: str, zip_name: str):
+    import io
+    import zipfile
     zip_full_path = os.path.join(destination_path, zip_name)
     compressionmethod = zipfile.ZIP_DEFLATED
 
@@ -361,7 +514,182 @@ def sanitized_directory_path(user_input):
 
     return path
 
+def remove_empty_folders(path):
+    for root, dirs, files in os.walk(path, topdown=False):
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            if not os.listdir(dir_path):
+                os.rmdir(dir_path)
+                verbose(f"Removed empty folder: {dir_path}")
+
+def unzip_pk3(zip_path, extract_to):
+    import zipfile
+    import shutil
+    output_dir = os.path.join(os.path.dirname(zip_path), os.path.splitext(os.path.basename(zip_path))[0])
+    
+    if os.path.exists(output_dir):
+        response = input(f"{os.path.basename(output_dir)} already exists. Would you like to delete it? (Y/N): ").strip().lower()
+        if response == 'y':
+            shutil.rmtree(output_dir)
+            print(f"Deleted existing directory: {output_dir}")
+        else:
+            print("Operation cancelled.")
+            return False
+
+    print("Unzipping... (might take a bit if your mod is large!)")
+
+    if not os.path.exists(extract_to):
+        os.makedirs(extract_to)
+    
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        current_skin = None
+        current_super = False
+        
+        for file_info in zip_ref.infolist():
+            try:
+                current_skin, current_super = organize_and_extract(file_info, zip_ref, extract_to, current_skin, current_super, shutil)
+            except Exception as e:
+                return f"Error extracting {file_info.filename}: {str(e)}"
+    return True
+
+def organize_and_extract(file_info, zip_ref, base_folder, current_skin, current_super, shutil):
+    file_name = file_info.filename
+    path_parts = file_name.split('/')
+    
+    if file_name.endswith('/'):
+        os.makedirs(os.path.join(base_folder, file_name), exist_ok=True)
+        verbose(f"Created directory: {file_name}")
+        return current_skin, current_super
+
+    if current_skin and not file_name.startswith(current_skin + '/'):
+        skin_path = os.path.join(base_folder, current_skin)
+        remove_empty_folders(skin_path)
+        current_skin = None
+        current_super = False
+
+    if 'S_SKIN' in file_name:
+        skin_dir = os.path.dirname(file_name)
+        has_valid_file = any(f.lower().endswith(('.lmp', '.png')) for f in zip_ref.namelist() if os.path.dirname(f) == skin_dir)
+        if has_valid_file:
+            current_skin = path_parts[0]
+            current_super = False
+            print(f"Organizing skin folder: {skin_dir}")
+        else:
+            print(f"Did organize skin folder {skin_dir}: Might already be organized.")
+
+    
+    if current_skin and file_name.startswith(current_skin):
+        if 'S_SKIN' in file_name:
+            category = os.path.join(current_skin, '1-S_SKIN')
+        elif 'S_SUPER' in file_name:
+            current_super = True
+            category = os.path.join(current_skin, '3-SuperSkin', '1-S_SUPER')
+        elif 'S_END' in file_name:
+            category = os.path.join(current_skin, '3-SuperSkin', '3-S_END')
+            current_super = False
+        elif current_super:
+            category = os.path.join(current_skin, '3-SuperSkin', '2-SuperSprites')
+        else:
+            category = os.path.join(current_skin, '2-Sprites')
+        
+        # Preserve subfolder structure
+        subfolder_path = os.path.dirname(file_name[len(current_skin)+1:])
+        category = os.path.join(category, subfolder_path)
+    else:
+        current_skin = None
+        current_super = False
+        category = os.path.dirname(file_name)
+    
+    destination_dir = os.path.join(base_folder, category)
+    os.makedirs(destination_dir, exist_ok=True)
+    
+    extracted_file_path = os.path.join(destination_dir, os.path.basename(file_name))
+    
+    with zip_ref.open(file_info) as source, open(extracted_file_path, 'wb') as target:
+        shutil.copyfileobj(source, target)
+    
+    verbose(f"Extracted: {file_name} to {category}")
+    return current_skin, current_super
+
+
+def create_versioninfo(datetime, subprocess):
+    import re
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    mod_dir = find_mod_directory()
+    input_file = os.path.join(mod_dir, ".SRB2C_VERSIONINFO")
+
+    if not os.path.exists(input_file):
+        input_file = os.path.join(script_dir, ".SRB2C_VERSIONINFO")
+        if not os.path.exists(input_file):
+            verbose("No .SRB2C_VERSIONINFO file found in the mod or default directory. Skipping version info generation.")
+            return
+
+    with open(input_file, 'r') as file:
+        lines = file.readlines()
+    
+    if not lines:
+        verbose(".SRB2C_VERSIONINFO file is empty. Skipping version info generation.")
+        return
+
+    relative_path = lines[0].strip()
+
+    if not relative_path or relative_path.startswith('/') or '..' in relative_path or ':' in relative_path:
+        raise ValueError("Invalid version info file path! The first line of .SRB2C_VERSIONINFO should be a simple filepath like 'Lua/VersionInfo.lua'")
+
+    output_file = os.path.join(mod_dir, relative_path)
+
+    content = ''.join(lines[1:])
+
+    # Replace special strings
+    now = datetime.datetime.now()
+    content = content.replace("$DATE", now.strftime("%Y-%m-%d"))
+    content = content.replace("$TIME", now.strftime("%H:%M:%S"))
+
+    fetch_pattern = r'\$FETCH:([^:]+):([^:\n]+)'
+    matches = re.findall(fetch_pattern, content)
+    for file_name, variable in matches:
+        file_paths = [
+            os.path.join(script_dir, file_name),
+            os.path.join(mod_dir, file_name),
+            os.path.join(os.path.dirname(mod_dir), file_name)
+        ]
+        file_found = False
+        for file_path in file_paths:
+            if os.path.exists(file_path):
+                with open(file_path, 'r') as fetch_file:
+                    file_content = fetch_file.read()
+                    value = re.search(f'{variable}(.+)', file_content)
+                    if value:
+                        content = content.replace(f'$FETCH:{file_name}:{variable}', value.group(1))
+                    else:
+                        content = content.replace(f'$FETCH:{file_name}:{variable}', '"value_not_found"')
+                file_found = True
+                break
+        if not file_found:
+            content = content.replace(f'$FETCH:{file_name}:{variable}', '"file_not_found"')
+            verbose(f"$FETCH: File {file_name} not found in script_dir, mod_dir, or mod_dir parent directory")
+
+    try:
+        branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
+        content = content.replace("$BRANCH", branch)
+    except:
+        content = content.replace("$BRANCH", "unknown")
+
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
+        content = content.replace("$COMMIT", commit)
+    except:
+        content = content.replace("$COMMIT", "unknown")
+
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, 'w') as file:
+        file.write(content)
+
+    verbose(f"Version info file created at: {output_file}")
+
+
 if __name__ == "__main__":
+    import argparse
     parser = argparse.ArgumentParser(description="Process some launch parameters.")
     parser.add_argument('-zip', nargs=3, type=str, help="Skips interface and zips given path with the given name and export path")
 

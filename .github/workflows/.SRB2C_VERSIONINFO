@@ -1,0 +1,8 @@
+Lua/1-Init/Init_VersionInfo.lua
+CBW_Battle.VersionNumber = $FETCH:build.sh:PK3_VERSION_DEF=
+CBW_Battle.VersionSub =  $FETCH:build.sh:PK3_SUBVERSION_DEF=
+CBW_Battle.VersionPublic = $FETCH:build.sh:PK3_RELEASE=
+CBW_Battle.VersionDate = "$DATE"
+CBW_Battle.VersionTime = "$TIME"
+CBW_Battle.VersionBranch = "$BRANCH"
+CBW_Battle.VersionCommit = "$COMMIT"
