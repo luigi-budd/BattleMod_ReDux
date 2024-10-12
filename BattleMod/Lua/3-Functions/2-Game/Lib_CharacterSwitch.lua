@@ -15,7 +15,7 @@ local function ButtonCheck2(player,button)
 end
 -- I copied and edited some code from battle mod
 addHook("PlayerThink", function(player) -- death timer test
-	if CV_FindVar("forceskin").value then return end
+	if (CV_FindVar("forceskin").value ~= -1) then return end
 
 	if player.deadtimer then
 		if (ButtonCheck2(player,BT_TOSSFLAG) == 1) and not player.selectchar then
