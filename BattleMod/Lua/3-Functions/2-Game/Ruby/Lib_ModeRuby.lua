@@ -182,7 +182,7 @@ local capture = function(mo, player)
 				loss = true
 			end
 		end
-		S_StartSound(nil, B.LongSound(player, sfx, loss), p)
+		S_StartSoundAtVolume(nil, B.LongSound(player, sfx, loss), (B.LongSound(p, nil, nil, nil, true)).volume or 255, p)
 	end
 	P_RemoveMobj(mo)
 	if R.CheckPoint and R.CheckPoint.valid

@@ -581,7 +581,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 					lose = true
 				end
 			end
-			S_StartSound(nil, B.ShortSound(player, sfx, lose), p)
+			S_StartSoundAtVolume(nil, B.ShortSound(player, sfx, lose), (B.ShortSound(player, nil, nil, nil, true)).volume or 255, p)
 		end
 		local playertextmap = (pcall(do return skincolors[player.mo.color].chatcolor end) and skincolors[player.mo.color].chatcolor) or 0
 		local playerEsc = (rawget(textmapToEsc, playertextmap) and textmapToEsc[playertextmap]) or "\x80"
