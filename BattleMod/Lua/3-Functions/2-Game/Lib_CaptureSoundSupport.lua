@@ -15,7 +15,7 @@ B.LongSound = function(player, fallback, lose, nowin, gettable)
 		end
 	else
 		if gettable then
-			return nil
+			return {volume=255}
 		else
 			return fallback
 		end
@@ -36,6 +36,10 @@ B.ShortSound = function(player, fallback, lose, nowin, gettable)
 			return (nowin and fallback) or (choice.sound or fallback)
 		end
 	else
-		return fallback
+		if gettable then
+			return {volume=255}
+		else
+			return fallback
+		end
 	end
 end
