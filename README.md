@@ -2,7 +2,7 @@
 [View full credits](https://gitlab.com/Krabs_Is_A_/battlemod/-/blob/master/Credits.md)
 
 [View full patch notes](https://gitlab.com/Krabs_Is_A_/battlemod/-/blob/master/PatchNotes.txt)
-
+ 
 ## Building
 
 ### Windows
