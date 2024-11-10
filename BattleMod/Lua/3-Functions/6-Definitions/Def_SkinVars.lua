@@ -82,7 +82,9 @@ S["fang"] = {
 }
 S["metalsonic"] = {
 	weight = 115,
-	special = Act.EnergyAttack,
+	special = function(mo, doaction, throwring, tossflag)
+		local func = pcall(do Act.EnergyAttack(mo, doaction, throwring, tossflag) end)
+	end,
 	guard_frame = 2,
 	func_priority_ext = Act.EnergyAttack_Priority,
 	sprites = {
