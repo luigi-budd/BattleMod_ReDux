@@ -772,7 +772,8 @@ A.KillReward = function(killer, target)
 		if (killer.lifeshards >= 3) and survival then
 			killer.lifeshards = $-3
 			killer.lives = $ + 1
-			P_PlayLivesJingle(killer)
+			--P_PlayLivesJingle(killer)
+			S_StartSound(nil, sfx_svshar, killer)
 			local icon = P_SpawnMobjFromMobj(killer.mo,0,0,0,MT_1UP_ICON)
 			icon.scale = killer.mo.scale * 4/3
 			print("\x89" .. killer.name .. " earned an extra life!")
