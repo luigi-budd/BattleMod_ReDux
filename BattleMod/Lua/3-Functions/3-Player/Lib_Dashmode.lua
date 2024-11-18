@@ -161,14 +161,14 @@ local teamcolors = {
 
 
 local dash_colorizer = function(player) --Colorizes dashmode users that would show the orange flash instead of colorizing (PostThinkFrame)
-
+	if not(player and player.mo and player.mo.valid) then return end
 
 	if player.dashmode >= DASHMODE_THRESHOLD and (player.charflags & SF_DASHMODE) and (player.charflags & SF_MACHINE) and ((leveltime/2) & 1) then --if we're flashing & a dashmode machine
 		dash_overlayOn(player, false, true) --Colorize
-		player.dash_colorize = true --Mark as colorized
-	elseif player.dash_colorize then --if we're not, and we're marked as colorized
+		player.mo.dash_colorize = true --Mark as colorized
+	elseif player.mo.dash_colorize then --if we're not, and we're marked as colorized
 		dash_overlayOff(player, false, true) --DeColorize
-		player.dash_colorize = false --Mark as not colorized
+		player.mo.dash_colorize = false --Mark as not colorized
 	end
 end
 
@@ -194,13 +194,15 @@ local dash_overlaySpawner = function(player) --PreThinkFrame prefferably
 end
 
 local dash_resetter = function(player) --Makes dashmode start from the beginning if it ends
-	if player.dashmode >= DASHMODE_THRESHOLD then --Dashing?
-		player.dashmode_reached = true --Mark it
-	end
-	
-	if (player.dashmode < DASHMODE_THRESHOLD) and player.dashmode_reached then --Dashmode is decreasing?
-		player.dashmode = 0 --Start from 0
-		player.dashmode_reached = nil --Unmark
+	if player.mo and player.mo.valid then
+		if player.dashmode >= DASHMODE_THRESHOLD then --Dashing?
+			player.mo.dashmode_reached = true --Mark it
+		end
+		
+		if (player.dashmode < DASHMODE_THRESHOLD) and player.mo.dashmode_reached then --Dashmode is decreasing?
+			player.dashmode = 0 --Start from 0
+			player.mo.dashmode_reached = nil --Unmark
+		end
 	end
 end
 
