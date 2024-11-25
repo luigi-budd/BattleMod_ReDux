@@ -224,12 +224,12 @@ local stallOrFall = function(mo, player, cooldown)
 end
 
 local resetRingSpark = function(mo, player)
-	mo.ringsparkclock = 0
 	player.actionstate = 0
 	player.actiontime = 0
 	resetdashmode(player)
 	B.ApplyCooldown(player,cooldown_ringspark)
 	resetvars(mo)
+	mo.ringsparkclock = 0
 	player.runspeed = skins[mo.skin].runspeed
 	if not(skins[mo.skin].flags & SF_NOSKID) then
 		player.charflags = $ & ~(SF_NOSKID)
@@ -790,11 +790,20 @@ local function stateEnforcer(player, state, actionstate)
 end
 
 local function MetalActionSuper(player)
+	local mo = player.mo
 	player.actiontime = 0
 	player.actionstate = 0
 	resetvars(player.mo)
 	resetdashmode(player)
 	B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
+	mo.ringsparkclock = 0
+	player.runspeed = skins[mo.skin].runspeed
+	if not(skins[mo.skin].flags & SF_NOSKID) then
+		player.charflags = $ & ~(SF_NOSKID)
+	end
+	mo.frame = 0
+	mo.sprite = SPR_PLAY
+	player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 
 B.Action.EnergyAttack_Priority = function(player)
