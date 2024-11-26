@@ -268,10 +268,10 @@ A.ForceWin = function()
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
 				player.win = true
-				COM_BufInsertText(player,"tunes "..((ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.win and winmusic) or lossmusic))
+				COM_BufInsertText(player,"tunes "..winmusic)
 			else
 				player.loss = true
-				COM_BufInsertText(player,"tunes "..((ALTMUSIC and ALTMUSIC.CurrentMap and ALTMUSIC.CurrentMap.loss and lossmusic) or winmusic))
+				COM_BufInsertText(player,"tunes "..lossmusic)
 			end
 
 			if not(winner) and (playercount == 0) or (not(G_GametypeHasTeams()) and (player.wanted or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2]))) then
