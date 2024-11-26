@@ -548,22 +548,8 @@ A.UpdateGame = function()
 		end
 	end
 
-
-
-	//Score win conditions (non-survival)
-	if not(survival)
-	and (
-		(pointlimit and highscore >= pointlimit) --//Score condition met
-		or (count == 1 and timelimit and timeleft <= 0) --//Time condition met with one person/team in the lead
-		)
-	then
-		A.ForceWin()
-	return end --Exit function
-	
-	
-
-
 	if B.Timeout and not(B.Exiting) then
+
 		B.Timeout = $-1
 
 		if gametype == GT_RUBYRUN then
@@ -577,7 +563,7 @@ A.UpdateGame = function()
 			player.exiting = max($, B.Timeout+2)
 		end
 		
-		if B.Timeout == 0 then
+		if (B.Timeout == 0) then
 			for player in players.iterate do
 				player.exiting = 0
 				if player.spectator or player.playerstate != PST_LIVE
@@ -596,6 +582,17 @@ A.UpdateGame = function()
 			end
 		end
 	end
+
+
+	//Score win conditions (non-survival)
+	if not(survival)
+	and (
+		(pointlimit and highscore >= pointlimit) --//Score condition met
+		or (count == 1 and timelimit and timeleft <= 0) --//Time condition met with one person/team in the lead
+		)
+	then
+		A.ForceWin()
+	return end --Exit function
 
 	//Time out
 	if timelimit and timeleft == 0 then
