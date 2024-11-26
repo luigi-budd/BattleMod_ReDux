@@ -426,11 +426,12 @@ F.FlagPreThinker = function()
 	for p in players.iterate do
 		if p and p.mo then
 
-			if not(p.mo.btagpointer) then
+			local pctf_flag = ({F.RedFlag, F.BlueFlag})[p.ctfteam]
+			if (type(pctf_flag) == "mobj_t") and not(p.mo.btagpointer) then
 				p.mo.btagpointer = P_SpawnMobjFromMobj(p.mo, 0, 0, 0, MT_BTAG_POINTER)
 				if p.mo.btagpointer and p.mo.btagpointer.valid then
 					p.mo.btagpointer.tracer = p.mo
-					p.mo.btagpointer.target = ({F.RedFlag, F.BlueFlag})[p.ctfteam]
+					p.mo.btagpointer.target = pctf_flag
 				end
 			end
 			-- Press tossflag to tossflag
