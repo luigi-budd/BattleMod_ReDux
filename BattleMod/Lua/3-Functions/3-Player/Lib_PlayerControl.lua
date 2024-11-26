@@ -210,7 +210,7 @@ B.GetSkinVarsFlags = function(player,value)
 	and (player.skinvars == nil or player.skinvars == -1 or S[player.skinvars] == nil)
 		return S[-1].flags
 	end
-	local flags = S[player.skinvars].flags 
+	local flags = (S[player.skinvars] and S[player.skinvars].flags) or nil
 	if flags == nil then
 		flags = S[-1].flags
 	end
