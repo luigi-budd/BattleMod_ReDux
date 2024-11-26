@@ -10,11 +10,8 @@ R.FadeFunc = function(v, player)
 	player = $ or displayplayer
 
 	--Ruby Run
-	if (B.Timeout > 1) or ((B.Timeout < (TICRATE + (TICRATE/5))) and player.exiting) or R.RubyFade == 10 then
-		v.fadeScreen(R.FadeColor, R.RubyFade)
-	end
-
-	if (R.RubyFade >= 1) and (player.battlespawning > 25) and (player.battlespawning < 48) then
+	if ((B.Timeout > 1) or ((B.Timeout < (TICRATE + (TICRATE/5))) and player.exiting) or R.RubyFade == 10) or 
+	((R.RubyFade >= 1) and (player.battlespawning > 25) and (player.battlespawning < 48)) then
 		v.fadeScreen(R.FadeColor, R.RubyFade)
 	end
 	--Fade
@@ -22,8 +19,6 @@ end
 
 R.HUD = function(v, player, cam)
 	if not (B.HUDMain) then return end
-
-	R.FadeFunc(v, player)
 
 	if not (player.realmo and player.realmo.valid) then return end
 
