@@ -212,6 +212,10 @@ local function BattleTagPointers(mo)
 		arrowscale = ARROW_INVERTSCALE
 	end
 
+	if not(target) and not(mo.target and mo.target.valid) then
+		delete = true
+	end
+
 	if delete then
 		if mo.tracer and mo.tracer.valid then
 			mo.tracer.btagpointer = nil
@@ -266,6 +270,9 @@ local function BattleTagPointers(mo)
 	local x = mo.tracer.x
 	local y = mo.tracer.y
 	local z = mo.tracer.z
+	if not(target) then
+		target = mo.target
+	end
 	local rx = target.x
 	local ry = target.y
 	local rz = target.z
