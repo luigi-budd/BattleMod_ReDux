@@ -213,7 +213,6 @@ local function BattleTagPointers(mo)
 	end
 
 	if delete then
-		print("fuck")
 		if mo.tracer and mo.tracer.valid then
 			mo.tracer.btagpointer = nil
 			mo.tracer.btagpointers = nil
