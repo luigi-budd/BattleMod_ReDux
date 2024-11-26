@@ -70,7 +70,7 @@ B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 			mo[n1].momz = P_MobjFlip(mo[n1])
 		end
 		if plr[n2] then
-			B.DoPlayerFlinch(plr[n2], 12+mo[n2].hitstun_tics, angle, plr[n2].speed/2,false)
+			B.DoPlayerFlinch(plr[n2], 12+mo[n2].hitstun_tics, angle[n1], plr[n2].speed/2,false)
 		end
 		S_StartSound(mo[n1], sfx_s3kd7s)
 	end
