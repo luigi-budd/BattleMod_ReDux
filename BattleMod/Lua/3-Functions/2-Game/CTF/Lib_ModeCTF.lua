@@ -734,7 +734,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			end
 		end
 		if not(canhaveicon) then -- no conditions were met! so simply delete indicator
-			if pmo.flag_indicator then
+			if pmo and pmo.valid and pmo.flag_indicator and pmo.flag_indicator.valid then
 				P_RemoveMobj(pmo.flag_indicator)
 				pmo.flag_indicator = nil
 			end
