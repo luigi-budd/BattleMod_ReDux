@@ -1,4 +1,8 @@
 local B = CBW_Battle
+local R = B.Ruby
+local CP = B.ControlPoint
+local D = B.Diamond
+local F = B.CTF
 
 addHook("MobjThinker", B.BattleShieldThinker, MT_BATTLESHIELD)
 addHook("MobjThinker", B.NegaShieldThinker, MT_NEGASHIELD)
@@ -164,10 +168,56 @@ local function BattleTagITtag(mo)
 end
 addHook("MobjThinker", BattleTagITtag, MT_BATTLETAG_IT)
 
+local ARROW_TAGSCALE = 0
+local ARROW_CONSTANTSCALE = 1
+local ARROW_INVERSESCALE = 2
 //thinker for pointer
 local function BattleTagPointers(mo)
-	if not B.IsValidPlayer(mo.tracer) or not B.IsValidPlayer(mo.target) or
-			not mo.tracer.player.battletagIT or mo.target.player.battletagIT
+	local delete = false
+	local arrowscale = ARROW_TAGSCALE
+	local target = mo.target
+
+	if not(B.IsValidPlayer(mo.tracer)) then
+		delete = true
+	elseif (gametype == GT_BATTLECTF) then
+		arrowscale = ARROW_INVERTSCALE
+		if mo.tracer.player.gotflag then
+			target = ({F.RedFlagPos, F.BlueFlagPos})[mo.tracer.player.ctfteam]
+		end
+		if not(mo.target and mo.target.valid) or ((mo.tracer.player.ctfteam == 1) and not(F.RedFlag and F.RedFlag.valid)) or ((mo.tracer.player.ctfteam == 2) and not(F.BlueFlag and F.BlueFlag.valid))then
+			delete = true
+		end
+	elseif B.TagGametype() then
+		arrowscale = ARROW_TAGSCALE
+		if ((not(mo.tracer.player.battletagIT) or mo.target.player.battletagIT) or not(B.IsValidPlayer(mo.target))) then
+			delete = true
+		end
+	elseif B.RubyGametype() then
+		arrowscale = ARROW_INVERTSCALE
+		if mo.tracer.player.gotcrystal then
+			target = ({R.BlueGoal, R.RedGoal})[mo.tracer.player.ctfteam]
+		end
+		if not(R.ID and R.ID.valid) then
+			delete = true
+		end
+	elseif B.DiamondGametype() then
+		arrowscale = ARROW_INVERTSCALE
+		if mo.tracer.player.gotcrystal then
+			target = D.ActivePoint
+		end
+		if not(D.Diamond and D.Diamond.valid) then
+			delete = true
+		end
+	elseif B.CPGametype() then
+		arrowscale = ARROW_INVERTSCALE
+	end
+
+	if delete then
+		print("fuck")
+		if mo.tracer and mo.tracer.valid then
+			mo.tracer.btagpointer = nil
+			mo.tracer.btagpointers = nil
+		end
 		P_RemoveMobj(mo)
 		return
 	end
@@ -191,13 +241,35 @@ local function BattleTagPointers(mo)
 		end
 	end
 	mo.drawonlyforplayer = mo.tracer.player
-	mo.color = mo.target.player.skincolor
+	mo.color = ((gametype == GT_BATTLECTF) and ({skincolor_redteam, skincolor_blueteam})[mo.tracer.player.ctfteam]) or
+			   (B.TagGametype() and mo.target.player.skincolor) or
+			   (B.RubyGametype() and (
+						(mo.tracer.player.gotcrystal and ({skincolor_blueteam, skincolor_redteam})[mo.tracer.player.ctfteam]) or
+						SKINCOLOR_MAGENTA
+					) 
+			   ) or
+			   (B.DiamondGametype() and (
+						D.Diamond and D.Diamond.valid and 
+						(D.Diamond.target and D.Diamond.target.valid and 
+						D.Diamond.target.player and D.Diamond.target.player.skincolor) or D.Diamond.color
+					)
+			   ) or
+			   (B.CPGametype() and (
+						(G_GametypeHasTeams() and (
+							((CP.TeamCapAmt[1] > CP.TeamCapAmt[2]) and skincolor_redteam) or
+							((CP.TeamCapAmt[2] > CP.TeamCapAmt[1]) and skincolor_blueteam) or
+							SKINCOLOR_YELLOW
+						)) or
+						(CP.LeadCapPlr and CP.LeadCapPlr.skincolor) or 
+						mo.tracer.player.skincolor
+					)
+			   )
 	local x = mo.tracer.x
 	local y = mo.tracer.y
 	local z = mo.tracer.z
-	local rx = mo.target.x
-	local ry = mo.target.y
-	local rz = mo.target.z
+	local rx = target.x
+	local ry = target.y
+	local rz = target.z
 	//keep track of how close the targeted runner is
 	local h_dist = R_PointToDist2(x, y, rx, ry)
 	mo.closedist = R_PointToDist2(0, z, h_dist, rz)
@@ -216,19 +288,45 @@ local function BattleTagPointers(mo)
 	if mo.closedist <= 2
 		blink = 1
 	elseif mo.closedist <= 20
-		mo.scale = mo.tracer.scale
+
+		if arrowscale == ARROW_TAGSCALE then
+			mo.scale = mo.tracer.scale
+		elseif arrowscale == ARROW_INVERTSCALE then
+			mo.scale = mo.tracer.scale / 4
+		elseif arrowscale == ARROW_CONSTANTSCALE then
+			mo.scale = mo.tracer.scale
+		end
+
 		blink = 3
 		mo.frame = $ | FF_TRANS10
 	elseif mo.closedist <= 60
-		mo.scale = mo.tracer.scale - (mo.tracer.scale / 4)
+
+		if arrowscale == ARROW_TAGSCALE then
+			mo.scale = mo.tracer.scale - (mo.tracer.scale / 4)
+		elseif arrowscale == ARROW_INVERTSCALE then
+			mo.scale = mo.tracer.scale / 2
+		end
+
 		blink = 6
 		mo.frame = $ | FF_TRANS30
 	elseif mo.closedist <= 180
-		mo.scale = mo.tracer.scale / 2
+
+		if arrowscale == ARROW_TAGSCALE then
+			mo.scale = mo.tracer.scale / 2
+		elseif arrowscale == ARROW_INVERTSCALE then
+			mo.scale = mo.tracer.scale - (mo.tracer.scale / 4)
+		end
+
 		blink = 12
 		mo.frame = $ | FF_TRANS50
 	else
-		mo.scale = mo.tracer.scale / 4
+
+		if arrowscale == ARROW_TAGSCALE then
+			mo.scale = mo.tracer.scale / 4
+		elseif arrowscale == ARROW_INVERTSCALE then
+			mo.scale = mo.tracer.scale
+		end
+
 		blink = 24
 		mo.frame = $ | FF_TRANS70
 	end

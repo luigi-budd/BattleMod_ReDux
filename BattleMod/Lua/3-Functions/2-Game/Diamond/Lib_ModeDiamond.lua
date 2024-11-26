@@ -327,6 +327,13 @@ D.Thinker = function(mo)
 	mo.angle = $+rotatespd
 	for player in players.iterate
 		if not player.mo then continue end
+		if D.Diamond and D.Diamond.valid and not(player.mo.btagpointer) then
+			player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+			if player.mo.btagpointer and player.mo.btagpointer.valid then
+				player.mo.btagpointer.tracer = player.mo
+				player.mo.btagpointer.target = D.Diamond
+			end
+		end
 		if player.mo == mo.target then
 			if player.cmd.buttons&BT_TOSSFLAG and not(player.tossdelay) then
 				free(mo)

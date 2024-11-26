@@ -215,6 +215,13 @@ R.PreThinker = function()
 	--print(R.ID and R.ID.valid and R.ID.fuse)
 	for player in players.iterate do
 		if player and player.mo then
+			if R.ID and R.ID.valid and not(player.mo.btagpointer) then
+				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+				if player.mo.btagpointer and player.mo.btagpointer.valid then
+					player.mo.btagpointer.tracer = player.mo
+					player.mo.btagpointer.target = R.ID
+				end
+			end
 			-- Press tossflag to toss ruby
 			local btns = player.cmd.buttons
 			if (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())

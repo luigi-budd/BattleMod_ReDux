@@ -426,6 +426,13 @@ F.FlagPreThinker = function()
 	for p in players.iterate do
 		if p and p.mo then
 
+			if not(p.mo.btagpointer) then
+				p.mo.btagpointer = P_SpawnMobjFromMobj(p.mo, 0, 0, 0, MT_BTAG_POINTER)
+				if p.mo.btagpointer and p.mo.btagpointer.valid then
+					p.mo.btagpointer.tracer = p.mo
+					p.mo.btagpointer.target = ({F.RedFlag, F.BlueFlag})[p.ctfteam]
+				end
+			end
 			-- Press tossflag to tossflag
 			local btns = p.cmd.buttons
 			if (btns&BT_TOSSFLAG and not(p.powers[pw_carry] & CR_PLAYER) and not(p.powers[pw_super]) and not(p.tossdelay) and G_GametypeHasTeams() and p.gotflag)

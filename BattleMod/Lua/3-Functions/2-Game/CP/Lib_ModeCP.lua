@@ -27,12 +27,24 @@ CP.ThinkFrame = function(mo)
 	if not(G_GametypeHasTeams()) and (CP.LeadCapAmt > 0 and not(CP.LeadCapPlr != nil and CP.LeadCapPlr.valid and CP.LeadCapPlr.playerstate == PST_LIVE and CP.LeadCapPlr.mo and CP.LeadCapPlr.mo.valid)) then
 		CP.RefreshLeadCapPlr()
 	end
-	
+
 	if CP.Active == true then return end
 	//Countdown to activate capture point
 	CP.Timer = $-1
 	if CP.Timer == TICRATE*10 then
 		S_StartSound(nil,CP.HintSFX)
+		for player in players.iterate do
+			if not(player.mo and player.mo.valid) then
+				continue
+			end
+			if not(player.mo.btagpointer) then
+				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+				if player.mo.btagpointer and player.mo.btagpointer.valid then
+					player.mo.btagpointer.tracer = player.mo
+					player.mo.btagpointer.target = CP.ID[CP.Num]
+				end
+			end
+		end
 	end
 	if (CP.Timer == TICRATE or CP.Timer == TICRATE*2 or CP.Timer == TICRATE*3) then
 		S_StartSound(nil,sfx_s3ka7)
