@@ -28,11 +28,7 @@ CP.ThinkFrame = function(mo)
 		CP.RefreshLeadCapPlr()
 	end
 
-	if CP.Active == true then return end
-	//Countdown to activate capture point
-	CP.Timer = $-1
 	if CP.Timer == TICRATE*10 then
-		S_StartSound(nil,CP.HintSFX)
 		for player in players.iterate do
 			if not(player.mo and player.mo.valid) then
 				continue
@@ -45,6 +41,12 @@ CP.ThinkFrame = function(mo)
 				end
 			end
 		end
+	end
+	if CP.Active == true then return end
+	//Countdown to activate capture point
+	CP.Timer = $-1
+	if CP.Timer == TICRATE*10 then
+		S_StartSound(nil,CP.HintSFX)
 	end
 	if (CP.Timer == TICRATE or CP.Timer == TICRATE*2 or CP.Timer == TICRATE*3) then
 		S_StartSound(nil,sfx_s3ka7)
