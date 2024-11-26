@@ -263,16 +263,6 @@ CP.ActivatePoint = function()
 	end
 end
 
-local validSound = function(player, fallback)
-	if Cosmetics and Cosmetics.Capturesounds_short and 
-	(player.cos_capturesoundshort and player.cos_capturesoundshort and 
-	player.cos_capturesoundshort > 0 and player.cos_capturesoundshort <= #Cosmetics.Capturesounds_short) then
-		return Cosmetics.Capturesounds_short[player.cos_capturesoundshort].sound
-	else
-		return fallback
-	end
-end
-
 CP.SeizePoint = function()
 	if G_GametypeHasTeams() then	//Teams
 		local victor = 0
