@@ -37,7 +37,6 @@ CP.ThinkFrame = function(mo)
 				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
 				if player.mo.btagpointer and player.mo.btagpointer.valid then
 					player.mo.btagpointer.tracer = player.mo
-					player.mo.btagpointer.target = CP.ID[CP.Num]
 				end
 			end
 		end

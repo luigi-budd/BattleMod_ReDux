@@ -209,7 +209,12 @@ local function BattleTagPointers(mo)
 			delete = true
 		end
 	elseif B.CPGametype() then
-		arrowscale = ARROW_INVERTSCALE
+		arrowscale = ARROW_INVERTSCALE 
+		if CP.ID and CP.Num and CP.ID[CP.Num] and CP.ID[CP.Num].valid then
+			target = CP.ID[CP.Num]
+		else
+			delete = true
+		end
 	end
 
 	if not(target) and not(mo.target and mo.target.valid) then
@@ -266,7 +271,8 @@ local function BattleTagPointers(mo)
 						(CP.LeadCapPlr and CP.LeadCapPlr.skincolor) or 
 						mo.tracer.player.skincolor
 					)
-			   )
+			   ) or
+			   SKINCOLOR_PITCHBLACK --If it's pitch black, something's probably wrong
 	local x = mo.tracer.x
 	local y = mo.tracer.y
 	local z = mo.tracer.z
