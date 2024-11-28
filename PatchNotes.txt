@@ -25,7 +25,7 @@ Modding features
 			- player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state. If below 0, prevents stunbreak)
 			- player.mo.temproll (Prevents air dodge. When it reaches zero, the player goes to spring state)
 Major gameplay changes
-	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_newhud to "off"
+	- Added a brand new Heads-Up Display! It can be reverted to the original HUD via setting the console command battleconfig_hud to "Old"
 	- Added new console commands that allow Knuckles and Amy's abilities to aim towards the camera, even during Standard Mode: battleconfig_glidestrafe and battleconfig_hammerstrafe
 	- Blockable projectiles can now be blocked with sweetspot defenses
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
@@ -263,6 +263,6 @@ Console
 		battleconfig_glidestrafe
 		battleconfig_hammerstrafe
 		battleconfig_nospinshield
-		battleconfig_minimalhud
+		battleconfig_hud
 		battleconfig_roulette
 		battleconfig_slipstreambutton

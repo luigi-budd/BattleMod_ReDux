@@ -16,10 +16,10 @@ local huds = {
 local hide_x, hide_y = 320*32, 200*32
 local toggle = false
 B.ChangeHUD = function(v, player)
-	if (player.battleconfig_newhud == toggle) then
+	if (B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) == toggle) then
 		return
 	end
-	toggle = player.battleconfig_newhud
+	toggle = B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"})
 	if toggle then
 		for i = 1, #huds do
 			local hud = huds[i]

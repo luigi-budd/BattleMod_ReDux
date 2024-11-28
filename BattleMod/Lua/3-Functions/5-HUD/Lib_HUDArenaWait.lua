@@ -7,7 +7,7 @@ local yo = 152
 //Enable/disable spectator controls hud
 B.SpectatorControlHUD = function(v,player,cam)
 	if not (B.HUDAlt) then return end
-	if (not (B.Exiting or B.Timeout or consoleplayer.battleconfig_minimalhud)) and (player.spectatortime != nil
+	if (not (B.Exiting or B.Timeout or CV.FindVarString("battleconfig_hud", "Minimal"))) and (player.spectatortime != nil
 	and (player.spectatortime < TICRATE*9 or (player.spectatortime < TICRATE*10 and player.spectatortime&1)))
 		hud.enable("textspectator")
 	else
@@ -17,7 +17,7 @@ end
 
 //Waiting to join
 A.WaitJoinHUD = function(v, player, cam)
-	if consoleplayer.battleconfig_minimalhud or not (B.HUDAlt) then return end
+	if CV.FindVarString("battleconfig_hud", "Minimal") or not (B.HUDAlt) then return end
 	if not (gametyperules&GTR_LIVES) or (gametyperules&GTR_FRIENDLY) then return end //Competitive lives only
 	local dead = (player.spectator and not(A.SpawnLives)) or (player.playerstate == PST_DEAD and player.revenge)
 	if not (dead) then return end

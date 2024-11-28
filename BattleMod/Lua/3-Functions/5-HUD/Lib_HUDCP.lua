@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local CP = B.ControlPoint
+local CV = B.Console
 
 CP.HUD = function(v, player, cam)
 	if not (player.realmo and CP.Mode and server) then return end
@@ -26,7 +27,7 @@ CP.HUD = function(v, player, cam)
 		lookang = player.cmd.angleturn<<16
 	end
 	
-	if (CP.Active or (time <= 10*TICRATE and time&1)) and not player.battleconfig_newhud
+	if (CP.Active or (time <= 10*TICRATE and time&1)) and not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 		and pid and pid.valid then
 				-- Use the angle based off x and z rather than x and y
 		if twodlevel then
@@ -72,14 +73,14 @@ CP.HUD = function(v, player, cam)
 	local leftalign = "thin-right"
 	local rightalign = "thin"
 	local dist = 0
-	if player.battleconfig_newhud then
+	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		yoffset = $+16
 		dist = $+16
 	end
 
 	--Waiting for CP to open
 	if time then
-		if player.battleconfig_newhud then
+		if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 			v.draw(xoffset,yoffset+8,v.cachePatch("RAD_LOCK1"),flags)
 		end
 		text = time/TICRATE
@@ -97,7 +98,7 @@ CP.HUD = function(v, player, cam)
 			text = "\x82"..CP.LeadCapAmt*100/CP.Meter.."%" --Suppose it doesn't hurt to draw this either way...
 			v.drawString(xoffset+right+dist,yoffset+4,text,flags,rightalign)
 			--Get our player
-			if player.mo and CP.Active and not player.battleconfig_newhud
+			if player.mo and CP.Active and not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 				local lifepatch = v.getSprite2Patch(player.mo.skin, SPR2_LIFE)
 				local colormap = v.getColormap(player.mo.skin, player.mo.color)
 				v.draw(xoffset+left-(center*2)-dist, yoffset+bottom, lifepatch, flags, colormap)

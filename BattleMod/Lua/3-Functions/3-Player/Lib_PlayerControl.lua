@@ -105,13 +105,7 @@ B.InitPlayer = function(player)
 	player.lastmoveblock = nil
 	
 	-- Player Config
-	for _, battleconfig in ipairs(CV.BattleConfigs) do 
-		local config = battleconfig[1]
-		local defaultvalue = battleconfig[2]
-		if player[config] == nil then
-			player[config] = defaultvalue
-		end
-	end
+	CV.DoDefaultBattleConfigs(player)
 	
 	if player.revenge == nil then
 		player.revenge = false

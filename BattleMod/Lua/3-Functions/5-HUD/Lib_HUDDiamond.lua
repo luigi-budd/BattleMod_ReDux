@@ -37,7 +37,7 @@ D.HUD = function(v, player, cam)
 	if D.SpawnGrace then --whatever...
 		local xoff = 320/2
 		local yoff = 24
-		if player.battleconfig_newhud then yoff = $+12 end
+		if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then yoff = $+12 end
 		v.drawString(xoff,yoff,D.SpawnGrace/TICRATE,V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER,"center")
 	end
 	if not (id and id.valid) then return end
@@ -63,7 +63,7 @@ D.HUD = function(v, player, cam)
 		lookang = player.cmd.angleturn<<16
 	end
 	
-	if not (player.battleconfig_newhud) then
+	if not (CV.FindVarString("battleconfig_hud", {"New", "Minimal"})) then
 		local active_point = D.ActivePoint
 		if not active_point then return end
 		if id.target == player.realmo and active_point then
@@ -110,7 +110,7 @@ D.HUD = function(v, player, cam)
 	local leftalign = "thin-right"
 	local rightalign = "thin"
 
-	if player.battleconfig_newhud then
+	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		yoffset = $+12
 	end
 
@@ -122,7 +122,7 @@ D.HUD = function(v, player, cam)
 	--Draw timer
 	if time > 0 then --Point is going to be unlocked in X seconds
 		text = (time/TICRATE)+1
-		if player.battleconfig_newhud then
+		if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 			v.draw(xoffset,yoffset+16, v.cachePatch("RAD_LOCK1"),flags,colormap)
 			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign)
 			return
@@ -131,7 +131,7 @@ D.HUD = function(v, player, cam)
 		end
 	end
 
-	if player.battleconfig_newhud then
+	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		if not (D.Diamond and D.Diamond.target) then
 			v.draw(xoffset+center,yoffset+8+bottom, v.cachePatch("RAD_TOPAZ1"),flags,colormap)
 			v.drawString(xoffset+center,yoffset+bottom,text,flags,centeralign)

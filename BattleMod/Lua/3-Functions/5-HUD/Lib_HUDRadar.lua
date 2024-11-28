@@ -65,7 +65,7 @@ B.RadarHUD = function(v, player, cam)
 	
 	if not (pmo)
 	or not (pmo.valid)
-	or not (player.battleconfig_newhud)
+	or not B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"})
 	or splitscreen
 		return
 	end

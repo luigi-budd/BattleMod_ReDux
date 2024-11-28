@@ -3,7 +3,7 @@ local CV = B.Console
 
 B.TeammateHUD = function(v, player)
 	if not G_GametypeHasTeams()
-	or not player.battleconfig_newhud
+	or not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 	then
 		return
 	end

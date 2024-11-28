@@ -5,7 +5,7 @@ local SEP = 33
 local YPOS = 8
 
 local update_pos = function(player)
-	if (not player) or player.battleconfig_newhud then
+	if (not player) or B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		SEP = 36
 		YPOS = 12
 	else
@@ -16,7 +16,7 @@ end
 
 F.CompassHUD = function(v, player, cam)
 	if not (B.HUDMain) then return end
-	if (player.battleconfig_newhud) then return end
+	if B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) then return end
 	if gametype ~= GT_BATTLECTF then return end -- Gametype Gateway
 	--if not hud.enabled("teamscores") then return end -- Gateway.
 	

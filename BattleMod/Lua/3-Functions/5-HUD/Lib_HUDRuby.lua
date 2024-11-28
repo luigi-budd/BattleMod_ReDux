@@ -25,7 +25,7 @@ R.HUD = function(v, player, cam)
 	local ruby = R.ID
 	if not (ruby and ruby.valid) then return end
 	
-	if player.battleconfig_newhud
+	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
 		local xoffset = 160
 		local yoffset = 38
@@ -36,12 +36,12 @@ R.HUD = function(v, player, cam)
 		local frontrotate = leveltime%18 > 9
 		local rubycolor = nil
 		
-		if ruby.color
+		if ruby.color then
 			rubycolor = v.getColormap(TC_RAINBOW,ruby.color)
 		end
 		
-		if ruby.target
-			if not frontrotate
+		if ruby.target then
+			if not frontrotate then
 				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 			end
 		else
@@ -52,26 +52,26 @@ R.HUD = function(v, player, cam)
 			local playercolor = v.getColormap(ruby.target.skin, ruby.target.player.skincolor)
 			local facepatch = v.getSprite2Patch(ruby.target.skin, SPR2_LIFE)
 			v.draw(xoffset, yoffset + face_yoffset, facepatch, flags|V_FLIP, playercolor)
-			if frontrotate
+			if frontrotate then
 				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 			end
 			local color = 0
-			if R.RedGoal and R.BlueGoal and R.RedGoal.valid and R.BlueGoal.valid
+			if R.RedGoal and R.BlueGoal and R.RedGoal.valid and R.BlueGoal.valid then
 				local base = R.BlueGoal
-				if (ruby.target.player.ctfteam == 2)
+				if (ruby.target.player.ctfteam == 2) then
 					base = R.RedGoal
 				end
 				local distance = R_PointToDist2(0, 0, abs(ruby.target.z - base.z), R_PointToDist2(ruby.target.x, ruby.target.y, base.x, base.y))
 				distance = ($ / (FRACUNIT*60))
-				if (leveltime/2 % 2) and distance <= 50
+				if (leveltime/2 % 2) and distance <= 50 then
 					color = V_MAGENTAMAP
 				end
 				v.drawString(xoffset, yoffset + percent_yoffset, distance+"m", flags | color, "thin-center")
 				
-			elseif ruby.target.player.gotcrystal and ruby.target.player.gotcrystal_time
+			elseif ruby.target.player.gotcrystal and ruby.target.player.gotcrystal_time then
 				local percent_amt = ruby.target.player.gotcrystal_time * 100 / captime
 				local percent_text = percent_amt.."%"
-				if (leveltime/2 % 2) and percent_amt >= 75
+				if (leveltime/2 % 2) and percent_amt >= 75 then
 					color = V_MAGENTAMAP
 				end
 				v.drawString(xoffset, yoffset + percent_yoffset, percent_text, flags | color, "thin-center")
@@ -81,7 +81,7 @@ R.HUD = function(v, player, cam)
 		if ruby.idle then
 			local text = ruby.idle/TICRATE
 			local color = 0
-			if (leveltime/2 % 2)
+			if (leveltime/2 % 2) then
 				color = V_MAGENTAMAP
 			end
 			v.drawString(xoffset, yoffset, text, flags|color, "center") //Draw timer
@@ -99,7 +99,7 @@ R.HUD = function(v, player, cam)
 		local yy = cam.y
 		local zz = cam.z
 		local lookang = cam.angle
-		if (player.spectator or not cam.chase) and (player.realmo and player.realmo.valid)//Use the realmo coordinates when not using chasecam
+		if (player.spectator or not cam.chase) and (player.realmo and player.realmo.valid) then //Use the realmo coordinates when not using chasecam
 			xx = player.realmo.x
 			yy = player.realmo.y
 			zz = player.realmo.z
@@ -116,19 +116,19 @@ R.HUD = function(v, player, cam)
 			end
 			
 			local cmpangle = 8
-			if (angle >= 0) and (angle < ANGLE_45)
+			if (angle >= 0) and (angle < ANGLE_45) then
 				cmpangle = 1
-			elseif (angle >= ANGLE_45) and (angle < ANGLE_90)
+			elseif (angle >= ANGLE_45) and (angle < ANGLE_90) then
 				cmpangle = 2
-			elseif (angle >= ANGLE_90) and (angle < ANGLE_135)
+			elseif (angle >= ANGLE_90) and (angle < ANGLE_135) then
 				cmpangle = 3
-			elseif (angle >= ANGLE_135)// and (angle < ANGLE_180)
+			elseif (angle >= ANGLE_135)// and (angle < ANGLE_180) then
 				cmpangle = 4
-			elseif (angle >= ANGLE_180) and (angle < ANGLE_225)
+			elseif (angle >= ANGLE_180) and (angle < ANGLE_225) then
 				cmpangle = 5
-			elseif (angle >= ANGLE_225) and (angle < ANGLE_270)
+			elseif (angle >= ANGLE_225) and (angle < ANGLE_270) then
 				cmpangle = 6
-			elseif (angle >= ANGLE_270) and (angle < ANGLE_315)
+			elseif (angle >= ANGLE_270) and (angle < ANGLE_315) then
 				cmpangle = 7
 			end
 			
@@ -160,14 +160,14 @@ R.HUD = function(v, player, cam)
 		end
 		//Get item holder
 		if id.target and id.target.valid and id.target.player then
-			if not(G_GametypeHasTeams())
+			if not(G_GametypeHasTeams()) then
 				v.draw(xoffset+right+(center*2), yoffset+bottom, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
 					flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
 			else
 				v.draw(xoffset+right*4+(center*2), yoffset+bottom/2, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
 					flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
 			end
-			if id.target.player.gotcrystal and id.target.player.gotcrystal_time
+			if id.target.player.gotcrystal and id.target.player.gotcrystal_time then
 				local percent_amt = id.target.player.gotcrystal_time * 100 / captime
 				local percent_text = percent_amt.."%"
 				v.drawString(xoffset+center,yoffset+bottom,percent_text,flags,centeralign)

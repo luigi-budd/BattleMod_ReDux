@@ -131,7 +131,7 @@ A.MyStocksHUD = function(v, player)
 	if 	player.spectator
 		or not G_GametypeUsesLives()
 		or not B.ArenaGametype()
-		or not player.battleconfig_newhud
+		or not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 		or not B.HUDMain
 		or not player.mo
 	then
@@ -176,7 +176,7 @@ A.PlacementHUD = function(v, player)
 	if 	player.spectator
 		or G_GametypeUsesLives()
 		or G_GametypeHasTeams()
-		or not player.battleconfig_newhud
+		or not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 		or (gametype ~= GT_ARENA and gametype ~= GT_RUBYCONTROL)
 	then
 		return
@@ -280,7 +280,7 @@ end
 A.AllFightersHUD = function(v,player,cam)
 	if not (B.HUDMain) then return end
 	if not(B.ArenaGametype()) then return end
-	if player.battleconfig_newhud then
+	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		hud.enable("score")
 		return
 	end
@@ -485,7 +485,7 @@ A.AllFightersHUD = function(v,player,cam)
 end
 
 A.BountyHUD = function(v, player, cam)
-	if player.battleconfig_newhud then return end
+	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then return end
 	if not (player.realmo and B.ArenaGametype() and server) then return end
 	if not (B.HUDMain) then return end
 	if B.PreRoundWait() then return end

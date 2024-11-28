@@ -41,7 +41,7 @@ local function GetTimer(player)
 end
 
 B.TimerHUD = function(v, player, cam)
-	if 	not (player.battleconfig_newhud)
+	if not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 		or not hud.enabled("time")
 	then
 		return

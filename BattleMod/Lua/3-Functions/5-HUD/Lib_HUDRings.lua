@@ -1,12 +1,12 @@
 local B = CBW_Battle
 local CV = B.Console
-local TF_GRAY = 1
+local TF_WHITE = 1
 local TF_YELLOW = 2
 local TF_RED = 3
 
 B.RingsHUD = function(v, player, cam)
 	if not (B.HUDMain)
-	or not (player.battleconfig_newhud)
+	or not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 	or not hud.enabled("rings")
 	or player.spectator
 	then
@@ -88,7 +88,7 @@ B.RingsHUD = function(v, player, cam)
 	end
 
 	if B.StunBreakAllowed(player) then
-		local text = consoleplayer.battleconfig_minimalhud and "" or "Stun Break"
+		local text = CV.FindVarString("battleconfig_hud", "Minimal") and "" or "Stun Break"
 		local cost = player.stunbreakcosttext
 		if cost != nil and player.rings >= cost then
 			if leveltime % 3 == 0 then
@@ -126,7 +126,7 @@ B.RingsHUD = function(v, player, cam)
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
 			local text = player.actiontext or player.lastactiontext or 0
-			if consoleplayer.battleconfig_minimalhud then
+			if CV.FindVarString("battleconfig_hud", "Minimal") then
 				text = player.actionstate and "--" or ""
 			end
 			if shaking and player.jumpstasistimer and player.strugglerings then
@@ -139,7 +139,7 @@ B.RingsHUD = function(v, player, cam)
 				else
 					if not B.CanDoAction(player) then
 						if B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
-							text = consoleplayer.battleconfig_minimalhud and ("\x86Guard" .. "\x80" .. " 10") or "\x80" .. "10"
+							text = CV.FindVarString("battleconfig_hud", "Minimal") and ("\x86Guard" .. "\x80" .. " 10") or "\x80" .. "10"
 						else
 							text = "\x86" + text
 						end
@@ -156,7 +156,7 @@ B.RingsHUD = function(v, player, cam)
 						end
 					end
 				end
-				if consoleplayer.battleconfig_minimalhud then
+				if CV.FindVarString("battleconfig_hud", "Minimal") then
 					v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 				else
 					v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
@@ -164,20 +164,27 @@ B.RingsHUD = function(v, player, cam)
 				action_offsety = $ + action_offsety_line
 			end
 		end
-		if (player.action2text and not consoleplayer.battleconfig_minimalhud) then
+		if (player.action2text and not CV.FindVarString("battleconfig_hud", "Minimal")) then
 			local text = player.action2text
 			local textflags = player.action2textflags
-			if textflags == TF_GRAY then
-				text = "\x86"+$
+			local icon_offset = 0
+			if textflags == TF_WHITE then
+				text = "\x80"+$
 			elseif textflags == TF_YELLOW then
 				text = "\x82"+$
 			elseif textflags == TF_RED then
 				text = "\x85"+$
 			else
-				text = "\x80"+$
+				if not (player.gotflagdebuff) then
+					local patch = v.cachePatch("FLAGBT")
+					local colormap = v.getColormap(TC_DEFAULT, SKINCOLOR_SILVER) 
+					v.draw(x + action_offsetx, y - 1 + action_offsety, patch, flags, colormap)
+				end
+				icon_offset = 10
+				text = "\x86"+$
 			end
-			v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
-			action_offsety = $ + action_offsety_line
+			v.drawString(x + icon_offset + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
+			--action_offsety = $ + action_offsety_line
 		end
 		if (player.gotflagdebuff) then
 			local color = SKINCOLOR_WHITE
@@ -317,13 +324,16 @@ B.RingsHUD = function(v, player, cam)
 		guardtext = $ + "\x85" + " 10"
 	end*/
 	patch = v.cachePatch("PARRYBT")
-	if (canguard or guardoverride) and not (consoleplayer.battleconfig_minimalhud) then
+	if (canguard or guardoverride) and not (CV.FindVarString("battleconfig_hud", "Minimal")) then
 		v.draw(x-10,y-1,patch,flags)
 		v.drawString(x,y,guardtext,flags,"thin")
 	end
 
 	--AIR DODGE
 	if candodge then
+		if (player.action2text and not (CV.FindVarString("battleconfig_hud", "Minimal") or player.gotflagdebuff)) then
+			y = $-9
+		end
 		if player.dodgecooldown then
 			local maxcooldown = CV.dodgetime.value*TICRATE or 1
 			local scale_factor = 1000
@@ -345,7 +355,7 @@ B.RingsHUD = function(v, player, cam)
 				end
 				v.drawString(x-1,y-19,color+"!",flags,"thin")
 			end
-		elseif not (consoleplayer.battleconfig_minimalhud) then
+		elseif not (CV.FindVarString("battleconfig_hud", "Minimal")) then
 			patch = v.cachePatch("DODGEBT")
 			v.draw(x-5,y-18,patch,flags)
 		end
