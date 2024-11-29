@@ -832,9 +832,13 @@ addHook("ThinkFrame", function()
 	for p in players.iterate do
 		local rmo = p.realmo
 		local mo = p.mo
-		local cv_chasecam 	= CV_FindVar("chasecam").value
-		local cv_analog 	= CV_FindVar("sessionanalog").value
-		local cv_orbit  	= CV_FindVar("cam_orbit").value
+		local var
+		var = CV_FindVar("chasecam")
+		local cv_chasecam 	= var and var.value or 0
+		var = CV_FindVar("sessionanalog")
+		local cv_analog 	= var and var.value or 0
+		var = CV_FindVar("cam_orbit")
+		local cv_orbit  	= var and var.value or 0
 
 		--// Disable cam under these conditions and return
 		if 	not (mo and mo.valid)
