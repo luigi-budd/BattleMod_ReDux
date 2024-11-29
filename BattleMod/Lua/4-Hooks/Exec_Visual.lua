@@ -215,6 +215,8 @@ local function BattleTagPointers(mo)
 		else
 			delete = true
 		end
+	else
+		delete = true
 	end
 
 	if not(target) and not(mo.target and mo.target.valid) then
