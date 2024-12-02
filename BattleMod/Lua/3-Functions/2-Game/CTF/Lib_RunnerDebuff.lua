@@ -2,6 +2,7 @@ local B = CBW_Battle
 
 B.GotFlagStats = function(player)
 	local skin = skins[player.mo.skin]
+	local skinvar = (pcall(do return B.SkinVars[player.mo.skin].flagstats end) and (type(B.SkinVars[player.mo.skin].flagstats) == "table") and B.SkinVars[player.mo.skin].flagstats) or {}
 	//Register debuff
 	if (player.gotflag or player.gotcrystal) and player.gotflagdebuff == false then
 		player.gotflagdebuff = true
@@ -48,15 +49,15 @@ B.GotFlagStats = function(player)
 	end
 	//Apply debuff
 	if player.gotflagdebuff
-		player.normalspeed = skin.normalspeed
-		player.acceleration = skin.acceleration
-		player.runspeed = skin.runspeed
+		player.normalspeed = skinvar.normalspeed or skin.normalspeed
+		player.acceleration = skinvar.acceleration or skin.acceleration
+		player.runspeed = skinvar.runspeed or skin.runspeed
 		if not(B.GetSkinVarsFlags(player) & SKINVARS_ROSY) then
-			player.mindash = 15*3/4*FRACUNIT
-			player.maxdash = 70*4/5*FRACUNIT
+			player.mindash = skinvar.mindash or (15*3/4*FRACUNIT)
+			player.maxdash = skinvar.maxdash or (70*4/5*FRACUNIT)
 		end
 		player.dashmode = 0
-		player.jumpfactor = FRACUNIT
+		player.jumpfactor = skinvar.jumpfactor or FRACUNIT
 		player.charflags = skins[player.mo.skin].flags & ~SF_RUNONWATER
 		player.powers[pw_strong] = $&~STR_METAL
 	end
