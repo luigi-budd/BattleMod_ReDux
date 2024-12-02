@@ -72,7 +72,9 @@ local dash_overlayOn = function(player, overlay, colorize, bool) --Choose to ena
     if player.mo and player.mo.valid then
         if colorize then --Colorize?
             player.mo.colorized = true --Colorize.
-			player.mo.renderflags = $|RF_FULLBRIGHT
+			if not(B.MyTeam(player, displayplayer) or (player == displayplayer) or (splitscreen and (player == secondarydisplayplayer))) then
+				player.mo.renderflags = $|RF_FULLBRIGHT
+			end
         end
         if not overlay then return end --Work here is done if that's all we're doing.
         if player.dashmode >= DASHMODE_THRESHOLD then --If we're still in dashmode
@@ -126,6 +128,9 @@ end
 local dash_overlayThink = function(mo) --MobjThinker
 	if not(mo and mo.valid and mo.tracer and mo.tracer.valid and mo.tracer.player) or mo.dying then
 		return
+	end
+	if B.MyTeam(mo.tracer.player, displayplayer) or (mo.tracer.player == displayplayer) or (splitscreen and (mo.tracer.player == secondarydisplayplayer)) then
+		mo.flags2 = $|MF2_DONTDRAW
 	end
 	dash_overlayVars(mo, mo.tracer.player)
 	dash_pulseFunc(mo)
