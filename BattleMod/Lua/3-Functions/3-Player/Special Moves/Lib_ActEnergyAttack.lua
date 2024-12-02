@@ -102,6 +102,10 @@ local spawnslashes = function(player, mo)
 		missile.momz = 0 -- Prevent dash claws from moving vertically
 		missile.state = s
 		missile.scale = FixedMul($*2, mo.scale)
+		if (player.ctfteam == 1) then
+			missile.colorized = true
+			missile.color = SKINCOLOR_SALMON
+		end
 	end
 end
 
