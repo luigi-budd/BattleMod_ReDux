@@ -168,20 +168,22 @@ B.RingsHUD = function(v, player, cam)
 			local text = player.action2text
 			local textflags = player.action2textflags
 			local icon_offset = 0
+			local colormap
 			if textflags == TF_WHITE then
 				text = "\x80"+$
 			elseif textflags == TF_YELLOW then
+				colormap = v.getColormap(TC_DEFAULT, SKINCOLOR_YELLOW)
 				text = "\x82"+$
 			elseif textflags == TF_RED then
 				text = "\x85"+$
+				colormap = v.getColormap(TC_DEFAULT, SKINCOLOR_RED)
 			else
-				if not (player.gotflagdebuff) then
-					local patch = v.cachePatch("FLAGBT")
-					local colormap = v.getColormap(TC_DEFAULT, SKINCOLOR_SILVER) 
-					v.draw(x + action_offsetx, y - 1 + action_offsety, patch, flags, colormap)
-				end
-				icon_offset = 10
 				text = "\x86"+$
+				colormap = v.getColormap(TC_DEFAULT, SKINCOLOR_SILVER)
+			end
+			if colormap and not (player.gotflagdebuff) then
+				v.draw(x + action_offsetx, y - 1 + action_offsety, v.cachePatch("FLAGBT"), flags, colormap)
+				icon_offset = 10
 			end
 			v.drawString(x + icon_offset + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
 			--action_offsety = $ + action_offsety_line
