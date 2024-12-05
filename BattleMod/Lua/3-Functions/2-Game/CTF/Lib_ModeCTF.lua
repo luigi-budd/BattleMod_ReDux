@@ -33,8 +33,16 @@ F.TrackPlayers = function()
 	for p in players.iterate
 		if p.valid and p.mo and p.mo.valid and p.gotflag
 			if p.ctfteam == 1
+				if F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.player) then
+					P_RemoveMobj(F.BlueFlag)
+					F.BlueFlag = nil
+				end
 				F.BlueFlag = p.mo
 			elseif p.ctfteam == 2
+				if F.RedFlag and F.RedFlag.valid and not(F.RedFlag.player) then
+					P_RemoveMobj(F.RedFlag)
+					F.RedFlag = nil
+				end
 				F.RedFlag = p.mo
 			end
 		end
@@ -549,6 +557,10 @@ F.FlagTouchSpecial = function(special, toucher)
 					end
 					print(pcolor+p.name+"\128 picked up the "+fcolor_r+"Red flag!")
 					special.wasgrabbed = true
+					if special and special.valid then
+						P_RemoveMobj(special)
+						F.RedFlag = nil
+					end
 				elseif pteam == 1 and special.fuse then -- Same team as flag, so return it (remove the special.fuse part for sfx spam)
 					special.wasreturned = true
 					P_RemoveMobj(special)
@@ -567,6 +579,10 @@ F.FlagTouchSpecial = function(special, toucher)
 					end
 					print(pcolor+p.name+"\128 picked up the "+fcolor_b+"Blue flag!")
 					special.wasgrabbed = true
+					if special and special.valid then
+						P_RemoveMobj(special)
+						F.BlueFlag = nil
+					end
 				elseif pteam == 2 and special.fuse then -- Same team as flag, so return it (remove the special.fuse part for sfx spam)
 					special.wasreturned = true
 					P_RemoveMobj(special)
