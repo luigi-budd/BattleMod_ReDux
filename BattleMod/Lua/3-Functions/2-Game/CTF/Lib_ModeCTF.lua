@@ -30,19 +30,26 @@ F.TrackBlue = function(mo)
 	F.BlueFlag = mo
 end
 F.TrackPlayers = function()
+	/*local counter = 0
+	for mo in mobjs.iterate() do
+		if mo.type == MT_CBLUEFLAG then
+			counter = $+1
+		end
+	end
+	print(counter)*/
 	for p in players.iterate
 		if p.valid and p.mo and p.mo.valid and p.gotflag
 			if p.ctfteam == 1
-				if F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.player) then
+				/*if F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.player) then
 					P_RemoveMobj(F.BlueFlag)
 					F.BlueFlag = nil
-				end
+				end*/
 				F.BlueFlag = p.mo
 			elseif p.ctfteam == 2
-				if F.RedFlag and F.RedFlag.valid and not(F.RedFlag.player) then
+				/*if F.RedFlag and F.RedFlag.valid and not(F.RedFlag.player) then
 					P_RemoveMobj(F.RedFlag)
 					F.RedFlag = nil
-				end
+				end*/
 				F.RedFlag = p.mo
 			end
 		end
@@ -550,7 +557,7 @@ F.FlagTouchSpecial = function(special, toucher)
 		if special.valid and not p.tossdelay then
 			-- Only interact with if you're on blu
 			if special.type == MT_CREDFLAG then 
-				if pteam == 2 then -- Opposite team of flag, so grab it
+				if pteam == 2  then -- Opposite team of flag, so grab it
 					p.gotflag = GF_REDFLAG
 					if splitscreen or (displayplayer and p == displayplayer)
 						S_StartSound(nil, sfx_lvpass)
@@ -558,8 +565,9 @@ F.FlagTouchSpecial = function(special, toucher)
 					print(pcolor+p.name+"\128 picked up the "+fcolor_r+"Red flag!")
 					special.wasgrabbed = true
 					if special and special.valid then
-						P_RemoveMobj(special)
-						F.RedFlag = nil
+						P_KillMobj(special)
+						F.RedFlag = p.mo
+						return
 					end
 				elseif pteam == 1 and special.fuse then -- Same team as flag, so return it (remove the special.fuse part for sfx spam)
 					special.wasreturned = true
@@ -580,8 +588,9 @@ F.FlagTouchSpecial = function(special, toucher)
 					print(pcolor+p.name+"\128 picked up the "+fcolor_b+"Blue flag!")
 					special.wasgrabbed = true
 					if special and special.valid then
-						P_RemoveMobj(special)
-						F.BlueFlag = nil
+						P_KillMobj(special)
+						F.BlueFlag = p.mo
+						return
 					end
 				elseif pteam == 2 and special.fuse then -- Same team as flag, so return it (remove the special.fuse part for sfx spam)
 					special.wasreturned = true
@@ -630,6 +639,7 @@ F.FlagRemoved = function(mo)
 	if gamestate ~= GS_LEVEL then return end
 	if gametype ~= GT_BATTLECTF then return end
 
+	local globalFlag = ({[MT_CREDFLAG]=F.RedFlag, [MT_CBLUEFLAG]=F.BlueFlag})[mo.type]
 	-- If the flag was removed because it wasn't grabbed, then respawn it (it presumably fell in a pit or was returned by a player)
 	if mo and (mo.type == MT_CREDFLAG or mo.type == MT_CBLUEFLAG) then
 		if not mo.wasgrabbed then
@@ -651,7 +661,9 @@ F.FlagRemoved = function(mo)
 				end
 				S_StartSound(nil, sfx_fr)
 			end
-			F.RespawnFlag(mo) 
+			if not(globalFlag and globalFlag.valid) then
+				F.RespawnFlag(mo) 
+			end
 		end
 	end
 end
