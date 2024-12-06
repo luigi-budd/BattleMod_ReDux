@@ -561,6 +561,8 @@ F.FlagTouchSpecial = function(special, toucher)
 					p.gotflag = GF_REDFLAG
 					if splitscreen or (displayplayer and p == displayplayer)
 						S_StartSound(nil, sfx_lvpass)
+					else
+						S_StartSound(p.mo, sfx_lvpass)
 					end
 					print(pcolor+p.name+"\128 picked up the "+fcolor_r+"Red flag!")
 					special.wasgrabbed = true
@@ -584,6 +586,8 @@ F.FlagTouchSpecial = function(special, toucher)
 					p.gotflag = GF_BLUEFLAG
 					if splitscreen or (displayplayer and p == displayplayer)
 						S_StartSound(nil, sfx_lvpass)
+					else
+						S_StartSound(p.mo, sfx_lvpass)
 					end
 					print(pcolor+p.name+"\128 picked up the "+fcolor_b+"Blue flag!")
 					special.wasgrabbed = true
