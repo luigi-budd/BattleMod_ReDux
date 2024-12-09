@@ -665,9 +665,10 @@ F.FlagRemoved = function(mo)
 				end
 				S_StartSound(nil, sfx_fr)
 			end
-			if not(globalFlag and globalFlag.valid) then
-				F.RespawnFlag(mo) 
+			if (globalFlag and globalFlag.valid) then
+				P_RemoveMobj(globalFlag)
 			end
+			F.RespawnFlag(mo)
 		end
 	end
 end
