@@ -144,6 +144,7 @@ end)
 
 --aaaaaaaaaaa
 addHook("PlayerThink", function(player)
+	B.GlideSound(player)
 	B.AutoSpectator(player)
 	-- Spring checks (Should this be dropped in `Exec_Springs.lua`?)
 	if player.mo and player.mo.valid then
