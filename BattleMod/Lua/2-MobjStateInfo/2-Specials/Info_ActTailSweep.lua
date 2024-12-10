@@ -10,12 +10,22 @@ states[S_TAILS_SWIPE] = {
 }
 freeslot(
 	'mt_sonicboom',
+	'mt_bigsonicboom',
 	'spr_guil',
 	's_sonicboom1',
 	's_sonicboom2',
 	's_sonicboom3',
 	's_sonicboom4'
 )
+mobjinfo[MT_BIGSONICBOOM] = {
+	spawnstate = S_SONICBOOM1,
+	speed = 28*FRACUNIT,
+	radius = 32*FRACUNIT,
+	height = 16*FRACUNIT,
+	mass = 0,
+	damage = 0,
+	flags = MF_NOGRAVITY|MF_NOBLOCKMAP
+}
 mobjinfo[MT_SONICBOOM] = {
 	spawnstate = S_SONICBOOM1,
 	speed = 28*FRACUNIT,

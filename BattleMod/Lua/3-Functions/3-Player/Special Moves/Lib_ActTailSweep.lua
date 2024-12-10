@@ -6,7 +6,7 @@ local state_didthrow = 4
 local cooldown_sweep = TICRATE*7/5 --1.4s
 local cooldown_dash = TICRATE*2
 local cooldown_throw = cooldown_dash
-local cooldown_cancel = TICRATE
+local cooldown_cancel = TICRATE*2/3 --0.66s
 local cooldown_spinswipe = TICRATE * 2
 local sideangle = ANG30 - ANG10
 local throw_strength = 30
@@ -127,7 +127,7 @@ end
 
 local function sbvars_sweep(m, pmo)
 	local chargepercentage = min(100,pmo.player.actiontime*100/threshold2)
-	m.fuse = (threshold1/2)+(pmo.player.actiontime/5)
+	m.fuse = (threshold1/2)+(min(threshold2, pmo.player.actiontime)/5)
 	m.cutterspeed = pmo.scale*(chargepercentage/2)
 	m.flags = $ &~ MF_MISSILE
 	S_StartSound(m,sfx_s3kb8)
@@ -161,6 +161,8 @@ end
 local function dosweep(mo,thrustfactor)
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
 	sbvars_sweep(m,mo)
+	m.radius = 0
+	m.flags = $ &~ MF_GRENADEBOUNCE
 	mo.player.aircutter = m
 end
 
@@ -409,7 +411,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		
 		//Powerup
 		if chargehold then	
-			if (player.actiontime%6 < 2) then
+			if player.actiontime > threshold2 and (player.actiontime%6 < 2) then
 				mo.colorized = true
 				if player.actiontime%4 == 1
 					mo.color = SKINCOLOR_SUPERGOLD3
@@ -418,16 +420,13 @@ B.Action.TailSwipe = function(mo,doaction)
 				end
 				if player.followmobj
 					player.followmobj.colorized = true
-					player.followmobj.color = SKINCOLOR_SUPERGOLD5
+					player.followmobj.color = mo.color
 				end
 			else
 				uncolorize(mo)
 			end
 			if player.actiontime == threshold2 then
 				S_StartSound(mo,sfx_s1c3)
-				for l = 0,8
-					P_SpawnParaloop(mo.x,mo.y,mo.z+mo.height/2,256*mo.scale,16,MT_NIGHTSPARKLE,mo.angle+45*l*ANG1,nil,1)
-				end
 			end
 		end
 		--player.actionsuper = true
@@ -436,6 +435,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Oops
 	if canceltrigger then
 		B.ResetPlayerProperties(player,false,false)
+		mo.state = P_IsObjectOnGround(mo) and S_PLAY_STND or S_PLAY_SPRING
 		player.actionstate = 0
 		player.actiontime = -1
 		S_StartSound(mo,sfx_s3k7d)
@@ -452,19 +452,24 @@ B.Action.TailSwipe = function(mo,doaction)
 		if not (P_IsObjectOnGround(mo) or B.WaterFactor(mo) > 1) then
 			P_SetObjectMomZ(mo,gravity/2,true) //Low grav
 		end
-		//post vfx
-		local g = P_SpawnGhostMobj(player.mo)
-		g.colorized = true
-		g.color = SKINCOLOR_SUPERGOLD5
-		g.tics = 1
-		g.frame = ($ & ~FF_TRANSMASK) | FF_TRANS70
-		g.scale = $ * 8/7
-		if g.tracer then
-			g.tracer.colorized = true
-			g.tracer.color = SKINCOLOR_SUPERGOLD5
-			g.tracer.tics = 1
-			g.tracer.frame = ($ & ~FF_TRANSMASK) | FF_TRANS70
-			g.tracer.scale = $ * 8/7
+		if leveltime%6 == 0 then
+			//post vfx
+			local g = P_SpawnGhostMobj(player.mo)
+			g.colorized = true
+			g.color = SKINCOLOR_SUPERGOLD3
+			g.tics = 5
+			g.frame = ($ & ~FF_TRANSMASK) | FF_TRANS50
+			g.scale = $ * 8/7
+			g.destscale = $ * 9/7
+			g.scalespeed = FRACUNIT/2
+			if g.tracer then
+				g.tracer.colorized = true
+				g.tracer.color = SKINCOLOR_SUPERGOLD3
+				g.tracer.tics = 5
+				g.tracer.frame = ($ & ~FF_TRANSMASK) | FF_TRANS50
+				g.tracer.scale = $ * 8/7
+				g.tracer.scalespeed = FRACUNIT/2
+			end
 		end
 	elseif (player.actiontime == -1) then
 		player.actiontime = 0
@@ -492,7 +497,6 @@ B.Action.TailSwipe = function(mo,doaction)
 
 		--Missile attack
 		dosweep(mo, 0)
-		player.actiontime = 0
 		if player.aircutter and player.aircutter.valid then
 			player.aircutter_distance = 0
 			player.aircutter.scale = 5*mo.scale/4
@@ -500,13 +504,15 @@ B.Action.TailSwipe = function(mo,doaction)
 		
 		--Physics
 		if player.cmd.forwardmove or player.cmd.sidemove then 
-			P_Thrust(mo, B.GetInputAngle(player), 15*mo.scale)
+			local actualcharge = min(threshold2, player.actiontime)
+			P_Thrust(mo, B.GetInputAngle(player), actualcharge*mo.scale*2/3)
 		end
 		if player.cmd.buttons & BT_JUMP and not P_IsObjectOnGround(mo) then
 			local guh = P_MobjFlip(mo) > 0 and max or min
 			local momz = guh(mo.momz*P_MobjFlip(mo),mo.scale*5)
 			P_SetObjectMomZ(mo,momz,false)
 		end
+		player.actiontime = 0
 
 		--Effects
 		uncolorize(mo)
@@ -620,46 +626,59 @@ B.Action.TailSwipe = function(mo,doaction)
 		if player.aircutter and player.aircutter.valid then
 			player.pflags = $ | PF_STASIS
 			local distancescaling = player.aircutter.cutterspeed/2
-			local boomerangtime = max(6,distancescaling*2/3/FRACUNIT)
-			--this is taking into account that swipe actiontime lasts like 22 frames
+			local boomerangtime = max(6,distancescaling/2/FRACUNIT)
+			
 			if player.actiontime > boomerangtime then
-				player.aircutter_distance = max(1,$-distancescaling)
+				local returnfactor = player.actiontime <= boomerangtime+2 and 1 or 2
+				player.aircutter_distance = max(1,$-(distancescaling*returnfactor))
 			else
 				player.aircutter_distance = $+distancescaling
 			end
+			
 			local angle = ANGLE_45 * player.actiontime
 			local cut_x = FixedMul(player.aircutter_distance, cos(angle))
 			local cut_y = FixedMul(player.aircutter_distance, sin(angle))
-			local refmobj = P_SpawnMobj(0,0,0,MT_THOK)
-			refmobj.flags2 = $ | MF2_DONTDRAW
-			P_SetOrigin(refmobj, mo.x + cut_x, mo.y + cut_y, mo.z + (mo.height/2))
-			player.aircutter.followmo = refmobj
-			B.SoftHoming(player.aircutter, "x")
-			B.SoftHoming(player.aircutter, "y")
-			player.aircutter.momz = 0
-			P_MoveOrigin(player.aircutter, player.aircutter.x, player.aircutter.y, mo.z + (mo.height/2))
+			
+			local moving = player.realforwardmove or player.realsidemove
+			if moving then
+				local inputangle = B.GetInputAngle(player)
+				local moveOffset = mo.scale * 64
+				cut_x = $ + P_ReturnThrustX(nil, inputangle, moveOffset)
+				cut_y = $ + P_ReturnThrustY(nil, inputangle, moveOffset)
+			end
+			
+			local moved = false
+			player.aircutter.radius = 0
+			for i=1,4 do
+				moved = P_TryMove(player.aircutter, mo.x + (cut_x/i), mo.y + (cut_y/i), true)
+				if moved then break end
+			end
+			-- THE ALMIGHTY VALID CHECK
+			--[[
+			local validity = P_SpawnMobjFromMobj(player.aircutter,0,0,0,MT_BIGSONICBOOM)
+			if validity.valid then
+				validity.scale = $*5/4
+				if validity.valid then
+					validity.radius = 32*FRACUNIT
+				end
+			end
+			if validity.valid and abs(validity.z - player.aircutter.z) < mo.scale then
+				--player.aircutter.radius = 32*FRACUNIT
+				validity.colorized = true
+				validity.color = SKINCOLOR_GREEN
+			elseif validity.valid then
+				validity.colorized = true
+				validity.color = SKINCOLOR_RED
+			end
+			if validity.valid then
+				--P_RemoveMobj(validity)
+			end
+			print(player.aircutter.radius/FRACUNIT)
+			]]
 		end
 
--- 		player.powers[pw_nocontrol] = $|2
 		--Anim states
-
-
-		-- aim assist
-		--if player.actiontime < 6 then
-			--mo.target = P_LookForEnemies(player, true)
-
-			--if mo.target and mo.target.valid then
-				--local dir = R_PointToAngle2(mo.x, mo.y, mo.target.x, mo.target.y)
-				--local dist = R_PointToDist2(mo.x, mo.y, mo.target.x, mo.target.y)
-				--if dir and dist <= 100*mo.scale then
-					--P_Thrust(mo, dir, 5*mo.scale)
-				--end
-
-			--end
-		--end
 		if player.actiontime < 6 then
-
-
 			--Fast Spin anim
 			player.drawangle = mo.angle-ANGLE_90*(player.actiontime-4)
 			B.DrawSVSprite(player,1)
@@ -725,10 +744,6 @@ B.Action.TailSwipe = function(mo,doaction)
 			player.actionstate = 0
 			player.laststate = 0
 		end
-		--if player.pflags & PF_SPINNING then
-			--print("spinning for some reason lol")
-		--end
-		--print(player.actiontime)
 	else
 		player.charability2 = CA2_SPINDASH
 	end
