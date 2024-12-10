@@ -161,7 +161,7 @@ end
 local function dosweep(mo,thrustfactor)
 	local m = P_SPMAngle(mo,MT_SONICBOOM,mo.angle,0)
 	sbvars_sweep(m,mo)
-	m.radius = 0
+	--m.radius = 0
 	m.flags = $ &~ MF_GRENADEBOUNCE
 	mo.player.aircutter = m
 end
@@ -648,7 +648,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			end
 			
 			local moved = false
-			player.aircutter.radius = 0
+			--player.aircutter.radius = 0
 			for i=1,4 do
 				moved = P_TryMove(player.aircutter, mo.x + (cut_x/i), mo.y + (cut_y/i), true)
 				if moved then break end
