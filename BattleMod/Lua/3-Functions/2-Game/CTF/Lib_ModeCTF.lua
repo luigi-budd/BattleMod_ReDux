@@ -243,7 +243,7 @@ F.ResetPlayerFlags = function()
 	resetFlagvars()
 end
 
-F.LoadVars = function()
+F.GetFlagPos = function()
 	-- Reset all flag variables
 	--resetFlagvars()
 	if gametype ~= GT_BATTLECTF then return end
@@ -392,7 +392,7 @@ local function delayCap(p, team)
 	local effect 		= 3
 	local mo 			= p.mo
 	local otherteam 	= team == 1 and 2 or 1
-	local homeflag 		= team == 1 and MT_CREDFLAG or MT_BLUEFLAG
+	local homeflag 		= team == 1 and MT_CREDFLAG or MT_CBLUEFLAG
 	local capturedflag 	= team == 1 and MT_CBLUEFLAG or MT_CREDFLAG
 	local cap 			= false
 	local friendly 		= (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
@@ -439,7 +439,6 @@ local function delayCap(p, team)
 	end
 end
 
-
 F.FlagPreThinker = function()
 	if gametype ~= GT_BATTLECTF then return end
 	for p in players.iterate do
@@ -454,12 +453,15 @@ F.FlagPreThinker = function()
 					p.mo.btagpointer.target = pctf_flag
 				end
 			end
+			--[[
+			/*
+
 			-- Press tossflag to tossflag
-			local btns = p.cmd.buttons
-			if (btns&BT_TOSSFLAG and not(p.powers[pw_carry] & CR_PLAYER) and not(p.powers[pw_super]) and not(p.tossdelay) and G_GametypeHasTeams() and p.gotflag)
-			then
-				F.PlayerFlagBurst(p, 1)
-			end
+			--local btns = p.cmd.buttons
+			--if (btns&BT_TOSSFLAG and not(p.powers[pw_carry] & CR_PLAYER) and not(p.powers[pw_super]) and not(p.tossdelay) and G_GametypeHasTeams() and p.gotflag)
+			--then
+			--	F.PlayerFlagBurst(p, 1)
+			--end
 			-- If we're not on the ground then we can't cap flag
 			if not (P_IsObjectOnGround(p.mo) or (p.mo.eflags&MFE_JUSTHITFLOOR)) then 
 				p.ctf_slowcap = nil -- Let's reset this even if delaycap is off
@@ -526,6 +528,8 @@ F.FlagPreThinker = function()
 				-- If delay cap is on, let's slowly start capturing..
 				if F.DelayCap then delayCap(p, p.ctfteam) end
 			end
+						*/
+			--]]
 		end
 	end
 end

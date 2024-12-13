@@ -213,9 +213,9 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	-- Don't take damage during setup phase
 	if target.player.nodamage and target.player.nodamage>0 then return true end
 	-- Burst flag if damaged
-	if target and target.player and not(target.player.guardtics > 0 or (target.player.guard and target.player.guard == 1)) then
-       	F.PlayerFlagBurst(target.player, 0)
-    end
+	--if target and target.player and not(target.player.guardtics > 0 or (target.player.guard and target.player.guard == 1)) then
+    --   	F.PlayerFlagBurst(target.player, 0)
+    --end
 	--Do guarding
 	if B.GuardTrigger(target, inflictor, source, damage, damagetype) then return true end
 	--Handle damage dealt/received by revenge jettysyns
@@ -296,12 +296,12 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	local suicideflagdrop = false
 	
 	-- Drop flag if player has one
-	if target and target.player then
-		if not source and not inflictor and damagetype == 0 and player.suicide_watch then
-			suicideflagdrop = true
-		end
-       	F.PlayerFlagBurst(target.player, 0, suicideflagdrop)
-    end
+	--if target and target.player then
+	--	if not source and not inflictor and damagetype == 0 and player.suicide_watch then
+	--		suicideflagdrop = true
+	--	end
+    --   	F.PlayerFlagBurst(target.player, 0, suicideflagdrop)
+    --end
 	
 	--Standard kill
 	if inflictor and inflictor.player
@@ -382,4 +382,4 @@ addHook("MobjDeath", function(bubble, inflictor, source)
 end, MT_EXTRALARGEBUBBLE)
 
 -- CTF: remove stuff on quit
-addHook("PlayerQuit", F.PlayerFlagBurst)
+--addHook("PlayerQuit", F.PlayerFlagBurst)

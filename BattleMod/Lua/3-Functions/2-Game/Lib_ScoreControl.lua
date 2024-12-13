@@ -43,6 +43,8 @@ B.UpdateScore = function()
 	end
 	
 	//Team Games
+	--[[
+	/*
 	if G_GametypeHasTeams() then
 		if gametype ~= GT_BATTLECTF then
 			redscore = $+B.RedScore
@@ -51,5 +53,11 @@ B.UpdateScore = function()
 			redscore = F.RedScore
 			bluescore = F.BlueScore
 		end
+	end
+		*/
+	--]]
+	if G_GametypeHasTeams() then
+		redscore = $+B.RedScore
+		bluescore = $+B.BlueScore
 	end
 end

@@ -166,12 +166,12 @@ G_AddGametype({
 	description = 'Work together to seize the Warp Topaz and send it back whence it came!'
 })
 
--- Removed GTR_TEAMFLAGS; Battle CTF uses its own flag system
+-- Using Vanilla CTF again.. Custom CTF will see use later down the road ;q
 G_AddGametype({
 	name = "Battle CTF",
 	identifier = "battlectf",
 	typeoflevel = TOL_CTF|TOL_BATTLECTF,
-	rules = GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_OVERTIME|GTR_HURTMESSAGES,
+	rules = GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMFLAGS|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_OVERTIME|GTR_HURTMESSAGES,
 	rankingtype = GT_CTF,
 	intermissiontype = int_ctf,
 	defaultpointlimit = 3,

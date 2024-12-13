@@ -167,8 +167,11 @@ local function drawFlagfromP(v)
 		end
 	end
 
+	-- (Will be used later for custom CTF + disable vanilla HUD indicators in first person view)
 	-- Draw the flag icon in a fucking unorthodox way
 	-- Also don't show this if rankings are currently being shown.
+	--[[
+	/*
 	local player = consoleplayer
 	if player.gotflag and not camera.chase and not ranking then
 		-- Display flag powerup icon
@@ -182,6 +185,8 @@ local function drawFlagfromP(v)
 		local V_HUDFLAG = hudinfo[HUD_POWERUPS].f
 		v.drawScaled(offs_x*FRACUNIT, offs_y*FRACUNIT, FRACUNIT/2, flag, V_PERPLAYER|V_HUDFLAG|V_HUDTRANS)
 	end
+	*/
+	--]]
 
 	-- Blue flag score (drawn here so it's always shown on top of the flag icons)
 	local bscore = bluescore
@@ -220,6 +225,7 @@ local function cctf_hud(v, p, cam)
 	drawFlagfromP(v)
 end
 
+-- This will see use another time..
 -- Draws flag icons on top of screen, scores, etc.
 F.TeamScoreHUD = function(v, p, cam)
 	if hud.enabled("teamscores") then

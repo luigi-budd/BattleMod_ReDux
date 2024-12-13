@@ -35,13 +35,13 @@ addHook("MapChange",function(map)
 	B.ResetSparring()
 	F.RedFlag = nil
 	F.BlueFlag = nil
-	F.RedScore = 0
-    F.BlueScore = 0
-	F.RedFlagPos = {x=0,y=0,z=0} -- Reset flag coords!
-	F.BlueFlagPos = {x=0,y=0,z=0} -- Reset flag coords!
-	F.DC_NoticeTimer = -1
-	F.DelayCap = false
-	F.ResetPlayerFlags() -- remove any gotflag field vars
+	--F.RedScore = 0
+    --F.BlueScore = 0
+	--F.RedFlagPos = {x=0,y=0,z=0} -- Reset flag coords!
+	--F.BlueFlagPos = {x=0,y=0,z=0} -- Reset flag coords!
+	--F.DC_NoticeTimer = -1
+	--F.DelayCap = false
+	--F.ResetPlayerFlags() -- remove any gotflag field vars
 	B.Timeout = 0
 	F.GameState.CaptureHUDTimer = 0
 	A.Bounty = nil
@@ -57,7 +57,7 @@ addHook("MapChange",function(map)
 end)
 
 addHook("MapLoad",function(map)
-	F.LoadVars()
+	--F.GetFlagPos()
 	B.HideTime()
 	I.GetMapHeader(map)
 	I.GenerateSpawns()
@@ -87,14 +87,14 @@ end)
 
 addHook("ThinkFrame",function()	
 	//Player control
-	for player in players.iterate
+	for player in players.iterate do
 		B.PlayerThinkFrame(player)
 		F.UpdateCaps(player)
 	end
 	B.ResetScore()
 	A.ResetScore()
 	B.Autobalance()
-	F.DelayCapActivateIndicator()
+	--F.DelayCapActivateIndicator()
 	--F.UpdateScore()
 end)
 

@@ -1,5 +1,5 @@
-local REDFLAG = MT_CREDFLAG 	-- MT_REDFLAG
-local BLUFLAG = MT_CBLUEFLAG 	-- MT_BLUEFLAG
+local REDFLAG = MT_CREDFLAG 
+local BLUFLAG = MT_CBLUEFLAG 
 local B = CBW_Battle
 local F = B.CTF
 
@@ -21,7 +21,7 @@ local CTFlagReturnNerf = function(mo, toucher)
 end
 
 local CTFlagNoGrabCooldown = function(mo)
-	local spawnpoint = mapthings[mo.type == REDFLAG and F.RedFlagPos.mtnum or F.BlueFlagPos.mtnum]
+	local spawnpoint = mo.spawnpoint --mapthings[mo.type == REDFLAG and F.RedFlagPos.mtnum or F.BlueFlagPos.mtnum]
 	local flagreturn = CV_FindVar("flagtime").value
 	local flagcolor = 0
 	// we use the roll of the mapthing to keep track of how much time the flag should stay before returning
@@ -36,6 +36,7 @@ local CTFlagNoGrabCooldown = function(mo)
 			end
 		end
 	end
+
 	if (P_MobjTouchingSectorSpecial(mo, 4, 3) and mo.type == REDFLAG) or
 		(P_MobjTouchingSectorSpecial(mo, 4, 4) and mo.type == BLUFLAG) then // check if ctf flag is in its base
 			spawnpoint.roll = flagreturn*TICRATE // set flag retun time back to normal
@@ -48,6 +49,8 @@ local CTFlagNoGrabCooldown = function(mo)
 	end
 end
 
+--[[
+/*
 addHook("MobjThinker", CTFlagNoGrabCooldown, REDFLAG)
 addHook("MobjThinker", CTFlagNoGrabCooldown, BLUFLAG)
 
@@ -72,3 +75,5 @@ addHook("PlayerThink", function(player) // if at your base with the enemy flag r
 		end
 	end
 end)
+*/
+--]]
