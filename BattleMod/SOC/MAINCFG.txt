@@ -8,13 +8,14 @@ NumDemos = 0
 Level BZ
 LevelName = Training
 SelectHeading = Training
-Music = TUTORL
+Music = SMCMUL
 Skynum = 99
 TypeOfLevel = Arena,Survival
 NextLevel = B0
 LevelSelect = 1
 Lua.BattleItems_LocalRate = 10
 Lua.BattleItems_GlobalRate = 10
+Lua.AltMusic = SGCMUL
 
 Level B0
 LevelName = Grass Court
@@ -267,20 +268,21 @@ Levelname = Nimbus Ruins
 Music = MP_AIR
 TypeOfLevel = CTF,RubyRun
 SelectHeading = Standard
-NextLevel = F0
+NextLevel = I1
 SkyNum = 68
 SkyboxScaleX = 64
 SkyboxScaleY = 64
 
 Level I1
 Levelname = Iron Warehouse
-NextLevel = 3
+NextLevel = F0
 Act = 0
 Music = KIRFAC
 SkyNum = 6060
 TypeOfLevel = Battlectf
 Lua.Author = STJR, Smol
 SelectHeading = EXTRA
+Lua.AltMusic = KIRPLR
 Lua.BattleItems_GlobalRate = 55
 Lua.BattleItems_Roulette = 200
 Lua.BattleItems_LocalRate = 40
@@ -302,6 +304,7 @@ Lua.BattleItems_LocalRate = 40
 #Warp Heist
 
 Level W1
+NextLevel = W2
 Levelname = Green Grove
 Act = 1
 Music = 3DBG
@@ -315,7 +318,7 @@ Lua.Author = Smol
 Lua.AltMusic = 3DBGGN
 
 Level W2
-NextLevel = 3
+NextLevel = W1
 Levelname = Rusty Ruin
 Act = 1
 Music = 3DBR
@@ -331,6 +334,7 @@ Lua.BattleItems_LocalRate = 40
 #Ring Rally
 
 Level J1
+NextLevel = J2
 Levelname = Nimbus Garden
 SelectHeading = EXTRA
 Act = 0
@@ -340,7 +344,7 @@ SkyNum = 18
 Lua.Author = JABSphere94
 
 Level J2
-NextLevel = 3
+NextLevel = J3
 Levelname = Casino Night
 Music = S2CN
 SkyNum = 7771
@@ -352,7 +356,7 @@ Lua.BattleItems_LocalRate = 40
 
 Level J3
 Levelname = Aquatic Base
-NextLevel = 3
+NextLevel = J1
 Act = 0
 Music = DSZZ1
 SkyNum = 22
