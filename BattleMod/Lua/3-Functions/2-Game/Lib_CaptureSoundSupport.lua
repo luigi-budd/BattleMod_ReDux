@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local F = B.CTF
 
 B.LongSound = function(player, fallback, lose, nowin, gettable)
 	if consoleplayer and not(consoleplayer.cos_blockcapturesounds) and Cosmetics and Cosmetics.Capturesounds_long and 

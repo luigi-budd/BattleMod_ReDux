@@ -17,6 +17,13 @@ F.BlueFlagPos = {x=0,y=0,z=0, mtopts=0, spawnpoint=nil}
 F.RedFlagOpts = {flagbase_tag=0}
 F.BlueFlagOpts = {flagbase_tag=0}
 
+
+--For SFX
+F.RedFlag_player = nil
+F.RedFlag_oldScore = 0
+F.BlueFlag_player = nil
+F.BlueFlag_oldScore = 0
+
 -- delay cap variables
 F.DelayCap = false
 F.NOTICE_TIME = TICRATE*3 -- TODO: uhh.. make it a local variable probably lol
@@ -1067,3 +1074,57 @@ F.DelayCapActivateIndicator = function()
 	if (not(leveltime%3)) then F.DC_ColorSwitch = not $ end
 	F.DC_NoticeTimer = $+1
 end
+
+addHook("ThinkFrame", do
+	for i = 1,2 do
+
+		local flag = ({F.BlueFlag, F.RedFlag})[i]
+
+		if flag and flag.valid and flag.player then
+			if i == 1 then
+				if F.BlueFlag_player == nil then
+					F.BlueFlag_oldscore = redscore
+				end
+				F.BlueFlag_player = flag.player
+			else
+				if F.RedFlag_player == nil then
+					F.RedFlag_oldscore = bluescore
+				end
+				F.RedFlag_player = flag.player
+			end
+		end
+
+		local flag_player = ({F.BlueFlag_player, F.RedFlag_player})[i]
+		local old_score = ({F.BlueFlag_oldscore, F.RedFlag_oldscore})[i]
+		local new_score = ({redscore, bluescore})[i]
+
+
+
+		if (flag and flag.valid) and flag_player and not(flag.player) then
+			--S_StartSoundAtVolume(nil, sfx_flgcap, 0)
+			--S_StartSoundAtVolume(nil, sfx_lose, 0)
+			if new_score > old_score then
+				for p in players.iterate() do
+					if splitscreen and p == players[1] then 
+						return
+					end
+					local sfx
+					local loss
+					if (p.ctfteam == flag_player.ctfteam) or p.spectator or splitscreen then
+						sfx = sfx_flgcap
+						loss = false
+					else
+						sfx = sfx_lose
+						loss = true
+					end
+					S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(p, nil, nil, nil, true)).volume or 255, p)
+				end
+			end
+			if flag_player.ctfteam == 1 then
+				F.BlueFlag_player = nil
+			else
+				F.RedFlag_player = nil
+			end
+		end
+	end
+end)
