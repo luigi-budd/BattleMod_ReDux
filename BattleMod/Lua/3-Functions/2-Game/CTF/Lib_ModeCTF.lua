@@ -1079,6 +1079,7 @@ F.CustomCaptureSFX = function()
 	for i = 1,2 do
 
 		local flag = ({F.BlueFlag, F.RedFlag})[i]
+		local inv_flag = ({F.RedFlag, F.BlueFlag})[i]
 
 		if flag and flag.valid and flag.player then
 			if i == 1 then
@@ -1117,7 +1118,11 @@ F.CustomCaptureSFX = function()
 						sfx = sfx_lose
 						loss = true
 					end
-					S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(p, nil, nil, nil, true)).volume or 255, p)
+					S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
+				end
+				--S_StartSound(flag, sfx_s227)
+				if flag_player.mo and flag_player.mo.valid then
+					B.DoFirework(flag_player.mo)
 				end
 			end
 			if flag_player.ctfteam == 1 then
