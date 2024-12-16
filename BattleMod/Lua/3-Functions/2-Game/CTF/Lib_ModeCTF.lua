@@ -1075,7 +1075,7 @@ F.DelayCapActivateIndicator = function()
 	F.DC_NoticeTimer = $+1
 end
 
-addHook("ThinkFrame", do
+F.CustomCaptureSFX = function()
 	for i = 1,2 do
 
 		local flag = ({F.BlueFlag, F.RedFlag})[i]
@@ -1127,4 +1127,4 @@ addHook("ThinkFrame", do
 			end
 		end
 	end
-end)
+end
