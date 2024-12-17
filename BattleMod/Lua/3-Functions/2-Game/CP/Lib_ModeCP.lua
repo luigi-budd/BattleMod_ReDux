@@ -304,11 +304,21 @@ CP.SeizePoint = function()
 		local sfx = CP.LoseSFX
 		local lose = true
 
-		if consoleplayer == CP.LeadCapPlr then
-			sfx = CP.WinSFX
-			lose = false
+		for p in players.iterate()
+			if splitscreen and p == players[1] then 
+				return
+			end
+			S_StartSound(nil, sfx_s243, p)
+			local sfx
+			local lose
+			if (p == CP.LeadCapPlr) then
+				sfx = sfx_s3k68
+			else
+				sfx = sfx_lose
+				lose = true
+			end
+			S_StartSoundAtVolume(nil, B.ShortSound(CP.LeadCapPlr, sfx, lose), (B.ShortSound(CP.LeadCapPlr, nil, nil, nil, true)).volume or 255, p)
 		end
-		S_StartSound(nil, B.ShortSound(CP.LeadCapPlr, sfx, lose), (B.ShortSound(CP.LeadCapPlr, nil, nil, nil, true)).volume or 255, consoleplayer)
 	end
 	CP.RefreshPoints()
 	CP.Active = false
