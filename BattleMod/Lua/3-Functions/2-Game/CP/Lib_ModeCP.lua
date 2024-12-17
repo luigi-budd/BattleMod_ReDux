@@ -320,6 +320,9 @@ CP.SeizePoint = function()
 			S_StartSoundAtVolume(nil, B.ShortSound(CP.LeadCapPlr, sfx, lose), (B.ShortSound(CP.LeadCapPlr, nil, nil, nil, true)).volume or 255, p)
 		end
 	end
+	if CP.ID[CP.Num] and CP.ID[CP.Num].valid then
+		S_StartSound(CP.ID[CP.Num], sfx_s243)
+	end
 	CP.RefreshPoints()
 	CP.Active = false
 	CP.Num = Wrap($+1,#CP.ID)
