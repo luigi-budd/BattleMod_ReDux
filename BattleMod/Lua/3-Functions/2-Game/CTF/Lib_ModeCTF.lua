@@ -90,6 +90,11 @@ F.FlagIntangible = function(mo)
 		mo.flags2 = $&~MF2_DONTDRAW
 		mo.flags = $&~MF_SPECIAL
 	return end
+
+	if B.RubyGametype() then
+		mo.flags2 = $ | MF2_DONTDRAW
+		mo.flags = $ & ~MF_SPECIAL
+	return end
 	//Get spawntime
 	local spawntype = 1 //flag is at base
 	if mo.fuse then spawntype = 2 end //flag has been dropped
