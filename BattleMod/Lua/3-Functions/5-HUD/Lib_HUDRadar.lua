@@ -123,7 +123,7 @@ B.RadarHUD = function(v, player, cam)
 		--Red Flag / Bank
 		if r == 3
 			if not (
-				(F.RedFlag and F.RedFlag.valid)
+				(F.RedFlag and F.RedFlag.valid and not (F.RedFlag.flags2 & MF2_DONTDRAW))
 				or (B.RedBank and B.RedBank.valid)
 			) then
 				continue
@@ -143,7 +143,7 @@ B.RadarHUD = function(v, player, cam)
 		--Blue Flag / Bank
 		if r == 4
 			if not (
-				(F.BlueFlag and F.BlueFlag.valid)
+				(F.BlueFlag and F.BlueFlag.valid and not (F.BlueFlag.flags2 & MF2_DONTDRAW))
 				or (B.BlueBank and B.BlueBank.valid)
 			) then
 				continue
@@ -163,7 +163,7 @@ B.RadarHUD = function(v, player, cam)
 		end
 		--Ruby
 		if r == 5
-			if not (R.ID and R.ID.valid) then continue end
+			if B.Timeout or not (R.ID and R.ID.valid) then continue end
 			table.insert(t,R.ID)
 			fade = V_40TRANS
 			fade2 = V_60TRANS

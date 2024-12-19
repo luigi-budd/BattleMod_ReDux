@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local CV = B.Console
 local F = B.CTF
+local R = B.Ruby
 local grace1 = CV.CTFdropgrace
 local grace2 = CV.CTFrespawngrace
 local FLG_SCORE = 250 -- The score a player gets for capping flag
@@ -86,15 +87,17 @@ F.TouchFlag = function(mo, pmo)
 end
 
 F.FlagIntangible = function(mo)
-	if B.CPGametype() then
-		mo.flags2 = $&~MF2_DONTDRAW
+	if mo.type == MT_REDFLAG and not (R.RedGoal and R.RedGoal.valid) then
+		R.RedGoal = $ or mo
+	elseif not (R.BlueGoal and R.BlueGoal.valid) then
+		R.BlueGoal = $ or mo
+	end
+
+	if B.CPGametype() or B.RubyGametype() then
+		mo.flags2 = $|MF2_DONTDRAW
 		mo.flags = $&~MF_SPECIAL
 	return end
 
-	if B.RubyGametype() then
-		mo.flags2 = $ | MF2_DONTDRAW
-		mo.flags = $ & ~MF_SPECIAL
-	return end
 	//Get spawntime
 	local spawntype = 1 //flag is at base
 	if mo.fuse then spawntype = 2 end //flag has been dropped
