@@ -4,8 +4,20 @@ local CV = B.Console
 
 local notice = "\x83".."NOTICE: \x80"
 B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
+	local antispam = B.ButtonCheck(player, BT_ATTACK) < 2
 	if B.Exiting then
-		S_StartSound(nil, sfx_adderr, player)
+		if antispam then
+			S_StartSound(nil, sfx_adderr, player)
+			CONS_Printf(player,"It is too late...")
+		end
+		return false
+	end
+	if gamestate == GS_INTERMISSION then //MANY mods warn for lack of mo.valid. Might be team == 0 only but this is ok too
+		if antispam then
+			S_StartSound(nil, sfx_adderr, player)
+			CONS_Printf(player,"Please wait until a game starts!")
+		end
+		//TODO: if team == 0, player.wantstospectate or whatever - switch them into spectator when the game starts
 		return false
 	end
 	if player.spectatortime == nil then
@@ -24,8 +36,11 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 		player.spectatorlock = 10*TICRATE
 		return true
 	end
-	if player.spectatorlock or (not(player.spectatortime >= 0) and team != 0) then //Player join time cannot preceed assigned respawn delay
-		CONS_Printf(player,"Please wait "..max(abs(player.spectatortime), player.spectatorlock)/TICRATE.."s to rejoin")
+	if (player.spectatorlock or (not(player.spectatortime >= 0) and team != 0)) then
+		if antispam then
+			S_StartSound(nil, sfx_adderr, player)
+			CONS_Printf(player,"Please wait "..max(abs(player.spectatortime), player.spectatorlock)/TICRATE.."s to rejoin")
+		end
 		return false
 	end
 	
