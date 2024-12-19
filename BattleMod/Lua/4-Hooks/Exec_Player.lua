@@ -329,7 +329,9 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 
 	--Death time and StartRings penalties
 	B.DeathtimePenalty(player)
-	B.StartRingsPenalty(player, killer and 10 or 5)
+	local limit = nil
+	if killer and not B.Overtime then limit = CV.StartRings.value/2 end
+	B.StartRingsPenalty(player, 5, limit)
 
 	--Award rings and lifeshards for kills
 	if not (target.player and target.player.revenge)

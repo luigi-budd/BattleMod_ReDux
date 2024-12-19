@@ -643,7 +643,7 @@ B.DeathtimePenalty = function(player)
 	player.spectatortime = player.deadtimer -TICRATE*3
 end
 
-B.StartRingsPenalty = function(player, penalty)
+B.StartRingsPenalty = function(player, penalty, limit)
 	if not(CV.RingPenalty.value and B.BattleGametype()) then
 		return --Gametype doesn't benefit from StartRings
 	end
@@ -652,7 +652,7 @@ B.StartRingsPenalty = function(player, penalty)
 		return
 	end
 	player.ringpenalty = $ or 0
-	if player.ringpenalty >= CV.StartRings.value then
+	if player.ringpenalty >= limit or CV.StartRings.value then
 		return --Player is already maxed out on penalty
 	end
 	if B.Overtime then

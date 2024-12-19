@@ -30,7 +30,7 @@ Major gameplay changes
 	- Blockable projectiles can now be blocked with sweetspot defenses
 	- Players can latch on to a ledge when holding forward+jump (or automatically with airdodge)
 	- Slipstream leniency, range and thrust intensity increased based on other player's speed
-	- Dying will permanently decrease the player's starting rings until the next map (This penalty is increased slightly if the death was provoked by a player; doubled if in overtime)
+	- Dying will permanently decrease the player's starting rings until the next map (This penalty is doubled if in overtime, otherwise, has a limit if provoked by another player)
 	- Characters will take twice as long to exhaust in non-survival gametypes
 	- Fire trails from elemental shields only damage if the player doesn't have any rings, otherwise, the player loses a ring when in contact with them
 	Guard 
