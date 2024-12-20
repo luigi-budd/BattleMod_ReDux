@@ -127,6 +127,87 @@ local function setoffsets(player,m)
 	scorea = "small"
 end
 
+B.DrawPlayerInfo = function(v, player, x, y, flags, textalign, isNameCapped)
+	local scale = FRACUNIT*3/4
+	local flip = (flags & V_SNAPTORIGHT) and -1 or 1
+	
+	--RINGS
+	local patch = ringpatch(player)
+	local text
+	if patch == "ARRINGYL" then
+		text = "\x80"
+	elseif patch == "ARRINGRD" then
+		if player.rings then
+			text = "\x82"
+		else
+			text = "\x85"
+		end
+	else
+		text = "\x86"
+	end
+
+	--NAME
+	local name = G_GametypeHasTeams() and B.GetPlayerText(player) or player.name
+	local capped_max_letters = 12
+	if isNameCapped and string.len(name) > capped_max_letters then
+		name = string.sub(name, 1, capped_max_letters-3) .. "..."
+	end
+
+	--Draw
+	v.drawString(x, y-8, name, flags|V_HUDTRANS, textalign)
+	local wtf = 0
+	if flip < 0 then wtf = -8 end -- probably patch.width
+	v.drawString(x+(8*flip), y, text..player.rings, flags|V_HUDTRANS, textalign)
+	x = $*FU
+	y = $*FU
+	v.drawScaled(x+(wtf*FU), y, scale, v.cachePatch(patch), flags|V_HUDTRANS)
+
+	--Life heads
+	local headflags = flags
+	local ouchy = 0
+	local blink = 0
+	
+	if P_PlayerInPain(player) then --Add shake if the player is taking damage
+		local choose = {-1,1}
+		ouchy = choose[(leveltime&1+1)]*FRACUNIT
+		headflags = V_HUDTRANSHALF
+	elseif not(P_PlayerInPain(player)) and player.powers[pw_flashing] and not(B.PreRoundWait()) then
+		blink = leveltime&1 -- Blink if flashing
+	elseif player.playerstate ~= PST_LIVE then --Transparency for dead/respawning players
+		headflags = V_HUDTRANSHALF
+	else
+		headflags = V_HUDTRANS
+	end
+	if not(blink) then
+		if (flip > 0) then headflags = $ | V_FLIP end
+		local mo = player.mo
+		if mo then
+			local colormap = v.getColormap(mo.skin, mo.color)
+			local sprite = v.getSprite2Patch(mo.skin, SPR2_LIFE)
+			v.drawScaled(x-(10*FRACUNIT*flip), y+ouchy, scale, sprite, flags|headflags, colormap)
+		end
+	end
+	v.drawString((x/FU)-(16*flip), y/FU, player.lives, flags|V_HUDTRANS, textalign)
+	
+	x = $+(30*FU*flip)
+	x = $+(wtf*FU)
+
+	--Shields
+	if player.powers[pw_shield] & SH_NOSTACK then
+		local shieldpatch = shpatch(player.powers[pw_shield&SH_NOSTACK])
+		v.drawScaled(x, y, scale, v.cachePatch(shieldpatch), flags|V_HUDTRANS)
+	end
+	if CV.ShieldStock.value then
+		local n = #player.shieldstock
+		while n >= 1 do
+			local xoffset = 8*n*FU*flip
+			local shieldpatch = v.cachePatch(shpatch(player.shieldstock[n]))
+			v.drawScaled(x+xoffset,y,scale*3/4,shieldpatch,flags|V_HUDTRANS)
+			n = $-1
+		end
+	end
+end
+
 A.MyStocksHUD = function(v, player)
 	if 	player.spectator
 		or not G_GametypeUsesLives()
@@ -169,6 +250,62 @@ A.MyStocksHUD = function(v, player)
 		if (player.lifeshards or 0) > i then
 			v.drawScaled(x + offset - scale, y - scale, scale, patch, flags | V_HUDTRANS | V_FLIP, v.getColormap(TC_RAINBOW, SKINCOLOR_PURPLE))
 		end
+	end
+
+	--Now draw all of the other player's info
+	if splitscreen then
+		return
+	end
+	local playercount = {left = 0, right = 0}  
+	local basepanning = 20
+	local starty = 30
+	local players_per_row = 8
+	local solo_two_rows = false
+
+	-- First pass: count players
+	for p in players.iterate do
+		if player == p or p.spectator then continue end
+		
+		local isLeft
+		if G_GametypeHasTeams() then
+			isLeft = (p.ctfteam == 1)
+		else
+			isLeft = ((playercount.left + playercount.right) % 2 == 0)
+		end
+		
+		playercount[isLeft and "left" or "right"] = $ + 1
+	end
+
+	if playercount.left + playercount.right <= 8 then
+		playercount.right = $ + playercount.left
+		playercount.left = 0
+	end
+
+	-- Second pass: draw players with correct spacing
+	local drawcount = {left = 0, right = 0}
+	for p in players.iterate do
+		if player == p or p.spectator then continue end
+		
+		local isLeft
+		if G_GametypeHasTeams() then
+			isLeft = (p.ctfteam == 1)
+		elseif playercount.left then
+			isLeft = ((drawcount.left + drawcount.right) % 2 == 0)
+		end
+		
+		local side = isLeft and "left" or "right"
+		local rownum = drawcount[side] / players_per_row
+		local panning = basepanning + (64 * rownum)
+		local spacing = max(16, 32 - (max(0, playercount[side] - 4) * 4))
+		local realspacing = (spacing * drawcount[side]) - (spacing * rownum * players_per_row)
+		local isNameCapped = playercount[side] > 8
+		
+		if isLeft then
+			B.DrawPlayerInfo(v, p, panning, starty+realspacing, flags, "thin", isNameCapped)
+		else
+			B.DrawPlayerInfo(v, p, 320-panning, starty+realspacing, flags|V_SNAPTORIGHT, "thin-right", isNameCapped)
+		end
+		drawcount[side] = $ + 1
 	end
 end
 
