@@ -253,13 +253,14 @@ A.MyStocksHUD = function(v, player)
 	end
 
 	--Now draw all of the other player's info
+	--[[
 	if splitscreen then
 		return
 	end
 	local playercount = {left = 0, right = 0}  
 	local basepanning = 20
 	local starty = 30
-	local players_per_row = 8
+	local players_per_row = v.height() > 240 and 16 or 8
 	local solo_two_rows = false
 
 	-- First pass: count players
@@ -276,7 +277,7 @@ A.MyStocksHUD = function(v, player)
 		playercount[isLeft and "left" or "right"] = $ + 1
 	end
 
-	if playercount.left + playercount.right <= 8 then
+	if playercount.left + playercount.right <= players_per_row and not G_GametypeHasTeams() then
 		playercount.right = $ + playercount.left
 		playercount.left = 0
 	end
@@ -296,17 +297,20 @@ A.MyStocksHUD = function(v, player)
 		local side = isLeft and "left" or "right"
 		local rownum = drawcount[side] / players_per_row
 		local panning = basepanning + (64 * rownum)
-		local spacing = max(16, 32 - (max(0, playercount[side] - 4) * 4))
+		local spacing_increments = v.height() > 240 and 4 or 2
+		local spacing = max(16, 32 - (max(0, playercount[side] - 4) * spacing_increments))
 		local realspacing = (spacing * drawcount[side]) - (spacing * rownum * players_per_row)
 		local isNameCapped = playercount[side] > 8
+		local enoughSpace = (v.height() > 240 or drawcount[side] < players_per_row) 
 		
-		if isLeft then
+		if isLeft and enoughSpace then
 			B.DrawPlayerInfo(v, p, panning, starty+realspacing, flags, "thin", isNameCapped)
-		else
+		elseif enoughSpace then
 			B.DrawPlayerInfo(v, p, 320-panning, starty+realspacing, flags|V_SNAPTORIGHT, "thin-right", isNameCapped)
 		end
 		drawcount[side] = $ + 1
 	end
+	]]
 end
 
 A.PlacementHUD = function(v, player)
