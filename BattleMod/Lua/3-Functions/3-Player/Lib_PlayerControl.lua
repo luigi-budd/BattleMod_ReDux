@@ -652,7 +652,7 @@ B.StartRingsPenalty = function(player, penalty, limit)
 		return
 	end
 	player.ringpenalty = $ or 0
-	if player.ringpenalty >= limit or CV.StartRings.value then
+	if player.ringpenalty >= (limit or CV.StartRings.value) then
 		return --Player is already maxed out on penalty
 	end
 	if B.Overtime then
