@@ -199,14 +199,50 @@ local dash_overlaySpawner = function(player) --PreThinkFrame prefferably
 end
 
 local dash_resetter = function(player) --Makes dashmode start from the beginning if it ends
-	if player.mo and player.mo.valid then
-		if player.dashmode >= DASHMODE_THRESHOLD then --Dashing?
-			player.mo.dashmode_reached = true --Mark it
+	if player.mo and player.mo.valid and (B.GetSkinVarsFlags(player) & SKINVARS_DASHMODENERF) then
+	
+		local dashing = (player.dashmode >= DASHMODE_THRESHOLD)
+		local decreasing = ((player.dashmode < DASHMODE_THRESHOLD) and player.mo.dashmode_reached)
+		local dashing_marked = player.mo.dashmode_reached
+		local charging_marked = player.mo.dashmode_charging
+		local launched_marked = player.mo.dashmode_launch
+		local spindashing = (player.pflags & PF_STARTDASH)
+		local charging = spindashing and not(dashing)
+		local dashmodestart = (B.SkinVars[player.mo.skin] and B.SkinVars[player.mo.skin].dashmodestart) or nil
+		
+		if player.dashmode == 0 then
+			if not(player.gotflagdebuff) then
+				player.dashmode = dashmodestart or 0
+			end
 		end
 		
-		if (player.dashmode < DASHMODE_THRESHOLD) and player.mo.dashmode_reached then --Dashmode is decreasing?
-			player.dashmode = 0 --Start from 0
+		if charging then
+			player.mo.dashmode_charging = true
+		end
+		
+		if dashing then --Dashing?
+			player.mo.dashmode_reached = true --Mark it
+			if not(spindashing) then
+				player.mo.dashmode_launch = true
+			end
+		end
+		
+		if charging_marked and dashing and not(spindashing) then
+			player.mo.dashmode_launch = true
+		end
+		
+		if not(spindashing) and not(dashing) then
+			player.mo.dashmode_charging = nil
+		end
+		
+		if spindashing and dashing and launched_marked then
+			decreasing = true
+		end
+		
+		if decreasing then --Dashmode is decreasing?
+			player.dashmode = dashmodestart or 0
 			player.mo.dashmode_reached = nil --Unmark
+			player.mo.dashmode_launch = nil
 		end
 	end
 end

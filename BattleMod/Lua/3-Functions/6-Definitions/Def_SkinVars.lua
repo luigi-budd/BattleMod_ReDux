@@ -81,7 +81,9 @@ S["fang"] = {
 	}	
 }
 S["metalsonic"] = {
+	flags = SKINVARS_GUARD|SKINVARS_DASHMODENERF,
 	weight = 115,
+	dashmodestart = 25,
 	special = function(mo, doaction, throwring, tossflag)
 		local func = pcall(do Act.EnergyAttack(mo, doaction, throwring, tossflag) end)
 	end,

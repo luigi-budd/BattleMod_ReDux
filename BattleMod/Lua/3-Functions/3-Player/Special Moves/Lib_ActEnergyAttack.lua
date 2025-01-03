@@ -240,6 +240,7 @@ local resetRingSpark = function(mo, player)
 	end
 	mo.frame = 0
 	mo.sprite = SPR_PLAY
+	mo.state = (P_IsObjectOnGround(mo) and S_PLAY_STND) or S_PLAY_SPRING
 	player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 		
@@ -277,7 +278,7 @@ B.SparkAura = function(mo,target, override)
 		mo.color = target.color
 	end
 	applyflip(target, mo)
-	P_MoveOrigin(mo, target.x, target.y, overlayZ(target, mo.type, (target.flags2 & MF2_OBJECTFLIP)))
+	P_MoveOrigin(mo, target.x, target.y, ((target.flags2 & MF2_OBJECTFLIP) and (target.z+target.height)) or target.z)
 	--if target.player.actiontime > 999 then
 	mo.flags2 = $ & ~(MF2_DONTDRAW)
 	--end
@@ -591,7 +592,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			B.DrawSVSprite(player, 2+(player.actiontime/2)%2)
 
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
-				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,overlayZ(mo, auraMobj, (mo.flags2 & MF2_OBJECTFLIP)), auraMobj) --Spawn One
+				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,((mo.flags2 & MF2_OBJECTFLIP) and (mo.z+mo.height)) or mo.z, auraMobj) --Spawn One --Spawn One
 				mo.energyattack_sparkaura.flags2 = $|MF2_DONTDRAW
 				--table.insert(B.Auras, mo.energyattack_sparkaura)
 				mo.energyattack_sparkaura.target = mo
