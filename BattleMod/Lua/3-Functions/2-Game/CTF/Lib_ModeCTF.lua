@@ -802,7 +802,11 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		if not(pmo.flag_indicator and pmo.flag_indicator.valid) then
 			pmo.flag_indicator = {}
 			local icon = P_SpawnMobjFromMobj(pmo,0,0,0,MT_GOTFLAG)
+			
 			icon.frame = FF_FULLBRIGHT
+			if (gametype == GT_BATTLECTF) then
+				icon.flags2 = $|MF2_DONTDRAW
+			end
 			icon.fuse = 0
 			icon.tics = 2
 			icon.colorized = false
@@ -837,9 +841,10 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		P_MoveOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
-		if (displayplayer and p == displayplayer and not splitscreen)
+		if (displayplayer and p == displayplayer) and not(splitscreen) then
 			pmo.flag_indicator.scale = pmo.scale * 2/3
 			pmo.flag_indicator.frame = $ | FF_TRANS30
+			pmo.flag_indicator.flags2 = $ & ~MF2_DONTDRAW
 		end
 	end
 end
