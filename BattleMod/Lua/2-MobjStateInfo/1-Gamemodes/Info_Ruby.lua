@@ -36,3 +36,11 @@ mobjinfo[MT_RUBYSPAWN] = {
 	radius = 24*FRACUNIT,
 	flags = MF_NOTHINK|MF_NOSECTOR
 }
+
+states[freeslot("S_RUBYPORTAL")] = {
+	sprite = freeslot("SPR_PHRP"),
+	frame = A|FF_ANIMATE|FF_FULLBRIGHT,
+	var1 = 19,
+	var2 = 2,
+	tics = -1,
+}

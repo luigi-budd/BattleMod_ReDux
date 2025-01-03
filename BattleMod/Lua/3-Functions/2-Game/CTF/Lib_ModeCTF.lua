@@ -94,7 +94,14 @@ F.FlagIntangible = function(mo)
 	end
 
 	if B.CPGametype() or B.RubyGametype() then
-		mo.flags2 = $|MF2_DONTDRAW
+		if B.RubyGametype() then
+			if mo.state ~= S_RUBYPORTAL then
+				mo.state = S_RUBYPORTAL
+				mo.color = ({skincolor_redteam, skincolor_blueteam})[({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type]]
+			end
+		else
+			mo.flags2 = $|MF2_DONTDRAW
+		end
 		mo.flags = $&~MF_SPECIAL
 	return end
 
