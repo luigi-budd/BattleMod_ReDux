@@ -211,7 +211,7 @@ local function spawnFlag(fteam, mt)
 	end
 end
 
-local function getFlagPosAsTables()
+F.GetFlagPosAsTables = function()
 	local arrays = {
 		r = {},
 		b = {}
@@ -264,7 +264,9 @@ F.GetFlagPos = function()
 	if gametype ~= GT_BATTLECTF then return end
 
 	-- Find flag coordinates in the map, and save them; They will be used to spawn the flag
-	getFlagpos()
+	local flagpositions = F.GetFlagPosAsTables()
+	F.RedFlagPos = flagpositions[1]
+	F.BlueFlagPos = flagpositions[2]
 end
 
 -- Makes an injured or dead player lose possession of the flag.

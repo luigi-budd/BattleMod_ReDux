@@ -57,7 +57,7 @@ addHook("MapChange",function(map)
 end)
 
 addHook("MapLoad",function(map)
-	--F.GetFlagPos()
+	F.GetFlagPos()
 	B.HideTime()
 	I.GetMapHeader(map)
 	I.GenerateSpawns()
