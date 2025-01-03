@@ -1126,7 +1126,7 @@ F.CustomCaptureSFX = function()
 						sfx = sfx_lose
 						loss = true
 					end
-					S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
+					--S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
 				end
 				--S_StartSound(flag, sfx_s227)
 				if flag_player.mo and flag_player.mo.valid then
