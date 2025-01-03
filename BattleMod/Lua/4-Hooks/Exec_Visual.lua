@@ -61,6 +61,10 @@ local colorsh2 = function(mo)
 		colorsh(mo,SKINCOLOR_SUPERGOLD1,nil)
 		return
 	end
+	if mo.state >= S_ELEMF1 and mo.state <= S_ELEMF10
+		colorsh(mo,nil,SKINCOLOR_SAPPHIRE)
+		return
+	end
 	B.OverlayHide(mo,mo.target)
 end
 
@@ -104,7 +108,7 @@ addHook("FollowMobj", B.RestoreTailsFollowMobj, MT_TAILSOVERLAY)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_CRIMSON,nil) end,MT_ELEMENTAL_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_ORANGE,SKINCOLOR_VAPOR) end,MT_ATTRACT_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_FLAME,SKINCOLOR_SKY) end,MT_WHIRLWIND_ORB)
-addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_RED,nil) end,MT_FORCE_ORB)
+addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_RED,SKINCOLOR_MIDNIGHT) end,MT_FORCE_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,nil,SKINCOLOR_BLUE) end,MT_ARMAGEDDON_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,nil,SKINCOLOR_DUSK) end,MT_FLAMEAURA_ORB)
 addHook("MobjThinker", function(mo) colorsh(mo,SKINCOLOR_RED,nil) end,MT_BUBBLEWRAP_ORB)
