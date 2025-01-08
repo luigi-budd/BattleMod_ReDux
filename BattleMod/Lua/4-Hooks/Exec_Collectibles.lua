@@ -23,8 +23,8 @@ addHook("MobjThinker",F.TrackRed, REALFLAG_R)
 addHook("MobjThinker",F.TrackBlue, REALFLAG_B)
 addHook("ThinkFrame",F.TrackPlayers)
 addHook("MobjThinker",B.Arena.RingLoss, MT_FLINGRING)
---addHook("TouchSpecial",function(...) return F.TouchFlag(...) end, REALFLAG_R)
---addHook("TouchSpecial",function(...) return F.TouchFlag(...) end, REALFLAG_B)
+addHook("TouchSpecial",function(...) return F.TouchFlag(...) end, REALFLAG_R)
+addHook("TouchSpecial",function(...) return F.TouchFlag(...) end, REALFLAG_B)
 
 -- Remove the hardcoded flags
 local removeflags = function(mo)
