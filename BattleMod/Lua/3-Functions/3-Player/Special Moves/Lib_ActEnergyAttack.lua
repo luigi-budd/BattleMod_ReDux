@@ -641,9 +641,49 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					coolflag = 0
 				end
 				
-				player.pflags = ($|coolflag) 
-				print(B.RingSparkCheck(player))
-			
+				player.pflags = ($|coolflag) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED|PF_STARTJUMP) --his ass is NOT spindashing
+				player.skidtime = 0 --No skidding
+				--player.powers[pw_strong] = $|STR_ATTACK --We can attack enemies
+			else --If we let go, reset
+				resetRingSpark(mo, player)
+			end
+		else
+			resetRingSpark(mo, player)
+		end
+	end
+	
+	--All I have done is remapped dash slicer to jump, and make it drain 5 rings when used for a total of 10 rings
+	if slashtrigger then
+		--Next state
+		player.exhaustmeter = FRACUNIT
+		player.actionstate = state_dashslicerprep
+		if player.actiontime >= threshold2
+			mo.energyattack_longerdash = true
+		end
+		player.actiontime = 0
+		B.teamSound(player.mo, player, sfx_hclwt, sfx_hclwe, 255, false)
+		if player.pflags & PF_ANALOGMODE then
+			mo.angle = player.thinkmoveangle
+		end
+		P_InstaThrust(mo, mo.angle, player.speed-(player.speed/3))
+		mo.energyattack_stasis = mo.z
+	end
+	
+	if (player.actionstate == state_dashslicerprep) then
+		player.actiontext = "Dash Slicer Claw"
+		mo.state = S_PLAY_DASH
+		mo.frame = 0
+		mo.sprite2 = SPR2_DASH
+		local pos = mo.energyattack_stasis
+		P_MoveOrigin(mo, mo.x, mo.y, pos)
+		if player.actiontime >= dashslice_buildup then
+			S_StopSoundByID(mo, sfx_hclwt)
+			S_StopSoundByID(mo, sfx_hclwe)
+			player.actionstate = state_dashslicer
+			S_StartSound(mo,sfx_cdfm01)
+			player.actiontime = 0
+		end
+	end
 
 	--Slash-dashing
 	if player.actionstate == state_dashslicer then
@@ -772,7 +812,6 @@ local function MetalActionSuper(player)
 end
 
 B.Action.EnergyAttack_Priority = function(player)
-	
 	if player.actionstate == state_charging then
 		B.SetPriority(player,1,0,nil,1,0,"energy charge aura")
 	end
