@@ -210,7 +210,7 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 		local charging = spindashing and not(dashing)
 		local dashmodestart = (B.SkinVars[player.mo.skin] and B.SkinVars[player.mo.skin].dashmodestart) or nil
 		
-		if player.dashmode == 0 then
+		if (dashmodestart and (dashmodestart > 0) and (player.dashmode < dashmodestart)) or (player.dashmode == 0) then
 			if not(player.gotflagdebuff) then
 				player.dashmode = dashmodestart or 0
 			end
