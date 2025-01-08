@@ -66,7 +66,7 @@ local resetdashmode = function(p)
 	local myskin = (p.mo and p.mo.valid and p.mo.skin) or p.skin
 	p.dashmode = 0
 	p.normalspeed = skins[myskin].normalspeed
-	p.jumpfactor = skins[myskin].jumpfactor
+	--p.jumpfactor = skins[myskin].jumpfactor
 	p.runspeed = skins[myskin].runspeed
 	--print(p.jumpfactor)
 end
@@ -241,7 +241,7 @@ local resetRingSpark = function(mo, player)
 	mo.frame = 0
 	mo.sprite = SPR_PLAY
 	mo.state = (P_IsObjectOnGround(mo) and S_PLAY_STND) or S_PLAY_SPRING
-	player.powers[pw_strong] = $ & ~(STR_ATTACK)
+	--player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 		
 
@@ -633,7 +633,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					--player.drawangle = $ or mo.energyattack_drawangle
 				end
 				player.dashmode = 0 --Normal
-				player.jumpfactor = 0 --No Jumping
+				--player.jumpfactor = 0 --No Jumping
 				--print(player.jumpfactor)
 				local coolflag = PF_THOKKED
 
@@ -641,49 +641,9 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					coolflag = 0
 				end
 				
-				player.pflags = ($|coolflag) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED|PF_STARTJUMP) --his ass is NOT spindashing
-				player.skidtime = 0 --No skidding
-				player.powers[pw_strong] = $|STR_ATTACK --We can attack enemies
-			else --If we let go, reset
-				resetRingSpark(mo, player)
-			end
-		else
-			resetRingSpark(mo, player)
-		end
-	end
-	
-	--All I have done is remapped dash slicer to jump, and make it drain 5 rings when used for a total of 10 rings
-	if slashtrigger then
-		--Next state
-		player.exhaustmeter = FRACUNIT
-		player.actionstate = state_dashslicerprep
-		if player.actiontime >= threshold2
-			mo.energyattack_longerdash = true
-		end
-		player.actiontime = 0
-		B.teamSound(player.mo, player, sfx_hclwt, sfx_hclwe, 255, false)
-		if player.pflags & PF_ANALOGMODE then
-			mo.angle = player.thinkmoveangle
-		end
-		P_InstaThrust(mo, mo.angle, player.speed-(player.speed/3))
-		mo.energyattack_stasis = mo.z
-	end
-	
-	if (player.actionstate == state_dashslicerprep) then
-		player.actiontext = "Dash Slicer Claw"
-		mo.state = S_PLAY_DASH
-		mo.frame = 0
-		mo.sprite2 = SPR2_DASH
-		local pos = mo.energyattack_stasis
-		P_MoveOrigin(mo, mo.x, mo.y, pos)
-		if player.actiontime >= dashslice_buildup then
-			S_StopSoundByID(mo, sfx_hclwt)
-			S_StopSoundByID(mo, sfx_hclwe)
-			player.actionstate = state_dashslicer
-			S_StartSound(mo,sfx_cdfm01)
-			player.actiontime = 0
-		end
-	end
+				player.pflags = ($|coolflag) 
+				print(B.RingSparkCheck(player))
+			
 
 	--Slash-dashing
 	if player.actionstate == state_dashslicer then
@@ -808,7 +768,7 @@ local function MetalActionSuper(player)
 	end
 	mo.frame = 0
 	mo.sprite = SPR_PLAY
-	player.powers[pw_strong] = $ & ~(STR_ATTACK)
+	--player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 
 B.Action.EnergyAttack_Priority = function(player)
@@ -840,8 +800,8 @@ B.Action.EnergyAttack_Priority = function(player)
 	end
 end
 
-B.RingSparkCheck = function(player)
-	if not player.mo and player.mo.valid then return false end
-	local mo = player.mo
-	return rawget(B.SkinVars, mo.skin) and (B.SkinVars[mo.skin].special == B.Action.EnergyAttack) and ((player.actiosntate == state_ringsparkprep) or player.actionstate == state_ringspark)
+local energyAttack = B.Action.EnergyAttack
+
+B.Action.EnergyAttack = function(mo, doaction, throwring, tossflag)
+	local func = pcall(do energyAttack(mo, doaction, throwring, tossflag) end)
 end

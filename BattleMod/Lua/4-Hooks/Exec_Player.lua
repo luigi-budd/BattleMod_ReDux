@@ -125,6 +125,7 @@ end)
 addHook("JumpSpecial",function(player)
 	if (player.powers[pw_carry]) or player.battlespawning then return end
 	if B.TwinSpinJump(player) then return true end
+	if B.RingSparkCheck(player) then return true end
 end)
 
 addHook("SpinSpecial",function(player)

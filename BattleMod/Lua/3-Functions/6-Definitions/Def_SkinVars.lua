@@ -84,9 +84,7 @@ S["metalsonic"] = {
 	flags = SKINVARS_GUARD|SKINVARS_DASHMODENERF,
 	weight = 115,
 	dashmodestart = 25,
-	special = function(mo, doaction, throwring, tossflag)
-		local func = pcall(do Act.EnergyAttack(mo, doaction, throwring, tossflag) end)
-	end,
+	special = Act.EnergyAttack,
 	guard_frame = 2,
 	func_priority_ext = Act.EnergyAttack_Priority,
 	sprites = {
