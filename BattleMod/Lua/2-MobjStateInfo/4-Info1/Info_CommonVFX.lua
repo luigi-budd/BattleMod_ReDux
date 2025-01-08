@@ -50,3 +50,11 @@ states[S_SLASH] = {
 	tics = 10,
 	nexstate = S_NULL
 }
+
+mobjinfo[freeslot("MT_GHOST_VFX")] = {
+    doomednum = -1,
+    spawnstate = S_INVISIBLE,
+    radius = 0,
+    height = 0,
+    flags = MF_NOBLOCKMAP|MF_NOGRAVITY|MF_NOCLIP|MF_NOCLIPHEIGHT|MF_SCENERY --Intangible
+}

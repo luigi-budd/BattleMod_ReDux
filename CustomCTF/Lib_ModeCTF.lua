@@ -66,9 +66,6 @@ end
 
 F.TouchFlag = function(mo, pmo)
 	local player = pmo.player
-	if (mo.intangibletime == nil) or mo.intangibletime > 0 then
-		return true
-	end
 	if not mo.fuse
 		return
 	end
@@ -88,7 +85,6 @@ F.TouchFlag = function(mo, pmo)
 		player.powers[pw_flashing] = max($,2)
 	end
 end
-
 
 F.FlagIntangible = function(mo)
 	if mo.type == MT_REDFLAG and not (R.RedGoal and R.RedGoal.valid) then
@@ -121,8 +117,6 @@ F.FlagIntangible = function(mo)
 	and lasttouched.player.cmd.buttons & BT_TOSSFLAG
 		spawntype = 3
 		mo.intangibletime = 0
-		mo.flagdropped = true
-		mo.flagtossed = true
 		S_StartSound(mo, sfx_toss)
 	end
 
@@ -130,7 +124,6 @@ F.FlagIntangible = function(mo)
 	if mo.intangibletime == nil then
 		if spawntype == 2 then
 			mo.intangibletime = TICRATE*grace1.value
-			mo.flagdropped = true
 		else
 			mo.intangibletime = TICRATE*grace2.value
 		end
@@ -138,41 +131,6 @@ F.FlagIntangible = function(mo)
 	
 	//Countdown
 	mo.intangibletime = max(0,$-1)
-
-	if mo.flagtossed and not(P_IsObjectOnGround(mo)) then
-		
-		P_SpawnGhostMobj(mo).fuse = $+(TICRATE/10)
-	end
-
-	if mo.flagdropped and not(mo.flagtossed) and P_IsObjectOnGround(mo) and mo.fuse and (mo.fuse < (CV_FindVar("flagtime").value*TICRATE-2)) then
-		mo.flagtossed = false
-		mo.flagdropped = false
-		local vfx = P_SpawnGhostMobj(mo)
-		vfx.color = ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]
-		vfx.state = S_PITY1
-		vfx.destscale = mo.scale*4
-		vfx.scalespeed = $*2
-		vfx.fuse = TICRATE/2
-		S_StartSound(mo, sfx_cdfm74)
-		mo.flagpushing = TICRATE/2
-	end
-
-	if mo.flagpushing then
-		for player in players.iterate do
-			local ref = mo
-			local found = player and player.mo and player.mo.valid and player.mo
-			local FLAG_PUSH_RADIUS = 50*FRACUNIT
-			if not(found and found.valid) then continue end
-			if R_PointToDist2(ref.x, ref.y, found.x, found.y) > FLAG_PUSH_RADIUS
-			or found.z > ref.z + ref.height
-			or ref.z > found.z + found.height
-				P_InstaThrust(found, R_PointToAngle2(ref.x, ref.y, found.x, found.y), ref.scale*20)
-				P_SetObjectMomZ(found, ref.scale*2, false)
-				continue
-    		end
-		end
-		mo.flagpushing = $-1
-	end
 	
 	//Determine blink frame
 	local blink = 0
@@ -187,13 +145,6 @@ F.FlagIntangible = function(mo)
 	else
 		mo.flags2 = $&~MF2_DONTDRAW
 	end
-	
-	//Determine tangibility
-	if mo.intangibletime then
-		mo.flags = $&~MF_SPECIAL
-	else
-		mo.flags = $|MF_SPECIAL
-	end
 
 	//Determine toss blink
 	local tossblink = 0
@@ -202,24 +153,21 @@ F.FlagIntangible = function(mo)
 	end
 
 	if tossblink then
-		local floorz = ((mo.flags2 & MF2_OBJECTFLIP) and mo.ceilingz-(FRACUNIT/2)) or mo.floorz+(FRACUNIT/2)
-		local vfx = P_SpawnMobj(mo.x, mo.y, floorz, MT_GHOST_VFX)
-		if (mo.flags2 & MF2_OBJECTFLIP) then
-			vfx.flags2 = $|MF2_OBJECTFLIP
-		end
-		vfx.fuse = mobjinfo[MT_GHOST].damage
-		vfx.renderflags = $|RF_FULLBRIGHT|RF_FLOORSPRITE|RF_ABSOLUTEOFFSETS
-		vfx.spritexoffset = 45*FRACUNIT
-		vfx.spriteyoffset = 45*FRACUNIT
-		--fx.fuse
-		vfx.sprite = SPR_STAB
-		vfx.destscale = mo.scale*2
-		vfx.frame = 0|FF_TRANS50
-		vfx.colorized = true
-		vfx.color = ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]
-		vfx.flags2 = $|MF2_SPLAT
+		local g = P_SpawnGhostMobj(mo)
+		g.tics = 4
+	end
+	if tossblink&4 then
+		mo.shadowscale = 1
+	else
+		mo.shadowscale = mo.scale
 	end
 	
+	//Determine tangibility
+	if mo.intangibletime then
+		mo.flags = $&~MF_SPECIAL
+	else
+		mo.flags = $|MF_SPECIAL
+	end
 end
 
 local function resetFlagvars()
@@ -536,7 +484,70 @@ F.FlagPreThinker = function()
 			--local btns = p.cmd.buttons
 			--if (btns&BT_TOSSFLAG and not(p.powers[pw_carry] & CR_PLAYER) and not(p.powers[pw_super]) and not(p.tossdelay) and G_GametypeHasTeams() and p.gotflag)
 			--then
-			--	F.PlayerFlagBursnd mo.momz < 0 
+			--	F.PlayerFlagBurst(p, 1)
+			--end
+			-- If we're not on the ground then we can't cap flag
+			if not (P_IsObjectOnGround(p.mo) or (p.mo.eflags&MFE_JUSTHITFLOOR)) then 
+				p.ctf_slowcap = nil -- Let's reset this even if delaycap is off
+				continue
+			end
+
+			local team = p.ctfteam == 1 and SSF_REDTEAMBASE or SSF_BLUETEAMBASE
+			local s = P_PlayerTouchingSectorSpecialFlag(p, team)
+			if not s then continue end --then return end
+			
+			local obj_flip = (p.mo.flags2&MF2_OBJECTFLIP) == MF2_OBJECTFLIP
+			local on_base = false
+			if (s.specialflags&team) then on_base = true end
+
+			local player_rover = p.mo.floorrover
+			if player_rover then
+
+				-- TODO: break this down into functions (see function doFlagBaseRover)
+				-- look for next rover
+				local next_rover = player_rover
+				while next_rover ~= nil do
+					local cs = next_rover.sector
+
+					if (cs.specialflags&team) then 
+						on_base = true 
+						break
+					else
+						on_base = false
+					end
+					next_rover = $.next
+				end
+
+				-- look for prev rover.. if `on_base` is still false
+				if not on_base then
+					local prev_rover = player_rover
+					while prev_rover ~= nil do
+						local cs = prev_rover.sector
+
+						if (cs.specialflags&team) then 
+							on_base = true 
+							break
+						else
+							on_base = false
+						end
+						prev_rover = $.prev
+					end
+				end
+			end
+
+			-- UDMF(?) : if this is a gravity flipped sector and we're also gravity flipped, then capture the flag
+			if 		(not obj_flip and (s.flags&MSF_FLIPSPECIAL_CEILING)) then 
+				on_base = false
+			elseif (obj_flip and (s.flags&MSF_FLIPSPECIAL_CEILING)) then
+				on_base = true
+			end
+
+			if p.gotflag and on_base then
+				-- If the flag is home and we're home, cap
+				if F.IsFlagAtBase(p.ctfteam) and not p.exiting then 
+					capFlag(p, p.ctfteam)
+					return
+				end
 
 				-- If delay cap is on, let's slowly start capturing..
 				if F.DelayCap then delayCap(p, p.ctfteam) end

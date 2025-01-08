@@ -20,6 +20,8 @@ addHook("MobjThinker",F.TrackRed, REALFLAG_R)
 addHook("MobjThinker",F.TrackBlue, REALFLAG_B)
 addHook("MobjThinker",F.FlagIntangible,REALFLAG_R)
 addHook("MobjThinker",F.FlagIntangible, REALFLAG_B)
+addHook("TouchSpecial", F.TouchFlag, REALFLAG_R)
+addHook("TouchSpecial", F.TouchFlag, REALFLAG_B)
 
 addHook("MobjThinker",B.Arena.RingLoss, MT_FLINGRING)
 
