@@ -91,7 +91,16 @@ A.ResetScore = function()
 	for player in players.iterate()
 		if not(player.spectator) and player.lives and not(player.revenge) then
 			player.preservescore = A.GameOvers+player.lives
-		elseif player.preserveschttps://discord.com/channels/1146498309826027614/1148824045891092541/1325513246693658694
+		elseif player.preservescore == nil
+			player.preservescore = 0
+		end
+		player.score = 0
+	end
+	bluescore = 0
+	redscore = 0
+end
+
+A.UpdateScore = function()
 	//Score function for Survival
 	if not(gametyperules&GTR_LIVES and B.ArenaGametype()) then return end
 	for player in players.iterate
