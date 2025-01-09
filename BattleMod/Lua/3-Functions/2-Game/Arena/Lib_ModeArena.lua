@@ -91,16 +91,7 @@ A.ResetScore = function()
 	for player in players.iterate()
 		if not(player.spectator) and player.lives and not(player.revenge) then
 			player.preservescore = A.GameOvers+player.lives
-		elseif player.preservescore == nil
-			player.preservescore = 0
-		end
-		player.score = 0
-	end
-	bluescore = 0
-	redscore = 0
-end
-
-A.UpdateScore = function()
+		elseif player.preserveschttps://discord.com/channels/1146498309826027614/1148824045891092541/1325513246693658694
 	//Score function for Survival
 	if not(gametyperules&GTR_LIVES and B.ArenaGametype()) then return end
 	for player in players.iterate
@@ -278,25 +269,6 @@ A.ForceWin = function()
 				winner = player
 			end
 
-		end
-
-		if MapVote and MapVoteNet then
-			local NET = MapVoteNet
-			local MV = MapVote
-			local skin = MV.Skins[NET.nextcategory][NET.nextskin] or {}
-			if G_GametypeHasTeams()
-				if (redscore > bluescore) then
-					NET.backcolor = skin.redteamcolor or SKINCOLOR_RED
-				elseif (bluescore > redscore) then
-					NET.backcolor = skin.blueteamcolor or SKINCOLOR_BLUE
-				else
-					NET.backcolor = skin.tiecolor or SKINCOLOR_GREY
-				end
-			else
-				if winner then
-					NET.backcolor = winner.skincolor or SKINCOLOR_GREY
-				end
-			end
 		end
 	end
 end
