@@ -121,6 +121,7 @@ F.FlagIntangible = function(mo)
 	and lasttouched.player.cmd.buttons & BT_TOSSFLAG
 		spawntype = 3
 		mo.intangibletime = 0
+		mo.tosstime = 2
 		mo.flagdropped = true
 		mo.flagtossed = true
 		S_StartSound(mo, sfx_toss)
@@ -138,26 +139,42 @@ F.FlagIntangible = function(mo)
 	
 	//Countdown
 	mo.intangibletime = max(0,$-1)
+	if mo.tosstime then
+		mo.tosstime = max(0,$-1)
+	end
 
-	if mo.flagtossed and not(P_IsObjectOnGround(mo)) then
-		
-		P_SpawnGhostMobj(mo).fuse = $+(TICRATE/10)
+	if mo.flagtossed and not(P_IsObjectOnGround(mo)) and (mo.tosstime < 2) then
+		local flipped = (mo.flags2 & MF2_OBJECTFLIP)
+		local ghost = P_SpawnMobjFromMobj(mo, 0,0,0, MT_GHOST)
+		if ghost and ghost.valid then
+			ghost.sprite = mo.sprite
+			ghost.frame = (mo.frame & FF_TRANSMASK)|FF_TRANS50
+			ghost.scale = mo.scale
+			ghost.fuse = 8+(TICRATE/10)
+			ghost.renderflags = $|RF_FULLBRIGHT
+			ghost.color = ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]
+			ghost.colorized = true
+			ghost.flags2 = $|MF2_OBJECTFLIP
+			if not(flipped or (lasttouched and lasttouched.valid and (lasttouched.flags2 & MF2_OBJECTFLIP))) then
+				ghost.flags2 = $ & ~MF2_OBJECTFLIP
+			end
+		end
 	end
 
 	if mo.flagdropped and not(mo.flagtossed) and P_IsObjectOnGround(mo) and mo.fuse and (mo.fuse < (CV_FindVar("flagtime").value*TICRATE-2)) then
 		mo.flagtossed = false
 		mo.flagdropped = false
-		local vfx = P_SpawnGhostMobj(mo)
+		/*local vfx = P_SpawnGhostMobj(mo)
 		vfx.color = ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]
 		vfx.state = S_PITY1
 		vfx.destscale = mo.scale*4
 		vfx.scalespeed = $*2
 		vfx.fuse = TICRATE/2
 		S_StartSound(mo, sfx_cdfm74)
-		mo.flagpushing = TICRATE/2
+		mo.flagpushing = TICRATE/2*/
 	end
 
-	if mo.flagpushing then
+	/*if mo.flagpushing then
 		for player in players.iterate do
 			local ref = mo
 			local found = player and player.mo and player.mo.valid and player.mo
@@ -172,7 +189,7 @@ F.FlagIntangible = function(mo)
     		end
 		end
 		mo.flagpushing = $-1
-	end
+	end*/
 	
 	//Determine blink frame
 	local blink = 0
