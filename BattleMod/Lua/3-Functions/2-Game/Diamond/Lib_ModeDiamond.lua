@@ -590,7 +590,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			end
 			S_StartSoundAtVolume(nil, B.ShortSound(player, sfx, lose), (B.ShortSound(player, nil, nil, nil, true)).volume or 255, p)
 		end
-		local playertextmap = (pcall(do return skincolors[player.mo.color].chatcolor end) and skincolors[player.mo.color].chatcolor) or 0
+		local playertextmap = (pcall(do return skincolors[player.skincolor].chatcolor end) and skincolors[player.skincolor].chatcolor) or 0
 		local playerEsc = (rawget(textmapToEsc, playertextmap) and textmapToEsc[playertextmap]) or "\x80"
 		local teamEsc = ((player.ctfteam == 1) and "\x85") or ((player.ctfteam == 2) and "\x84")
 		if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
