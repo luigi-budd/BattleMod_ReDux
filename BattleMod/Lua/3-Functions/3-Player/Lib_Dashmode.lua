@@ -72,7 +72,7 @@ local dash_overlayOn = function(player, overlay, colorize, bool) --Choose to ena
     if player.mo and player.mo.valid then
         if colorize then --Colorize?
             player.mo.colorized = true --Colorize.
-			if not(B.MyTeam(player, displayplayer) or (player == displayplayer) or (splitscreen and (player == secondarydisplayplayer))) then
+			if not((player and displayplayer and B.MyTeam(player, displayplayer)) or (player == displayplayer) or (splitscreen and (player == secondarydisplayplayer))) then
 				player.mo.renderflags = $|RF_FULLBRIGHT
 			end
         end
