@@ -771,8 +771,8 @@ F.FlagMobjThinker = function(mo)
 		if mo.jostletimer then
 			mo.jostletimer = $ - 1
 		end
-		local ret_check = returnFlagcheck(mo)
-		if ret_check then return end
+		--local ret_check = returnFlagcheck(mo)
+		--if ret_check then return end
 	end
 end
 
