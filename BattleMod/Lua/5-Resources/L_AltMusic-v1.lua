@@ -9,6 +9,8 @@ if not ALTMUSIC then
     rawset(_G, "ALTMUSIC",{})
 end
 
+ALTMUSIC.Functions = {}
+
 
 local A = ALTMUSIC
 local B = CBW_Battle
@@ -55,12 +57,13 @@ addHook("NetVars", function(n)
     A.CurrentDefsong = n($)
 end)
 
-addHook("PlayerJoin", function(playernum)
+A.Functions.PlayerJoin = function(playernum)
     if consoleplayer and consoleplayer.jointime < 1 then
         mapmusname = " "
         already_ran = true
     end
-end)
+end
+addHook("PlayerJoin", A.Functions.PlayerJoin)
 
 local function clearvars()
     if A.CurrentMap then
@@ -85,7 +88,7 @@ local function play(song)
     end
 end
 
-addHook("ThinkFrame", do
+A.Functions.ThinkFrame = function()
 
     if (A.CurrentMap.song == A.CurrentMap.preround) then
         if (leveltime == ((CV_FindVar("hidetime").value-3)*TICRATE)) then
@@ -119,17 +122,19 @@ addHook("ThinkFrame", do
         already_ran = false
         return
     end
-end)
+end
+addHook("ThinkFrame", A.Functions.ThinkFrame)
 
-addHook("PlayerQuit", function(player)
+A.Functions.PlayerQuit = function(player)
     if player == consoleplayer then
         A.CurrentMap = {}
         A.CurrentDefSong = nil
         already_ran = true
     end
-end)
+end
+addHook("PlayerQuit", A.Functions.PlayerQuit)
 
-addHook("MapChange", function(mapnum) --Runs before MapLoad
+A.Functions.MapChange = function(mapnum) --Runs before MapLoad
 
     A.CurrentMap = {}
     A.CurrentDefSong = nil
@@ -225,13 +230,14 @@ addHook("MapChange", function(mapnum) --Runs before MapLoad
     end
 
 
-end)
+end
 
+addHook("MapChange", A.Functions.MapChange)
 
 
 addHook("IntermissionThinker", clearvars)
 
-addHook("MusicChange", function(oldname, newname)
+A.Functions.MusicChange = function(oldname, newname)
 
     if (not(consoleplayer) and (gamestate == GS_LEVEL) and not(titlemapinaction)) then
         altmusic_transition = true
@@ -257,4 +263,5 @@ addHook("MusicChange", function(oldname, newname)
         return loss, nil, false
     end
 
-end)
+end
+addHook("MusicChange", A.Functions.MusicChange)
