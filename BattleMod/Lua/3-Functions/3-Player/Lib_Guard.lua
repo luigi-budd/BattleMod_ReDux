@@ -108,7 +108,7 @@ B.Guard = function(player,buttonpressed)
 	
 	if player.guard == 1 then
 		mo.state = S_PLAY_STND
-		mo.sprite2 = SPR2_TRNS
+		mo.sprite2 = B.SkinVars[player.skinvars].guard_sprite or SPR2_TRNS
 		mo.frame = guardframe
 		player.powers[pw_nocontrol] = 2
 		if player.guardtics < 1 then
@@ -124,7 +124,7 @@ B.Guard = function(player,buttonpressed)
 	end
 	if player.guard <= -1
 		mo.state = S_PLAY_STND
-		mo.sprite2 = SPR2_TRNS
+		mo.sprite2 = B.SkinVars[player.skinvars].guard_sprite or SPR2_TRNS
 		mo.frame = guardframe
 		player.powers[pw_nocontrol] = 2		
 		if player.guardtics < 1 then
@@ -136,7 +136,7 @@ B.Guard = function(player,buttonpressed)
 	if player.guard == 2 then
 -- 		mo.state = S_PLAY_STND
 		player.powers[pw_nocontrol] = 0
-		mo.sprite2 = SPR2_TRNS
+		mo.sprite2 = B.SkinVars[player.skinvars].guard_sprite or SPR2_TRNS
 		mo.frame = min(6,$+1)
 --		player.powers[pw_flashing] = TICRATE*3/4
 		player.nodamage = TICRATE*3/4
