@@ -219,22 +219,54 @@ F.FlagIntangible = function(mo)
 	end
 
 	if tossblink then
+		
 		local floorz = ((mo.flags2 & MF2_OBJECTFLIP) and mo.ceilingz-(FRACUNIT/2)) or mo.floorz+(FRACUNIT/2)
-		local vfx = P_SpawnMobj(mo.x, mo.y, floorz, MT_GHOST_VFX)
-		if (mo.flags2 & MF2_OBJECTFLIP) then
-			vfx.flags2 = $|MF2_OBJECTFLIP
+
+		if not(mo.floorvfx and (type(mo.floorvfx) == "table")) then
+			mo.floorvfx = {}
 		end
-		vfx.fuse = mobjinfo[MT_GHOST].damage
-		vfx.renderflags = $|RF_FULLBRIGHT|RF_FLOORSPRITE|RF_ABSOLUTEOFFSETS
-		vfx.spritexoffset = 45*FRACUNIT
-		vfx.spriteyoffset = 45*FRACUNIT
-		--fx.fuse
-		vfx.sprite = SPR_STAB
-		vfx.destscale = mo.scale*2
-		vfx.frame = 0|FF_TRANS50
-		vfx.colorized = true
-		vfx.color = ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]
-		vfx.flags2 = $|MF2_SPLAT
+
+		local color = ((tossblink > (TICRATE/4)) and ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]) or SKINCOLOR_GOLD
+		local blendmode = ((tossblink > (TICRATE/4)) and AST_TRANSLUCENT) or AST_ADD
+
+		if #mo.floorvfx < 6 then
+			table.insert(mo.floorvfx, P_SpawnMobj(mo.x, mo.y, floorz, MT_GHOST_VFX))
+			local vfx = mo.floorvfx[#mo.floorvfx]
+			if (mo.flags2 & MF2_OBJECTFLIP) then
+				vfx.flags2 = $|MF2_OBJECTFLIP
+			end
+			vfx.fuse = mobjinfo[MT_GHOST].damage/2
+			vfx.renderflags = $|RF_FULLBRIGHT|RF_FLOORSPRITE|RF_ABSOLUTEOFFSETS|RF_NOCOLORMAPS
+			vfx.spritexoffset = 45*FRACUNIT
+			vfx.spriteyoffset = 45*FRACUNIT
+			vfx.blendmode = blendmode
+			vfx.sprite = SPR_STAB
+			vfx.destscale = mo.scale*2
+			vfx.frame = 0|FF_TRANS50
+			vfx.colorized = true
+			vfx.color = color
+			vfx.flags2 = $|MF2_SPLAT
+		end
+		for k, vfx in ipairs(mo.floorvfx) do
+			if not(vfx and vfx.valid) then
+				table.remove(mo.floorvfx, k)
+			else
+				vfx.color = color
+			end
+		end
+	else
+		if mo.floorvfx and (type(mo.floorvfx) == "table") then
+			--print("exists")
+			for k, vfx in ipairs(mo.floorvfx) do
+				if vfx and vfx.valid then
+					--print("deleted")
+					P_RemoveMobj(vfx)
+				end
+				table.remove(mo.floorvfx, k)
+				--print("removed")
+			end
+			mo.floorvfx = nil
+		end
 	end
 	
 end
