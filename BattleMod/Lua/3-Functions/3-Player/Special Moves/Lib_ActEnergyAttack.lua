@@ -32,8 +32,6 @@ local overlayZ = function(mo, overlaytype, flip)
 end
 
 local auraMobj = MT_RINGSPARKAURA
---local ringspark_sfx = sfx_rngspk
---local sliceprep_sfx = sfx_dshclw
 local skinname = "metalsonic" --For frame colorization
 
 //Charge time thresholds
@@ -242,6 +240,10 @@ local resetRingSpark = function(mo, player)
 	mo.sprite = SPR_PLAY
 	mo.state = (P_IsObjectOnGround(mo) and S_PLAY_STND) or S_PLAY_SPRING
 	player.shieldscale = FixedMul(skins[player.mo.skin].shieldscale, mo.scale)
+	mo.metalsonic_stickyangle = nil
+	if mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid then
+		P_RemoveMobj(mo.energyattack_sparkaura)
+	end
 	--player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 		
@@ -274,7 +276,7 @@ B.SparkAura = function(mo,target, override)
 		P_RemoveMobj(mo)
 	return end
 	mo.scale = target.scale
-	if G_GametypeHasTeams then
+	if G_GametypeHasTeams() then
 		mo.colorized = true --colorize
 		mo.color = target.color
 	end
@@ -325,12 +327,6 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if player.actionstate ~= state_ringspark then--If we're not Ring Sparking 
 		player.actionrings = 10 --Everything costs 5 rings
 		mo.energyattack_ringsparktimer = 0
-	end
-
-	--print(player.playerstate == PST_LIVE)
-
-	if player.actionstate ~= state_dashslicer then
-		mo.energyattack_sliceangle = nil
 	end
 	
 	player.actiontime = $+1 --Timer
@@ -537,6 +533,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		if player.rings then
 			player.actiontime = 0
 			player.actionstate = state_ringsparkprep --We're rolling!
+			mo.metalsonic_stickyangle = player.mo.angle
 			B.teamSound(player.mo, player, sfx_rgspkt, sfx_rgspke, 255, true)
 		else
 			S_StartSound(nil, sfx_s3k8c, player)
@@ -546,7 +543,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if player.actionstate == state_ringsparkprep then
 		player.actiontext = "Ring Spark Field" --Show the player we're ring sparking
 
+		player.speed = min($, FRACUNIT*10)
+
 		player.powers[pw_strong] = 0
+
+		player.drawangle = mo.metalsonic_stickyangle
 	
 		player.airdodge = -1
 		
@@ -579,6 +580,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 
 		player.skidtime = 0
 		player.charflags = ($|SF_NOSKID)
+
+		player.speed = min($, FRACUNIT*10)
 	
 		if player.exhaustmeter > 1 then
 
@@ -596,19 +599,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,((mo.flags2 & MF2_OBJECTFLIP) and (mo.z+mo.height)) or mo.z, auraMobj) --Spawn One --Spawn One
 				mo.energyattack_sparkaura.flags2 = $|MF2_DONTDRAW
-				--table.insert(B.Auras, mo.energyattack_sparkaura)
 				mo.energyattack_sparkaura.target = mo
-			end
+				S_StartSound(mo, sfx_s3k40)
+			else
+				B.SparkAura(mo.energyattack_sparkaura, mo)
+			end 
 			
 			if player.rings and ((player.doaction == 2 or (player.pflags & PF_SPINDOWN)) or player.actiontime <= forcetime_ringspark) then --If we have rings, and are holding either the action button or spin
-				--P_MoveOrigin(mo.energyattack_sparkaura, mo.x,mo.y,overlayZ(mo, mo.energyattack_sparkaura.type, (mo.flags2 & MF2_OBJECTFLIP)))
-				if not mo.energyattack_sparkaura.sfx then
-					S_StartSound(mo, sfx_s3k40)
-					mo.energyattack_sparkaura.sfx = true
-				end
-				
-				--SearchForAndDestroyMonitors(player)
-				
+
 				player.actionrings = 0 --They can tell rings are being drained
 				
 				mo.energyattack_ringsparktimer = $ or 0 --State the timer if non-existant
@@ -630,9 +628,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				end
 				
 				
-				if not P_IsObjectOnGround(mo) then
+				if P_IsObjectOnGround(mo) then
+					mo.metalsonic_stickyangle = player.drawangle
+				else
 					player.normalspeed = 0
-					--player.drawangle = $ or mo.energyattack_drawangle
+					player.drawangle = mo.metalsonic_stickyangle
 				end
 				player.dashmode = 0 --Normal
 				--player.jumpfactor = 0 --No Jumping
@@ -695,10 +695,6 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		mo.frame = 0
 		mo.sprite2 = SPR2_DASH
 		mo.momz = 1
-		--mo.energyattack_sliceangle = $ or mo.angle
-		--mo.energyattack_sliceangle = $ - ease.linear(player.realsidemove*FRACUNIT/50, 0, ANG10)
-		--player.drawangle = mo.energyattack_sliceangle
-		--player.realangleturn = (mo.angle/(UINT16_MAX+1))
 		local move = sliceAngle(player, player.realforwardmove, player.realsidemove, player.realangleturn<<16)
 		mo.energyattack_move = move
 		player.drawangle = move
