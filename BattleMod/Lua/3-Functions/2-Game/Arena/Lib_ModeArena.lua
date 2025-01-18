@@ -15,8 +15,8 @@ R.CapAnimTime = TICRATE*3+(TICRATE/2) --Time the Ruby capture animation takes
 R.RubyFade = 0 --Value for the ruby's fade transition
 R.RubyWinTimeout = R.CapAnimTime
 
-local lossmusic = "BLOSE"
-local winmusic = "BWIN"
+local lossmusic = "CHFAIL"
+local winmusic = "CHPASS"
 
 A.GameOverControl = function(player)
 	if not(B.BattleGametype()) then return end

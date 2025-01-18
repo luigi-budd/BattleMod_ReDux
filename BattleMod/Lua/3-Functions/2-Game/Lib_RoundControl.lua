@@ -3,8 +3,8 @@ local CV = B.Console
 local A = B.Arena
 
 local pinchtime = 31
-local pinchmusic = "BPNCH1"
-local overtimemusic = "BPNCH2"
+local pinchmusic = "_PINCH"
+local overtimemusic = "_OVRTM"
 
 B.PreRoundWait = function()
 	if gametype and CV.PreRound.value// and not(B.TagGametype())

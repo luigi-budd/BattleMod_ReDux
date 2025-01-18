@@ -201,7 +201,7 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
         local music       = mapheaderinfo[mapnum].musname
         local altmusic    = mapheaderinfo[mapnum].altmusic or music
         local bpinch      = mapheaderinfo[mapnum].bpinch
-        local bwin        = mapheaderinfo[mapnum].bwin
+        local CHPASS        = mapheaderinfo[mapnum].CHPASS
         local bloss       = mapheaderinfo[mapnum].bloss
         local bovertime   = mapheaderinfo[mapnum].bovertime
         local bmatchpoint = mapheaderinfo[mapnum].bmatchpoint
@@ -216,7 +216,7 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
         A.CurrentMap = {
             musname = song,
             pinch = bpinch,
-            win = bwin,
+            win = CHPASS,
             loss = bloss,
             overtime = bovertime,
             matchpoint = bmatchpoint,
@@ -253,12 +253,12 @@ A.Functions.MusicChange = function(oldname, newname)
     end
 
 
-    if win and (newname == "BWIN") then
+    if win and (newname == "CHPASS") then
         block_restoremusic = true
         return win, nil, false
     end
 
-    if loss and (newname == "BLOSE") then
+    if loss and (newname == "CHFAIL") then
         block_restoremusic = true
         return loss, nil, false
     end
