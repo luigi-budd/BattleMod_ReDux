@@ -161,7 +161,7 @@ local function newGunslinger(player)
 				mo.momx = $/2
 				mo.momy = $/2
 				mo.momz = $/2
-				B.DrawSVSprite(player,1)
+				mo.state = S_PLAY_MELEE
 				player.airgun = true
 			else
 				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*3)
@@ -204,10 +204,10 @@ local function newGunslinger(player)
 -- 		print(mo.state,B.GetSVSprite(player,1),B.GetSVSprite(player,2),player.weapondelay)
 -- 		if mo.state == B.GetSVSprite(player,1)
 		if player.weapondelay < refiretime-1 and player.weapondelay > refiretime-3
-			B.DrawSVSprite(player,2)
+			--B.DrawSVSprite(player,2)
 -- 		elseif mo.state == B.GetSVSprite(player,2)
 		elseif player.weapondelay < refiretime-4
-			B.DrawSVSprite(player,1)
+			--B.DrawSVSprite(player,1)
 		end
 -- 		if mo.state == B.GetSVSprite(player,1) or mo.state == B.GetSVSprite(player,2)
 			player.pflags = $|PF_JUMPDOWN

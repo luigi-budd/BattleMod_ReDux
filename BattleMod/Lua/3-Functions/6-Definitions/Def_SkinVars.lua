@@ -76,8 +76,8 @@ S["fang"] = {
 	func_collide = B.Fang_Collide,
 	func_postcollide = B.Fang_PostCollide,
 	sprites = {
-		S_FANGCHAR_AIRFIRE1,
-		S_FANGCHAR_AIRFIRE2
+		--S_FANGCHAR_AIRFIRE1,
+		--S_FANGCHAR_AIRFIRE2
 	}	
 }
 S["metalsonic"] = {
