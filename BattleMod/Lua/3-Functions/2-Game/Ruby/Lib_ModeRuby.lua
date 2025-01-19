@@ -335,8 +335,9 @@ R.Thinker = function(mo)
 	local on_rflagbase = (GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE)
 	local on_bflagbase = (GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE)
 	local on_return_sector = P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG) -- rev: i don't know if this even works..
+	local plr_has_ruby = mo.target and mo.target.valid
 
-	if ruby_in_goop or (on_rflagbase or on_bflagbase or on_return_sector) then
+	if 	not plr_has_ruby and (ruby_in_goop or (on_rflagbase or on_bflagbase or on_return_sector)) then
 		print("fell into removal sector")
 		if (mo.target and mo.target.valid) then
 			B.PrintGameFeed(player, " dropped the "+rubytext+".")
