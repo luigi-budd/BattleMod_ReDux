@@ -301,7 +301,7 @@ R.Thinker = function(mo)
 	light.colorized = true
 	light.color = mo.color
 	
-	local sector = P_MobjTouchingSectorSpecialFlag(mo, 0) or mo.subsector.sector --P_ThingOnSpecial3DFloor(mo) or mo.subsector.sector
+	local sector = mo.subsector.sector --P_MobjTouchingSectorSpecialFlag(mo, 0) or mo.subsector.sector --P_ThingOnSpecial3DFloor(mo) or mo.subsector.sector
 	if mo.target and mo.target.valid and GetSecSpecial(sector.special, 4) == 1
 -- 		B.DebugGhost(mo, R.CheckPoint)
 		if not (R.CheckPoint and R.CheckPoint.valid)
@@ -329,6 +329,24 @@ R.Thinker = function(mo)
 --		P_RemoveMobj(mo)
 --		return
 --	end
+
+	-- rev: remove ruby if on a "remove ctf flag" sector type
+	local ruby_in_goop = mo.eflags&MFE_GOOWATER
+	local on_rflagbase = (GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE)
+	local on_bflagbase = (GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE)
+	local on_return_sector = P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG) -- rev: i don't know if this even works..
+
+	if ruby_in_goop or (on_rflagbase or on_bflagbase or on_return_sector) then
+		print("fell into removal sector")
+		if (mo.target and mo.target.valid) then
+			B.PrintGameFeed(player, " dropped the "+rubytext+".")
+		end
+
+		P_RemoveMobj(mo)
+		return
+	end
+
+
 	for player in players.iterate do
 		-- !!! I'm not sure why I resorted to an iterate function. I guess it's one way to ensure no other player thinks they have a crystal, but it's not cheap. Should be optimized later.
 		if not player.mo 
