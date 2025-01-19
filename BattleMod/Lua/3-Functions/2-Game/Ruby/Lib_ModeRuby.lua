@@ -338,7 +338,7 @@ R.Thinker = function(mo)
 	local plr_has_ruby = mo.target and mo.target.valid
 
 	if 	not plr_has_ruby and (ruby_in_goop or (on_rflagbase or on_bflagbase or on_return_sector)) then
-		print("fell into removal sector")
+		--print("fell into removal sector")
 		if (mo.target and mo.target.valid) then
 			B.PrintGameFeed(player, " dropped the "+rubytext+".")
 		end
