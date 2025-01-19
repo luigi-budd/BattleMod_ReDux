@@ -92,7 +92,7 @@ end
 local teamSound_flag = function(source, player, soundteam, soundenemy, vol, selfisenemy)
 	for otherplayer in players.iterate do
 		if player and otherplayer and B.MyTeam(player, otherplayer)
-			and not (selfisenemy and source and source.player and source.player == player)
+			and (player != otherplayer)
 		then
 			--if not(S_SoundPlaying(source,soundteam)) then
 			--if source.player != player then
@@ -149,7 +149,7 @@ F.FlagIntangible = function(mo)
 		if spawntype == 2 then
 			mo.intangibletime = TICRATE*grace1.value
 			mo.flagdropped = true
-			teamSound_flag(lasttouched, lasttouched.player, sfx_flgwht, nil, 255, true)
+			teamSound_flag(mo, lasttouched.player, sfx_flgwht, nil, 255)
 			mo.hud_timer = 0
 		else
 			mo.intangibletime = TICRATE*grace2.value
