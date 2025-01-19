@@ -36,7 +36,19 @@ end
 local function spinhammer(mo, stnd)
 	mo.state = stnd and S_PLAY_STND or S_PLAY_MELEE
 	mo.frame = 0
-	mo.sprite2 = SPR2_MLEL
+	local sprite = (stnd and SPR2_TWRL) or SPR2_ATWR
+	mo.sprite2 = sprite
+	local numframes = skins[mo.skin].sprites[sprite].numframes-1
+	if not(stnd) then
+		mo.amy_spinanimtimer = ($!=nil and (($+1 <= numframes) and $+1)) or 0
+	else
+		if mo.player.actiontime > 16 then
+			mo.amy_spinanimtimer = ($!=nil and (($+1 <= numframes) and $+1)) or 0
+		else
+			mo.amy_spinanimtimer = ($!=nil and (mo.player.actiontime)%4 and (($+1 <= numframes) and $+1)) or ((($!=nil and ($+1 <= numframes)) and $) or 0)
+		end
+	end
+	mo.frame = mo.amy_spinanimtimer
 end
 
 B.Action.PikoTornado = function(mo,doaction)
@@ -45,6 +57,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	if P_PlayerInPain(player) then
 		player.actionstate = 0
 		player.actiontime = 0
+		mo.amy_spinanimtimer = nil
 	end
 	if not(B.CanDoAction(player)) and not(player.actionstate) 
 		if player.actiontime and mo.state == S_PLAY_MELEE_FINISH
@@ -55,6 +68,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			end
 			player.actiontime = 0
 		end
+		mo.amy_spinanimtimer = nil
 	return end
 	player.actiontime = $+1
 	player.actionrings = 15
@@ -88,6 +102,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			S_StartSound(mo,sfx_s3ka0)
 		else //Ground
 			player.actionstate = ground_special
+			mo.amy_spinanimtimer = 0
 			B.ControlThrust(mo,mo.scale/4)
 			S_StartSound(mo,sfx_s3ka0)
 			player.melee_state = st_idle
@@ -111,6 +126,8 @@ B.Action.PikoTornado = function(mo,doaction)
 			end
 		end
 		if not(player.actiontime > TICRATE) then return end
+		mo.frame = 0
+		mo.sprite2 = SPR2_MLEL
 		player.actionstate = $+1
 		player.actiontime = 0
 		player.drawangle = mo.angle
