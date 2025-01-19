@@ -149,8 +149,10 @@ F.FlagIntangible = function(mo)
 		if spawntype == 2 then
 			mo.intangibletime = TICRATE*grace1.value
 			mo.flagdropped = true
-			teamSound_flag(mo, lasttouched.player, sfx_flgwht, nil, 255)
-			mo.hud_timer = 0
+			if lasttouched then --Flag captures should be exempt
+				teamSound_flag(mo, lasttouched.player, sfx_flgwht, nil, 255)
+				mo.hud_timer = 0
+			end
 		else
 			mo.intangibletime = TICRATE*grace2.value
 		end
