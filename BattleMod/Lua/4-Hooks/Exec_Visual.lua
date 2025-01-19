@@ -179,7 +179,7 @@ local function BattleTagPointers(mo)
 	if not(B.IsValidPlayer(mo.tracer)) then
 		delete = true
 	elseif (gametype == GT_BATTLECTF) then
-		arrowscale = ARROW_INVERTSCALE
+		arrowscale = (mo.allydrop and ARROW_CONSTANTSCALE) or ARROW_INVERTSCALE
 		if mo.tracer.player.gotflag then
 			target = ({F.RedFlagPos, F.BlueFlagPos})[mo.tracer.player.ctfteam]
 		end
@@ -250,7 +250,7 @@ local function BattleTagPointers(mo)
 		end
 	end
 	mo.drawonlyforplayer = mo.tracer.player
-	mo.color = ((gametype == GT_BATTLECTF) and ({skincolor_redteam, skincolor_blueteam})[mo.tracer.player.ctfteam]) or
+	mo.color = ((gametype == GT_BATTLECTF) and ((mo.allydrop and {skincolor_blueteam, skincolor_redteam}) or {skincolor_redteam, skincolor_blueteam})[mo.tracer.player.ctfteam]) or
 			   (B.TagGametype() and mo.target.player.skincolor) or
 			   (B.RubyGametype() and (
 						(mo.tracer.player.gotcrystal and ({skincolor_blueteam, skincolor_redteam})[mo.tracer.player.ctfteam]) or

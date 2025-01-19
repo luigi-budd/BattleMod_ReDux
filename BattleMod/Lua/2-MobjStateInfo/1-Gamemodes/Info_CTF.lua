@@ -1,4 +1,5 @@
-freeslot('sfx_toss')
+sfxinfo[freeslot('sfx_toss')].caption = "\x82".."Flag Tossed".."\x80"
+sfxinfo[freeslot('sfx_flgwht')].caption = "\x82".."ENEMY FLAG LOST".."\x80"
 
 freeslot('MT_CREDFLAG', 'MT_CBLUEFLAG')
 freeslot('S_CREDFLAG', 'S_CBLUEFLAG')

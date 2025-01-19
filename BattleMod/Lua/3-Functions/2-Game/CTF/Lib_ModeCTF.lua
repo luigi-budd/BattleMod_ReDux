@@ -89,6 +89,23 @@ F.TouchFlag = function(mo, pmo)
 	end
 end
 
+local teamSound_flag = function(source, player, soundteam, soundenemy, vol, selfisenemy)
+	for otherplayer in players.iterate do
+		if player and otherplayer and B.MyTeam(player, otherplayer)
+			and not (selfisenemy and source and source.player and source.player == player)
+		then
+			--if not(S_SoundPlaying(source,soundteam)) then
+			--if source.player != player then
+				S_StartSoundAtVolume(nil, soundteam, vol, otherplayer)
+			--end
+		else
+			--if not(S_SoundPlaying(source,soundenemy)) then
+				--S_StartSoundAtVolume(source, soundenemy, vol, otherplayer)
+			--end
+		end
+	end
+end
+
 
 F.FlagIntangible = function(mo)
 	if mo.type == MT_REDFLAG and not (R.RedGoal and R.RedGoal.valid) then
@@ -132,6 +149,8 @@ F.FlagIntangible = function(mo)
 		if spawntype == 2 then
 			mo.intangibletime = TICRATE*grace1.value
 			mo.flagdropped = true
+			teamSound_flag(lasttouched, lasttouched.player, sfx_flgwht, nil, 255, true)
+			mo.hud_timer = 0
 		else
 			mo.intangibletime = TICRATE*grace2.value
 		end
@@ -142,6 +161,7 @@ F.FlagIntangible = function(mo)
 	if mo.tosstime then
 		mo.tosstime = max(0,$-1)
 	end
+
 
 	if mo.flagtossed and not(P_IsObjectOnGround(mo)) and (mo.tosstime < 2) then
 		local flipped = (mo.flags2 & MF2_OBJECTFLIP)
@@ -190,7 +210,11 @@ F.FlagIntangible = function(mo)
 		end
 		mo.flagpushing = $-1
 	end*/
-	
+
+	if mo.hud_timer ~= nil then
+		mo.hud_timer = $+1
+	end
+
 	//Determine blink frame
 	local blink = 0
 	if spawntype == 2 or (spawntype == 1 and mo.intangibletime > TICRATE*2) then
@@ -564,18 +588,84 @@ local function delayCap(p, team)
 	end
 end
 
+-- A master HUD object, for spawning additional HUD objects
+table.insert(hudobjs, {
+-- 	drawtype = "nametag",
+-- 	scale = FRACUNIT/4,
+-- 	color = SKINCOLOR_BLUE,
+-- 	color2 = SKINCOLOR_YELLOW,
+	flags = V_SNAPTOTOP,
+	align = "right",
+	x = FRACUNIT*320,
+	player = nil,
+	rings = nil,
+	func = function(v, player, cam, obj)
+		local invctf_flag = ({F.BlueFlag, F.RedFlag})[player.ctfteam]
+		local bool = invctf_flag and ((gametype == GT_BATTLECTF) and (player.ctfteam != 0) and (invctf_flag.hud_timer != nil))
+		local animtimer = (invctf_flag and invctf_flag.hud_timer) or 1
+		if bool then
+			local mult = ((player.ctfteam == 2) and 1) or -1
+			local prefix = ((player.ctfteam == 2) and "R") or "B"
+			local pad = ((player.ctfteam == 2) and 14) or 12
+			local _x = (BASEVIDWIDTH/2) + (pad) + (37*mult) + ((v.cachePatch(prefix.."FLAGICO").width/4)*-1)
+			local _y = FRACUNIT*17
+			local color = ({skincolor_redteam, skincolor_blueteam})[player.ctfteam]
+			local colormap = v.getColormap(TC_RAINBOW, color)
+			local frame = 1
+			local animation = {
+				[1] = 1,
+				[2] = 1,
+				[3] = 1,
+				[4] = 2,
+				[5] = 2,
+			}
+			if animation[animtimer] then
+				frame = animation[animtimer]
+			else
+				frame = 2+((animtimer/2)%2)
+			end
+			local what = v.getSpritePatch(SPR_WHAT, frame)
+
+			if not(B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"})) then
+				pad = ((player.ctfteam == 2) and 14) or 10
+				_x = (BASEVIDWIDTH/2) + (pad) + (37*mult) + ((v.cachePatch(prefix.."FLAGICO").width/4)*-1)
+			end
+
+			v.drawScaled(_x*FRACUNIT, _y, FRACUNIT/4, what, V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER, colormap)
+		end
+	end,
+})
+
 F.FlagPreThinker = function()
 	if gametype ~= GT_BATTLECTF then return end
 	for p in players.iterate do
-		if p and p.mo then
+		if p and p.mo and p.mo.valid then
 
 
 			local pctf_flag = ({F.RedFlag, F.BlueFlag})[p.ctfteam]
+			local invctf_flag = ({F.BlueFlag, F.RedFlag})[p.ctfteam]
+
 			if ((type(pctf_flag) == "userdata") and (userdataType(pctf_flag) == "mobj_t")) and not(p.mo.btagpointer) then
 				p.mo.btagpointer = P_SpawnMobjFromMobj(p.mo, 0, 0, 0, MT_BTAG_POINTER)
 				if p.mo.btagpointer and p.mo.btagpointer.valid then
 					p.mo.btagpointer.tracer = p.mo
 					p.mo.btagpointer.target = pctf_flag
+				end
+			end
+
+			if invctf_flag and ((type(invctf_flag) == "userdata") and (userdataType(invctf_flag) == "mobj_t")) and invctf_flag.valid and not(p.mo.btagpointer2) then
+				if (invctf_flag.flagdropped) then
+					p.mo.btagpointer2 = P_SpawnMobjFromMobj(p.mo, 0, 0, 0, MT_BTAG_POINTER)
+					if p.mo.btagpointer2 and p.mo.btagpointer2.valid then
+						p.mo.btagpointer2.tracer = p.mo
+						p.mo.btagpointer2.target = invctf_flag
+						p.mo.btagpointer2.allydrop = true
+					end
+				else
+					if p.mo.btagpointer2 and p.mo.btagpointer2.valid then
+						P_RemoveMobj(p.mo.btagpointer2)
+					end
+					p.mo.btagpointer2 = nil
 				end
 			end
 			--[[
