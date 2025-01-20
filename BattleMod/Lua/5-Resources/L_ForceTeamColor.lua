@@ -1,31 +1,22 @@
 local B = CBW_Battle
 
-local stored_skincolors = false
+local applied_all_stored = false
 
 addHook("NetVars", function(n)
-    stored_skincolors = n($)
+    applied_all_stored = n($)
 end)
 
 addHook("PreThinkFrame", do
     if (G_GametypeHasTeams()) and (B.BattleGametype()) then 
-        
-
-        if not(stored_skincolors) then
-            for player in players.iterate do
-                if (player.ctfteam < 1) then
-                    continue
-                end
-
-                if player.skincolor ~= color then
-                    player.battle_oldskincolor = player.skincolor
-                end
-            end
-            stored_skincolors = true
-        end
-
+        applied_all_stored = false
         for player in players.iterate do
             if (player.ctfteam < 1) then
+                player.battle_oldskincolor = nil
                 continue
+            end
+
+            if not(player.battle_oldskincolor) then
+                player.battle_oldskincolor = player.skincolor
             end
 
             local color = ({skincolor_redteam, skincolor_blueteam})[player.ctfteam]
@@ -33,15 +24,12 @@ addHook("PreThinkFrame", do
             player.skincolor = color
         end
 
-    else
-        if stored_skincolors then
-            for player in players.iterate do
-                if player.battle_oldskincolor then
-                    player.skincolor = player.battle_oldskincolor
-                end
-                player.battle_oldskincolor = nil
-            end
-            stored_skincolors = false
+    elseif not(applied_all_stored) then
+        for player in players.iterate do
+            if not(player.battle_oldskincolor) then continue end
+            player.skincolor = player.battle_oldskincolor
+            player.battle_oldskincolor = nil
         end
+        applied_all_stored = true
     end
 end)
