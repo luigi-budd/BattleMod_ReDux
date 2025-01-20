@@ -139,7 +139,6 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
     A.CurrentMap = {}
     A.CurrentDefSong = nil
     altmusic_transition = true
-    block_restoremusic = false
 
 
     if (mapheaderinfo[mapnum].altmusic or mapheaderinfo[mapnum].bpreround) or rawget(A, G_BuildMapName(mapnum):lower())then
@@ -192,9 +191,9 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
         A.CurrentMap = currentmap
         A.CurrentMap.musname = altsong
         A.CurrentMap.song = A.CurrentMap.preround or A.CurrentMap.musname
-
+        block_restoremusic = false
         play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
-    
+        
         already_ran = true
     else
 
