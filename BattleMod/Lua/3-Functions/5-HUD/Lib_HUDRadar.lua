@@ -123,7 +123,7 @@ B.RadarHUD = function(v, player, cam)
 		--Red Flag / Bank
 		if r == 3
 			if not (
-				(F.RedFlag and F.RedFlag.valid and not (F.RedFlag.flags2 & MF2_DONTDRAW))
+				(F.RedFlag and F.RedFlag.valid and not(F.RedFlag.flags2 & MF2_DONTDRAW) and (F.RedFlag.state ~= S_RUBYPORTAL))
 				or (B.RedBank and B.RedBank.valid)
 			) then
 				continue
@@ -143,7 +143,7 @@ B.RadarHUD = function(v, player, cam)
 		--Blue Flag / Bank
 		if r == 4
 			if not (
-				(F.BlueFlag and F.BlueFlag.valid and not (F.BlueFlag.flags2 & MF2_DONTDRAW))
+				(F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.flags2 & MF2_DONTDRAW) and (F.BlueFlag.state ~= S_RUBYPORTAL))
 				or (B.BlueBank and B.BlueBank.valid)
 			) then
 				continue

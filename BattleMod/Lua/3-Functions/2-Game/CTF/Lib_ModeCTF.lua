@@ -118,8 +118,38 @@ F.FlagIntangible = function(mo)
 		if B.RubyGametype() then
 			if mo.state ~= S_RUBYPORTAL then
 				mo.state = S_RUBYPORTAL
+				mo.renderflags = $|RF_NOCOLORMAPS|RF_FULLBRIGHT
 				mo.color = ({skincolor_redteam, skincolor_blueteam})[({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type]]
 			end
+			local prohibit = false
+			if R.ID and R.ID.valid and R.ID.target and R.ID.target.valid and R.ID.target.player then
+				if displayplayer and displayplayer.mo and displayplayer.valid then
+					local sameteam_p1 = B.MyTeam(displayplayer, R.ID.target.player)
+					if (sameteam_p1) and (({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type] == displayplayer.ctfteam) then
+						prohibit = true
+					end
+				end
+				
+				if splitscreen then
+					local sameteam_p2 = B.MyTeam(secondarydisplayplayer, R.ID.target.player)
+					if (sameteam_p2) and (({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type] == secondarydisplayplayer.ctfteam) then
+						prohibit = true
+					end
+				end
+			end
+
+			if prohibit then
+				if mo and mo.valid then
+					mo.frame = _G["U"]
+					mo.ruby_prohibited = true
+				end
+			else
+				if mo.ruby_prohibited then
+					mo.state = $
+					mo.ruby_prohibited = nil
+				end
+			end
+			
 		else
 			mo.flags2 = $|MF2_DONTDRAW
 		end
