@@ -152,6 +152,16 @@ F.FlagIntangible = function(mo)
 			if lasttouched then --Flag captures should be exempt
 				teamSound_flag(mo, lasttouched.player, sfx_flgwht, nil, 255)
 				mo.hud_timer = 0
+				for p in players.iterate do
+					if not(p.mo and p.mo.valid) then continue end
+					if ({[MT_REDFLAG]=2, [MT_BLUEFLAG]=1})[mo.type] ~= p.ctfteam then continue end
+					p.mo.btagpointer2 = P_SpawnMobjFromMobj(p.mo, 0, 0, 0, MT_BTAG_POINTER)
+					if p.mo.btagpointer2 and p.mo.btagpointer2.valid then
+						p.mo.btagpointer2.tracer = p.mo
+						p.mo.btagpointer2.target = mo
+						p.mo.btagpointer2.allydrop = true
+					end
+				end
 			end
 		else
 			mo.intangibletime = TICRATE*grace2.value
@@ -652,22 +662,6 @@ F.FlagPreThinker = function()
 				if p.mo.btagpointer and p.mo.btagpointer.valid then
 					p.mo.btagpointer.tracer = p.mo
 					p.mo.btagpointer.target = pctf_flag
-				end
-			end
-
-			if invctf_flag and ((type(invctf_flag) == "userdata") and (userdataType(invctf_flag) == "mobj_t")) and invctf_flag.valid and not(p.mo.btagpointer2) then
-				if (invctf_flag.flagdropped) then
-					p.mo.btagpointer2 = P_SpawnMobjFromMobj(p.mo, 0, 0, 0, MT_BTAG_POINTER)
-					if p.mo.btagpointer2 and p.mo.btagpointer2.valid then
-						p.mo.btagpointer2.tracer = p.mo
-						p.mo.btagpointer2.target = invctf_flag
-						p.mo.btagpointer2.allydrop = true
-					end
-				else
-					if p.mo.btagpointer2 and p.mo.btagpointer2.valid then
-						P_RemoveMobj(p.mo.btagpointer2)
-					end
-					p.mo.btagpointer2 = nil
 				end
 			end
 			--[[

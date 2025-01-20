@@ -224,7 +224,13 @@ local function BattleTagPointers(mo)
 
 	if delete then
 		if mo.tracer and mo.tracer.valid then
-			mo.tracer.btagpointer = nil
+			if mo == mo.tracer.btagpointer then
+				mo.tracer.btagpointer = nil
+			end
+
+			if mo == mo.tracer.btagpointer2 then
+				mo.tracer.btagpointer2 = nil
+			end
 			mo.tracer.btagpointers = nil
 		end
 		P_RemoveMobj(mo)
