@@ -34,10 +34,7 @@ local function sparkle(mo)
 end
 
 local function spinhammer(mo, stnd)
-	mo.state = stnd and S_PLAY_STND or S_PLAY_MELEE
-	mo.frame = 0
 	local sprite = (stnd and SPR2_TWRL) or SPR2_ATWR
-	mo.sprite2 = sprite
 	local numframes = skins[mo.skin].sprites[sprite].numframes-1
 	if not(stnd) then
 		mo.amy_spinanimtimer = ($!=nil and (($+1 <= numframes) and $+1)) or 0
@@ -48,6 +45,9 @@ local function spinhammer(mo, stnd)
 			mo.amy_spinanimtimer = ($!=nil and (mo.player.actiontime)%4 and (($+1 <= numframes) and $+1)) or ((($!=nil and ($+1 <= numframes)) and $) or 0)
 		end
 	end
+	mo.state = stnd and S_PLAY_STND or S_PLAY_MELEE
+	mo.sprite2 = sprite
+	mo.frame = 0
 	mo.frame = mo.amy_spinanimtimer
 end
 

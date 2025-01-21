@@ -5,13 +5,15 @@ local st_hold = 1
 local st_release = 2
 local st_jump = 3
 
+local sideangle = ANG30 - ANG10
+
 local piko_special = 11
 local piko_cooldown = TICRATE * 3/2
 
-local function twin(player)
+local function twin(player, twirl)
 	local pflags = player.pflags
 	player.panim = PA_ABILITY
-	player.mo.state = S_PLAY_TWINSPIN
+	player.mo.state = (twirl and S_AMY_PIKOTWIRL) or S_PLAY_TWINSPIN
 	player.frame = 0
 	player.pflags = $|PF_THOKKED|PF_NOJUMPDAMAGE
 	S_StartSound(player.mo,sfx_s3k42)
@@ -22,20 +24,39 @@ local function twin(player)
 	//Extra projectiles
 	if not(pflags&PF_NOJUMPDAMAGE)
 		local mo = player.mo
-		for n = -2,2 do
-			local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
-			if msl and msl.valid
-				msl.target = mo
-				msl.extravalue2 = FRACUNIT*95/100
-				msl.fuse = 15
-				msl.flags = $
-				local speed = mo.scale * 20
-				local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
-				local zangle = n*ANG1*5
-				B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
-				msl.momx = $ + mo.momx
-				msl.momy = $ + mo.momy
-				msl.momz = $ + mo.momz	
+		if twirl then
+			for n = -2,2 do
+				local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
+				if msl and msl.valid
+					msl.target = mo
+					msl.extravalue2 = FRACUNIT*95/100
+					msl.fuse = 15
+					msl.flags = $
+					local speed = mo.scale * 20
+					local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
+					local zangle = 0
+					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
+					msl.momx = $ + mo.momx
+					msl.momy = $ + mo.momy
+					msl.momz = $ + mo.momz	
+				end
+			end
+		else
+			for n = -2,2 do
+				local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
+				if msl and msl.valid
+					msl.target = mo
+					msl.extravalue2 = FRACUNIT*95/100
+					msl.fuse = 15
+					msl.flags = $
+					local speed = mo.scale * 20
+					local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
+					local zangle = n*ANG1*5
+					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
+					msl.momx = $ + mo.momx
+					msl.momy = $ + mo.momy
+					msl.momz = $ + mo.momz	
+				end
 			end
 		end
 		S_StartSound(mo, sfx_hoop1)
@@ -62,12 +83,12 @@ B.TwinSpinJump = function(player) //Double jump function
 	local mo = player.mo
 	
 	local jumpthrust = FRACUNIT*39/4
-	B.ZLaunch(mo,jumpthrust,false)
+	--B.ZLaunch(mo,jumpthrust,false)
 	
-	S_StartSound(mo,sfx_cdfm02)
-	S_StopSoundByID(mo,sfx_jump)
+	--S_StartSound(mo,sfx_cdfm02)
+	--S_StopSoundByID(mo,sfx_jump)
 	
-	twin(player)
+	twin(player, true)
 	player.pflags = $|PF_JUMPED|PF_STARTJUMP
 	return true
 end
@@ -220,6 +241,11 @@ B.PostHammerControl = function(player)
 		B.ApplyCooldown(player, piko_cooldown)
 		B.SpawnWave(player, 0, false)
 		player.actionstate = 0
+	end
+
+	--Hammer twirl airstall
+	if (mo.state == S_AMY_PIKOTWIRL) then
+		mo.momz = 0
 	end
 end
 
