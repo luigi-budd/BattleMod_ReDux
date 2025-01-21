@@ -59,7 +59,7 @@ B.Priority_Ability = function(player)
 	local flying = (abil1 ==CA_FLY and player.panim == PA_ABILITY)
 	local gliding = pflags&PF_GLIDING
 	local twinspin = (abil1 == CA_TWINSPIN and anim1)
-	local pikotwirl = (abil1 == CA_TWINSPIN and anim1 and (player.mo.state == S_AMY_PIKOTWIRL))
+	local pikotwirl = (abil1 == CA_TWINSPIN and (player.mo.state == S_AMY_PIKOTWIRL))
 	local melee = (abil2 ==CA2_MELEE and anim2)
 	local tailbounce = pflags&PF_BOUNCING
 	local dashing = player.dashmode > 3*TICRATE and not(player.pflags&PF_STARTDASH)
@@ -103,6 +103,8 @@ B.Priority_Ability = function(player)
 		//Amy
 		if twinspin then 
 			B.SetPriority(player,1,1,"amy_twinspin",2,1,"aerial hammer strike")
+		elseif pikotwirl then
+			B.SetPriority(player,1,1,"amy_twirl",2,2,"aerial hammer strike")
 		end
 		if melee then
 			if player.melee_state == 1//st_hold
@@ -110,9 +112,6 @@ B.Priority_Ability = function(player)
 			else
 				B.SetPriority(player,0,0,"amy_melee",2,1,"hammer strike")
 			end
-		end
-		if pikotwirl then
-			B.SetPriority(player,0,0,"tails_fly",2,1,"aerial hammer strike")
 		end
 		//Fang
 		if tailbounce then
