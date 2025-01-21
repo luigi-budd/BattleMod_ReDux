@@ -215,7 +215,7 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
         A.CurrentMap = {
             musname = song,
             pinch = bpinch,
-            win = CHPASS,
+            win = bwin,
             loss = bloss,
             overtime = bovertime,
             matchpoint = bmatchpoint,
@@ -250,7 +250,6 @@ A.Functions.MusicChange = function(oldname, newname)
     if (block_restoremusic) then
         return true
     end
-
 
     if win and (newname == "CHPASS") then
         block_restoremusic = true
