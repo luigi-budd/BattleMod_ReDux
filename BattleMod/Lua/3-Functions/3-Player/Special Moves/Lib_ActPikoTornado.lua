@@ -1,7 +1,7 @@
 local B = CBW_Battle
 
 local ground_special = 1
-local air_special = 10
+local air_special = 9
 local piko_special = 11
 local cooldown = TICRATE * 4/2
 local swirl1 = S_LHRT
@@ -226,14 +226,27 @@ B.Action.PikoTornado = function(mo,doaction)
 			then
 				player.melee_state = st_release
 				mo.state = S_PLAY_MELEE
+				player.actionstate = air_special+1
 			else
 				mo.state = S_PLAY_FALL
 			end
-			player.actionstate = 0
 			player.actiontime = 0
 			B.ApplyCooldown(player,cooldown)
 			player.drawangle = player.mo.angle
 		end
+		return
+	end
+
+	if player.actionstate == air_special+1
+		if P_IsObjectOnGround(mo) and (player.actiontime < TICRATE-(TICRATE/3)) then 
+			player.powers[pw_nocontrol] = max($,2)
+			return 
+		end
+		//Neutral
+		B.ApplyCooldown(player,cooldown)
+		player.actionstate = 0
+		player.actiontime = 0
+		mo.state = (P_IsObjectOnGround(mo) and S_PLAY_WALK) or S_PLAY_SPRING
 		return
 	end
 	--[[
