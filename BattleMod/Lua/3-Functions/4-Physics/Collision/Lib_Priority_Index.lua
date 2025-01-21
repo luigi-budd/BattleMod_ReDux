@@ -20,6 +20,13 @@ B.SPriority_TwinSpin = function(mo,other)
 	else return true end
 end
 
+B.SPriority_HammerTwirl = function(mo,other)
+	if mo.player then mo.player.pflags = $&~PF_THOKKED end
+	if zangle(mo,other,true) > ANGLE_45 then return false
+	else return true end
+end
+
+
 B.SPriority_Melee = function(mo,other)
 	if abs(xyangle(mo,other,true)) > ANGLE_45 then return false
 	else return true end
@@ -89,6 +96,7 @@ local Add = B.AddPriorityFunction
 Add("tails_fly",B.SPriority_Fly)
 Add("knuckles_glide",B.SPriority_Glide)
 Add("amy_twinspin",B.SPriority_TwinSpin)
+Add("amy_twirl",B.SPriority_HammerTwirl)
 Add("amy_melee",B.SPriority_Melee)
 Add("fang_tailbounce",B.SPriority_TailBounce)
 Add("fang_springdrop",B.SPriority_SpringDrop)
