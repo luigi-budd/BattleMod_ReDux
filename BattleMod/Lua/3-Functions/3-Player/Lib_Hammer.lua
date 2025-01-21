@@ -20,6 +20,7 @@ local function twin(player, twirl)
 
 	//pw_strong is a new power that we use now ~JoJo
 	player.powers[pw_strong] = STR_TWINSPIN
+	player.mo.melee_hammertwirl = true
 
 	//Extra projectiles
 	if not(pflags&PF_NOJUMPDAMAGE)
@@ -163,6 +164,18 @@ B.HammerControl = function(player)
 
 	local mo = player.mo
 
+	--Hammer twirl airstall
+	if (mo.state == S_AMY_PIKOTWIRL) then
+		mo.momz = 0
+	elseif (mo.state ~= S_PLAY_TWINSPIN)
+		if mo.melee_hammertwirl then
+			if (player.powers[pw_strong] & STR_TWINSPIN)
+				player.powers[pw_strong] = $ & ~STR_TWINSPIN
+			end
+			mo.melee_hammertwirl = nil
+		end
+	end
+
 	if not(mo and mo.valid and B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
 		player.melee_state = 0
 		player.melee_charge = 0
@@ -241,11 +254,6 @@ B.PostHammerControl = function(player)
 		B.ApplyCooldown(player, piko_cooldown)
 		B.SpawnWave(player, 0, false)
 		player.actionstate = 0
-	end
-
-	--Hammer twirl airstall
-	if (mo.state == S_AMY_PIKOTWIRL) then
-		mo.momz = 0
 	end
 end
 
