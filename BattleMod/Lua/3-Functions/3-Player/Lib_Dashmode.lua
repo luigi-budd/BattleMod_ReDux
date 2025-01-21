@@ -213,6 +213,9 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 		if (dashmodestart and (dashmodestart > 0) and (player.dashmode < dashmodestart)) or (player.dashmode == 0) then
 			if not(player.gotflagdebuff) then
 				player.dashmode = dashmodestart or 0
+				if dashmodestart and player.normalspeed == (skins[player.mo.skin].normalspeed + dashmodestart*(FRACUNIT/5)) then
+					player.normalspeed = $-(dashmodestart*(FRACUNIT/5))
+				end
 			end
 		end
 		
