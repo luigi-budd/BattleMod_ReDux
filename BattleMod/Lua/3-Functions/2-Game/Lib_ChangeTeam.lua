@@ -5,6 +5,8 @@ local CV = B.Console
 local notice = "\x83".."NOTICE: \x80"
 B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 	local antispam = B.ButtonCheck(player, BT_ATTACK) < 2
+	local active_autobalance = CV_FindVar("autobalance").value or CV.Autobalance.value
+
 	if B.Exiting then
 		if antispam then
 			S_StartSound(nil, sfx_adderr, player)
@@ -49,7 +51,7 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 	if fromspectators
 		addplayers = 1
 	end
-	if gametyperules&GTR_TEAMS and not(autobalance or scramble or splitscreen) and #A.Fighters > 1-addplayers
+	if active_autobalance and (gametyperules&GTR_TEAMS and not(autobalance or scramble or splitscreen) and #A.Fighters > 1-addplayers)
 		local red = #A.RedFighters
 		local blue = #A.BlueFighters
 		if team == 1 then
@@ -68,7 +70,7 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 		end
 	end
 
-	if (autobalance or scramble) then
+	if active_autobalance and (autobalance or scramble) then
 		player.lastpenalty = "Autobalanced"
 	end
 	
