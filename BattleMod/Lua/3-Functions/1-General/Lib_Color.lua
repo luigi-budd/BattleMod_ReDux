@@ -128,7 +128,7 @@ B.TextFlash = function(text, reset, player)
 
 	local bin = 0
 
-	if leveltime % 4 then
+	if (leveltime/3) % 2 then
 		bin = 1
 	end
 
