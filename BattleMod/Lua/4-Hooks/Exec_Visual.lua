@@ -8,10 +8,8 @@ addHook("MobjThinker", B.BattleShieldThinker, MT_BATTLESHIELD)
 addHook("MobjThinker", B.NegaShieldThinker, MT_NEGASHIELD)
 addHook("MobjThinker", B.InstaFlip, MT_INSTASHIELD)
 addHook("MobjThinker", B.StunBreakVFXThinker, MT_STUNBREAK)
-
 addHook("MobjThinker",function(mo) B.EnergyGather(mo,mo.target,mo.extravalue1,mo.extravalue2) end,MT_ENERGYGATHER)
 addHook("MobjThinker", B.TargetDummyThinker, MT_TARGETDUMMY)
-addHook("MobjThinker",function(mo) B.MetalAura(mo,mo.target) end, MT_ENERGYAURA)
 
 //Shields (yeah, this is pretty messy...)
 local colorsh = function(mo, redcol, bluecol)
