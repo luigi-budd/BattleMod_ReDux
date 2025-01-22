@@ -5,6 +5,8 @@ local st_hold = 1
 local st_release = 2
 local st_jump = 3
 
+local air_special = 9
+
 local sideangle = ANG30 - ANG10
 
 local piko_special = 11
@@ -236,7 +238,9 @@ B.HammerControl = function(player)
 			B.SpawnWave(player, 0, false)
 			player.actionstate = 0
 		elseif (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin then
-			B.hammerjump(player, spin)
+			if not(player.gotflagdebuff) and (player.actionstate ~= air_special+1) then
+				B.hammerjump(player, spin)
+			end
 		end
 		player.melee_state = st_idle
 	end
@@ -329,7 +333,7 @@ B.ChargeHammer = function(player)
 	end
 	
 	//Hold Charge
-	if player.melee_charge < FRACUNIT
+	if (player.melee_charge < FRACUNIT) and not(player.gotflagdebuff)
 		//Add Charge
 		local chargetime = 18
 		player.melee_charge = $+FRACUNIT/chargetime
@@ -353,7 +357,7 @@ B.ChargeHammer = function(player)
 			spark.scale = mo.scale
 		end
 		//Get Charged FX
-		if player.melee_charge >= FRACUNIT
+		if player.melee_charge >= FRACUNIT and not(player.gotflagdebuff)
 			player.melee_charge = FRACUNIT
 			B.hammerchargevfx(mo)
 		end
