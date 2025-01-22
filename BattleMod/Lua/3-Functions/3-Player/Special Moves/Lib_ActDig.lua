@@ -111,7 +111,7 @@ B.Action.Dig=function(mo,doaction)
 	end
 	local nearground = (floordist < zthreshold*mo.scale)
 	
-	//****
+	//****/
 	//Action properties &HUD
 	
 	player.actiontextflags = 0
@@ -253,6 +253,8 @@ B.Action.Dig=function(mo,doaction)
 			B.DoDebris(mo,P_RandomChance(FRACUNIT/2),P_RandomRange(5,10))
 		end
 		//Apply cooldown
+		player.airdodge = -1
+		player.canguard = false
 		B.ApplyCooldown(player,cancelcooldown)
 		player.powers[pw_nocontrol] = 2
 		player.actiontime = 0
