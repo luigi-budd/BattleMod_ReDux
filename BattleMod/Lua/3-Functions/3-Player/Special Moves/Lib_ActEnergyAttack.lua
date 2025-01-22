@@ -241,6 +241,10 @@ local resetRingSpark = function(mo, player)
 	mo.state = (P_IsObjectOnGround(mo) and S_PLAY_STND) or S_PLAY_SPRING
 	player.shieldscale = FixedMul(skins[player.mo.skin].shieldscale, mo.scale)
 	mo.metalsonic_stickyangle = nil
+	if mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid then
+		P_RemoveMobj(mo.energyattack_sparkaura)
+		mo.energyattack_sparkaura = nil
+	end
 end
 		
 
