@@ -159,11 +159,11 @@ local boolToBin = function(bool) --abstraction part 2
 end
 
 local resetvars = function(mo)
-	mo.energyattack_chargebuffer = 0
-	mo.energyattack_counter = 0
-	mo.energyattack_charged = 0
-	mo.energyattack_chargemeter = 0
-	mo.energyattack_ringsparktimer = 0
+	mo.energyattack_chargebuffer = nil
+	mo.energyattack_counter = nil
+	mo.energyattack_charged = nil
+	mo.energyattack_chargemeter = nil
+	mo.energyattack_ringsparktimer = nil
 end
 
 
@@ -241,10 +241,6 @@ local resetRingSpark = function(mo, player)
 	mo.state = (P_IsObjectOnGround(mo) and S_PLAY_STND) or S_PLAY_SPRING
 	player.shieldscale = FixedMul(skins[player.mo.skin].shieldscale, mo.scale)
 	mo.metalsonic_stickyangle = nil
-	if mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid then
-		P_RemoveMobj(mo.energyattack_sparkaura)
-	end
-	--player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 		
 
@@ -306,13 +302,16 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 
 	//Action info
 	if (player.actionstate) then --Only display charge text if we're not doing anything
-		if P_PlayerInPain(player) or player.gotflagdebuff or player.powers[pw_carry] then
+		if P_PlayerInPain(player) or player.gotflagdebuff or player.powers[pw_carry] or (mo.eflags & MFE_SPRUNG) then
 			B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
 			B.ApplyCooldown(player, cooldown_cancel)
 			resetdashmode(player)
 			resetvars(mo)
 			player.actiontime = 0
 			player.actionstate = 0
+			if (mo.eflags & MFE_SPRUNG) then
+				player.airdodge = 0
+			end
 		end
 	else
 		player.actiontext = "Energy Charge"
@@ -388,11 +387,13 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.pflags = $&~(PF_SPINNING|PF_SHIELDABILITY)
 		player.canguard = false
 		S_StartSound(mo,sfx_s3k7a)
-		local aura = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ENERGYAURA)
-		if aura and aura.valid then
+		mo.energyattack_aura = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ENERGYAURA)
+		if mo.energyattack_aura and mo.energyattack_aura.valid then
+			local aura = mo.energyattack_aura
 			aura.flags2 = $|MF2_DONTDRAW
 			aura.target = mo
 			aura.spriteyoffset = -16*FRACUNIT
+			aura.fuse = 2
 		end
 	end
 	
@@ -404,7 +405,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
 		mo.energyattack_chargemeter = max(0,$-(FRACUNIT/TICRATE/2))
-		
+		if mo.energyattack_aura and mo.energyattack_aura.valid then
+			local aura = mo.energyattack_aura
+			aura.fuse = max($, 2)
+			B.MetalAura(aura,mo)
+		end
 		--Gather spheres
 		local gather = P_SpawnMobj(mo.x,mo.y,mo.z+mo.height/2,MT_ENERGYGATHER)
 		if gather and gather.valid then
@@ -600,9 +605,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,((mo.flags2 & MF2_OBJECTFLIP) and (mo.z+mo.height)) or mo.z, auraMobj) --Spawn One --Spawn One
 				mo.energyattack_sparkaura.flags2 = $|MF2_DONTDRAW
 				mo.energyattack_sparkaura.target = mo
+				mo.energyattack_sparkaura.fuse = 2
 				S_StartSound(mo, sfx_s3k40)
 			else
 				B.SparkAura(mo.energyattack_sparkaura, mo)
+				mo.energyattack_sparkaura.fuse = max($, 2)
 			end 
 			
 			if player.rings and ((player.doaction == 2 or (player.pflags & PF_SPINDOWN)) or player.actiontime <= forcetime_ringspark) then --If we have rings, and are holding either the action button or spin
