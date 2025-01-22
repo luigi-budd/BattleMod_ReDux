@@ -390,14 +390,14 @@ R.Thinker = function(mo)
 	if not(mo.target and mo.target.player) then
 		if mo.ctfteam == 1
 			mo.color = B.FlashColor(SKINCOLOR_SUPERRED1,SKINCOLOR_SUPERRED5)
-			local g = P_SpawnGhostMobj(mo)
+			local g = B.SpawnGhostForMobj(mo)
 			g.color = mo.color
 			g.colorized = true
 			g.destscale = g.scale * 2
 			g.blendmode = AST_ADD
 		elseif mo.ctfteam == 2
 			mo.color = B.FlashColor(SKINCOLOR_SUPERSKY1,SKINCOLOR_SUPERSKY5)
-			local g = P_SpawnGhostMobj(mo)
+			local g = B.SpawnGhostForMobj(mo)
 			g.color = mo.color
 			g.colorized = true
 			g.destscale = g.scale * 2
@@ -405,7 +405,7 @@ R.Thinker = function(mo)
 		else
 			--mo.color = B.FlashColor(SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERSILVER5)
 			if not(leveltime&3)
-				local g = P_SpawnGhostMobj(mo)
+				local g = B.SpawnGhostForMobj(mo)
 				--g.color = B.FlashRainbow()
 				g.colorized = true
 			end
@@ -440,7 +440,7 @@ R.Thinker = function(mo)
 	-- Claimed behavior
 	mo.color = 0
 	mo.colorized = false
-	local g = P_SpawnGhostMobj(mo)
+	local g = B.SpawnGhostForMobj(mo)
 	g.scale = $ * 2/3
 	g.destscale = 1
 	g.fuse = $ * 3

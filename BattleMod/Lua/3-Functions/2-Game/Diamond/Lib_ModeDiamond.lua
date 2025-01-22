@@ -311,7 +311,7 @@ D.Thinker = function(mo)
 		i.scale = mo.scale
 		i.color = B.FlashRainbow(mo)
 		i.colorized = true
-		local g = P_SpawnGhostMobj(mo)
+		local g = B.SpawnGhostForMobj(mo)
 		g.color = B.FlashRainbow(mo)
 		g.colorized = true
 	end
