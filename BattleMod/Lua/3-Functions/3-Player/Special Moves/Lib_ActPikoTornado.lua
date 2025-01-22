@@ -225,7 +225,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			or (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
 			then
 				player.melee_state = st_release
-				mo.state = S_PLAY_MELEE
+				--mo.state = S_PLAY_MELEE
 				player.actionstate = air_special+1
 			else
 				mo.state = S_PLAY_FALL
