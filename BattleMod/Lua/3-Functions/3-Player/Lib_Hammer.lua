@@ -41,7 +41,7 @@ local function twin(player, twirl)
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
 					msl.momy = $ + mo.momy
-					msl.momz = $ + mo.momz	
+					msl.momz = 0	
 				end
 			end
 		else
@@ -79,7 +79,7 @@ B.TwinSpinJump = function(player) //Double jump function
 		return
 	end
 
-	if (player.buttonhistory&BT_JUMP) or (player.pflags & PF_STARTJUMP) then
+	if (player.buttonhistory&BT_JUMP) or (player.pflags & PF_JUMPDOWN) then
 		return true
 	end
 	
