@@ -243,7 +243,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			return 
 		end
 		//Neutral
-		B.ApplyCooldown(player,cooldown)
+		--B.ApplyCooldown(player,cooldown)
 		player.actionstate = 0
 		player.actiontime = 0
 		mo.state = (P_IsObjectOnGround(mo) and S_PLAY_WALK) or S_PLAY_SPRING
