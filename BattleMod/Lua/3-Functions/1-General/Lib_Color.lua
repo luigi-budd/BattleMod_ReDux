@@ -26,6 +26,28 @@ local overlayZ = function(mo, overlaytype, flip)
 	end
 end
 
+function B.SpawnGhostForMobj(mobj,colorize)
+	local ghost = P_SpawnMobjFromMobj(mobj, 0, 0, 0, MT_GHOST)
+	ghost.fuse = TICRATE/4
+	ghost.color = mobj.color
+	ghost.state = mobj.state
+	ghost.sprite = mobj.sprite
+	ghost.angle = mobj.angle
+	ghost.frame =  mobj.frame
+	ghost.frame = $|TR_TRANS50 
+	if colorize then
+		ghost.colorized = colorize
+	end
+	if mobj.flags&MF2_SPLAT then
+		ghost.flags2 = $|MF2_SPLAT
+		ghost.renderflags = RF_SLOPESPLAT|RF_NOSPLATBILLBOARD
+		P_CreateFloorSpriteSlope(ghost)
+		ghost.floorspriteslope = mobj.floorspriteslope
+	end
+	
+	return ghost
+end
+
 function B.SpawnFlash(mo, tics, circle)
 
 	local fmo
