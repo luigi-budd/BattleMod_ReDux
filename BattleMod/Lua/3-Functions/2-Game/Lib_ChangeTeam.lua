@@ -169,9 +169,8 @@ B.Autobalance = function()
 	local redteam = {}
 	local bluteam = {}
 	for p in players.iterate do
-
 		--// Count players on red/blue. Ignores spectators and flag holders.
-		if not p.spectator and not p.gotflag then
+		if not (p.spectator or p.gotflag) then
 			if 		p.ctfteam == 1 then     -- RED
 				table.insert(redteam, p)
 			elseif 	p.ctfteam == 2 then -- BLUE

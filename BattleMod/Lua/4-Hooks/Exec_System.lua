@@ -91,9 +91,10 @@ addHook("ThinkFrame",function()
 		B.PlayerThinkFrame(player)
 		F.UpdateCaps(player)
 	end
+	B.Autobalance()
+	
 	B.ResetScore()
 	A.ResetScore()
-	B.Autobalance()
 	--F.DelayCapActivateIndicator()
 	--F.UpdateScore()
 end)
