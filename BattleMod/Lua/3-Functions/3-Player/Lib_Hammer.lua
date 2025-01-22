@@ -79,7 +79,7 @@ B.TwinSpinJump = function(player) //Double jump function
 		return
 	end
 
-	if player.buttonhistory&BT_JUMP then
+	if (player.buttonhistory&BT_JUMP) or (player.pflags & PF_STARTJUMP) then
 		return true
 	end
 	
