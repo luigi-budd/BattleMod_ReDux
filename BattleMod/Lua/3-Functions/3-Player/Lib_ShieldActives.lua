@@ -154,56 +154,29 @@ B.CanShieldActive = function(player)
 	return false
 end
 
+B.ShieldActions = {
+    [SH_ELEMENTAL] = ElementalStomp,
+    [SH_ARMAGEDDON] = ArmageddonExplosion,
+    [SH_WHIRLWIND] = WhirlwindJump,
+    [SH_FORCE] = ForceStop,
+    [SH_ATTRACT] = AttractionShot,
+    [SH_FLAMEAURA] = FlameDash,
+    [SH_BUBBLEWRAP] = BubbleBounce,
+    [SH_THUNDERCOIN] = ThunderJump
+}
+
 B.DoShieldActive = function(player)
-	-- The SRB2 shields.
-	-- Elemental Stomp.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL then
-		ElementalStomp(player)
-		return
-	end
-
-	-- Armageddon Explosion.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ARMAGEDDON then
-		ArmageddonExplosion(player)
-		return
-	end
-
-	-- Whirlwind Jump.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_WHIRLWIND then
-		WhirlwindJump(player)
-		return
-	end
-
-	-- Force Stop.
-	if (player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) == SH_FORCE then
-		ForceStop(player)
-		return
-	end
-
-	-- Attraction Shot.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_ATTRACT then
-		AttractionShot(player)
-		return
-	end
-
-	-- The S3K shields.
-	-- Flame Dash.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_FLAMEAURA then
-		FlameDash(player)
-		return
-	end
-
-	-- Bubble Bounce.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_BUBBLEWRAP then
-		BubbleBounce(player)
-		return
-	end
-	
-	-- Thunder Jump.
-	if (player.powers[pw_shield] & SH_NOSTACK) == SH_THUNDERCOIN then
-		ThunderJump(player)
-		return
-	end
+    local shieldType = player.powers[pw_shield] & SH_NOSTACK
+    
+    -- Special case for Force Shield since it uses different masking
+    if (player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) == SH_FORCE then
+        shieldType = SH_FORCE
+    end
+    
+    local action = B.ShieldActions[shieldType]
+    if action then
+        action(player)
+    end
 end
 
 local cycleTable = function(t)

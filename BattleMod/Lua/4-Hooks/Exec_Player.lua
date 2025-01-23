@@ -116,13 +116,16 @@ B.EmergencyWhirlWindJump = function(player)
 	if B.CanShieldActive(player)
 		and (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1)
 	then
-		return B.DoShieldActive(player)
+		B.DoShieldActive(player)
+		return true
 	end
 end
 
-addHook("ShieldSpecial", function(player)
-	B.EmergencyWhirlWindJump(player)
-	return true
+addHook("ShieldSpecial", function(player) 
+	-- Handle overriding vanilla shield actions. Battle shield actions are executed in B.ShieldButton
+	if B.EmergencyWhirlWindJump(player) or B.ShieldActions[(player.powers[pw_shield] & SH_NOSTACK)] then
+		return true -- Prevent regular shield action if a battle shield action for this shield exists
+	end
 end)
 
 addHook("JumpSpecial",function(player)
