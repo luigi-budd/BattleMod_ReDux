@@ -115,12 +115,12 @@ B.Action.PikoTornado = function(mo,doaction)
 		spinhammer(mo, true)
 		sparkle(mo)
 		if player.actiontime < 16 then
-			player.drawangle = mo.angle+ANGLE_22h*player.actiontime
+			player.drawangle = mo.angle-ANGLE_22h*player.actiontime
 			if player.actiontime == 8 then
 				S_StartSound(mo,sfx_s3k42)
 			end
 		else
-			player.drawangle = mo.angle+ANGLE_45*(player.actiontime&7)
+			player.drawangle = mo.angle-ANGLE_45*(player.actiontime&7)
 			if player.actiontime&7 == 4 then
 				S_StartSound(mo,sfx_s3k42)
 			end
@@ -181,7 +181,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	end
 	//Air Special
 	if player.actionstate == air_special then
-		player.drawangle = mo.angle+ANGLE_45*(player.actiontime&7)
+		player.drawangle = mo.angle-ANGLE_45*(player.actiontime&7)
 		if player.actiontime&7 == 4 then
 			S_StartSound(mo,sfx_s3k7e)
 		end
