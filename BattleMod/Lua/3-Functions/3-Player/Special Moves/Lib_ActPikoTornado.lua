@@ -220,7 +220,7 @@ B.Action.PikoTornado = function(mo,doaction)
 		end
 		//Neutral
 		local nearground = P_IsObjectOnGround(mo) or mo.z+mo.momz < mo.floorz
-		if nearground or player.actiontime > TICRATE*3/2 then
+		if nearground or player.actiontime > TICRATE*3/2  or player.powers[pw_carry] then
 			if nearground or doaction
 			or (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
 			then
