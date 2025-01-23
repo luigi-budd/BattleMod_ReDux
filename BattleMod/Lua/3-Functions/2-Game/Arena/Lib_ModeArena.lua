@@ -529,11 +529,15 @@ A.UpdateGame = function()
 		end
 	end
 
+	local cvar_overtime = CV_FindVar("overtime").value
+	local cvar_timelimit = CV_FindVar("timelimit").value
+	local overtime = ((cvar_overtime) and cvar_timelimit*60-leveltime/TICRATE <= 0)
+
 	if B.Timeout and not(B.Exiting) then
 
 		B.Timeout = $-1
 
-		if gametype == GT_RUBYRUN then
+		if gametype == GT_RUBYRUN and not(overtime) then
 			for player in players.iterate do
 				rubyMovement(player, B.Timeout)
 			end
@@ -558,7 +562,7 @@ A.UpdateGame = function()
 				R.player_respawntime = 48
 				B.PlayerBattleSpawnStart(player)
 			end
-			if gametype == GT_RUBYRUN then
+			if gametype == GT_RUBYRUN and not(overtime) then
 				S_StartSound(nil, sfx_ruby4)
 			end
 		end
