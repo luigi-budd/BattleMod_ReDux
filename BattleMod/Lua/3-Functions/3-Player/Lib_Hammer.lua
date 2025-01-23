@@ -167,7 +167,7 @@ B.HammerControl = function(player)
 	local mo = player.mo
 
 	--Hammer twirl airstall
-	if (mo.state == S_AMY_PIKOTWIRL) then
+	if (mo.state == S_AMY_PIKOTWIRL) and not(player.gotflagdebuff) then
 		mo.momz = 0
 	elseif (mo.state ~= S_PLAY_TWINSPIN)
 		if mo.melee_hammertwirl then
@@ -175,6 +175,14 @@ B.HammerControl = function(player)
 				player.powers[pw_strong] = $ & ~STR_TWINSPIN
 			end
 			mo.melee_hammertwirl = nil
+		end
+	end
+
+	--Piko Wave failsafe
+	if player.actionstate == piko_special then
+		if not(P_IsObjectOnGround(mo)) and (mo.state ~= S_PLAY_MELEE) and (mo.state ~= S_PLAY_MELEE_FINISH) and (mo.state ~= S_PLAY_MELEE_LANDING) then
+			B.ApplyCooldown(player, piko_cooldown)
+			player.actionstate = 0
 		end
 	end
 
