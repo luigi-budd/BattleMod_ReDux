@@ -115,6 +115,7 @@ end)
 B.EmergencyWhirlWindJump = function(player)
 	if B.CanShieldActive(player)
 		and (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1)
+		and not (player.mo and player.mo.state == S_PLAY_LEDGE_GRAB)
 	then
 		B.DoShieldActive(player)
 		return true
