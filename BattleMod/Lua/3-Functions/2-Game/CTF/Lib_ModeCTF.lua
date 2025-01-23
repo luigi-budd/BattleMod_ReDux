@@ -125,13 +125,15 @@ F.FlagIntangible = function(mo)
 			if R.ID and R.ID.valid and R.ID.target and R.ID.target.valid and R.ID.target.player then
 				if displayplayer and displayplayer.mo and displayplayer.valid then
 					local sameteam_p1 = B.MyTeam(displayplayer, R.ID.target.player)
-					if (sameteam_p1) and (({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type] == displayplayer.ctfteam) then
+					local hasruby = displayplayer.gotcrystal
+					if hasruby and (sameteam_p1) and (({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type] == displayplayer.ctfteam) then
 						prohibit = true
 					end
 				end
 				
 				if splitscreen then
 					local sameteam_p2 = B.MyTeam(secondarydisplayplayer, R.ID.target.player)
+					local hasruby = secondarydisplayplayer.gotcrystal
 					if (sameteam_p2) and (({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type] == secondarydisplayplayer.ctfteam) then
 						prohibit = true
 					end
