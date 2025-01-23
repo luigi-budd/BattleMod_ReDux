@@ -229,6 +229,7 @@ B.Action.PikoTornado = function(mo,doaction)
 				player.actionstate = air_special+1
 			else
 				mo.state = S_PLAY_FALL
+				player.actionstate = 0
 			end
 			player.actiontime = 0
 			B.ApplyCooldown(player,cooldown)
