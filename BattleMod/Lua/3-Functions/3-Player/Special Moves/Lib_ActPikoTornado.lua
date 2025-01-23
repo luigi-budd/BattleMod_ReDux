@@ -238,8 +238,10 @@ B.Action.PikoTornado = function(mo,doaction)
 	end
 
 	if player.actionstate == air_special+1
-		if P_IsObjectOnGround(mo) and (player.actiontime < TICRATE-(TICRATE/3)) then 
-			player.powers[pw_nocontrol] = max($,2)
+		if (mo.state == S_PLAY_MELEE) or (mo.state == S_PLAY_MELEE_FINISH) or (mo.state == S_PLAY_MELEE_LANDING) then 
+			if P_IsObjectOnGround(mo) then
+				player.powers[pw_nocontrol] = max($,2)
+			end
 			return 
 		end
 		//Neutral
