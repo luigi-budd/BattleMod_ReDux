@@ -1004,7 +1004,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		P_MoveOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
-		if (displayplayer and p == displayplayer) and not(splitscreen) then
+		if (consoleplayer and p == consoleplayer) and not(splitscreen) then
 			pmo.flag_indicator.scale = pmo.scale * 2/3
 			pmo.flag_indicator.frame = $ | FF_TRANS30
 			pmo.flag_indicator.flags2 = $ & ~MF2_DONTDRAW
