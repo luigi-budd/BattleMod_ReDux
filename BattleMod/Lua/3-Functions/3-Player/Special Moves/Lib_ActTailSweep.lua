@@ -715,7 +715,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			player.drawangle = mo.angle
 			--mo.state = S_PLAY_WALK
 			mo.frame = 0
-			mo.radius = radius
+			--mo.radius = radius
 			if P_IsObjectOnGround(mo) then
 				player.actionstate = 0
 				player.drawangle = mo.angle
