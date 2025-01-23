@@ -139,12 +139,13 @@ B.RingsHUD = function(v, player, cam)
 				else
 					if not B.CanDoAction(player) then
 						if B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
-							text = CV.FindVarString("battleconfig_hud", "Minimal") and ("\x86Guard" .. "\x80" .. " 10") or "\x80" .. "10"
+							local cost = player.actionrings or "10"
+							text = CV.FindVarString("battleconfig_hud", "Minimal") and ("\x86Guard " .. "\x80" .. cost) or "\x80" .. cost
 						else
 							text = "\x86" + text
 						end
 					end
-					if player.actionrings and not(player.actioncooldown) then
+					if player.actionrings and not(player.actioncooldown or B.TagGametype()) then
 						if not B.CanDoAction(player) then
 							if (CV.RequireRings.value and player.rings < player.actionrings) then
 								text = $ + "  \x85" + player.actionrings
