@@ -330,7 +330,7 @@ Music = RVZ2
 TypeOfLevel = CTF, rubyrun
 NextLevel = FA
 Weather = 5
-SkyNum = 11
+SkyNum = 20
 SelectHeading = classic
 
 Level G4
