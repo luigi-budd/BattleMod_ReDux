@@ -32,8 +32,8 @@ Lua.BattleItems_Force = 1
 
 Level B1
 LevelName = Oasis 
-Music = MP_GLZ
-SkyNum = 1949
+Music = OAS
+SkyNum = 1954
 TypeOfLevel = Arena,Survival
 NextLevel = B2
 SelectHeading = Arena
@@ -52,6 +52,7 @@ Lua.BattleItems_S3Flame = 4
 Lua.BattleItems_S3Lightning = 2
 Lua.BattleItems_S3Roulette = 0
 Lua.BattleItems_HyperRoulette = 0
+Lua.AltMusic = OASALT
 
 
 Level B2
