@@ -9,10 +9,15 @@ if not ALTMUSIC then
     rawset(_G, "ALTMUSIC",{})
 end
 
+if not ALTMUSIC_local then
+    rawset(_G, "ALTMUSIC_LOCAL", {})
+end
+
 ALTMUSIC.Functions = {}
 
 
 local A = ALTMUSIC
+local L = ALTMUSIC_LOCAL
 local B = CBW_Battle
 
 local function newsong()
@@ -33,14 +38,14 @@ local splitString = function(string)
 end
 
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
-A.already_ran = false
-A.block_restoremusic = false
+L.already_ran = false
+L.block_restoremusic = false
 
-local already_ran = A.already_ran
+local already_ran = L.already_ran
 
 local preround = false
 
-local block_restoremusic = A.block_restoremusic
+local block_restoremusic = L.block_restoremusic
 
 A.CurrentMap = {
     song = nil,
