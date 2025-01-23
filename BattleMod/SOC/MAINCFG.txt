@@ -286,6 +286,7 @@ SkyNum = 159
 Level FA
 LevelName = Meadow Match
 Music = MP_MED
+Lua.AltMusic = MP_ME2
 TypeOfLevel = CTF, rubyrun
 SelectHeading = Standard
 NextLevel = F0
