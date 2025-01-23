@@ -273,6 +273,85 @@ SkyNum = 68
 SkyboxScaleX = 64
 SkyboxScaleY = 64
 
+Level F9
+Levelname = Blazing Precipice
+Music = RVZ1
+SkyboxScaleZ = 32
+TypeOfLevel = CTF, rubyrun
+SelectHeading = Standard
+NextLevel = FA
+SkyNum = 159
+
+Level FA
+LevelName = Meadow Match
+Music = MP_MED
+TypeOfLevel = CTF, rubyrun
+SelectHeading = Standard
+NextLevel = F0
+SkyNum = 2
+
+LEVEL FB
+Levelname = Sapphire Rapids
+Music = MP_GHZ
+TypeOfLevel = CTF, rubyrun
+SelectHeading = Standard
+NextLevel = F0
+SkyboxScale = 64
+SkyNum = 502
+
+Level G0
+LevelName = Metal Star
+Music = MP_MN2
+NextLevel = G1
+TypeOfLevel = CTF, rubyrun, bank
+SkyNum = 21
+SelectHeading = Classic
+
+Level G1
+LevelName = Conveyor Conflict
+Music = THZALT
+NextLevel = G2
+TypeOfLevel = CTF, rubyrun
+SkyNum = 2
+SelectHeading = Classic
+
+Level G2
+LevelName = Isolated Canyon
+Act = 0
+Music = MP_GL2
+NextLevel = G0
+TypeOfLevel = CTF, rubyrun
+SkyNum = 2
+SelectHeading = Classic
+
+Level G3
+Levelname = Molten Fissure
+Music = RVZ2
+TypeOfLevel = CTF, rubyrun
+NextLevel = FA
+Weather = 5
+SkyNum = 11
+SelectHeading = classic
+
+Level G4
+Levelname = Radiant Caverns
+Music = MP_WT2
+TypeOfLevel = CTF, rubyrun
+NextLevel = F6
+SkyNum = 21
+SelectHeading = Classic
+
+Level G5
+Levelname = Silver Cascade
+Music = MP_WTR
+TypeOfLevel = CTF, rubyrun
+SelectHeading = Standard
+NextLevel = G0
+Weather = 3
+SkyNum = 20
+SelectHeading = Classic
+
+
 Level I1
 Levelname = Iron Warehouse
 NextLevel = F0
@@ -294,7 +373,7 @@ NextLevel = 3
 Levelname = Thunder Nimbus
 Music = NIMSTM
 SkyNum = 20
-Weather = PRECIP_STORM
+Weather = PRECIP_STORM_NORAIN
 TypeOfLevel = rubyrun
 Lua.Author = Smol
 SelectHeading = EXTRA
