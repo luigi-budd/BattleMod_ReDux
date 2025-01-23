@@ -11,7 +11,6 @@ local base_battleconfigs = {
 	{"battleconfig_guard", BT_FIRENORMAL},
 	{"battleconfig_aimsight", true},
 	{"battleconfig_roulette", true},
-	{"battleconfig_nospinshield", false},
 ----{"battleconfig_minimap", true},
 	{"battleconfig_glidestrafe", true},
 	{"battleconfig_hammerstrafe", false},

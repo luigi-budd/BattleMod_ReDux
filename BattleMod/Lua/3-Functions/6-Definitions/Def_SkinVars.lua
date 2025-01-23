@@ -59,7 +59,7 @@ S["knuckles"] = {
 	}
 }
 S["amy"] = {
-	flags = SKINVARS_GUARD|SKINVARS_ROSY|SKINVARS_NOSPINSHIELD,
+	flags = SKINVARS_GUARD|SKINVARS_ROSY,
 	weight = 105,
 	special = Act.PikoTornado,
 	guard_frame = 1,
@@ -67,7 +67,7 @@ S["amy"] = {
 	sprites = {}
 }
 S["fang"] = {
-	flags = SKINVARS_GUARD|SKINVARS_NOSPINSHIELD|SKINVARS_GUNSLINGER,
+	flags = SKINVARS_GUARD|SKINVARS_GUNSLINGER,
 	weight = 100,
 	special = Act.CombatRoll,
 	guard_frame = 1,

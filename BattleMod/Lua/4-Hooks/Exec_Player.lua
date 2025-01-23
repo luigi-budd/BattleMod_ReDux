@@ -112,13 +112,16 @@ addHook("AbilitySpecial",function(player)
 	end
 end)
 
-addHook("ShieldSpecial", function(player)
+B.EmergencyWhirlWindJump = function(player)
 	if B.CanShieldActive(player)
-		and (B.ButtonCheck(player,BT_SPIN) == 1 or (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1))
-		and not (player.battleconfig_nospinshield or B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)
+		and (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1)
 	then
-		B.DoShieldActive(player)
+		return B.DoShieldActive(player)
 	end
+end
+
+addHook("ShieldSpecial", function(player)
+	B.EmergencyWhirlWindJump(player)
 	return true
 end)
 
