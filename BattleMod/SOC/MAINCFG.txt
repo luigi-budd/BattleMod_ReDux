@@ -344,7 +344,7 @@ SelectHeading = Classic
 
 Level G5
 Levelname = Silver Cascade
-Music = MP_WTR
+Music = MP_WT3
 TypeOfLevel = CTF, rubyrun
 SelectHeading = Standard
 NextLevel = G0
