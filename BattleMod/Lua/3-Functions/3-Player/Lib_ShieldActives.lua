@@ -213,59 +213,58 @@ local cycleTable = function(t)
 	return t
 end
 
-B.ShieldTossFlagButton = function(player)
-	if player and player.valid and player.mo and player.mo.valid then
-		player.shieldswap_cooldown = max(0, $ - 1)
-		local tossed = (player.tossdelay == 2*TICRATE - 1)
+local shieldbutton = BT_SHIELD
+local cooldown = 15
+B.ShieldButton = function(player)
+	if not(player and player.valid and player.mo and player.mo.valid) then
+		return
+	end
 		
-		if B.CanShieldActive(player)
-			and (B.ButtonCheck(player,BT_TOSSFLAG) == 1)
-			and not tossed
-		then
-			
-			local temp = player.powers[pw_shield]&SH_NOSTACK
-			local power = player.shieldstock[1]
-			
-			if temp ~= SH_PITY and
-				(
-					(player.pflags&PF_JUMPED)
-					and not player.powers[pw_carry]
-					and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and temp == SH_BUBBLEWRAP))
-					and not player.noshieldactive
-				)
-			then
-				B.DoShieldActive(player)
-			
-			else--Shield swap
-				if B.ButtonCheck(player,BT_TOSSFLAG) == 1 then
-					if temp and temp == power then
-						player.shieldstock = cycleTable($)
-					end
+	player.shieldswap_cooldown = max(0, $ - 1)
 
-					if not player.shieldswap_cooldown
-						and temp
-						and power
-						and temp ~= power
-					then
-						player.shieldswap_cooldown = 15
-						
-						player.powers[pw_shield] = 0
-						P_RemoveShield(player)
-						
-						B.UpdateShieldStock(player,-1)
-						P_SwitchShield(player, power)
-						
-						player.shieldstock[#player.shieldstock+1] = temp
-						
-						S_StartSound(player.mo, sfx_shswap)
-					elseif not tossed then
-						S_StartSound(nil, sfx_s3k8c, player)
-					end
-				end
-			end
-		elseif B.ButtonCheck(player,BT_TOSSFLAG) == 1
-			and not tossed
+	if B.ButtonCheck(player,shieldbutton) != 1 then
+		return
+	elseif not B.CanShieldActive(player) then
+		S_StartSound(nil, sfx_s3k8c, player)
+		return
+	end
+
+	local temp = player.powers[pw_shield]&SH_NOSTACK
+	local power = player.shieldstock[1]
+	
+	if temp ~= SH_PITY and
+		(
+			(player.pflags&PF_JUMPED)
+			and not player.powers[pw_carry]
+			and not (player.pflags&PF_THOKKED and not (player.secondjump == UINT8_MAX and temp == SH_BUBBLEWRAP))
+			and not player.noshieldactive
+		)
+	then
+		B.DoShieldActive(player)
+		player.shieldswap_cooldown = cooldown
+	
+	else --Shield swap
+		if temp and temp == power then
+			player.shieldstock = cycleTable($)
+		end
+
+		if not player.shieldswap_cooldown
+			and temp
+			and power
+			and temp ~= power
 		then
+			player.shieldswap_cooldown = cooldown
+			
+			player.powers[pw_shield] = 0
+			P_RemoveShield(player)
+			
+			B.UpdateShieldStock(player,-1)
+			P_SwitchShield(player, power)
+			
+			player.shieldstock[#player.shieldstock+1] = temp
+			
+			S_StartSound(player.mo, sfx_shswap)
+		else
 			S_StartSound(nil, sfx_s3k8c, player)
 		end
 	end
