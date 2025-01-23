@@ -125,6 +125,7 @@ A.Functions.ThinkFrame = function()
             play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
         end
         already_ran = false
+        block_restoremusic = false
         return
     end
 end
@@ -144,6 +145,7 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
     A.CurrentMap = {}
     A.CurrentDefSong = nil
     altmusic_transition = true
+    block_restoremusic = true
 
 
     if (mapheaderinfo[mapnum].altmusic or mapheaderinfo[mapnum].bpreround) or rawget(A, G_BuildMapName(mapnum):lower())then
@@ -196,9 +198,7 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
         A.CurrentMap = currentmap
         A.CurrentMap.musname = altsong
         A.CurrentMap.song = A.CurrentMap.preround or A.CurrentMap.musname
-        block_restoremusic = false
         play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
-        
         already_ran = true
     else
 
@@ -232,8 +232,6 @@ A.Functions.MapChange = function(mapnum) --Runs before MapLoad
         play((S_MusicExists(A.CurrentMap.song) and A.CurrentMap.song) or (gamemap and mapheaderinfo[gamemap].musname))
         already_ran = true
     end
-
-
 end
 
 addHook("MapChange", A.Functions.MapChange)
@@ -241,7 +239,7 @@ addHook("MapChange", A.Functions.MapChange)
 
 addHook("IntermissionThinker", clearvars)
 
-A.Functions.MusicChange = function(oldname, newname)
+A.Functions.MusicChange = function(oldname, newname, mflags, looping, position, prefadems, fadeinms)
 
     if (not(consoleplayer) and (gamestate == GS_LEVEL) and not(titlemapinaction)) then
         altmusic_transition = true
@@ -251,9 +249,14 @@ A.Functions.MusicChange = function(oldname, newname)
 
     local win = (A and A.CurrentMap and A.CurrentMap.win)
     local loss = (A and A.CurrentMap and A.CurrentMap.loss)
+    local altsong = (A and A.CurrentMap and A.CurrentMap.song)
 
-    if (block_restoremusic) then
-        return true
+    if (block_restoremusic) and (gamestate == GS_LEVEL) and not(titlemapinaction) then
+        if altsong then
+            return altsong, mflags, looping, position, prefadems, fadeinms
+        elseif gamemap and mapheaderinfo[gamemap].musname then
+            return mapheaderinfo[gamemap].musname, mflags, looping, position, prefadems, fadeinms
+        end
     end
 
     if win and (newname == "CHPASS") then
