@@ -6,6 +6,7 @@ B.GotFlagStats = function(player)
 	//Register debuff
 	if (player.gotflag or player.gotcrystal) and player.gotflagdebuff == false then
 		player.gotflagdebuff = true
+		player.mo.color = player.skincolor
 		player.secondjump = 0
 		player.powers[pw_tailsfly] = 0
 		if player.pflags&PF_GLIDING
