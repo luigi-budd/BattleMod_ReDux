@@ -661,3 +661,13 @@ B.StartRingsPenalty = function(player, penalty, limit)
 	player.ringpenalty = min(CV.StartRings.value, $+penalty)
 	player.lastpenalty = penalty
 end
+
+B.Uncolorize = function(mo)
+	local player = mo.player
+	mo.colorized = false
+	mo.color = player.skincolor	
+	if player.followmobj
+		player.followmobj.colorized = false
+		player.followmobj.color = player.skincolor
+	end
+end

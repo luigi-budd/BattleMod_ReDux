@@ -166,15 +166,7 @@ local function dosweep(mo,thrustfactor)
 	mo.player.aircutter = m
 end
 
-local function uncolorize(mo)
-	local player = mo.player
-	mo.colorized = false
-	mo.color = player.skincolor	
-	if player.followmobj
-		player.followmobj.colorized = false
-		player.followmobj.color = player.skincolor
-	end
-end
+local uncolorize = B.Uncolorize
 
 B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostunbreak, nopain)
 	//gameplay
@@ -653,8 +645,6 @@ B.Action.TailSwipe = function(mo,doaction)
 				moved = P_TryMove(player.aircutter, mo.x + (cut_x/i), mo.y + (cut_y/i), true)
 				if moved then break end
 			end
-			local g = P_SpawnGhostMobj(player.aircutter)
-			g.blendmode = AST_ADD
 			-- THE ALMIGHTY VALID CHECK
 			--[[
 			local validity = P_SpawnMobjFromMobj(player.aircutter,0,0,0,MT_BIGSONICBOOM)
