@@ -110,14 +110,14 @@ B.GetZCollideAngle = function(mo,collide)
 -- 	end
 	local x = mo.x - mo.momx
 	local y = mo.y - mo.momy
-	local z = mo.z+mo.height/2 - mo.momz
+	local z = mo.z+((mo.height/2)+(-mo.momz))*P_MobjFlip(mo)
 	local cx = collide.x - collide.momx
 	local cy = collide.y - collide.momy
-	local cz = collide.z+collide.height/2 - collide.momz
+	local cz = collide.z + collide.height/2 - collide.momz
 	local zdist = z-cz
 	local xydist = FixedHypot(x-cx,y-cy)
 	local collideangle = R_PointToAngle2(0,0,xydist,zdist)
-	return collideangle
+	return collideangle*P_MobjFlip(mo)
 end
 
 B.DoPlayerCollisionDamage = function(smo,tmo)
