@@ -35,6 +35,75 @@ B.HUDAlt = true
 B.Timeout = 0
 B.HUDRoulette = {}
 
+B.GametypeIDtoIdentifier = {}
+
+B.AddBattleGametype = function(tabl)
+	local defaulthidetime = 15
+	if tabl.defaulthidetime then
+		defaulthidetime = tabl.defaulthidetime
+		tabl.defaulthidetime = nil
+	end
+	G_AddGametype(tabl)
+	B.GametypeIDtoIdentifier[_G["GT_"..tabl.identifier:upper()]] = tabl.identifier:lower()
+	local pointlimit
+	local timelimit
+	local hidetime
+	local team = (tabl.rules & GTR_TEAMS)
+	local scorer = (team and "a team") or "someone"
+
+	pointlimit = CV_RegisterVar({
+		name = tabl.identifier.."_pointlimit",
+		defaultvalue = (tabl.defaultpointlimit) or 0,
+		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
+		PossibleValue = CV_Unsigned,
+		func = function(cv)
+			if cv.value > 0 then
+				print(tabl.name.." rounds will end after "..scorer.." scores "..cv.value.." points.")
+			else
+				print(tabl.name.." rounds will no longer have a point limit.")
+			end
+			if gametype == _G["GT_"..tabl.identifier:upper()] then
+				COM_BufInsertText(server, "pointlimit "..cv.value)
+			end
+		end
+	})
+
+	timelimit = CV_RegisterVar({
+		name = tabl.identifier.."_timelimit",
+		defaultvalue = tabl.defaulttimelimit,
+		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
+		PossibleValue = {MIN=1, MAX=30},
+		func = function(cv)
+			if cv.value > 0 then
+				print(tabl.name.." rounds will end after "..cv.value.." minutes.")
+			else
+				print(tabl.name.." rounds no longer have a time limit.")
+			end
+			if gametype == _G["GT_"..tabl.identifier:upper()] then
+				COM_BufInsertText(server, "timelimit "..cv.value)
+			end
+		end
+	})
+
+	hidetime = CV_RegisterVar({
+		name = tabl.identifier.."_hidetime",
+		defaultvalue = defaulthidetime,
+		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
+		PossibleValue = {MIN=1, MAX=9999},
+		func = function(cv)
+			if cv.value > 0 then
+				print(tabl.name.." rounds will begin after "..cv.value.." seconds.")
+			else
+				print(tabl.name.." rounds will begin instantly.")
+			end
+			if gametype == _G["GT_"..tabl.identifier:upper()] then
+				COM_BufInsertText(server, "hidetime "..cv.value)
+			end
+		end
+	})
+
+	return pointlimit, timelimit, hidetime
+end
 -- Debug flags
 rawset(_G,"DF_GAMETYPE",	1<<0)
 rawset(_G,"DF_COLLISION",	1<<1)
@@ -43,18 +112,18 @@ rawset(_G,"DF_PLAYER",		1<<3)
 
 -- Skinvar flags
 rawset(_G,"SKINVARS_GUARD",			1<<0)
-rawset(_G,"SKINVARS_GUNSLINGER",	1<<2)
-rawset(_G,"SKINVARS_ROSY",			1<<3)
-rawset(_G,"SKINVARS_GLIDESTRAFE",	1<<4)
-rawset(_G,"SKINVARS_GLIDESOUND",	1<<5)
-rawset(_G,"SKINVARS_DASHMODENERF",	1<<6)
+rawset(_G,"SKINVARS_GUNSLINGER",	1<<1)
+rawset(_G,"SKINVARS_ROSY",			1<<2)
+rawset(_G,"SKINVARS_GLIDESTRAFE",	1<<3)
+rawset(_G,"SKINVARS_GLIDESOUND",	1<<4)
+rawset(_G,"SKINVARS_DASHMODENERF",	1<<5)
 
 -- I hate srb2
 rawset(_G,"GTR_FIXGAMESET",	1<<0)
 
 -- Define TOLs and gametypes
 freeslot('tol_arena','tol_survival','tol_cp','tol_diamond','tol_battlectf','tol_bigarena','tol_battle','tol_eggrobotag')
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Arena",
 	identifier = "arena",
 	typeoflevel = TOL_ARENA|TOL_MATCH,
@@ -68,7 +137,7 @@ G_AddGametype({
 	description = 'Bash other players with your spin and jump moves to earn points! Collect and use rings to unleash special moves unique to each character!'
 })
 
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Team Arena",
 	identifier = "teamarena",
 	typeoflevel = TOL_ARENA|TOL_MATCH,
@@ -82,7 +151,7 @@ G_AddGametype({
 	description = 'Stick together! The team that can support each other and deal the most damage will be victorious!'
 })
 
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Survival",
 	identifier = "survival",
 	typeoflevel = TOL_SURVIVAL,
@@ -96,7 +165,7 @@ G_AddGametype({
 	description = "It's survival of the fittest! Manage your shields and rings as you compete to be the last critter standing."
 })
 
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Team Survival",
 	identifier = "teamsurvival",
 	typeoflevel = TOL_SURVIVAL,
@@ -110,7 +179,7 @@ G_AddGametype({
 	description = "Shake'm all down in this team-based survival format. When one team runs out of lives, the other wins!"
 })
 
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Zone Control",
 	identifier = "cp",
 	typeoflevel = TOL_MATCH|TOL_CP,
@@ -124,7 +193,7 @@ G_AddGametype({
 	description = "The player who stands inside the score zone for long enough will claim its reward! Knock your foes out before they steal the spotlight!"
 })
 
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Team Zone Control",
 	identifier = "teamcp",
 	typeoflevel = TOL_MATCH|TOL_CP,
@@ -138,7 +207,7 @@ G_AddGametype({
 	description = "Players must work together to capture the control point before the opposing team does. The more players inside, the faster the capture!"
 })
 
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Warp Heist",
 	identifier = "diamond",
 	typeoflevel = TOL_DIAMOND|TOL_MATCH,
@@ -152,7 +221,7 @@ G_AddGametype({
 	description = 'Find the Warp Topaz and take it to the Control Zone while avoiding every enemy in your way in this fast paced map knowledge testing mode!'
 })
 
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Team Warp Heist",
 	identifier = "teamdiamond",
 	typeoflevel = TOL_DIAMOND|TOL_MATCH,
@@ -167,7 +236,7 @@ G_AddGametype({
 })
 
 -- Using Vanilla CTF again.. Custom CTF will see use later down the road ;q
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Battle CTF",
 	identifier = "battlectf",
 	typeoflevel = TOL_CTF|TOL_BATTLECTF,
@@ -182,7 +251,7 @@ G_AddGametype({
 })
 
 freeslot('tol_bank')
-G_AddGametype({
+B.AddBattleGametype({
     name = "Ring Rally",
     identifier = "bank",
     typeoflevel = TOL_BANK|TOL_CTF|TOL_BATTLECTF,
@@ -198,7 +267,7 @@ G_AddGametype({
 })
 
 freeslot('tol_rubyrun')
-G_AddGametype({
+B.AddBattleGametype({
     name = "Ruby Run",
     identifier = "rubyrun",
     typeoflevel = TOL_RUBYRUN|TOL_CTF|TOL_BATTLECTF,
@@ -213,7 +282,7 @@ G_AddGametype({
 })
 
 freeslot("tol_battletag")
-G_AddGametype({
+B.AddBattleGametype({
 	name = "Battle Tag",
 	identifier = "battletag",
 	typeoflevel = TOL_TAG | TOL_MATCH | TOL_BATTLETAG,
@@ -221,6 +290,7 @@ G_AddGametype({
 			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | 
 			GTR_DEATHMATCHSTARTS | GTR_FIXGAMESET,
 	defaulttimelimit = 5+1,
+	defaulthidetime = 30, --Specific to B.AddBattleGametype
 	intermissiontype = int_match,
 	headercolor = 251,
 	rankingtype = GT_TAG,

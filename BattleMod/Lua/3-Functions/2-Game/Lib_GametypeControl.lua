@@ -32,3 +32,14 @@ B.RubyGametype = function()
 	else return false end
 end
 
+B.ApplyGametypeCVars = function()
+	if B.GametypeIDtoIdentifier[gametype] then
+		local cvar_pointlimit = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_pointlimit")
+		local cvar_timelimit = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_timelimit")
+		local cvar_hidetime = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_hidetime")
+		COM_BufInsertText(server, "pointlimit "..cvar_pointlimit.value)
+		COM_BufInsertText(server, "timelimit "..cvar_timelimit.value)
+		COM_BufInsertText(server, "hidetime "..cvar_hidetime.value)
+	end
+end
+

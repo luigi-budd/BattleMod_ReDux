@@ -58,7 +58,7 @@ end)
 
 addHook("MapLoad",function(map)
 	F.GetFlagPos()
-	B.HideTime()
+	B.ApplyGametypeCVars()
 	I.GetMapHeader(map)
 	I.GenerateSpawns()
 	for player in players.iterate
