@@ -328,6 +328,15 @@ CP.SeizePoint = function()
 	CP.Num = Wrap($+1,#CP.ID)
 	if CP.Num == 1 then CP.Shuffle() end
 	CP.Timer = CV.CPWait.value*TICRATE
+	for player in players.iterate do
+		if not(player.mo and player.mo.valid) then continue end
+		if player.mo.btagpointer then
+			if player.mo.btagpointer.valid then
+				P_RemoveMobj(player.mo.btagpointer)
+				player.mo.btagpointer = nil
+			end
+		end
+	end
 end
 
 CP.PointHover = function(mo,floor,flip,height)
