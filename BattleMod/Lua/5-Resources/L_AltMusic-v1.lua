@@ -252,10 +252,12 @@ A.Functions.MusicChange = function(oldname, newname, mflags, looping, position, 
     local altsong = (A and A.CurrentMap and A.CurrentMap.song)
 
     if (block_restoremusic) and (gamestate == GS_LEVEL) and not(titlemapinaction) then
-        if altsong then
-            return altsong, mflags, looping, position, prefadems, fadeinms
-        elseif gamemap and mapheaderinfo[gamemap].musname then
-            return mapheaderinfo[gamemap].musname, mflags, looping, position, prefadems, fadeinms
+        if gamemap and mapheaderinfo[gamemap].musname and (newname == mapheaderinfo[gamemap].musname) then
+            if altsong then
+                return altsong, mflags, looping, position, prefadems, fadeinms
+            elseif gamemap and mapheaderinfo[gamemap].musname then
+                return mapheaderinfo[gamemap].musname, mflags, looping, position, prefadems, fadeinms
+            end
         end
     end
 
