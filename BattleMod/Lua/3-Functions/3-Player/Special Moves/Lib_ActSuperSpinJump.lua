@@ -139,9 +139,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				mo.state = S_PLAY_ROLL
 				player.secondjump = 0
 				player.canguard = false
-				--B.ApplyCooldown(player,cooldown1)
 			else //Do ground pound
-				B.ApplyCooldown(player,cooldown2)
 				thrust = pound_startthrust/water
 				player.actionstate = state_groundpound_rise
 				P_SetObjectMomZ(mo,thrust,false)
