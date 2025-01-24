@@ -6,11 +6,22 @@ local barColor, barEmptyColor
 local commonFlags = V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_PERPLAYER|V_HUDTRANS
 
 B.GetBackdraftSpeed = function(player, nearest)
-	local base_speed = skins[player.mo.skin].normalspeed + player.gradualspeed + nearest.gradualspeed
-	local dash_modifier = player.dashmode > 0 and player.dashmode * player.mo.scale or nil
-	if dash_modifier then
-		return base_speed + dash_modifier
-	end
+	local p_normalspeed = skins[player.mo.skin].normalspeed
+	local p_dashmode = player.dashmode
+	local p_gradualspeed = player.gradualspeed
+
+	local n_normalspeed = skins[nearest.mo.skin].normalspeed
+	local n_dashmode = nearest.dashmode
+	local n_gradualspeed = nearest.gradualspeed
+	local n_speed = nearest.speed
+	local n_speedboost = n_speed > FixedMul(n_normalspeed, nearest.mo.scale)
+	and n_dashmode*(FU/5)
+	or 0 --nil?
+
+	local p_slipstream = (p_normalspeed + p_dashmode*(FU/5)) + p_gradualspeed 
+	local n_slipstream = (n_gradualspeed + n_speedboost)
+	local base_speed =  p_slipstream + n_slipstream
+
 	return base_speed
 end
 
@@ -27,7 +38,7 @@ end
 B.DisableBackdraft = function(player)
 	player.didslipbutton = 0
 	player.slipping = false
-	player.normalspeed = skins[player.mo.skin].normalspeed
+	player.normalspeed = (player.dashmode and skins[player.mo.skin].normalspeed+(player.dashmode*(FRACUNIT/5))) or skins[player.mo.skin].normalspeed
 end
 
 B.DoBackdraft = function(player)
