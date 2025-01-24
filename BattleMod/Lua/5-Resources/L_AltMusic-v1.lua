@@ -40,8 +40,11 @@ end
 local altmusic_transition = false --This will stop that little bit of time where the map's main song plays
 L.already_ran = false
 L.block_restoremusic = false
+L.result = false
 
 local already_ran = L.already_ran
+
+local result = L.result
 
 local preround = false
 
@@ -80,6 +83,7 @@ local function clearvars()
     end
     altmusic_transition = false
     block_restoremusic = false
+    result = false
 end
 
 local function play(song)
@@ -252,7 +256,9 @@ A.Functions.MusicChange = function(oldname, newname, mflags, looping, position, 
     local altsong = (A and A.CurrentMap and A.CurrentMap.song)
 
     if (block_restoremusic) and (gamestate == GS_LEVEL) and not(titlemapinaction) then
-        if gamemap and mapheaderinfo[gamemap].musname and (newname == mapheaderinfo[gamemap].musname) then
+        if result then
+            return true
+        elseif gamemap and mapheaderinfo[gamemap].musname and (newname == mapheaderinfo[gamemap].musname) then
             if altsong then
                 return altsong, mflags, looping, position, prefadems, fadeinms
             elseif gamemap and mapheaderinfo[gamemap].musname then
@@ -261,14 +267,20 @@ A.Functions.MusicChange = function(oldname, newname, mflags, looping, position, 
         end
     end
 
-    if win and (newname == "CHPASS") then
+    if (newname == "CHPASS") then
         block_restoremusic = true
-        return win, nil, false
+        result = true
+        if win then
+            return win, nil, false
+        end
     end
 
-    if loss and (newname == "CHFAIL") then
+    if (newname == "CHFAIL") then
         block_restoremusic = true
-        return loss, nil, false
+        result = true
+        if loss then
+            return loss, nil, false
+        end
     end
 
 end
