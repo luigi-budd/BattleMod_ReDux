@@ -6,7 +6,7 @@ addHook("NetVars", function(n)
     applied_all_stored = n($)
 end)
 
-addHook("PreThinkFrame", do
+addHook("ThinkFrame", do
     if (G_GametypeHasTeams()) and (B.BattleGametype()) then 
         applied_all_stored = false
         for player in players.iterate do
