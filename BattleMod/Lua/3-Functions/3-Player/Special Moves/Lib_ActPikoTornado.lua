@@ -54,7 +54,7 @@ end
 B.Action.PikoTornado = function(mo,doaction)
 	local player = mo.player
 
-	if P_PlayerInPain(player) then
+	if P_PlayerInPain(player) or player.powers[pw_carry] then
 		player.actionstate = 0
 		player.actiontime = 0
 		mo.amy_spinanimtimer = nil
