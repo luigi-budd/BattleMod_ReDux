@@ -98,6 +98,7 @@ local function play(song)
 end
 
 A.Functions.ThinkFrame = function()
+    if titlemapinaction then return end
 
     if (A.CurrentMap.song == A.CurrentMap.preround) then
         if (leveltime == ((CV_FindVar("hidetime").value-3)*TICRATE)) then
@@ -144,7 +145,7 @@ A.Functions.PlayerQuit = function(player)
 end
 addHook("PlayerQuit", A.Functions.PlayerQuit)
 
-A.Functions.MapChange = function(mapnum) --Runs before MapLoad
+A.Functions.MapChange = function(mapnum) --Runs before MapLoads
 
     A.CurrentMap = {}
     A.CurrentDefSong = nil
@@ -285,3 +286,11 @@ A.Functions.MusicChange = function(oldname, newname, mflags, looping, position, 
 
 end
 addHook("MusicChange", A.Functions.MusicChange)
+
+A.Functions.GameQuit = function(quitting)
+    if player == consoleplayer then
+        block_restoremusic = false
+    end
+end
+
+addHook("GameQuit", A.Functions.GameQuit)
