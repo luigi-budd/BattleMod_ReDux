@@ -1,7 +1,7 @@
 local B = CBW_Battle
 local A = B.Arena
 
-B.HideTime = function()
+/*B.HideTime = function()
 	if (server) then
 		if G_TagGametype() //and gametype != GT_BATTLETAG then
 			COM_BufInsertText(server,"hidetime 30")
@@ -9,7 +9,7 @@ B.HideTime = function()
 			COM_BufInsertText(server,"hidetime 15")
 		end
 	end
-end
+end*/
 
 B.TagCam = function(player, runner)
 	if gamestate ~= GS_LEVEL then return end
@@ -82,9 +82,9 @@ B.TagControl = function()
 	end
 	
 	//failsafe to ensure a time limit is active
-	if (timelimit == nil or timelimit <= 1) and (server)
+	/*if (timelimit == nil or timelimit <= 1) and (server)
 		COM_BufInsertText(server, "timelimit 6")
-	end
+	end*/
 	
 	//iterate through all players to get them sorted into "teams"
 	B.TagPlayers = 0

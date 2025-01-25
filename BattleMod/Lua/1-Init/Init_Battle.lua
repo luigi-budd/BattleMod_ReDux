@@ -289,7 +289,7 @@ B.AddBattleGametype({
 	rules = GTR_SPECTATORS | GTR_TIMELIMIT | GTR_HURTMESSAGES | 
 			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | 
 			GTR_DEATHMATCHSTARTS | GTR_FIXGAMESET,
-	defaulttimelimit = 5+1,
+	defaulttimelimit = 6,
 	defaulthidetime = 30, --Specific to B.AddBattleGametype
 	intermissiontype = int_match,
 	headercolor = 251,
