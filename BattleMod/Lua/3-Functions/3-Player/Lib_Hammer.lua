@@ -234,7 +234,9 @@ B.HammerControl = function(player)
 			player.melee_state = st_release
 			mo.state = S_PLAY_MELEE
 		elseif player.melee_charge >= FRACUNIT
-			B.DrawAimLine(player, player.drawangle)
+			if not(player.gotflagdebuff) then
+				B.DrawAimLine(player, player.drawangle)
+			end
 		end
 	end
 	
@@ -242,9 +244,11 @@ B.HammerControl = function(player)
 		local spin = player.melee_charge >= FRACUNIT
 		player.buttonhistory = $ | BT_JUMP | BT_SPIN
 		if player.actionstate == piko_special and P_IsObjectOnGround(mo) then
-			B.ApplyCooldown(player, piko_cooldown)
-			B.SpawnWave(player, 0, false)
-			player.actionstate = 0
+			if not(player.gotflagdebuff) then
+				B.ApplyCooldown(player, piko_cooldown)
+				B.SpawnWave(player, 0, false)
+				player.actionstate = 0
+			end
 		elseif (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin then
 			if not(player.gotflagdebuff) and (player.actionstate ~= air_special+1) then
 				B.hammerjump(player, spin)
@@ -341,33 +345,35 @@ B.ChargeHammer = function(player)
 	end
 	
 	//Hold Charge
-	if (player.melee_charge < FRACUNIT) and not(player.gotflagdebuff)
+	if (player.melee_charge < FRACUNIT) then
 		//Add Charge
 		local chargetime = 18
 		player.melee_charge = $+FRACUNIT/chargetime
-		local offset_angle = mo.angle + ANGLE_180
-		local offset_dist = mo.radius*3
-		local range = 8
-		local offset_x = P_ReturnThrustX(nil,offset_angle,offset_dist) + P_RandomRange(-range,range)*FRACUNIT
-		local offset_y = P_ReturnThrustY(nil,offset_angle,offset_dist) + P_RandomRange(-range,range)*FRACUNIT
-		local offset_z = mo.height/2 + P_RandomRange(-range,range)*FRACUNIT * P_MobjFlip(mo)
-		offset_x = FixedMul($, mo.scale)
-		offset_y = FixedMul($, mo.scale)
-		offset_z = FixedMul($, mo.scale)
-		if not(leveltime&3)
-			//Do Sparkle
-			local spark = P_SpawnMobj(
-				mo.x+offset_x,
-				mo.y+offset_y,
-				mo.z+offset_z,
-				MT_SPARK
-			)
-			spark.scale = mo.scale
-		end
-		//Get Charged FX
-		if player.melee_charge >= FRACUNIT and not(player.gotflagdebuff)
-			player.melee_charge = FRACUNIT
-			B.hammerchargevfx(mo)
+		if not(player.gotflagdebuff) then
+			local offset_angle = mo.angle + ANGLE_180
+			local offset_dist = mo.radius*3
+			local range = 8
+			local offset_x = P_ReturnThrustX(nil,offset_angle,offset_dist) + P_RandomRange(-range,range)*FRACUNIT
+			local offset_y = P_ReturnThrustY(nil,offset_angle,offset_dist) + P_RandomRange(-range,range)*FRACUNIT
+			local offset_z = mo.height/2 + P_RandomRange(-range,range)*FRACUNIT * P_MobjFlip(mo)
+			offset_x = FixedMul($, mo.scale)
+			offset_y = FixedMul($, mo.scale)
+			offset_z = FixedMul($, mo.scale)
+			if not(leveltime&3)
+				//Do Sparkle
+				local spark = P_SpawnMobj(
+					mo.x+offset_x,
+					mo.y+offset_y,
+					mo.z+offset_z,
+					MT_SPARK
+				)
+				spark.scale = mo.scale
+			end
+			//Get Charged FX
+			if player.melee_charge >= FRACUNIT and not(player.gotflagdebuff)
+				player.melee_charge = FRACUNIT
+				B.hammerchargevfx(mo)
+			end
 		end
 	end
 	//Visual
