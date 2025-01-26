@@ -211,10 +211,12 @@ B.RadarHUD = function(v, player, cam)
 				patch_clamped = v.cachePatch("RAD_LOCK1")
 				patch = v.cachePatch("RAD_LOCK2")
 			else
-				patch_clamped = v.cachePatch("RAD_CP1")
-				patch = v.cachePatch("RAD_CP2")
-				color = mobj.color
-				colormap = TC_DEFAULT
+				if mobj and mobj.valid then
+					patch_clamped = v.cachePatch("RAD_CP1")
+					patch = v.cachePatch("RAD_CP2")
+					color = mobj.color
+					colormap = TC_DEFAULT
+				end
 			end
 			scale = FRACUNIT / 2
 			center = true

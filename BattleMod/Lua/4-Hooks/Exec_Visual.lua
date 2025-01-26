@@ -201,6 +201,9 @@ local function BattleTagPointers(mo)
 		arrowscale = ARROW_INVERTSCALE
 		if mo.tracer.player.gotcrystal then
 			target = D.ActivePoint
+			if not(target and target.valid) then
+				delete = true
+			end
 		end
 		if not(D.Diamond and D.Diamond.valid) then
 			delete = true
