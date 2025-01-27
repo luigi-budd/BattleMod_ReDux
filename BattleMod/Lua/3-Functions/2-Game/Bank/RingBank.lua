@@ -332,7 +332,7 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 	if mo.captured and (toucher.player) then
 		mo.captured = nil
 		mo.angle = 0
-		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM(mo.chaosring_num)
+		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM[mo.chaosring_num]
 		mo.bank = nil
 	end
 	toucher.player.gotcrystal = true
@@ -364,7 +364,7 @@ local function captureChaosRing(mo, bank)
 	addPoints(mo.target.player.ctfteam, 250)
 	P_AddPlayerScore(mo.target.player, 250)
 	mo.fuse = CHAOSRING_INVULNTIME
-	mo.angle = $+(ANG1*60*mo.chaosring_num)
+	--mo.angle = (ANG1*60*mo.chaosring_num)
 	mo.scale = mo.idealscale - (mo.idealscale/3)
 	mo.ctfteam = mo.target.player.ctfteam
 end
@@ -499,56 +499,10 @@ local chaosRingFunc = function(mo)
 			spark.spriteyoffset = $-(FRACUNIT*6)
 		end
 
-		if mo.target.player and not(mo.fuse) then
-		
-			local capture = function(team, bank)
-				local captime = CHAOSRING_CAPTIME
-				local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
-				local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
-				mo.target.player.gotcrystal_time = ($~=nil and $+1) or 1
-				mo.chaosring_capturing = true
-				if mo.target.player.gotcrystal_time > captime then
-					S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
-					mo.target.player.gotcrystal = false
-					mo.target.player.gotcrystal_time = 0
-					captureChaosRing(mo, bank)
-					mo.target = bank
-					return true
-				else
-					if mo.target.player.gotcrystal_time % 35 == 11 then
-						S_StartSoundAtVolume(nil, sfx, 160)
-					elseif mo.target.player.gotcrystal_time % 35 == 22 then
-						S_StartSoundAtVolume(nil, sfx, 90)
-					elseif mo.target.player.gotcrystal_time % 35 == 33 then
-						S_StartSoundAtVolume(nil, sfx, 20)
-					end
-				end
-			end
-			
-			if not P_IsObjectOnGround(mo.target) then
-				mo.target.player.gotcrystal_time = 0
-				return
-			end
-			if mo.target.player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_REDTEAMBASE)
-				if capture(1,B.RedBank) then
-					return
-				end
-			elseif mo.target.player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_BLUETEAMBASE)
-				if capture(2,B.BlueBank) then
-					return
-				end
-			else
-				if mo.chaosring_capturing then
-					mo.target.player.gotcrystal_time = 0
-					mo.chaosring_capturing = nil
-				end
-			end
-		end
-
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
 		--print(t.player)
-		local ang = mo.angle
+		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+mo.angle) or mo.angle
 		local dist = mo.target.radius*3
 		local x = t.x+P_ReturnThrustX(mo,ang,dist)
 		local y = t.y+P_ReturnThrustY(mo,ang,dist)
@@ -629,10 +583,54 @@ local chaosRingFunc = function(mo)
 	end
 
 
-	-- Ruby Control capture mechanics
-	--[[
-	
-	--]]
+	if mo.target and mo.target.valid then
+		if mo.target.player and not(mo.fuse) then
+		
+			local capture = function(team, bank)
+				local captime = CHAOSRING_CAPTIME
+				local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
+				local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
+				mo.target.player.gotcrystal_time = ($~=nil and $+1) or 1
+				mo.chaosring_capturing = true
+				if mo.target.player.gotcrystal_time > captime then
+					S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
+					mo.target.player.gotcrystal = false
+					mo.target.player.gotcrystal_time = 0
+					captureChaosRing(mo, bank)
+					mo.target = bank
+					return true
+				else
+					if mo.target.player.gotcrystal_time % 35 == 11 then
+						S_StartSoundAtVolume(nil, sfx, 160)
+					elseif mo.target.player.gotcrystal_time % 35 == 22 then
+						S_StartSoundAtVolume(nil, sfx, 90)
+					elseif mo.target.player.gotcrystal_time % 35 == 33 then
+						S_StartSoundAtVolume(nil, sfx, 20)
+					end
+				end
+			end
+			
+			if not P_IsObjectOnGround(mo.target) then
+				mo.target.player.gotcrystal_time = 0
+				mo.chaosring_capturing = nil
+				return
+			end
+			if mo.target.player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_REDTEAMBASE)
+				if capture(1,B.RedBank) then
+					return
+				end
+			elseif mo.target.player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_BLUETEAMBASE)
+				if capture(2,B.BlueBank) then
+					return
+				end
+			else
+				if mo.chaosring_capturing then
+					mo.target.player.gotcrystal_time = 0
+					mo.chaosring_capturing = nil
+				end
+			end
+		end
+	end
 
 end
 
