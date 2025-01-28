@@ -304,6 +304,25 @@ addHook('MapLoad', do
 			--print("Inserted chaosring_spawn #"..#CHAOSRING_SPAWNTABLE)
 		end
 	end
+
+	if not(#CHAOSRING_SPAWNTABLE) or (#CHAOSRING_SPAWNTABLE < 6) then
+		for mt in mapthings.iterate do
+			if mt and (mt.type == (321)) and mt.valid then --Match Chaos Emerald Spawn
+	
+				local chaosring_spawn = { --Data for the spawn
+					x = mt.x*FRACUNIT,
+					y = mt.y*FRACUNIT,
+					z = mt.z*FRACUNIT,
+					options = mt.options,
+					scale = mt.scale,
+					mo = nil --Will use this field later
+				}
+	
+				table.insert(CHAOSRING_SPAWNTABLE, chaosring_spawn)
+				--print("Inserted chaosring_spawn #"..#CHAOSRING_SPAWNTABLE)
+			end
+		end
+	end
 end)
 
 local freetics = TICRATE
