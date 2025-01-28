@@ -404,11 +404,12 @@ B.DoPlayerInteract = function(smo,tmo)
 		end
 		mo[n2].hitstun_tics = impact*3
 		local vfx = P_SpawnMobjFromMobj(mo[n2], 0, 0, mo[n2].height/2, MT_SPINDUST)
+		local hitcolors = {SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERGOLD1,SKINCOLOR_SUPERRED1}
 		if vfx.valid
 			vfx.scale = mo[n2].scale * sc/5
 			vfx.destscale = vfx.scale * 3
 			vfx.colorized = true
-			vfx.color = SKINCOLOR_WHITE
+			vfx.color = hitcolors[1+impact/2]
 			vfx.state = S_BCEBOOM
 		end
 	end

@@ -83,7 +83,7 @@ B.Action.CombatRoll = function(mo,doaction)
 			local bomb = B.throwbomb(mo)
 			if bomb and bomb.valid then
 				P_InstaThrust(bomb,ANGLE_45+mo.angle+(ANGLE_90*n),mo.scale*4)
-				P_SetObjectMomZ(bomb, mo.scale*8)
+				P_SetObjectMomZ(bomb, mo.scale*8*P_MobjFlip(mo))
 				bomb.flags = $ &~ (MF_GRENADEBOUNCE)
 				bomb.bombtype = 0
 			end

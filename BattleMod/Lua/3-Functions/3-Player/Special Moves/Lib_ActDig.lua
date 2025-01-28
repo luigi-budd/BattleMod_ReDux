@@ -31,7 +31,7 @@ end
 local shootrock_grounded = function(mo,ang1,ang2,scale,rockblasttime)
 	local rock = P_SPMAngle(mo,MT_ROCKBLAST,0,0)
 	if rock and rock.valid then
-		B.InstaThrustZAim(rock,ang1,ang2*P_MobjFlip(rock),scale)
+		B.InstaThrustZAim(rock,ang1,ang2*P_MobjFlip(mo),scale)
 		rock_properties(rock,rockblasttime)
 	end
 end

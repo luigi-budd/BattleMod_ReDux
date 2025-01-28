@@ -1,7 +1,7 @@
 local B = CBW_Battle
 B.RedBank = nil
 B.BlueBank = nil
-
+B.ChaosRing = {}
 
 
 local addPoints = function(team, points)
@@ -139,6 +139,7 @@ local getBase = function(player)
 	end
 end
 
+
 local highValueSparkle = function(player)
 	if leveltime % 2
 		local w = player.mo.radius>>FRACBITS
@@ -207,13 +208,21 @@ local addHudSparkle = function(team, direction)
 end
 
 --Constants
-local CHAOSRING_STARTSPAWNBUFFER = TICRATE*2 --Time it takes for Chaos Rings to start spawning
-local CHAOSRING_SPAWNBUFFER = TICRATE*46 --Chaos rings spawn every X seconds
-local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2)
-local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING
-local CHAOSRING_WINTIMER = TICRATE*12
-local CHAOSRING_CAPTIME = TICRATE*5
-local CHAOSRING_INVULNTIME = TICRATE*15
+local CHAOSRING_STARTSPAWNBUFFER = TICRATE*90 --Time it takes for Chaos Rings to start spawning
+local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
+local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
+local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING --Object Type
+local CHAOSRING_WINTIME = TICRATE*12 --Countdown to a team win if they have all 6
+local CHAOSRING_CAPTIME = TICRATE*5 --Time it takes to capture a Chaos Ring
+local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
+local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
+local CHAOSRING_WINPOINTS = 9999
+B.ChaosRing.SpawnCountdown = 0
+local CHAOSRING_SPAWNCOUNTDOWN = B.ChaosRing.SpawnCountdown
+B.ChaosRing.GlobalAngle = ANG20
+
+
+B.ChaosRing.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 
 local CHAOSRING1 = 1<<0
 local CHAOSRING2 = 1<<1
@@ -234,10 +243,11 @@ local SLOWCAPPINGALLY_SFX  = sfx_kc5a
 local SLOWCAPPINGENEMY_SFX = sfx_kc59
 
 local CHAOSRING_SPAWNTABLE = {}
-local CHAOSRING_WINCOUNTDOWN = CHAOSRING_WINTIMER
-local CHAOSRING_LIVETABLE = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+B.ChaosRing.WinCountdown = CHAOSRING_WINTIME
+B.ChaosRing.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+local CHAOSRING_LIVETABLE = B.ChaosRing.LiveTable
 
-local CHAOSRING_DATA = {
+B.ChaosRing.Data = {
 	[1] = { --Gold
 		color = SKINCOLOR_GOLDENROD,
 		textmap = "\x82"
@@ -268,6 +278,7 @@ local CHAOSRING_DATA = {
 		textmap = "\x84"
 	}
 }
+local CHAOSRING_DATA = B.ChaosRing.Data
 local CHAOSRING_TEXT = function(num)
 	return CHAOSRING_DATA[num].textmap.."Chaos Ring".."\x80"
 end
@@ -285,6 +296,7 @@ addHook('MapLoad', do
 				y = mt.y*FRACUNIT,
 				z = mt.z*FRACUNIT,
 				options = mt.options,
+				scale = mt.scale,
 				mo = nil --Will use this field later
 			}
 
@@ -331,9 +343,12 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 	end
 	if mo.captured and (toucher.player) then
 		mo.captured = nil
-		mo.angle = 0
-		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM(mo.chaosring_num)
+		--mo.angle = 0
+		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM[mo.chaosring_num]
 		mo.bank = nil
+	end
+	if mo.target and mo.target.valid and not(mo.target.player) then --Bank?
+		B.ChaosRing.WinCountdown = CHAOSRING_WINTIME
 	end
 	toucher.player.gotcrystal = true
 	mo.target = toucher
@@ -361,10 +376,8 @@ local function captureChaosRing(mo, bank)
 	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num])
 	mo.bank = bank
 	mo.captured = true
-	addPoints(mo.target.player.ctfteam, 250)
-	P_AddPlayerScore(mo.target.player, 250)
+	addPoints(mo.target.player.ctfteam, CHAOSRING_SCOREAWARD)
 	mo.fuse = CHAOSRING_INVULNTIME
-	mo.angle = $+(ANG1*60*mo.chaosring_num)
 	mo.scale = mo.idealscale - (mo.idealscale/3)
 	mo.ctfteam = mo.target.player.ctfteam
 end
@@ -386,23 +399,35 @@ local function spawnChaosRing(num, chaosringnum)
 	end
 	local thing = CHAOSRING_SPAWNTABLE[num]
 	local data = CHAOSRING_DATA[chaosringnum]
+
+	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
+	local float = ((thing.options&MTF_OBJECTFLIP) and 1) or 0
 	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
 	local z = thing.z+(70*FRACUNIT)
 
 	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
-	thing.mo.scale = CHAOSRING_SCALE
+	if flip == -1 then
+		mo.flags2 = $|MF2_OBJECTFLIP
+	end
+	thing.mo.scale = FixedMul(thing.scale, CHAOSRING_SCALE)
 	thing.mo.state = S_TEAMRING
 	thing.mo.color = data.color
 	thing.mo.chaosring_num = chaosringnum
 	thing.mo.idealz = thing.mo.z
-	thing.mo.idealscale = CHAOSRING_SCALE
+	thing.mo.idealscale = FixedMul(thing.scale, CHAOSRING_SCALE)
+	thing.mo.spawnthing = thing
+	thing.num = num
 	CHAOSRING_LIVETABLE[chaosringnum] = thing.mo
+	table.remove(CHAOSRING_SPAWNTABLE, num)
 end
 
-local CHAOSRING_AMBIENCE = freeslot("sfx_crng1")
+local CHAOSRING_AMBIENCE = sfx_nullba--freeslot("sfx_crng1")
+local CHAOSRING_RADAR = freeslot("sfx_crng2")
 
 sfxinfo[CHAOSRING_AMBIENCE].caption = "Chaos Ring presence"
 sfxinfo[CHAOSRING_AMBIENCE].flags = $|SF_X2AWAYSOUND
+
+sfxinfo[CHAOSRING_RADAR].caption = "/"
 
 local chaosRingFunc = function(mo)
 	mo.shadowscale = FRACUNIT>>1
@@ -439,24 +464,6 @@ local chaosRingFunc = function(mo)
 			free(mo)
 			S_StartSound(mo, sfx_cdfm67)
 		end
-	end
-
-	if mo.chaosring_corona and mo.chaosring_corona.valid then
-		mo.chaosring_corona.fuse = max($, 2)
-		mo.chaosring_corona.scale = mo.scale
-		P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, mo.z+(P_MobjFlip(mo)*(mo.height/2)))
-	else
-		mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
-		mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
-		mo.chaosring_corona.blendmode = AST_ADD
-		mo.chaosring_corona.target = mo
-		mo.chaosring_corona.scale = mo.scale
-		mo.chaosring_corona.spritexscale = FRACUNIT/2
-		mo.chaosring_corona.spriteyscale = FRACUNIT/2
-		mo.chaosring_corona.spriteyoffset = $+(FRACUNIT*5)
-		mo.chaosring_corona.colorized = true
-		mo.chaosring_corona.color = mo.color
-		mo.chaosring_corona.fuse = 2
 	end
 	
 	-- Unclaimed behavior
@@ -499,56 +506,10 @@ local chaosRingFunc = function(mo)
 			spark.spriteyoffset = $-(FRACUNIT*6)
 		end
 
-		if mo.target.player and not(mo.fuse) then
-		
-			local capture = function(team, bank)
-				local captime = CHAOSRING_CAPTIME
-				local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
-				local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
-				mo.target.player.gotcrystal_time = ($~=nil and $+1) or 1
-				mo.chaosring_capturing = true
-				if mo.target.player.gotcrystal_time > captime then
-					S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
-					mo.target.player.gotcrystal = false
-					mo.target.player.gotcrystal_time = 0
-					captureChaosRing(mo, bank)
-					mo.target = bank
-					return true
-				else
-					if mo.target.player.gotcrystal_time % 35 == 11 then
-						S_StartSoundAtVolume(nil, sfx, 160)
-					elseif mo.target.player.gotcrystal_time % 35 == 22 then
-						S_StartSoundAtVolume(nil, sfx, 90)
-					elseif mo.target.player.gotcrystal_time % 35 == 33 then
-						S_StartSoundAtVolume(nil, sfx, 20)
-					end
-				end
-			end
-			
-			if not P_IsObjectOnGround(mo.target) then
-				mo.target.player.gotcrystal_time = 0
-				return
-			end
-			if mo.target.player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_REDTEAMBASE)
-				if capture(1,B.RedBank) then
-					return
-				end
-			elseif mo.target.player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_BLUETEAMBASE)
-				if capture(2,B.BlueBank) then
-					return
-				end
-			else
-				if mo.chaosring_capturing then
-					mo.target.player.gotcrystal_time = 0
-					mo.chaosring_capturing = nil
-				end
-			end
-		end
-
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
 		--print(t.player)
-		local ang = mo.angle
+		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+B.ChaosRing.GlobalAngle) or mo.angle
 		local dist = mo.target.radius*3
 		local x = t.x+P_ReturnThrustX(mo,ang,dist)
 		local y = t.y+P_ReturnThrustY(mo,ang,dist)
@@ -629,10 +590,54 @@ local chaosRingFunc = function(mo)
 	end
 
 
-	-- Ruby Control capture mechanics
-	--[[
-	
-	--]]
+	if mo.target and mo.target.valid then
+		if mo.target.player and not(mo.fuse) then
+		
+			local capture = function(team, bank)
+				local captime = CHAOSRING_CAPTIME
+				local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
+				local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
+				mo.target.player.gotcrystal_time = ($~=nil and $+1) or 1
+				mo.chaosring_capturing = true
+				if mo.target.player.gotcrystal_time > captime then
+					S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
+					mo.target.player.gotcrystal = false
+					mo.target.player.gotcrystal_time = 0
+					captureChaosRing(mo, bank)
+					mo.target = bank
+					return true
+				else
+					if mo.target.player.gotcrystal_time % 35 == 11 then
+						S_StartSoundAtVolume(nil, sfx, 160)
+					elseif mo.target.player.gotcrystal_time % 35 == 22 then
+						S_StartSoundAtVolume(nil, sfx, 90)
+					elseif mo.target.player.gotcrystal_time % 35 == 33 then
+						S_StartSoundAtVolume(nil, sfx, 20)
+					end
+				end
+			end
+			
+			if not P_IsObjectOnGround(mo.target) then
+				mo.target.player.gotcrystal_time = 0
+				mo.chaosring_capturing = nil
+				return
+			end
+			if mo.target.player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_REDTEAMBASE)
+				if capture(1,B.RedBank) then
+					return
+				end
+			elseif mo.target.player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_BLUETEAMBASE)
+				if capture(2,B.BlueBank) then
+					return
+				end
+			else
+				if mo.chaosring_capturing then
+					mo.target.player.gotcrystal_time = 0
+					mo.chaosring_capturing = nil
+				end
+			end
+		end
+	end
 
 end
 
@@ -652,6 +657,7 @@ local chaosRingPreFunc = function(mo)
 			free(mo)
 			if not (mo and mo.valid) then return end
 			mo.target = nil
+			mo.captured = nil
 			P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 			B.ZLaunch(mo,player.mo.scale*6)
 			P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
@@ -661,9 +667,8 @@ end
 
 
 COM_AddCommand("chring", function(player)
-	for i = 1, 6 do
-		spawnChaosRing(i, i)
-	end
+	--for i = 1, 6 do
+	--end
 end)
 
 addHook("MobjThinker", chaosRingFunc, MT_BATTLE_CHAOSRING)
@@ -682,14 +687,34 @@ addHook('ThinkFrame', do
 		return
 	end
 
-	if CHAOSRING_WINCOUNTDOWN == 0 then
+	B.ChaosRing.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd
+	if (leveltime-(CV_FindVar("hidetime").value*TICRATE) >= CHAOSRING_STARTSPAWNBUFFER) and #CHAOSRING_LIVETABLE < 6 then --2 Minutes in?
+		if CHAOSRING_SPAWNCOUNTDOWN <= 0 then 
+			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
+			S_StartSound(nil, sfx_kc33)
+			if #CHAOSRING_LIVETABLE then
+				B.CTF.GameState.CaptureHUDName = #CHAOSRING_LIVETABLE+1
+				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), #CHAOSRING_LIVETABLE+1)
+			else
+				B.CTF.GameState.CaptureHUDName = 1
+				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), 1)
+			end
+			CHAOSRING_SPAWNCOUNTDOWN = CHAOSRING_SPAWNBUFFER
+		else
+			CHAOSRING_SPAWNCOUNTDOWN = $-1
+		end
+	end
+	if B.ChaosRing.WinCountdown == 0 then
 		B.Arena.ForceWin()
-		CHAOSRING_WINCOUNTDOWN = -1
-	elseif CHAOSRING_WINCOUNTDOWN > 0
+		B.ChaosRing.WinCountdown = -1
+	elseif B.ChaosRing.WinCountdown > 0
 		for i = 1, 2 do
 			local bank = (i==1 and B.RedBank) or B.BlueBank
 			if bank.chaosrings == (CHAOSRING1|CHAOSRING2|CHAOSRING3|CHAOSRING4|CHAOSRING5|CHAOSRING6)
-				CHAOSRING_WINCOUNTDOWN = $-1
+				B.ChaosRing.WinCountdown = $-1
+				if B.ChaosRing.WinCountdown == 0 then
+					addPoints(i, CHAOSRING_WINPOINTS)
+				end
 			end
 		end
 	end
@@ -698,8 +723,29 @@ addHook('ThinkFrame', do
 		local chaosring = CHAOSRING_LIVETABLE[i]
 
 		if not(chaosring and chaosring.valid) then
-			table.remove(CHAOSRING_LIVETABLE, i)
+			if chaosring and not(chaosring.respawntimer) then
+				table.remove(CHAOSRING_LIVETABLE, i)
+			end
 			continue
+		end
+
+		local mo = chaosring
+		if mo.chaosring_corona and mo.chaosring_corona.valid then
+			mo.chaosring_corona.fuse = max($, 2)
+			mo.chaosring_corona.scale = mo.scale
+			P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, mo.z+(P_MobjFlip(mo)*(mo.height/2)))
+		else
+			mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
+			mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
+			mo.chaosring_corona.blendmode = AST_ADD
+			mo.chaosring_corona.target = mo
+			mo.chaosring_corona.scale = mo.scale
+			mo.chaosring_corona.spritexscale = FRACUNIT/2
+			mo.chaosring_corona.spriteyscale = FRACUNIT/2
+			mo.chaosring_corona.spriteyoffset = $+(FRACUNIT*5)
+			mo.chaosring_corona.colorized = true
+			mo.chaosring_corona.color = mo.color
+			mo.chaosring_corona.fuse = 2
 		end
 
 		-- rev: remove ruby if on a "remove ctf flag" sector type
@@ -732,8 +778,10 @@ addHook('ThinkFrame', do
 				else
 					-- Remove object
 					P_SpawnMobj(chaosring.x,chaosring.y,chaosring.z,MT_SPARK)
+					CHAOSRING_SPAWNTABLE[chaosring.spawnthing.num] = chaosring.spawnthing
 					P_RemoveMobj(chaosring)
-					table.remove(CHAOSRING_LIVETABLE, i)
+					CHAOSRING_LIVETABLE[i] = {valid=false, respawntimer=CHAOSRING_RESPAWNTIME}
+					print("A "..CHAOSRING_TEXT[i].." was lost!")
 					continue
 				end
 			end
@@ -775,11 +823,11 @@ addHook('ThinkFrame', do
 		if player.mo and player.mo.health and not player.powers[pw_flashing] and not(player.gotcrystal)
 			local base = getBase(player)
 			if base == 1 -- Red base
-				if redInRed and blueInRed
+				if blueInRed
 					continue
 				end
 			elseif base == 2 -- Blue base
-				if redInBlue and blueInBlue
+				if redInBlue
 					continue
 				end
 			end
@@ -838,6 +886,6 @@ addHook('NetVars', function(net)
 	B.RedBank = net($)
 	B.BlueBank = net($)
 	CHAOSRING_SPAWNTABLE = net($)
-	CHAOSRING_WINCOUNTDOWN = net($)
-	CHAOSRING_LIVETABLE = net($)
+	B.ChaosRing.WinCountdown = net($)
+	B.ChaosRing.LiveTable = net($)
 end)

@@ -268,3 +268,9 @@ B.TagTeamSwitch = function(target, inflictor, source)
 		B.TagConverter(runner)
 	end
 end
+
+B.TagViewpoints = function(player, nextviewedplayer, forced)
+    if (gametype == GT_BATTLETAG and not player.spectator) then
+		return (player.battletagIT == nextviewedplayer.battletagIT)
+    end
+end
