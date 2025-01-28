@@ -139,6 +139,7 @@ local getBase = function(player)
 	end
 end
 
+
 local highValueSparkle = function(player)
 	if leveltime % 2
 		local w = player.mo.radius>>FRACBITS
@@ -207,13 +208,18 @@ local addHudSparkle = function(team, direction)
 end
 
 --Constants
-local CHAOSRING_STARTSPAWNBUFFER = TICRATE*2 --Time it takes for Chaos Rings to start spawning
-local CHAOSRING_SPAWNBUFFER = TICRATE*46 --Chaos rings spawn every X seconds
-local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2)
-local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING
-local CHAOSRING_WINTIMER = TICRATE*12
-local CHAOSRING_CAPTIME = TICRATE*5
-local CHAOSRING_INVULNTIME = TICRATE*15
+local CHAOSRING_STARTSPAWNBUFFER = 1 --Time it takes for Chaos Rings to start spawning
+local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
+local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
+local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING --Object Type
+local CHAOSRING_WINTIMER = TICRATE*12 --Countdown to a team win if they have all 6
+local CHAOSRING_CAPTIME = TICRATE*5 --Time it takes to capture a Chaos Ring
+local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
+local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
+B.ChaosRing.SpawnCountdown = 0
+local CHAOSRING_SPAWNCOUNTDOWN = B.ChaosRing.SpawnCountdown
+
+B.ChaosRing.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 
 local CHAOSRING1 = 1<<0
 local CHAOSRING2 = 1<<1
@@ -238,7 +244,7 @@ local CHAOSRING_WINCOUNTDOWN = CHAOSRING_WINTIMER
 B.ChaosRing.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
 local CHAOSRING_LIVETABLE = B.ChaosRing.LiveTable
 
-local CHAOSRING_DATA = {
+B.ChaosRing.Data = {
 	[1] = { --Gold
 		color = SKINCOLOR_GOLDENROD,
 		textmap = "\x82"
@@ -269,6 +275,7 @@ local CHAOSRING_DATA = {
 		textmap = "\x84"
 	}
 }
+local CHAOSRING_DATA = B.ChaosRing.Data
 local CHAOSRING_TEXT = function(num)
 	return CHAOSRING_DATA[num].textmap.."Chaos Ring".."\x80"
 end
@@ -363,7 +370,7 @@ local function captureChaosRing(mo, bank)
 	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num])
 	mo.bank = bank
 	mo.captured = true
-	addPoints(mo.target.player.ctfteam, 50)
+	addPoints(mo.target.player.ctfteam, CHAOSRING_SCOREAWARD)
 	mo.fuse = CHAOSRING_INVULNTIME
 	mo.scale = mo.idealscale - (mo.idealscale/3)
 	mo.ctfteam = mo.target.player.ctfteam
@@ -402,7 +409,10 @@ local function spawnChaosRing(num, chaosringnum)
 	thing.mo.chaosring_num = chaosringnum
 	thing.mo.idealz = thing.mo.z
 	thing.mo.idealscale = FixedMul(thing.scale, CHAOSRING_SCALE)
+	thing.mo.spawnthing = thing
+	thing.num = num
 	CHAOSRING_LIVETABLE[chaosringnum] = thing.mo
+	table.remove(CHAOSRING_SPAWNTABLE, num)
 end
 
 local CHAOSRING_AMBIENCE = sfx_nullba--freeslot("sfx_crng1")
@@ -642,7 +652,6 @@ local chaosRingPreFunc = function(mo)
 			if not (mo and mo.valid) then return end
 			mo.target = nil
 			mo.captured = nil
-			mo.angle = 0
 			P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 			B.ZLaunch(mo,player.mo.scale*6)
 			P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
@@ -652,9 +661,8 @@ end
 
 
 COM_AddCommand("chring", function(player)
-	for i = 1, 6 do
-		spawnChaosRing(i, i)
-	end
+	--for i = 1, 6 do
+	--end
 end)
 
 addHook("MobjThinker", chaosRingFunc, MT_BATTLE_CHAOSRING)
@@ -672,7 +680,22 @@ addHook('ThinkFrame', do
 	if gametype != GT_BANK
 		return
 	end
-
+	if (leveltime-(CV_FindVar("hidetime").value*TICRATE) >= CHAOSRING_STARTSPAWNBUFFER) and #CHAOSRING_LIVETABLE < 6 then --2 Minutes in?
+		if CHAOSRING_SPAWNCOUNTDOWN <= 0 then 
+			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
+			S_StartSound(nil, sfx_kc33)
+			if #CHAOSRING_LIVETABLE then
+				B.CTF.GameState.CaptureHUDName = #CHAOSRING_LIVETABLE+1
+				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), #CHAOSRING_LIVETABLE+1)
+			else
+				B.CTF.GameState.CaptureHUDName = 1
+				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), 1)
+			end
+			CHAOSRING_SPAWNCOUNTDOWN = CHAOSRING_SPAWNBUFFER
+		else
+			CHAOSRING_SPAWNCOUNTDOWN = $-1
+		end
+	end
 	if CHAOSRING_WINCOUNTDOWN == 0 then
 		B.Arena.ForceWin()
 		CHAOSRING_WINCOUNTDOWN = -1
@@ -689,7 +712,9 @@ addHook('ThinkFrame', do
 		local chaosring = CHAOSRING_LIVETABLE[i]
 
 		if not(chaosring and chaosring.valid) then
-			table.remove(CHAOSRING_LIVETABLE, i)
+			if chaosring and not(chaosring.respawntimer) then
+				table.remove(CHAOSRING_LIVETABLE, i)
+			end
 			continue
 		end
 
@@ -742,8 +767,10 @@ addHook('ThinkFrame', do
 				else
 					-- Remove object
 					P_SpawnMobj(chaosring.x,chaosring.y,chaosring.z,MT_SPARK)
+					CHAOSRING_SPAWNTABLE[chaosring.spawnthing.num] = chaosring.spawnthing
 					P_RemoveMobj(chaosring)
-					table.remove(CHAOSRING_LIVETABLE, i)
+					CHAOSRING_LIVETABLE[i] = {valid=false, respawntimer=CHAOSRING_RESPAWNTIME}
+					print("A "..CHAOSRING_TEXT[i].." was lost!")
 					continue
 				end
 			end

@@ -1,5 +1,48 @@
 local B = CBW_Battle
 local CV = B.Console
+local F = B.CTF
+
+local lerpamt = FRACUNIT
+
+--Actions
+local function roundToMultipleOf5(num)
+    local remainder = num % 5
+    if remainder >= 3 then
+        return num + (5 - remainder)
+    else
+        return num - remainder
+    end
+end
+
+B.ChaosRingCapHUD = function(v)
+	if (gametype ~= GT_BANK) then
+		return
+	end
+	
+	--An attempt to look exactly like the hardcode cecho
+	if not(F.GameState.CaptureHUDTimer) then --... Except for the text easing in.
+		lerpamt = FRACUNIT
+	else
+        if F.GameState.CaptureHUDName > 0 then
+            local trans = 0
+            if (F.GameState.CaptureHUDTimer <= 20) then
+                trans = V_10TRANS * ((20 - F.GameState.CaptureHUDTimer) / 2)
+            end
+            local chaosringnum = F.GameState.CaptureHUDName --It's fine I swear
+            local x = 160
+            local y = B.Exiting and 160 or 66
+            lerpamt = B.FixedLerp(0,FRACUNIT,$*90/100)
+            local subtract = B.FixedLerp(0,180,lerpamt)
+            v.drawString(x+subtract, y, "A "..B.ChaosRing.Data[chaosringnum].textmap.."Chaos Ring".."\x80".." has appeared!", trans, "center")
+            F.GameState.CaptureHUDTimer = $ - 1
+        end
+	end
+
+    if not(#B.ChaosRing.LiveTable or B.PreRoundWait()) then
+		v.drawString(320/2, 60, "The Chaos Rings will descend in \n"..(B.ChaosRing.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE)))/TICRATE, V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+    end
+end
+
 B.ChaosRingHUD = function(v, player)
     --Froot Loops (Chaos Rings)
     if gametype == GT_BANK then
