@@ -285,6 +285,11 @@ addHook('MapLoad', do
 
 	if gametype ~= GT_BANK then return end
 	CHAOSRING_SPAWNTABLE = {} --Clear the table
+	B.ChaosRing.WinCountdown = CHAOSRING_WINTIME
+	B.ChaosRing.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+	B.ChaosRing.SpawnCountdown = 0
+	B.ChaosRing.GlobalAngle = ANG20
+	B.ChaosRing.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 
 	for mt in mapthings.iterate do
 		if mt and (mt.type == (mobjinfo[MT_BATTLE_CHAOSRINGSPAWNER].doomednum)) and mt.valid then --Match Chaos Emerald Spawn
@@ -406,6 +411,7 @@ addHook("MobjFuse",function(mo)
 	return true
 end,CHAOSRING_TYPE)
 
+
 local function spawnChaosRing(num, chaosringnum)
 	if not(CHAOSRING_SPAWNTABLE[num]) then
 		return
@@ -424,7 +430,7 @@ local function spawnChaosRing(num, chaosringnum)
 
 	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
 	if flip == -1 then
-		mo.flags2 = $|MF2_OBJECTFLIP
+		thing.mo.flags2 = $|MF2_OBJECTFLIP
 	end
 	thing.mo.scale = FixedMul(thing.scale, CHAOSRING_SCALE)
 	thing.mo.state = S_TEAMRING
@@ -698,6 +704,20 @@ addHook("PreThinkFrame", do
 	end
 end)
 
+local function do_delete(mo)
+	-- Remove object
+	P_SpawnMobj(chaosring.x,chaosring.y,chaosring.z,MT_SPARK)
+	CHAOSRING_SPAWNTABLE[chaosring.spawnthing.num] = chaosring.spawnthing
+	P_RemoveMobj(chaosring)
+	B.ChaosRing.LiveTable[i] = {valid=false, respawntimer=CHAOSRING_RESPAWNTIME}
+	print("A "..CHAOSRING_TEXT[i].." was lost!")
+end
+
+addHook("MobjDeath", function(mo)
+	do_delete(mo)
+	return true
+end, CHAOSRING_TYPE)
+
 
 addHook('ThinkFrame', do
 	if gametype != GT_BANK
@@ -739,10 +759,18 @@ addHook('ThinkFrame', do
 	for i = 1, 6 do
 		local chaosring = B.ChaosRing.LiveTable[i]
 
+		local remove = false
+
+		if chaosring and not(chaosring.valid) and type(chaosring) == "table" and not(chaosring.respawntimer) then
+			remove = true
+		end
+
+		if remove then
+			table.remove(B.ChaosRing.LiveTable, i)
+			continue
+		end
+
 		if not(chaosring and chaosring.valid) then
-			if chaosring and not(chaosring.respawntimer) then
-				table.remove(B.ChaosRing.LiveTable, i)
-			end
 			continue
 		end
 
@@ -765,43 +793,41 @@ addHook('ThinkFrame', do
 			mo.chaosring_corona.fuse = 2
 		end
 
+		local delete = false
+
 		-- rev: remove ruby if on a "remove ctf flag" sector type
-		/*local sector = chaosring.subsector.sector --P_MobjTouchingSectorSpecialFlag(chaosring, 0) or chaosring.subsector.sector --P_ThingOnSpecial3DFloor(chaosring) or chaosring.subsector.sector
-		local ruby_in_goop = chaosring.eflags&MFE_GOOWATER
+		local sector = mo.subsector.sector
+		local ruby_in_goop = mo.eflags&MFE_GOOWATER
 		local on_rflagbase = (GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE)
 		local on_bflagbase = (GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE)
-		local on_return_sector = P_MobjTouchingSectorSpecialFlag(chaosring, SSF_RETURNFLAG) -- rev: i don't know if this even works..
-		local plr_has_ruby = chaosring.target and chaosring.target.valid
+		local on_return_sector = P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG) -- rev: i don't know if this even works..
+		local plr_has_ruby = mo.target and mo.target.valid
 
 		if not plr_has_ruby and (ruby_in_goop or (on_rflagbase or on_bflagbase or on_return_sector)) then
 			--print("fell into removal sector")
-			if (chaosring.target and chaosring.target.valid) then
-				B.PrintGameFeed(player, " dropped the "+CHAOSRING_TEXT(chaosring.chaosring_num)+".")
+			if (mo.target and mo.target.valid) then
+				--B.PrintGameFeed(player, " dropped a "+CHAOSRING_TEXT(chaosring.chaosring_num)+".")
 			end
-
-			P_RemoveMobj(chaosring)
-			table.remove(B.ChaosRing.LiveTable, i)
-			continue
-		end*/
+			delete = true
+		end
 
 			-- Idle timer
 		if chaosring.idle != nil and not(chaosring.captured) then 
 			chaosring.idle = $-1
 			if chaosring.idle == 0
-				if chaosring.ctfteam
+				if chaosring.ctfteam then
 					-- Remove team protection
 					chaosring.idle = nil
 					chaosring.ctfteam = 0
 				else
-					-- Remove object
-					P_SpawnMobj(chaosring.x,chaosring.y,chaosring.z,MT_SPARK)
-					CHAOSRING_SPAWNTABLE[chaosring.spawnthing.num] = chaosring.spawnthing
-					P_RemoveMobj(chaosring)
-					B.ChaosRing.LiveTable[i] = {valid=false, respawntimer=CHAOSRING_RESPAWNTIME}
-					print("A "..CHAOSRING_TEXT[i].." was lost!")
-					continue
+					delete = true
 				end
 			end
+		end
+
+		if delete then
+			do_delete(chaosring)
+			continue
 		end
 	end
 

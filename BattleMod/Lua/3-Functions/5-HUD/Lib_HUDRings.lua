@@ -118,7 +118,7 @@ B.RingsHUD = function(v, player, cam)
 		//Emblem radar. Also hidden when the menu is present.
 		for i=1,#B.ChaosRing.LiveTable do
 			local chaosring = B.ChaosRing.LiveTable[i]
-			local invalid = (not(chaosring) or chaosring.target or not(chaosring.valid))
+			local invalid = (not(chaosring and chaosring.valid) or chaosring.target or not(chaosring.valid))
 			if invalid then
 				continue 
 			end
