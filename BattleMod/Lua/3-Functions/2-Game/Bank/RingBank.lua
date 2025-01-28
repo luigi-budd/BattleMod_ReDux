@@ -444,24 +444,6 @@ local chaosRingFunc = function(mo)
 			S_StartSound(mo, sfx_cdfm67)
 		end
 	end
-
-	if mo.chaosring_corona and mo.chaosring_corona.valid then
-		mo.chaosring_corona.fuse = max($, 2)
-		mo.chaosring_corona.scale = mo.scale
-		P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, mo.z+(P_MobjFlip(mo)*(mo.height/2)))
-	else
-		mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
-		mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
-		mo.chaosring_corona.blendmode = AST_ADD
-		mo.chaosring_corona.target = mo
-		mo.chaosring_corona.scale = mo.scale
-		mo.chaosring_corona.spritexscale = FRACUNIT/2
-		mo.chaosring_corona.spriteyscale = FRACUNIT/2
-		mo.chaosring_corona.spriteyoffset = $+(FRACUNIT*5)
-		mo.chaosring_corona.colorized = true
-		mo.chaosring_corona.color = mo.color
-		mo.chaosring_corona.fuse = 2
-	end
 	
 	-- Unclaimed behavior
 	if not(mo.target and mo.target.valid) then
@@ -702,6 +684,25 @@ addHook('ThinkFrame', do
 		if not(chaosring and chaosring.valid) then
 			table.remove(CHAOSRING_LIVETABLE, i)
 			continue
+		end
+
+		local mo = chaosring
+		if mo.chaosring_corona and mo.chaosring_corona.valid then
+			mo.chaosring_corona.fuse = max($, 2)
+			mo.chaosring_corona.scale = mo.scale
+			P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, mo.z+(P_MobjFlip(mo)*(mo.height/2)))
+		else
+			mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
+			mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
+			mo.chaosring_corona.blendmode = AST_ADD
+			mo.chaosring_corona.target = mo
+			mo.chaosring_corona.scale = mo.scale
+			mo.chaosring_corona.spritexscale = FRACUNIT/2
+			mo.chaosring_corona.spriteyscale = FRACUNIT/2
+			mo.chaosring_corona.spriteyoffset = $+(FRACUNIT*5)
+			mo.chaosring_corona.colorized = true
+			mo.chaosring_corona.color = mo.color
+			mo.chaosring_corona.fuse = 2
 		end
 
 		-- rev: remove ruby if on a "remove ctf flag" sector type
