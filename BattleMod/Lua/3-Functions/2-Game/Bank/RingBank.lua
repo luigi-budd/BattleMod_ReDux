@@ -208,7 +208,7 @@ local addHudSparkle = function(team, direction)
 end
 
 --Constants
-local CHAOSRING_STARTSPAWNBUFFER = TICRATE*90 --Time it takes for Chaos Rings to start spawning
+local CHAOSRING_STARTSPAWNBUFFER = TICRATE*25 --Time it takes for Chaos Rings to start spawning
 local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
 local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
 local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING --Object Type
@@ -218,7 +218,6 @@ local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible af
 local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
 B.ChaosRing.SpawnCountdown = 0
-local CHAOSRING_SPAWNCOUNTDOWN = B.ChaosRing.SpawnCountdown
 B.ChaosRing.GlobalAngle = ANG20
 
 
@@ -245,7 +244,6 @@ local SLOWCAPPINGENEMY_SFX = sfx_kc59
 local CHAOSRING_SPAWNTABLE = {}
 B.ChaosRing.WinCountdown = CHAOSRING_WINTIME
 B.ChaosRing.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
-local CHAOSRING_LIVETABLE = B.ChaosRing.LiveTable
 
 B.ChaosRing.Data = {
 	[1] = { --Gold
@@ -436,7 +434,7 @@ local function spawnChaosRing(num, chaosringnum)
 	thing.mo.idealscale = FixedMul(thing.scale, CHAOSRING_SCALE)
 	thing.mo.spawnthing = thing
 	thing.num = num
-	CHAOSRING_LIVETABLE[chaosringnum] = thing.mo
+	B.ChaosRing.LiveTable[chaosringnum] = thing.mo
 	table.remove(CHAOSRING_SPAWNTABLE, num)
 end
 
@@ -693,8 +691,8 @@ end)
 addHook("MobjThinker", chaosRingFunc, MT_BATTLE_CHAOSRING)
 addHook("PreThinkFrame", do
 	for i = 1, 7 do
-		if CHAOSRING_LIVETABLE[i] and CHAOSRING_LIVETABLE[i].valid then
-			chaosRingPreFunc(CHAOSRING_LIVETABLE[i])
+		if B.ChaosRing.LiveTable[i] and B.ChaosRing.LiveTable[i].valid then
+			chaosRingPreFunc(B.ChaosRing.LiveTable[i])
 			continue
 		end
 	end
@@ -707,20 +705,20 @@ addHook('ThinkFrame', do
 	end
 
 	B.ChaosRing.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd
-	if (leveltime-(CV_FindVar("hidetime").value*TICRATE) >= CHAOSRING_STARTSPAWNBUFFER) and #CHAOSRING_LIVETABLE < 6 then --2 Minutes in?
-		if CHAOSRING_SPAWNCOUNTDOWN <= 0 then 
+	if (leveltime-(CV_FindVar("hidetime").value*TICRATE) >= CHAOSRING_STARTSPAWNBUFFER) and #B.ChaosRing.LiveTable < 6 then --2 Minutes in?
+		if B.ChaosRing.SpawnCountdown <= 0 then 
 			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
 			S_StartSound(nil, sfx_kc33)
-			if #CHAOSRING_LIVETABLE then
-				B.CTF.GameState.CaptureHUDName = #CHAOSRING_LIVETABLE+1
-				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), #CHAOSRING_LIVETABLE+1)
+			if #B.ChaosRing.LiveTable then
+				B.CTF.GameState.CaptureHUDName = #B.ChaosRing.LiveTable+1
+				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), #B.ChaosRing.LiveTable+1)
 			else
 				B.CTF.GameState.CaptureHUDName = 1
 				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), 1)
 			end
-			CHAOSRING_SPAWNCOUNTDOWN = CHAOSRING_SPAWNBUFFER
+			B.ChaosRing.SpawnCountdown = CHAOSRING_SPAWNBUFFER
 		else
-			CHAOSRING_SPAWNCOUNTDOWN = $-1
+			B.ChaosRing.SpawnCountdown = $-1
 		end
 	end
 	if B.ChaosRing.WinCountdown == 0 then
@@ -739,11 +737,11 @@ addHook('ThinkFrame', do
 	end
 
 	for i = 1, 6 do
-		local chaosring = CHAOSRING_LIVETABLE[i]
+		local chaosring = B.ChaosRing.LiveTable[i]
 
 		if not(chaosring and chaosring.valid) then
 			if chaosring and not(chaosring.respawntimer) then
-				table.remove(CHAOSRING_LIVETABLE, i)
+				table.remove(B.ChaosRing.LiveTable, i)
 			end
 			continue
 		end
@@ -782,7 +780,7 @@ addHook('ThinkFrame', do
 			end
 
 			P_RemoveMobj(chaosring)
-			table.remove(CHAOSRING_LIVETABLE, i)
+			table.remove(B.ChaosRing.LiveTable, i)
 			continue
 		end*/
 
@@ -799,7 +797,7 @@ addHook('ThinkFrame', do
 					P_SpawnMobj(chaosring.x,chaosring.y,chaosring.z,MT_SPARK)
 					CHAOSRING_SPAWNTABLE[chaosring.spawnthing.num] = chaosring.spawnthing
 					P_RemoveMobj(chaosring)
-					CHAOSRING_LIVETABLE[i] = {valid=false, respawntimer=CHAOSRING_RESPAWNTIME}
+					B.ChaosRing.LiveTable[i] = {valid=false, respawntimer=CHAOSRING_RESPAWNTIME}
 					print("A "..CHAOSRING_TEXT[i].." was lost!")
 					continue
 				end
@@ -907,4 +905,7 @@ addHook('NetVars', function(net)
 	CHAOSRING_SPAWNTABLE = net($)
 	B.ChaosRing.WinCountdown = net($)
 	B.ChaosRing.LiveTable = net($)
+	B.ChaosRing.WinCountdown = net($)
+	B.ChaosRing.GlobalAngle = net($)
+	B.ChaosRing.InitSpawnWait = net($)
 end)
