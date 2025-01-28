@@ -32,6 +32,7 @@ hud.add(A.PlacementHUD)
 hud.add(F.CompassHUD)
 hud.add(F.TeamScoreHUD)
 hud.add(F.DelayCapNotice)
+hud.add(B.ChaosRingHUD)
 
 --Game state info
 hud.add(B.PreRoundHUD)

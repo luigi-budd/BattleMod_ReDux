@@ -362,10 +362,8 @@ local function captureChaosRing(mo, bank)
 	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num])
 	mo.bank = bank
 	mo.captured = true
-	addPoints(mo.target.player.ctfteam, 250)
-	P_AddPlayerScore(mo.target.player, 250)
+	addPoints(mo.target.player.ctfteam, 50)
 	mo.fuse = CHAOSRING_INVULNTIME
-	--mo.angle = (ANG1*60*mo.chaosring_num)
 	mo.scale = mo.idealscale - (mo.idealscale/3)
 	mo.ctfteam = mo.target.player.ctfteam
 end
@@ -636,6 +634,8 @@ local chaosRingPreFunc = function(mo)
 			free(mo)
 			if not (mo and mo.valid) then return end
 			mo.target = nil
+			mo.captured = nil
+			mo.angle = 0
 			P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
 			B.ZLaunch(mo,player.mo.scale*6)
 			P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
