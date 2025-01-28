@@ -218,6 +218,8 @@ local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible af
 local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 B.ChaosRing.SpawnCountdown = 0
 local CHAOSRING_SPAWNCOUNTDOWN = B.ChaosRing.SpawnCountdown
+B.ChaosRing.GlobalAngle = ANG20
+
 
 B.ChaosRing.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 
@@ -340,7 +342,7 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 	end
 	if mo.captured and (toucher.player) then
 		mo.captured = nil
-		mo.angle = 0
+		--mo.angle = 0
 		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM[mo.chaosring_num]
 		mo.bank = nil
 	end
@@ -503,7 +505,7 @@ local chaosRingFunc = function(mo)
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
 		--print(t.player)
-		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+mo.angle) or mo.angle
+		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+B.ChaosRing.GlobalAngle) or mo.angle
 		local dist = mo.target.radius*3
 		local x = t.x+P_ReturnThrustX(mo,ang,dist)
 		local y = t.y+P_ReturnThrustY(mo,ang,dist)
@@ -680,6 +682,8 @@ addHook('ThinkFrame', do
 	if gametype != GT_BANK
 		return
 	end
+
+	B.ChaosRing.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd
 	if (leveltime-(CV_FindVar("hidetime").value*TICRATE) >= CHAOSRING_STARTSPAWNBUFFER) and #CHAOSRING_LIVETABLE < 6 then --2 Minutes in?
 		if CHAOSRING_SPAWNCOUNTDOWN <= 0 then 
 			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
