@@ -108,16 +108,20 @@ B.GetZCollideAngle = function(mo,collide)
 -- 		print("\x82 Error:\x80 An object in GetZCollideAngle() does not exist!")
 -- 		return 0
 -- 	end
+	local h = mo.height/2 --* P_MobjFlip(mo)
+	local ch = collide.height/2 --* P_MobjFlip(collide)
+	local m = -mo.momz * P_MobjFlip(mo)
+	local cm = -collide.momz * P_MobjFlip(collide)
 	local x = mo.x - mo.momx
 	local y = mo.y - mo.momy
-	local z = mo.z+((mo.height/2)+(-mo.momz))*P_MobjFlip(mo)
+	local z = mo.z + h + m
 	local cx = collide.x - collide.momx
 	local cy = collide.y - collide.momy
-	local cz = collide.z + collide.height/2 - collide.momz
+	local cz = collide.z + ch + cm
 	local zdist = z-cz
 	local xydist = FixedHypot(x-cx,y-cy)
 	local collideangle = R_PointToAngle2(0,0,xydist,zdist)
-	return collideangle*P_MobjFlip(mo)
+	return collideangle * P_MobjFlip(mo)
 end
 
 B.DoPlayerCollisionDamage = function(smo,tmo)

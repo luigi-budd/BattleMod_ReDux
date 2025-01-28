@@ -22,7 +22,7 @@ end
 
 B.SPriority_HammerTwirl = function(mo,other)
 	if mo.player then mo.player.pflags = $&~PF_THOKKED end
-	if zangle(mo,other,true) > ANGLE_45 then return false
+	if abs(zangle(mo,other)) > ANGLE_45 then return false
 	else return true end
 end
 
@@ -33,19 +33,19 @@ B.SPriority_Melee = function(mo,other)
 end
 
 B.SPriority_TailBounce = function(mo,other)
-	if (B.GetZCollideAngle(mo,other) < ANGLE_45) then return false end
+	if zangle(mo,other) < ANGLE_45 then return false end
 	S_StartSound(mo, sfx_s3k90)
 	return true
 end
 
 B.SPriority_SpringDrop = function(mo,other)
-	if (B.GetZCollideAngle(mo,other) < ANGLE_22h) then return false end
+	if zangle(mo,other) < ANGLE_22h then return false end
 	S_StartSound(mo, sfx_s3k90)
 	return true
 end
 
 B.SPriority_Stomp = function(mo,other)
-	if (B.GetZCollideAngle(mo,other) < ANGLE_22h) then return false end
+	if zangle(mo,other) < ANGLE_22h then return false end
 	S_StartSound(mo, sfx_s3k90)
 	return true
 end
