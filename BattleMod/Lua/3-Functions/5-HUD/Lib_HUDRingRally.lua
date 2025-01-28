@@ -4,6 +4,13 @@ local F = B.CTF
 
 local lerpamt = FRACUNIT
 
+local CHAOSRING1 = 1<<0
+local CHAOSRING2 = 1<<1
+local CHAOSRING3 = 1<<2
+local CHAOSRING4 = 1<<3
+local CHAOSRING5 = 1<<4
+local CHAOSRING6 = 1<<5
+
 --Actions
 local function roundToMultipleOf5(num)
     local remainder = num % 5
@@ -40,6 +47,25 @@ B.ChaosRingCapHUD = function(v)
 
     if not(#B.ChaosRing.LiveTable or B.PreRoundWait()) then
 		v.drawString(320/2, 60, "The Chaos Rings will descend in \n"..(B.ChaosRing.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE)))/TICRATE, V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+    else
+        local team = nil
+        for i = 1, 2 do
+            local bank = (i==1 and B.RedBank) or B.BlueBank
+            if bank.chaosrings == (CHAOSRING1|CHAOSRING2|CHAOSRING3|CHAOSRING4|CHAOSRING5|CHAOSRING6)
+                team = (i==1 and "\x85".."Red Team".."\x80") or "\x84".."Blue Team".."\x80"
+            end
+        end
+
+        --Hi Cyan
+
+        local c = B.ChaosRing.Data
+
+        local action = "\x82".."win".."\x80"
+
+
+        if team then
+            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(B.ChaosRing.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+        end
     end
 end
 

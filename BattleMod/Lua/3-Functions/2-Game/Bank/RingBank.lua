@@ -208,14 +208,15 @@ local addHudSparkle = function(team, direction)
 end
 
 --Constants
-local CHAOSRING_STARTSPAWNBUFFER = 1 --Time it takes for Chaos Rings to start spawning
+local CHAOSRING_STARTSPAWNBUFFER = TICRATE*90 --Time it takes for Chaos Rings to start spawning
 local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
 local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
 local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING --Object Type
-local CHAOSRING_WINTIMER = TICRATE*12 --Countdown to a team win if they have all 6
+local CHAOSRING_WINTIME = TICRATE*12 --Countdown to a team win if they have all 6
 local CHAOSRING_CAPTIME = TICRATE*5 --Time it takes to capture a Chaos Ring
 local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
 local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
+local CHAOSRING_WINPOINTS = 9999
 B.ChaosRing.SpawnCountdown = 0
 local CHAOSRING_SPAWNCOUNTDOWN = B.ChaosRing.SpawnCountdown
 B.ChaosRing.GlobalAngle = ANG20
@@ -242,7 +243,7 @@ local SLOWCAPPINGALLY_SFX  = sfx_kc5a
 local SLOWCAPPINGENEMY_SFX = sfx_kc59
 
 local CHAOSRING_SPAWNTABLE = {}
-local CHAOSRING_WINCOUNTDOWN = CHAOSRING_WINTIMER
+B.ChaosRing.WinCountdown = CHAOSRING_WINTIME
 B.ChaosRing.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
 local CHAOSRING_LIVETABLE = B.ChaosRing.LiveTable
 
@@ -345,6 +346,9 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 		--mo.angle = 0
 		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM[mo.chaosring_num]
 		mo.bank = nil
+	end
+	if mo.target and mo.target.valid and not(mo.target.player) then --Bank?
+		B.ChaosRing.WinCountdown = CHAOSRING_WINTIME
 	end
 	toucher.player.gotcrystal = true
 	mo.target = toucher
@@ -700,14 +704,17 @@ addHook('ThinkFrame', do
 			CHAOSRING_SPAWNCOUNTDOWN = $-1
 		end
 	end
-	if CHAOSRING_WINCOUNTDOWN == 0 then
+	if B.ChaosRing.WinCountdown == 0 then
 		B.Arena.ForceWin()
-		CHAOSRING_WINCOUNTDOWN = -1
-	elseif CHAOSRING_WINCOUNTDOWN > 0
+		B.ChaosRing.WinCountdown = -1
+	elseif B.ChaosRing.WinCountdown > 0
 		for i = 1, 2 do
 			local bank = (i==1 and B.RedBank) or B.BlueBank
 			if bank.chaosrings == (CHAOSRING1|CHAOSRING2|CHAOSRING3|CHAOSRING4|CHAOSRING5|CHAOSRING6)
-				CHAOSRING_WINCOUNTDOWN = $-1
+				B.ChaosRing.WinCountdown = $-1
+				if B.ChaosRing.WinCountdown == 0 then
+					addPoints(i, CHAOSRING_WINPOINTS)
+				end
 			end
 		end
 	end
@@ -879,6 +886,6 @@ addHook('NetVars', function(net)
 	B.RedBank = net($)
 	B.BlueBank = net($)
 	CHAOSRING_SPAWNTABLE = net($)
-	CHAOSRING_WINCOUNTDOWN = net($)
+	B.ChaosRing.WinCountdown = net($)
 	B.ChaosRing.LiveTable = net($)
 end)
