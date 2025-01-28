@@ -167,7 +167,7 @@ addHook("MobjThinker", BattleTagITtag, MT_BATTLETAG_IT)
 
 local ARROW_TAGSCALE = 0
 local ARROW_CONSTANTSCALE = 1
-local ARROW_INVERSESCALE = 2
+local ARROW_INVERTSCALE = 2
 //thinker for pointer
 local function BattleTagPointers(mo)
 	local delete = false
@@ -215,8 +215,13 @@ local function BattleTagPointers(mo)
 		else
 			delete = true
 		end
-	else
-		delete = true
+	elseif (gametype == GT_BANK) then
+		arrowscale = ARROW_INVERTSCALE
+		if mo.tracer.player.gotcrystal then
+			target = ((mo.tracer.player.ctfteam == 1) and B.RedBank) or B.BlueBank
+		else
+			delete = true
+		end
 	end
 
 	if not(target) and not(mo.target and mo.target.valid) then
@@ -278,6 +283,10 @@ local function BattleTagPointers(mo)
 						)) or
 						(CP.LeadCapPlr and CP.LeadCapPlr.skincolor) or 
 						mo.tracer.player.skincolor
+					)
+			   ) or
+			   ((gametype == GT_BANK) and (
+			   			mo.tracer.player.skincolor
 					)
 			   ) or
 			   SKINCOLOR_PITCHBLACK --If it's pitch black, something's probably wrong
