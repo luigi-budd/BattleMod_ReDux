@@ -219,7 +219,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			S_StartSound(mo, sfx_hoop1)
 		end
 		//Neutral
-		local nearground = P_IsObjectOnGround(mo) or mo.z+mo.momz < mo.floorz
+		local nearground = P_IsObjectOnGround(mo) or mo.z+mo.momz*P_MobjFlip(mo) < mo.floorz
 		if nearground or player.actiontime > TICRATE*3/2  or player.powers[pw_carry] then
 			if nearground or doaction
 			or (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
