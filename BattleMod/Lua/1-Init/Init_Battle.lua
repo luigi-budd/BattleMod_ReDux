@@ -262,7 +262,7 @@ B.AddBattleGametype({
     rankingtype = GT_CTF,
 	intermissiontype = int_ctf,
 	defaultpointlimit = 0,
-	defaulttimelimit = 5,
+	defaulttimelimit = 8,
     headerleftcolor = 37,
     headerrightcolor = 150,
     description = "Work with your allies to rack up the most rings for your team! Collect rings and take them back to your team's rally point or steal rings from the enemy rally point to keep them from gaining the upper hand!"
@@ -276,7 +276,7 @@ B.AddBattleGametype({
     rules = GTR_OVERTIME|GTR_STARTCOUNTDOWN|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|GTR_HURTMESSAGES|GTR_TEAMFLAGS,
     rankingtype = GT_CTF,
 	intermissiontype = int_ctf,
-	defaultpointlimit = 0,
+	defaultpointlimit = 5,
 	defaulttimelimit = 5,
     headerleftcolor = 37,
     headerrightcolor = 150,
