@@ -1,7 +1,7 @@
 local B = CBW_Battle
 B.RedBank = nil
 B.BlueBank = nil
-
+B.ChaosRing = {}
 
 
 local addPoints = function(team, points)
@@ -235,7 +235,8 @@ local SLOWCAPPINGENEMY_SFX = sfx_kc59
 
 local CHAOSRING_SPAWNTABLE = {}
 local CHAOSRING_WINCOUNTDOWN = CHAOSRING_WINTIMER
-local CHAOSRING_LIVETABLE = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+B.ChaosRing.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+local CHAOSRING_LIVETABLE = B.ChaosRing.LiveTable
 
 local CHAOSRING_DATA = {
 	[1] = { --Gold
@@ -399,10 +400,13 @@ local function spawnChaosRing(num, chaosringnum)
 	CHAOSRING_LIVETABLE[chaosringnum] = thing.mo
 end
 
-local CHAOSRING_AMBIENCE = freeslot("sfx_crng1")
+local CHAOSRING_AMBIENCE = sfx_nullba--freeslot("sfx_crng1")
+local CHAOSRING_RADAR = freeslot("sfx_crng2")
 
 sfxinfo[CHAOSRING_AMBIENCE].caption = "Chaos Ring presence"
 sfxinfo[CHAOSRING_AMBIENCE].flags = $|SF_X2AWAYSOUND
+
+sfxinfo[CHAOSRING_RADAR].caption = "/"
 
 local chaosRingFunc = function(mo)
 	mo.shadowscale = FRACUNIT>>1
@@ -773,11 +777,11 @@ addHook('ThinkFrame', do
 		if player.mo and player.mo.health and not player.powers[pw_flashing] and not(player.gotcrystal)
 			local base = getBase(player)
 			if base == 1 -- Red base
-				if redInRed and blueInRed
+				if blueInRed
 					continue
 				end
 			elseif base == 2 -- Blue base
-				if redInBlue and blueInBlue
+				if redInBlue
 					continue
 				end
 			end
@@ -837,5 +841,5 @@ addHook('NetVars', function(net)
 	B.BlueBank = net($)
 	CHAOSRING_SPAWNTABLE = net($)
 	CHAOSRING_WINCOUNTDOWN = net($)
-	CHAOSRING_LIVETABLE = net($)
+	B.ChaosRing.LiveTable = net($)
 end)
