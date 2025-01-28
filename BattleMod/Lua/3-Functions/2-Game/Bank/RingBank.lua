@@ -412,7 +412,7 @@ addHook("MobjFuse",function(mo)
 end,CHAOSRING_TYPE)
 
 
-local function spawnChaosRing(num, chaosringnum)
+local function spawnChaosRing(num, chaosringnum, re)
 	if not(CHAOSRING_SPAWNTABLE[num]) then
 		return
 	end
@@ -440,8 +440,13 @@ local function spawnChaosRing(num, chaosringnum)
 	thing.mo.idealscale = FixedMul(thing.scale, CHAOSRING_SCALE)
 	thing.mo.spawnthing = thing
 	thing.num = num
+	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
 	B.ChaosRing.LiveTable[chaosringnum] = thing.mo
 	table.remove(CHAOSRING_SPAWNTABLE, num)
+	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
+	if re then
+		S_StartSound(nil, sfx_cdfm44)
+	end
 end
 
 local CHAOSRING_AMBIENCE = sfx_nullba--freeslot("sfx_crng1")
@@ -706,16 +711,18 @@ end)
 
 local function do_delete(mo)
 	-- Remove object
+	local chaosring = mo
 	P_SpawnMobj(chaosring.x,chaosring.y,chaosring.z,MT_SPARK)
 	CHAOSRING_SPAWNTABLE[chaosring.spawnthing.num] = chaosring.spawnthing
-	P_RemoveMobj(chaosring)
-	B.ChaosRing.LiveTable[i] = {valid=false, respawntimer=CHAOSRING_RESPAWNTIME}
-	print("A "..CHAOSRING_TEXT[i].." was lost!")
+	B.ChaosRing.LiveTable[mo.chaosring_num] = {valid=false, respawntimer=CHAOSRING_SPAWNBUFFER}
+	print("A "..CHAOSRING_TEXT(mo.chaosring_num).." was lost!")
+	S_StartSound(nil, sfx_kc5d)
 end
 
-addHook("MobjDeath", function(mo)
-	do_delete(mo)
-	return true
+addHook("MobjRemoved", function(mo)
+	if mo and mo.valid then
+		do_delete(mo)
+	end
 end, CHAOSRING_TYPE)
 
 
@@ -761,18 +768,23 @@ addHook('ThinkFrame', do
 
 		local remove = false
 
-		if chaosring and not(chaosring.valid) and type(chaosring) == "table" and not(chaosring.respawntimer) then
+		if not(chaosring and chaosring.valid) then
 			remove = true
 		end
 
-		if remove then
-			table.remove(B.ChaosRing.LiveTable, i)
+		if chaosring and not(chaosring.valid) and type(chaosring) == "table" and (chaosring.respawntimer) then
+			remove = false
+			chaosring.respawntimer = $-1
+			if chaosring.respawntimer <= 0 then
+				spawnChaosRing(P_RandomRange(1, #CHAOSRING_SPAWNTABLE), i, true)
+			end
 			continue
 		end
 
-		if not(chaosring and chaosring.valid) then
+		if remove then
 			continue
 		end
+
 
 		local mo = chaosring
 		if mo.chaosring_corona and mo.chaosring_corona.valid then
@@ -826,7 +838,7 @@ addHook('ThinkFrame', do
 		end
 
 		if delete then
-			do_delete(chaosring)
+			P_RemoveMobj(chaosring)
 			continue
 		end
 	end
