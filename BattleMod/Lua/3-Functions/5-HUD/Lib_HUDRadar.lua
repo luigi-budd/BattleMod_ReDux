@@ -5,6 +5,8 @@ local R = B.Ruby
 local F = B.CTF
 local A = B.Arena
 local CP = B.ControlPoint
+local C = B.Bank
+local CR = C.ChaosRing
 
 B.clamp = function(num, minimum, maximum)
 	return min(maximum, max(num, minimum))
@@ -124,14 +126,14 @@ B.RadarHUD = function(v, player, cam)
 		if r == 3
 			if not (
 				(F.RedFlag and F.RedFlag.valid and not(F.RedFlag.flags2 & MF2_DONTDRAW) and (F.RedFlag.state ~= S_RUBYPORTAL))
-				or (B.RedBank and B.RedBank.valid)
+				or (C.RedBank and C.RedBank.valid)
 			) then
 				continue
 			end
-			table.insert(t,F.RedFlag or B.RedBank)
+			table.insert(t,F.RedFlag or C.RedBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			if gametype == GT_BANK then
+			if B.BankGametype() then
 				patch_clamped = v.cachePatch("RAD_RING1")
 				patch = v.cachePatch("RAD_RING2")
 			else
@@ -144,14 +146,14 @@ B.RadarHUD = function(v, player, cam)
 		if r == 4
 			if not (
 				(F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.flags2 & MF2_DONTDRAW) and (F.BlueFlag.state ~= S_RUBYPORTAL))
-				or (B.BlueBank and B.BlueBank.valid)
+				or (C.BlueBank and C.BlueBank.valid)
 			) then
 				continue
 			end
-			table.insert(t,F.BlueFlag or B.BlueBank)
+			table.insert(t,F.BlueFlag or C.BlueBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
-			if gametype == GT_BANK then
+			if B.BankGametype() then
 				patch_clamped = v.cachePatch("RAD_RING1")
 				patch = v.cachePatch("RAD_RING2")
 			else

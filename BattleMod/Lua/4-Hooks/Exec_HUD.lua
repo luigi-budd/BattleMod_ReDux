@@ -5,6 +5,8 @@ local A = B.Arena
 local D = B.Diamond
 local R = B.Ruby
 local F = B.CTF
+local C = B.Bank
+local CR = C.ChaosRing
 
 --Radar
 hud.add(B.RadarHUD)
@@ -32,8 +34,8 @@ hud.add(A.PlacementHUD)
 hud.add(F.CompassHUD)
 hud.add(F.TeamScoreHUD)
 hud.add(F.DelayCapNotice)
-hud.add(B.ChaosRingHUD)
-hud.add(B.ChaosRingCapHUD)
+hud.add(CR.ChaosRingHUD)
+hud.add(CR.ChaosRingCapHUD)
 
 --Game state info
 hud.add(B.PreRoundHUD)

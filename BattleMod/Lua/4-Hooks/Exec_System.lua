@@ -6,6 +6,8 @@ local F = B.CTF
 local CV = B.Console
 local CP = B.ControlPoint
 local I = B.Item
+local C = B.Bank
+local CR = C.ChaosRing
 
 addHook("NetVars",B.NetVars.Sync)
 
@@ -77,6 +79,7 @@ addHook("PreThinkFrame", function()
 	I.GameControl()
 	B.PinchControl()
 	B.TagControl()
+	CR.PreThinkFrame()
 	//Player control
 	for player in players.iterate
 		if player.deadtimer < 0 and player.deadtimer >= -TICRATE then player.deadtimer = 0 end
@@ -95,6 +98,7 @@ addHook("ThinkFrame",function()
 	
 	B.ResetScore()
 	A.ResetScore()
+	C.ThinkFrame()
 	--F.DelayCapActivateIndicator()
 	--F.UpdateScore()
 end)

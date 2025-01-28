@@ -1078,7 +1078,7 @@ end
 
 --// Enables delay cap and subsequently enables all related variables to delay cap (delay cap notice, delay cap flag base flashing, etc)
 F.DelayCapActivateIndicator = function()
-	if (B.DiamondGametype() or B.RubyGametype() or (gametype == GT_BANK)) then
+	if (B.DiamondGametype() or B.RubyGametype() or B.BankGametype()) then
 		return
 	end
 	if (B.Overtime and F.DC_NoticeTimer < 0) then 

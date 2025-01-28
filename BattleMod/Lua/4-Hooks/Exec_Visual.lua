@@ -3,6 +3,8 @@ local R = B.Ruby
 local CP = B.ControlPoint
 local D = B.Diamond
 local F = B.CTF
+local C = B.Bank
+local CR = C.ChaosRing
 
 addHook("MobjThinker", B.BattleShieldThinker, MT_BATTLESHIELD)
 addHook("MobjThinker", B.NegaShieldThinker, MT_NEGASHIELD)
@@ -215,10 +217,10 @@ local function BattleTagPointers(mo)
 		else
 			delete = true
 		end
-	elseif (gametype == GT_BANK) then
+	elseif B.BankGametype() then
 		arrowscale = ARROW_INVERTSCALE
 		if mo.tracer.player.gotcrystal then
-			target = ((mo.tracer.player.ctfteam == 1) and B.RedBank) or B.BlueBank
+			target = ((mo.tracer.player.ctfteam == 1) and C.RedBank) or C.BlueBank
 		else
 			delete = true
 		end
@@ -285,7 +287,7 @@ local function BattleTagPointers(mo)
 						mo.tracer.player.skincolor
 					)
 			   ) or
-			   ((gametype == GT_BANK) and (
+			   (B.BankGametype() and (
 			   			mo.tracer.player.skincolor
 					)
 			   ) or

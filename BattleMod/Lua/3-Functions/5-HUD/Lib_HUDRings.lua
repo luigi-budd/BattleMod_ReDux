@@ -1,5 +1,7 @@
 local B = CBW_Battle
 local CV = B.Console
+local C = B.Bank
+local CR = C.ChaosRing
 local TF_WHITE = 1
 local TF_YELLOW = 2
 local TF_RED = 3
@@ -107,7 +109,7 @@ B.RingsHUD = function(v, player, cam)
 	v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
 
 	--Chaos Ring Radar
-	if gametype == GT_BANK and not(player.gotcrystal) then
+	if B.BankGametype() and not(player.gotcrystal) then
 		local p = player
 		local beeps = {}
 		local proxBeep = { 50, 50, 40, 20, 10, 5 }
@@ -116,8 +118,8 @@ B.RingsHUD = function(v, player, cam)
 		local radarColor = {SKINCOLOR_GREY, SKINCOLOR_BLUE, SKINCOLOR_SHAMROCK, SKINCOLOR_YELLOW, SKINCOLOR_ORANGE, SKINCOLOR_RED}
 
 		//Emblem radar. Also hidden when the menu is present.
-		for i=1,#B.ChaosRing.LiveTable do
-			local chaosring = B.ChaosRing.LiveTable[i]
+		for i=1,#CR.LiveTable do
+			local chaosring = CR.LiveTable[i]
 			local invalid = (not(chaosring and chaosring.valid) or chaosring.target or not(chaosring.valid))
 			if invalid then
 				continue 

@@ -28,7 +28,7 @@ addHook("MobjThinker",B.Arena.RingLoss, MT_FLINGRING)
 
 -- Remove the hardcoded flags
 local removeflags = function(mo)
-	if (gametype == GT_BANK) then return end -- don't do anything if bank TOL
+	if B.BankGametype() then return end -- don't do anything if bank TOL
 
 	if (gametype ~= GT_CTF) then
 		mo.flags2 = $ | MF2_DONTDRAW

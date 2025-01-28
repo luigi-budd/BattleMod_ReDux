@@ -22,6 +22,8 @@ B.Exiting = false
 B.PinchTics = 0
 B.Arena = {}
 B.Ruby = {}
+B.Bank = {}
+B.Bank.ChaosRing = {}
 B.Diamond = {}
 B.CTF = {}
 B.CTF.GameState = {}
@@ -310,6 +312,7 @@ G.CP 			= {false,false,false,false,false,false,false,false}
 G.Arena 		= {false,false,false,false,false,false,false,false}
 G.Diamond 		= {false,false,false,false,false,false,false,false}
 G.Ruby 			= {false,false,false,false,false,false,false,false}
+G.Bank          = {false,false,false,false,false,false,false,false}
 
 -- Format: { [GAMETYPE], {[ GAMETYPE_VALUES ]}}
 -- NOTE: the 3rd field indicates that the gametype is a BATTLE gametype.
@@ -324,7 +327,7 @@ local GAMETYPE_INDICES = {
 	{GT_DIAMOND			,{0, false, true, false, false,true,  false}},
 	{GT_TEAMDIAMOND		,{0, false, true, false, false,true,  false}},
 	{GT_BANK			,{0, false, true, false, false,false, false}},
-	{GT_RUBYRUN 		,{0, false, true,false, false,false,  true}},
+	{GT_RUBYRUN 		,{0, false, true, false, false,false,  true}},
 	{GT_BATTLETAG		,{0, false, true, false, false,false, false}}
 }
 for i =1,#GAMETYPE_INDICES do
@@ -338,4 +341,5 @@ for i =1,#GAMETYPE_INDICES do
 	G.Arena[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[5] -- Does this gametype use the Arena format?
 	G.Diamond[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[6] -- Does this gametype use the Diamond format?
 	G.Ruby[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[7] -- Does this gametype use the Ruby format?
+	--G.Bank[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[8] -- Does this gametype use the Bank format?
 end

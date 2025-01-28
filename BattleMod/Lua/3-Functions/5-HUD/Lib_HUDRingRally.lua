@@ -1,6 +1,8 @@
 local B = CBW_Battle
 local CV = B.Console
 local F = B.CTF
+local C = B.Bank
+local CR = C.ChaosRing
 
 local lerpamt = FRACUNIT
 
@@ -21,8 +23,8 @@ local function roundToMultipleOf5(num)
     end
 end
 
-B.ChaosRingCapHUD = function(v)
-	if (gametype ~= GT_BANK) then
+CR.ChaosRingCapHUD = function(v)
+	if (not(B.BankGametype())) then
 		return
 	end
 	
@@ -40,38 +42,38 @@ B.ChaosRingCapHUD = function(v)
             local y = B.Exiting and 160 or 66
             lerpamt = B.FixedLerp(0,FRACUNIT,$*90/100)
             local subtract = B.FixedLerp(0,180,lerpamt)
-            v.drawString(x+subtract, y, "A "..B.ChaosRing.Data[chaosringnum].textmap.."Chaos Ring".."\x80".." has appeared!", trans, "center")
+            v.drawString(x+subtract, y, "A "..CR.Data[chaosringnum].textmap.."Chaos Ring".."\x80".." has appeared!", trans, "center")
             F.GameState.CaptureHUDTimer = $ - 1
         end
 	end
 
-    if not(#B.ChaosRing.LiveTable or B.PreRoundWait()) then
-		v.drawString(320/2, 60, "The Chaos Rings will descend in \n"..(B.ChaosRing.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE)))/TICRATE, V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+    if not(#CR.LiveTable or B.PreRoundWait()) then
+		v.drawString(320/2, 60, "The Chaos Rings will descend in \n"..(CR.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE)))/TICRATE, V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
     else
         local team = nil
         for i = 1, 2 do
-            local bank = (i==1 and B.RedBank) or B.BlueBank
-            if bank.chaosrings == (CHAOSRING1|CHAOSRING2|CHAOSRING3|CHAOSRING4|CHAOSRING5|CHAOSRING6)
+            local bank = (i==1 and C.RedBank) or C.BlueBank
+            if bank and bank.valid and bank.chaosrings == (CHAOSRING1|CHAOSRING2|CHAOSRING3|CHAOSRING4|CHAOSRING5|CHAOSRING6)
                 team = (i==1 and "\x85".."Red Team".."\x80") or "\x84".."Blue Team".."\x80"
             end
         end
 
         --Hi Cyan
 
-        local c = B.ChaosRing.Data
+        local c = CR.Data
 
         local action = "\x82".."win".."\x80"
 
 
         if team then
-            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(B.ChaosRing.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(CR.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
         end
     end
 end
 
-B.ChaosRingHUD = function(v, player)
+CR.ChaosRingHUD = function(v, player)
     --Froot Loops (Chaos Rings)
-    if gametype == GT_BANK then
+    if B.BankGametype() then
         local flags = V_PERPLAYER|V_SNAPTOTOP|V_HUDTRANS
         local x = 160*FRACUNIT
         local y = (CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) and 26*FRACUNIT) or 26*FRACUNIT
@@ -82,7 +84,7 @@ B.ChaosRingHUD = function(v, player)
             local flip = (t==1 and val) or -val
             for i = 1, 6 do
                 local num = i
-                local chaosring = B.ChaosRing.LiveTable[num]
+                local chaosring = CR.LiveTable[num]
                 if not(chaosring and chaosring.valid) then continue end
                 if not((chaosring.captured and ((chaosring.ctfteam == t) and (((chaosring.fuse) and ((leveltime/6)%2)==1) or not(chaosring.fuse)))) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time) and (leveltime%2)==1)) then continue end
                 local patch = v.cachePatch("CHRING"..num)
