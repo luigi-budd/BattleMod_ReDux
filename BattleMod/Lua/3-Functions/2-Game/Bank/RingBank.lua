@@ -286,6 +286,7 @@ addHook('MapLoad', do
 				y = mt.y*FRACUNIT,
 				z = mt.z*FRACUNIT,
 				options = mt.options,
+				scale = mt.scale,
 				mo = nil --Will use this field later
 			}
 
@@ -385,16 +386,22 @@ local function spawnChaosRing(num, chaosringnum)
 	end
 	local thing = CHAOSRING_SPAWNTABLE[num]
 	local data = CHAOSRING_DATA[chaosringnum]
+
+	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
+	local float = ((thing.options&MTF_OBJECTFLIP) and 1) or 0
 	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
 	local z = thing.z+(70*FRACUNIT)
 
 	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
-	thing.mo.scale = CHAOSRING_SCALE
+	if flip == -1 then
+		mo.flags2 = $|MF2_OBJECTFLIP
+	end
+	thing.mo.scale = FixedMul(thing.scale, CHAOSRING_SCALE)
 	thing.mo.state = S_TEAMRING
 	thing.mo.color = data.color
 	thing.mo.chaosring_num = chaosringnum
 	thing.mo.idealz = thing.mo.z
-	thing.mo.idealscale = CHAOSRING_SCALE
+	thing.mo.idealscale = FixedMul(thing.scale, CHAOSRING_SCALE)
 	CHAOSRING_LIVETABLE[chaosringnum] = thing.mo
 end
 
