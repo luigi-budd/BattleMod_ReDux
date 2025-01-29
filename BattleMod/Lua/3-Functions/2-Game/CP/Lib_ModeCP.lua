@@ -225,24 +225,31 @@ CP.MapThingSpawn = function(mo,thing)
 	CP.ID[#CP.ID+1] = mo
 	local settings = thing.options&15
 	local parameters = thing.extrainfo
+	local args = thing.args
 	local angle = thing.angle
 	local flip = 0
+	
 	//Meter
-	if parameters > 0 then
-		mo.cp_meter = CP.CalcMeter(parameters)
+	--[1-15]Set amount of time to capture point
+	
+	if args[0] > 0 then
+		mo.cp_meter = CP.CalcMeter(args[0])
 	end
 	
 	//Radius
-	if angle > 0 then
-		mo.cp_radius = CP.CalcRadius(angle)
+	--[0-384]Set the size of the CP Radius
+	if args[1] > 0 then
+		mo.cp_radius = CP.CalcRadius(args[1])
 	end
 	
 	//Height
 	local n = 2
-	if settings&8 then n = $-1 end //Ambush flag
-	if settings&1 then n = $+2 end //Extra flag
-	if settings&2 then flip = 1 end //Flip flag
-	if settings&4 then n = -1 end //Special flag
+	--[1]Height is decreased by 50%.
+	if args[2] then n = $-1 end //Ambush flag
+	--[1]Height is increased by 100% 
+	if args[3] then n = $+2 end //Extra flag
+	--[1]Base and height are equal to the floor and ceiling height of the sector.
+	if args[4] then n = -1 end //Special flag
 	mo.cp_height = CP.CalcHeight(n)
 	local fu = FRACUNIT
 	B.DebugPrint("Control Point ID #"..#CP.ID..": radius "..mo.cp_radius/fu..", height "..mo.cp_height/fu..", flip "..flip..", meter "..mo.cp_meter,DF_GAMETYPE)
