@@ -111,6 +111,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	end
 	//Ground Special
 	if player.actionstate == ground_special then
+		B.analogkill(player, 2)
 		player.pflags = $|PF_JUMPSTASIS
 		spinhammer(mo, true)
 		sparkle(mo)
