@@ -140,8 +140,8 @@ end
 
 B.CanShieldActive = function(player)
 	if not P_PlayerInPain(player)
-		and not player.gotcrystal
-		and not player.gotflag
+		and not player.gotflagdebuff
+		and not (player.tossdelay == 2*TICRATE - 1)
 		and not player.isjettysyn
 		and not player.revenge
 		and not player.exiting

@@ -113,17 +113,14 @@ addHook("AbilitySpecial",function(player)
 end)
 
 B.EmergencyWhirlWindJump = function(player)
-	if B.CanShieldActive(player)
-		and (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1)
-		and not (player.mo and player.mo.state == S_PLAY_LEDGE_GRAB)
-	then
-		--B.DoShieldActive(player)
-		return true
+	if (player.powers[pw_shield]&SH_NOSTACK == SH_WHIRLWIND and B.ButtonCheck(player,BT_JUMP) == 1) then
+		return (player.mo and player.mo.state == S_PLAY_LEDGE_GRAB)
 	end
 end
 
-addHook("ShieldSpecial", function(player) 
-	if B.EmergencyWhirlWindJump(player) or B.ShieldActions[(player.powers[pw_shield] & SH_NOSTACK)] then
+addHook("ShieldSpecial", function(player)
+	if B.CanShieldActive(player) == false or B.EmergencyWhirlWindJump(player) then return true end
+	if B.ShieldActions[(player.powers[pw_shield] & SH_NOSTACK)] then
 		B.DoShieldActive(player)
 		return true -- Prevent regular shield action if a battle shield action for this shield exists
 	end
