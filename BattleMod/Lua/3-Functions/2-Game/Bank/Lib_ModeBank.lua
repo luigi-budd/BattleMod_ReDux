@@ -18,7 +18,7 @@ local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
 CR.SpawnCountdown = 0
 CR.GlobalAngle = ANG20
-CR.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
+CR.InitSpawnWait = TICRATE*25
 
 local CHAOSRING1 = 1<<0
 local CHAOSRING2 = 1<<1
@@ -46,7 +46,7 @@ local SLOWCAPPINGALLY_SFX  = sfx_kc5a
 local SLOWCAPPINGENEMY_SFX = sfx_kc59
 
 CR.SpawnTable = {}
-CR.WinCountdown = CHAOSRING_WINTIME
+CR.WinCountdown = TICRATE*12
 CR.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
 
 CR.Data = {
