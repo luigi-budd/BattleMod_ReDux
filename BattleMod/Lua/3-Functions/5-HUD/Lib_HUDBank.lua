@@ -48,7 +48,28 @@ CR.ChaosRingCapHUD = function(v)
 	end
 
     if not(#CR.LiveTable or B.PreRoundWait()) then
-		v.drawString(320/2, 60, "The Chaos Rings will descend in \n"..(CR.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE)))/TICRATE, V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+        local tics = CR.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE))
+        local x = 320/2 * FRACUNIT
+        local y = 45 * FRACUNIT
+        local f = V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT|(tics > TICRATE*10 and V_HUDTRANSHALF or V_HUDTRANS)
+        local baseradius = 12 * FRACUNIT
+        local radius = baseradius + sin(tics*ANG1)*4
+        local referencepatch = v.cachePatch("CHRING1")
+        local scalediv = 2
+        local xoff = (referencepatch.width/(scalediv*2)) + (baseradius/2)
+        --local yoff = (referencepatch.height/(scalediv*2)) + (baseradius/2)
+        if tics > TICRATE or tics%2!=0 then
+            for i = 1, 6 do
+                local angle = ((i-1) * ANG60) + (tics * ANG1)
+                local px = x + FixedMul(cos(angle), radius) +  - xoff
+                local py = y + FixedMul(sin(angle), radius) --+ yoff
+                local patch = v.cachePatch("CHRING"..i)
+                v.drawScaled(px, py, FRACUNIT/scalediv, patch, f)
+            end
+        end
+		if tics > TICRATE*3 or tics%2==0 then
+            v.drawString((x/FU)-2, y/FU, tics/TICRATE, f, "thin-center")
+        end
     else
         local team = nil
         for i = 1, 2 do
@@ -74,7 +95,7 @@ end
 CR.ChaosRingHUD = function(v, player)
     --Froot Loops (Chaos Rings)
     if B.BankGametype() then
-        local flags = V_PERPLAYER|V_SNAPTOTOP|V_HUDTRANS
+        local flags = V_PERPLAYER|V_SNAPTOTOP
         local x = 160*FRACUNIT
         local y = (CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) and 26*FRACUNIT) or 26*FRACUNIT
         local rednum = 0
@@ -86,9 +107,10 @@ CR.ChaosRingHUD = function(v, player)
                 local num = i
                 local chaosring = CR.LiveTable[num]
                 if not(chaosring and chaosring.valid) then continue end
-                if not((chaosring.captured and ((chaosring.ctfteam == t) and (((chaosring.fuse) and ((leveltime/6)%2)==1) or not(chaosring.fuse)))) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.bankkey)) and (leveltime%2)==1)) then continue end
+                if not((chaosring.captured and ((chaosring.ctfteam == t))) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.bankkey)) and (leveltime%2)==1)) then continue end
                 local patch = v.cachePatch("CHRING"..num)
-                v.drawScaled((x-(FRACUNIT*3)+(flip*((FRACUNIT/3)*(28)))*(i+2)), (y+(FRACUNIT*10)), FRACUNIT/2, patch, flags|V_HUDTRANS)
+                local trans = chaosring.fuse and (leveltime/6)%2==1 and V_HUDTRANSHALF or V_HUDTRANS
+                v.drawScaled((x-(FRACUNIT*3)+(flip*((FRACUNIT/3)*(28)))*(i+2)), (y+(FRACUNIT*10)), FRACUNIT/2, patch, flags|trans)
             end
         end
     end
