@@ -223,6 +223,9 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		if mo.momz*P_MobjFlip(mo) < 0 then 
 			mo.state = S_PLAY_ROLL
 			player.pflags = $&~(PF_THOKKED)
+			if not P_IsObjectOnGround(mo) then
+				player.pflags = $|PF_JUMPED
+			end
 			player.actionstate = 0
 		end
 		if P_IsObjectOnGround(mo) then
