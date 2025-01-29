@@ -360,7 +360,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.canguard = false
 		B.teamSound(mo, player, sfx_chargt, sfx_charge, 255, true)
 		if not(P_IsObjectOnGround(mo))
-			P_SetObjectMomZ(mo,mo.momz-(mo.momz/3),false)
+			mo.momz = $*2/3
 		end
 		local spark = P_SpawnMobj(mo.x,mo.y,mo.z+mo.height/2,MT_SUPERSPARK)
 	end
@@ -500,9 +500,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			P_Thrust(mo, B.GetInputAngle(player), actualcharge*mo.scale*2/3)
 		end
 		if player.cmd.buttons & BT_JUMP and not P_IsObjectOnGround(mo) then
-			local guh = P_MobjFlip(mo) > 0 and max or min
-			local momz = guh(mo.momz*P_MobjFlip(mo),mo.scale*5)
-			P_SetObjectMomZ(mo,momz,false)
+			P_SetObjectMomZ(mo,max(mo.scale*5,abs(mo.momz)),false)
 		end
 		player.actiontime = 0
 
