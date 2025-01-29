@@ -439,7 +439,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Charging frame
 	if player.actionstate == state_charging then
 		mo.state = S_PLAY_EDGE
-		player.pflags = $|PF_SPINDOWN|PF_THOKKED&~PF_NOJUMPDAMAGE
+		player.pflags = $|PF_SPINDOWN&~(PF_NOJUMPDAMAGE|PF_THOKKED)
 		--player.actionsuper = true
 		if not (P_IsObjectOnGround(mo) or B.WaterFactor(mo) > 1) then
 			P_SetObjectMomZ(mo,gravity/2,true) //Low grav
