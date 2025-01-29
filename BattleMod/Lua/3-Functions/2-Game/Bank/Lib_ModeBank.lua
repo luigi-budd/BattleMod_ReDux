@@ -725,13 +725,13 @@ local spawnFunc = function(mo, team)
 		return
 	end
 	if team == 1
+		mo.chaosrings = 0
+		mo.chaosrings_table = {}
 		C.RedBank = mo
-		C.RedBank.chaosrings = 0
-		C.RedBank.chaosrings_table = {}
 	else
+		mo.chaosrings = 0
+		mo.chaosrings_table = {}
 		C.BlueBank = mo
-		C.BlueBank.chaosrings = 0
-		C.BlueBank.chaosrings_table = {}
 	end
 	mo.state = S_TEAMRING
 	mo.scale = $<<1
