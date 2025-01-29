@@ -19,6 +19,9 @@ local CHAOSRING_WINPOINTS = 9999
 CR.SpawnCountdown = 0
 CR.GlobalAngle = ANG20
 
+local CHAOSRING_STARTSPAWNBUFFER = 1
+local CHAOSRING_SPAWNBUFFER = 1
+
 CR.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 
 local CHAOSRING1 = 1<<0
@@ -177,9 +180,15 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM[mo.chaosring_num]
 		mo.bank = nil
 	end
-	if mo.target and mo.target.valid and not(mo.target.player) then --Bank?
-		CR.WinCountdown = CHAOSRING_WINTIME
+	if mo.target and mo.target.valid then
+		
+		if not(mo.target.player) then --Bank?
+			CR.WinCountdown = CHAOSRING_WINTIME
+		end
+
+		mo.target.chaosring = nil
 	end
+	toucher.chaosring = mo
 	toucher.player.gotcrystal = true
 	mo.target = toucher
 	free(mo)
@@ -475,59 +484,6 @@ local chaosRingFunc = function(mo)
 			mo.floorvfx = nil
 		end
 	end
-
-
-	if mo.target and mo.target.valid then
-		if mo.target.player and not(mo.fuse) then
-		
-			local capture = function(team, bank)
-				local captime = CHAOSRING_CAPTIME
-				local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
-				local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
-				mo.target.player.gotcrystal_time = ($~=nil and $+1) or 1
-				mo.chaosring_capturing = true
-				if mo.target.player.gotcrystal_time > captime then
-					S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
-					mo.target.player.gotcrystal = false
-					mo.target.player.gotcrystal_time = 0
-					captureChaosRing(mo, bank)
-					table.insert(bank.chaosrings_table, mo.chaosring_num)
-					mo.chaosring_bankkey = #bank.chaosrings_table
-					mo.target = bank
-					return true
-				else
-					if mo.target.player.gotcrystal_time % 35 == 11 then
-						S_StartSoundAtVolume(nil, sfx, 160)
-					elseif mo.target.player.gotcrystal_time % 35 == 22 then
-						S_StartSoundAtVolume(nil, sfx, 90)
-					elseif mo.target.player.gotcrystal_time % 35 == 33 then
-						S_StartSoundAtVolume(nil, sfx, 20)
-					end
-				end
-			end
-			
-			if not P_IsObjectOnGround(mo.target) then
-				mo.target.player.gotcrystal_time = 0
-				mo.chaosring_capturing = nil
-				return
-			end
-			if mo.target.player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_REDTEAMBASE)
-				if capture(1,C.RedBank) then
-					return
-				end
-			elseif mo.target.player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(mo.target, SSF_BLUETEAMBASE)
-				if capture(2,C.BlueBank) then
-					return
-				end
-			else
-				if mo.chaosring_capturing then
-					mo.target.player.gotcrystal_time = 0
-					mo.chaosring_capturing = nil
-				end
-			end
-		end
-	end
-
 end
 
 local chaosRingPreFunc = function(mo)
@@ -875,6 +831,31 @@ local addHudSparkle = function(team, direction)
 	})
 end
 
+local capture = function(mo, team, bank)
+	local captime = CHAOSRING_CAPTIME
+	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
+	local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
+	mo.player.gotcrystal_time = ($~=nil and $+1) or 1
+	mo.chaosring.chaosring_capturing = true
+	if mo.player.gotcrystal_time % 35 == 11 then
+		S_StartSoundAtVolume(nil, sfx, 160)
+	elseif mo.player.gotcrystal_time % 35 == 22 then
+		S_StartSoundAtVolume(nil, sfx, 90)
+	elseif mo.player.gotcrystal_time % 35 == 33 then
+		S_StartSoundAtVolume(nil, sfx, 20)
+	end
+	if mo.player.gotcrystal_time > captime then
+		S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
+		mo.player.gotcrystal = false
+		mo.player.gotcrystal_time = 0
+		captureChaosRing(mo.chaosring, bank)
+		table.insert(bank.chaosrings_table, mo.chaosring.chaosring_num)
+		mo.chaosring.chaosring_bankkey = #bank.chaosrings_table
+		mo.chaosring.target = bank
+		return true
+	end
+end
+
 
 C.ThinkFrame = function()
 
@@ -905,32 +886,53 @@ C.ThinkFrame = function()
 				else
 					blueInBlue = $+1
 				end
-			else
-				if player.mo.stealing then
-					player.mo.stealing = nil
-					player.gotcrystal_time = 0
-				end
 			end
 		end
 	end
 
 	-- Do player in base transactions
 	for player in players.iterate do
-		if player.mo and player.mo.health and not player.powers[pw_flashing] and not(player.gotcrystal)
+		if player.mo and player.mo.health and not player.powers[pw_flashing]
 			local base = getBase(player)
 			if base == 1 -- Red base
+				if player.gotcrystal and player.ctfteam == base then
+					capture(player.mo, player.ctfteam, C.RedBank)
+					continue
+				end
 				if blueInRed
-					playerSteal(player.mo, C.RedBank)
+					if (blueInRed >= #C.RedBank.chaosrings_table) and blueInRed > redInBlue then
+						if player.ctfteam == 2 then
+							playerSteal(player.mo, C.RedBank)
+						end
+					end
 					continue
 				end
 			elseif base == 2 -- Blue base
+				if player.gotcrystal and player.ctfteam == base then
+					capture(player.mo, player.ctfteam, C.BlueBank)
+					continue
+				end
 				if redInBlue
-					playerSteal(player.mo, C.BlueBank)
+					if (redInBlue >= #C.BlueBank.chaosrings_table) and redInBlue > blueInRed
+						if player.ctfteam == 1
+							playerSteal(player.mo, C.BlueBank)
+						end
+					end
 					continue
 				end
 			end
 			if base != 0
 				baseTransaction(player, base)
+			end
+			if not(base) then
+				if player.mo.stealing then
+					player.mo.stealing = nil
+					player.gotcrystal_time = 0
+				end
+				if player.mo.chaosring and player.mo.chaosring.valid and player.mo.chaosring.capturing then
+					player.mo.chaosring.capturing = nil
+					player.gotcrystal_time = 0
+				end
 			end
 		end
 		if C.RedBank and C.RedBank.valid
