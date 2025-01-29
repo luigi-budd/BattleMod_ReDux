@@ -506,7 +506,7 @@ end
 addHook("MobjThinker", chaosRingFunc, MT_BATTLE_CHAOSRING)
 
 CR.PreThinkFrame = function()
-	for i = 1, 7 do
+	for i = 1, 6 do
 		if CR.LiveTable[i] and CR.LiveTable[i].valid then
 			chaosRingPreFunc(CR.LiveTable[i])
 			continue
