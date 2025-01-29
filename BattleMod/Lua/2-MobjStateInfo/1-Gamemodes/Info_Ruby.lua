@@ -29,7 +29,7 @@ states[S_PHANTOMRUBY] = {
 mobjinfo[MT_RUBYSPAWN] = {
 	//$Name "Ruby Spawn Point"
 	//$Sprite PHRBA0
-	//$Category "BattleMod Phantom Ruby"
+	//$Category "BattleMod Mcguffins"
 	doomednum = 3630,
 	spawnstate = 1,
 	height = 32*FRACUNIT,
