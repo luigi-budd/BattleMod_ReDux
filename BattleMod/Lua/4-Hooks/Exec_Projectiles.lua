@@ -105,10 +105,6 @@ addHook("MobjThinker",function(mo)
 	end
 end,MT_SONICBOOM)
 addHook("TouchSpecial",B.SwipeTouch,MT_SONICBOOM)
-addHook("MobjMoveCollide",function(mover,collide)
-	if not(collide.battleobject) then return end
-	B.SwipeTouch(mover,collide)
-end,MT_SONICBOOM)
 
 local slasheffect = function(target)
 	local slash = P_SpawnMobjFromMobj(target, 0, 0, (target.height/2)*P_MobjFlip(target), MT_THOK)
@@ -120,6 +116,15 @@ end
 
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = slasheffect
+end,MT_SONICBOOM)
+
+addHook("MobjMoveCollide",function(mover,collide)
+	if collide.flags & MF_MONITOR and B.ZCollide(mover, collide) then
+		slasheffect(collide)
+		P_DamageMobj(collide, mover, mover.target)
+	end
+	if not(collide.battleobject) then return end
+	B.SwipeTouch(mover,collide)
 end,MT_SONICBOOM)
 
 
@@ -178,6 +183,9 @@ addHook("MobjThinker", B.PikoWaveThinker, MT_PIKOWAVE)
 --Piko tornado
 addHook("TouchSpecial",B.DustDevilTouch,MT_DUSTDEVIL)
 addHook("MobjMoveCollide",function(mover,collide)
+	if collide.flags & MF_MONITOR and B.ZCollide(mover, collide) then
+		P_DamageMobj(collide, mover, mover.target)
+	end
 	if not(collide.battleobject) then return end
 	B.DustDevilTouch(mover,collide)
 end,MT_DUSTDEVIL)
