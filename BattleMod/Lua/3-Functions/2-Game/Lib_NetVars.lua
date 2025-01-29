@@ -5,6 +5,8 @@ local I = B.Item
 local D = B.Diamond
 local R = B.Ruby
 local F = B.CTF
+local C = B.Bank
+local CR = C.ChaosRing
 
 function B.NetVars.Sync(network)
 	//Training Dummy / Tails Doll
