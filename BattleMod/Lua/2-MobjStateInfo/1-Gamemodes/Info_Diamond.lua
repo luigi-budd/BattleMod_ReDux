@@ -28,10 +28,10 @@ mobjinfo[MT_DIAMOND] = {
 
 -- Control point object
 mobjinfo[MT_DIAMONDSPAWN] = {
-	--$Name "Diamond Spawn Point"
-	--$Sprite SHRDA0
-	--$Category "BattleMod Diamond in the Rough"
-	doomednum = 3630,
+	--$Name "Topaz Spawnpoint"
+	--$Sprite TOPZA0
+	--$Category "BattleMod Mcguffins"
+	doomednum = 3631,
 	spawnstate = 1,
 	height = 32*FRACUNIT,
 	radius = 24*FRACUNIT,

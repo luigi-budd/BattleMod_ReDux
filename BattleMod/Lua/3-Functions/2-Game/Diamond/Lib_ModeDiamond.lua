@@ -68,7 +68,7 @@ D.GenerateSpawns = function()
 	D.SpawnGrace = 0
 	for thing in mapthings.iterate
 		local t = thing.type
-		if t == 3630 --Diamond Spawn object
+		if t == 3631 --Diamond Spawn object
 			D.Spawns[#D.Spawns+1] = thing
 			--D.CapturePoints[#D.CapturePoints+1] = P_SpawnMobj(x, y, z, MT_CONTROLPOINT)
 			B.DebugPrint("Added Diamond spawn #"..#D.Spawns.. " from mapthing type "..t,DF_GAMETYPE)
