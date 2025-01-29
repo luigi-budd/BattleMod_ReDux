@@ -474,64 +474,65 @@ end
 
 I.Parameters = function(mo,thing)
 	local p = thing.extrainfo
+	local args = thing.args
 	//0 Hover in place
-	if p == 0 then return end //No instructions necessary
+	if args[9] == 0 then return end //No instructions necessary
 	//1 Rise continuously
-	if p == 1 then mo.buoyancy = 1 return end
+	if args[9] == 1 or  p == 1 then mo.buoyancy = 1 return end
 	//2 Fall
-	if p == 2 then mo.gravity = 1 return end
+	if args[9] == 2 or  p == 2 then mo.gravity = 1 return end
 	//3 Fall, buoyancy
-	if p == 3 then
+	if args[9] == 3 or p == 3 then
 		mo.buoyancy = 1
 		mo.gravity = 1
 	return end
 	//4 Launch sideways
-	if p == 4
+	if args[9] == 4 or p == 4
 		mo.launch = 1
 	return end
 	//5 Rise diagonally
-	if p == 5
+	if args[9] == 5 or  p == 5
 		mo.launch = 1
 		mo.buoyancy = 1
 	return end
 	//6 Fall diagonally
-	if p == 6
+	if args[9] == 6 or  p == 6
 		mo.launch = 1
 		mo.gravity = 1
 	return end
 	//7 Fall diagonally, buoyancy
-	if p == 7
+	if args[9] == 7 or  p == 7
 		mo.launch = 1
 		mo.gravity = 1
 		mo.buoyancy = 1
 	return end
 	//8 Marble physics (roll across surfaces, slide against walls)
-	if p == 8
+	if args[9] == 8 or  p == 8
 		mo.balltype = 1
 	return end
 	//9 Ball physics (buoyancy)
-	if p == 9
+	if args[9] == 9 or  p == 9
 		mo.balltype = 2
 		mo.buoyancy = 1
 	return end
 	//10 Rubber ball physics (buoyancy, bounce against surfaces)
-	if p == 10
+	if args[9] == 10 or  p == 10
 		mo.balltype = 3
 		mo.buoyancy = 1
 	return end
 	//11 Launch marble
-	if p == 11
+	if args[9] == 11 or  p == 11
 		mo.balltype = 1
 		mo.launch = 1
 	return end
 	//12 Launch ball
-	if p == 12
+	if args[9] == 12 or  p == 12
 		mo.balltype = 2
 		mo.buoyancy = 1
 		mo.launch = 1
 	return end
 	//13 Launch rubber ball
-	if p == 13
+	if args[9] == 13 or  p == 13
 		mo.balltype = 3
 		mo.buoyancy = 1
 		mo.launch = 1
@@ -629,6 +630,7 @@ local function quickthing(mo,thing,noangle)
 end
 
 I.StandardSpawnerSettings = function(mo,thing,string)
+	local args = thing.args
 	quickthing(mo,thing)
 	//Set fuse time
 	setfusetime(mo,thing)
@@ -650,13 +652,13 @@ I.StandardSpawnerSettings = function(mo,thing,string)
 	
 	//Special: Remove on contact with surfaces
 		//Create mo.fragile
-	if f&MTF_OBJECTSPECIAL
+	if args[0] > 0 or f&MTF_OBJECTSPECIAL
 		mo.fragile = 1
 	end
 	
 	//Ambush: Allow Multispawn
 		//Create mo.multispawn
-	if f&MTF_AMBUSH
+	if  args[1] > 0 or f&MTF_AMBUSH
 		mo.multispawn = 1
 	end
 	
@@ -664,7 +666,7 @@ I.StandardSpawnerSettings = function(mo,thing,string)
 	I.Parameters(mo,thing)
 	
 	//Extra
-	if f&MTF_EXTRA then
+	if args[2] > 0 or f&MTF_EXTRA then
 		if mo.localized then
 			//Local: Spawn on map load
 			I.DoSpawn(mo)
@@ -692,6 +694,7 @@ I.CarouselSettings = function(mo,thing,string)
 	local f = thing.options
 	local p = thing.extrainfo
 	local a = thing.angle%360
+	local args = thing.args
 	local stagger = 0
 	local function settings(c)
 		//Set fuse time
@@ -706,7 +709,7 @@ I.CarouselSettings = function(mo,thing,string)
 		//end
 		
 		//Special: 2D orientation
-		if f&MTF_OBJECTSPECIAL then
+		if args[0] > 0 or f&MTF_OBJECTSPECIAL then
 			c.carouselorientation = 1
 		end
 		
@@ -717,11 +720,11 @@ I.CarouselSettings = function(mo,thing,string)
 		local minspeed = FRACUNIT
 		c.carouselspeed = -B.FixedLerp(minspeed,maxspeed,a*FRACUNIT/360)/FRACUNIT
 		//Ambush: Counter-clockwise drift
-		if f&MTF_AMBUSH then
+		if args[1] > 0 or f&MTF_AMBUSH then
 			c.carouselspeed = -1*$
 		end
 		//Extra: Spawn on map load
-		if f&MTF_EXTRA then
+		if args[2] > 0 or f&MTF_EXTRA then
 			I.DoSpawn(c)
 		else //Otherwise, stagger successive carousel spawns
 			c.fuse = $+stagger
@@ -733,7 +736,7 @@ I.CarouselSettings = function(mo,thing,string)
 	settings(mo)
 	//Parameters = # of carousel items + 1
 	//Create multiple spawns, each with a different item angle offset
-	for n = 1, p
+	for n = 1, args[3] > 0 or p
 		local s = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ITEM_SPAWN)
 		s.flags2 = $|(mo.flags2&MF2_OBJECTFLIP)
 		s.eflags = $|(mo.eflags&MFE_VERTICALFLIP)
@@ -755,18 +758,20 @@ I.FlurrySettings = function(mo,thing,string)
 	I.ItemSpawnType(mo,string)
 	//Flags
 	local f = thing.options
+	local args = thing.args 
 	
 	//Flip: Flip
 		//MTF_OBJECTFLIP
 		//Does a flag need to be set at this stage?
 		
 	//Special: Remove on contact with surfaces
-	if f&MTF_OBJECTSPECIAL
+	//Arg0
+	if args[0] > 0 or f&MTF_OBJECTSPECIAL
 		mo.fragile = 1
 	end
 	
 	//Ambush: Add angle drift/variation
-	if f&MTF_AMBUSH
+	if args[1] > 0 or f&MTF_AMBUSH
 		mo.flurrytype = 2
 	else
 		mo.flurrytype = 1
@@ -778,7 +783,7 @@ I.FlurrySettings = function(mo,thing,string)
 	//Angle
 		//Angle of Launch (no actions necessary here)
 	//Extra: Spawn on map load
-	if f&MTF_EXTRA
+	if args[2] > 0 or f&MTF_EXTRA
 		I.DoSpawn(mo)
 	end
 end
