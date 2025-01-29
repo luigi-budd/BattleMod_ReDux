@@ -18,10 +18,6 @@ local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
 CR.SpawnCountdown = 0
 CR.GlobalAngle = ANG20
-
-local CHAOSRING_STARTSPAWNBUFFER = 1
-local CHAOSRING_SPAWNBUFFER = 1
-
 CR.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 
 local CHAOSRING1 = 1<<0
@@ -319,9 +315,6 @@ end
 
 local CHAOSRING_AMBIENCE = sfx_nullba--freeslot("sfx_crng1")
 local CHAOSRING_RADAR = freeslot("sfx_crng2")
-
-sfxinfo[CHAOSRING_AMBIENCE].caption = "Chaos Ring presence"
-sfxinfo[CHAOSRING_AMBIENCE].flags = $|SF_X2AWAYSOUND
 
 sfxinfo[CHAOSRING_RADAR].caption = "/"
 
@@ -900,7 +893,7 @@ C.ThinkFrame = function()
 					continue
 				end
 				if blueInRed
-					if (blueInRed >= #C.RedBank.chaosrings_table) and blueInRed > redInBlue then
+					if blueInRed > redInBlue then
 						if player.ctfteam == 2 then
 							playerSteal(player.mo, C.RedBank)
 						end
@@ -913,7 +906,7 @@ C.ThinkFrame = function()
 					continue
 				end
 				if redInBlue
-					if (redInBlue >= #C.BlueBank.chaosrings_table) and redInBlue > blueInRed
+					if redInBlue > blueInRed
 						if player.ctfteam == 1
 							playerSteal(player.mo, C.BlueBank)
 						end
