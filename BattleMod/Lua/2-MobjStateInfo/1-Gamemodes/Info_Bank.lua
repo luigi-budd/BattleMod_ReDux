@@ -1,4 +1,6 @@
-mobjinfo[freeslot("MT_BATTLE_CHAOSRING")] = {
+freeslot('mt_battle_chaosring', 'mt_battle_chaosringspawner')
+
+mobjinfo[MT_BATTLE_CHAOSRING] = {
 	doomednum = -1,
 	spawnstate = S_TEAMRING,
 	height = 32*FRACUNIT,
@@ -6,7 +8,11 @@ mobjinfo[freeslot("MT_BATTLE_CHAOSRING")] = {
 	flags = MF_SPECIAL|MF_NOGRAVITY
 }
 
-mobjinfo[freeslot("MT_BATTLE_CHAOSRINGSPAWNER")] = {
+mobjinfo[MT_BATTLE_CHAOSRINGSPAWNER] = {
+	--$Name "Chaos Ring Spawnpoint"
+	--$Sprite RINGA0
+	--$Category "BattleMod Mcguffins"
 	doomednum = 3707,
-	spawnstate = S_NULL
+	spawnstate = S_NULL,
+	flags = MF_NOBLOCKMAP|MF_NOGRAVITY|MF_NOSECTOR
 }
