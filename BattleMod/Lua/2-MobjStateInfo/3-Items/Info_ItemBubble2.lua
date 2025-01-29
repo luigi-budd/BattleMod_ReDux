@@ -58,6 +58,10 @@ mobjinfo[MT_GLOBAL_SPAWN] = {
 		//$Name "Global Item Spawner"
 		//$Sprite ZBITMGLO
 		//$Category "BattleMod Global Item Spawners"
+		--$arg0 [1]Remove on Contact with Surfaces
+		--$arg1 [1[Allow Multispawn
+		--$arg2 [1]Spawn on Map load
+		--$arg10 [0-13]Varius Bubble Physics
 		doomednum = 3500,
 		spawnstate = 1,
 		spawnhealth = 1,
