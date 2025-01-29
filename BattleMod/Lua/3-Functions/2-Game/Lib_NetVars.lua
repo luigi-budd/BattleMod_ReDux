@@ -80,13 +80,6 @@ function B.NetVars.Sync(network)
 	CR.SpawnTable 		= network($)
 	CR.WinCountdown		= network($)
 	CR.LiveTable		= network($)
-	CR.LiveTable[1]		= network($)
-	CR.LiveTable[2]		= network($)
-	CR.LiveTable[3]		= network($)
-	CR.LiveTable[4]		= network($)
-	CR.LiveTable[5]		= network($)
-	CR.LiveTable[6]		= network($)
-
 	//Game state
 	B.RedScore		= network($)
 	B.BlueScore		= network($)

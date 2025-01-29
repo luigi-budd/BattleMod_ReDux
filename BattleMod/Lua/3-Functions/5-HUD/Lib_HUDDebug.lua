@@ -5,6 +5,8 @@ local D = B.Diamond
 local CP = B.ControlPoint
 local I = B.Item
 local S = B.SkinVars
+local C = B.Bank
+local CR = C.ChaosRing
 
 B.DebugHUD = function(v, player, cam)
 	local debug = CV.Debug.value
@@ -185,6 +187,21 @@ B.DebugHUD = function(v, player, cam)
 			end
 			if(D.ID and D.ID.valid) then
 				addline("Idle",(D.ID.idle))
+			end
+		end
+
+		if B.BankGametype() then
+			subheader("BANK")
+			addline("RedBank", C.RedBank != nil)
+			addline("BlueBank", C.BlueBank != nil)
+			addline("SpawnCountdown", CR.SpawnCountdown)
+			addline("GlobalAngle", CR.GlobalAngle/ANG1)
+			addline("InitSpawnWait", CR.InitSpawnWait)
+			addline("SpawnTable", #CR.SpawnTable)
+			addline("WinCountdown", CR.WinCountdown)
+			addline("LiveTable", #CR.LiveTable)
+			for k, v in ipairs(CR.LiveTable) do
+				addline("Chaos Ring "..k, (v~=nil and (v.valid or v.respawntimer)))
 			end
 		end
 	end
