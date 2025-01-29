@@ -12,12 +12,12 @@ local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
 local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING --Object Type
 local CHAOSRING_WINTIME = TICRATE*12 --Countdown to a team win if they have all 6
 local CHAOSRING_CAPTIME = TICRATE*5 --Time it takes to capture a Chaos Ring
+local CHAOSRING_STEALTIME = TICRATE*5 --Time it takes to steal a Chaos Ring
 local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
 local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
 CR.SpawnCountdown = 0
 CR.GlobalAngle = ANG20
-
 
 CR.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 
@@ -29,7 +29,14 @@ local CHAOSRING5 = 1<<4
 local CHAOSRING6 = 1<<5
 
 local CHAOSRING_ENUM = {CHAOSRING1, CHAOSRING2, CHAOSRING3, CHAOSRING4, CHAOSRING5, CHAOSRING6}
-
+local CHAOSRING_GETENUM = {
+	[CHAOSRING1] = 1,
+	[CHAOSRING2] = 2,
+	[CHAOSRING3] = 3,
+	[CHAOSRING4] = 4,
+	[CHAOSRING5] = 5,
+	[CHAOSRING6] = 6
+}
 local idletics = TICRATE*16
 local waittics = TICRATE*4
 local freetics = TICRATE
@@ -194,6 +201,7 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 	return true
 end
 
+
 local function captureChaosRing(mo, bank)
 	mo.flags = $ & ~MF_SPECIAL
 	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num])
@@ -203,6 +211,52 @@ local function captureChaosRing(mo, bank)
 	mo.fuse = CHAOSRING_INVULNTIME
 	mo.scale = mo.idealscale - (mo.idealscale/3)
 	mo.ctfteam = mo.target.player.ctfteam
+end
+
+local function playerSteal(mo, bank)
+	if mo.player.gotcrystal then return end
+	if #bank.chaosrings_table then
+		if not(mo.chaosring_tosteal) then
+			local available_rings = {}
+			for k, ringnum in ipairs(bank.chaosrings_table) do
+				local v = CR.LiveTable[ringnum]
+				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
+					continue
+				end
+				table.insert(available_rings, ringnum)
+			end
+			if not(#available_rings) then return end
+			local pickme = CR.LiveTable[available_rings[P_RandomRange(1, #available_rings)]]
+			pickme.beingstolen = mo
+			mo.chaosring_tosteal = pickme
+		else
+			mo.stealing = true
+			mo.player.gotcrystal_time = ($~=nil and $+1) or 1
+			local sfx = sfx_kc59
+			if mo.player.gotcrystal_time % 35 == 11 then
+				S_StartSoundAtVolume(mo, sfx, 160)
+			elseif mo.player.gotcrystal_time % 35 == 22 then
+				S_StartSoundAtVolume(mo, sfx, 90)
+			elseif mo.player.gotcrystal_time % 35 == 33 then
+				S_StartSoundAtVolume(mo, sfx, 20)
+			end
+		end
+	end
+
+	if mo.player.gotcrystal_time >= CHAOSRING_STEALTIME then
+		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then
+			mo.player.gotcrystal_time = nil
+			mo.chaosring_tosteal.target = nil
+			mo.chaosring_tosteal.captured = nil
+			table.remove(bank.chaosrings_table, mo.chaosring_tosteal.bankkey)
+			mo.chaosring_tosteal.bankkey = nil
+			touchChaosRing(mo.chaosring_tosteal, mo)
+			mo.chaosring_tosteal.beingstolen = nil
+			mo.chaosring_tosteal = nil
+			mo.player.gotcrystal_time = nil
+			return true
+		end
+	end
 end
 
 addHook("TouchSpecial", touchChaosRing, CHAOSRING_TYPE)
@@ -261,10 +315,6 @@ sfxinfo[CHAOSRING_AMBIENCE].caption = "Chaos Ring presence"
 sfxinfo[CHAOSRING_AMBIENCE].flags = $|SF_X2AWAYSOUND
 
 sfxinfo[CHAOSRING_RADAR].caption = "/"
-
-local playerSteal = function(player)
-	
-end
 
 local chaosRingFunc = function(mo)
 	mo.shadowscale = FRACUNIT>>1
@@ -441,6 +491,8 @@ local chaosRingFunc = function(mo)
 					mo.target.player.gotcrystal = false
 					mo.target.player.gotcrystal_time = 0
 					captureChaosRing(mo, bank)
+					table.insert(bank.chaosrings_table, mo.chaosring_num)
+					mo.chaosring_bankkey = #bank.chaosrings_table
 					mo.target = bank
 					return true
 				else
@@ -726,9 +778,11 @@ local spawnFunc = function(mo, team)
 	if team == 1
 		C.RedBank = mo
 		C.RedBank.chaosrings = 0
+		C.RedBank.chaosrings_table = {}
 	else
 		C.BlueBank = mo
 		C.BlueBank.chaosrings = 0
+		C.BlueBank.chaosrings_table = {}
 	end
 	mo.state = S_TEAMRING
 	mo.scale = $<<1
@@ -851,6 +905,11 @@ C.ThinkFrame = function()
 				else
 					blueInBlue = $+1
 				end
+			else
+				if player.mo.stealing then
+					player.mo.stealing = nil
+					player.gotcrystal_time = 0
+				end
 			end
 		end
 	end
@@ -861,10 +920,12 @@ C.ThinkFrame = function()
 			local base = getBase(player)
 			if base == 1 -- Red base
 				if blueInRed
+					playerSteal(player.mo, C.RedBank)
 					continue
 				end
 			elseif base == 2 -- Blue base
 				if redInBlue
+					playerSteal(player.mo, C.BlueBank)
 					continue
 				end
 			end
