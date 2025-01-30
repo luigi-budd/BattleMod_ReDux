@@ -170,12 +170,12 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	thing.num = num --Store spawnpoint number
 	thing.mo.chaosring_thingspawn = thing --Store the MapThing table
 	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS --Shiny
-	table.insert(server.AvailableChaosRings, thing.mo)
 	table.remove(server.SpawnTable, num) --Don't try to spawn here again
 	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
 	if re then
 		S_StartSound(nil, sfx_cdfm44)
 	end
+	return thing.mo
 end
 
 local function free(mo)
@@ -557,11 +557,11 @@ CR.ThinkFrame = function() --Main Thinker
 			if #server.AvailableChaosRings then --Chaos Rings exist?
 				--Spawn the next one
 				B.CTF.GameState.CaptureHUDName = #server.AvailableChaosRings+1
-				spawnChaosRing(P_RandomRange(1, #server.SpawnTable), #server.AvailableChaosRings+1)
+				table.insert(server.AvailableChaosRings, spawnChaosRing(P_RandomRange(1, #server.SpawnTable), #server.AvailableChaosRings+1))
 			else
 				--Spawn the first one
 				B.CTF.GameState.CaptureHUDName = 1
-				spawnChaosRing(P_RandomRange(1, #server.SpawnTable), 1)
+				table.insert(server.AvailableChaosRings, spawnChaosRing(P_RandomRange(1, #server.SpawnTable), 1))
 			end
 			--Set our countdown
 			server.SpawnCountDown = CHAOSRING_SPAWNBUFFER
@@ -603,7 +603,7 @@ CR.ThinkFrame = function() --Main Thinker
 			remove = false
 			chaosring.respawntimer = $-1
 			if chaosring.respawntimer <= 0 then
-				spawnChaosRing(P_RandomRange(1, #server.SpawnTable), i, true)
+				server.AvailableChaosRings[i] = spawnChaosRing(P_RandomRange(1, #server.SpawnTable), i, true)
 			end
 			continue
 		end
@@ -621,6 +621,7 @@ CR.ThinkFrame = function() --Main Thinker
 		else
 			mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
 			mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
+			mo.chaosring_corona.renderflags = $|RF_NOCOLORMAPS|RF_FULLBRIGHT
 			mo.chaosring_corona.blendmode = AST_ADD
 			mo.chaosring_corona.target = mo
 			mo.chaosring_corona.scale = mo.scale
