@@ -269,10 +269,12 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 		toucher.spriteyscale = toucher.scale
 	end
 
-	if not(previoustarget) then
-		B.PrintGameFeed(toucher.player," picked up a "..CHAOSRING_TEXT(mo.chaosring_num).."!")
-	elseif previoustarget.player
-		B.PrintGameFeed(toucher.player," stole a "..CHAOSRING_TEXT(mo.chaosring_num).." from ",previousTarget.player,"!")
+	if toucher.player then
+		if not(previoustarget) then
+			B.PrintGameFeed(toucher.player," picked up a "..CHAOSRING_TEXT(mo.chaosring_num).."!")
+		elseif previoustarget.player
+			B.PrintGameFeed(toucher.player," stole a "..CHAOSRING_TEXT(mo.chaosring_num).." from ",previousTarget.player,"!")
+		end
 	end
 
 	return true
@@ -380,7 +382,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		B.ZLaunch(mo,FRACUNIT*bounceheight/2,true)
 		P_InstaThrust(mo,mo.angle,FRACUNIT*5)
 		free(mo)
-		S_StartSound(mo, sfx_cdfm67)
+		S_StartSound(mo.target, sfx_cdfm67)
 	end
 	
 	if mo.target and mo.target.valid then --Claimed?
