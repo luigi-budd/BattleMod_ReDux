@@ -383,7 +383,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		S_StartSound(mo, sfx_cdfm67)
 	end
 	
-	if targetIsValid --Claimed?
+	if mo.target and mo.target.valid then --Claimed?
 
 		if not(leveltime%8) then
 			local spark = P_SpawnMobjFromMobj(mo,0,0,0,MT_SUPERSPARK)
@@ -650,10 +650,10 @@ CR.ThinkFrame = function() --Main Thinker
 		if chaosring.idle != nil and not(chaosring.captured) then 
 			chaosring.idle = $-1
 			if chaosring.idle == 0
-				if chaosring.ctfteam then
+				if chaosring.captureteam then
 					-- Remove team protection
 					chaosring.idle = nil
-					chaosring.ctfteam = 0
+					chaosring.captureteam = 0
 				else
 					delete = true
 				end
