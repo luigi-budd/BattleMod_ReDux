@@ -154,6 +154,13 @@ B.SuddenDeathZone = function()
             else
                 table.insert(validSpawns, player.mo)
             end
+
+			--Indicator Arrow
+			player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+			if player.mo.btagpointer and player.mo.btagpointer.valid then
+				player.mo.btagpointer.tracer = player.mo
+				player.mo.btagpointer.target = B.ZoneObject
+			end
         end
         
         if #validSpawns == 0 then return end

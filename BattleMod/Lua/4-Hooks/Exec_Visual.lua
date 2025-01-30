@@ -224,6 +224,13 @@ local function BattleTagPointers(mo)
 		else
 			delete = true
 		end
+	elseif B.SuddenDeath then
+		arrowscale = ARROW_CONSTANTSCALE
+		if B.ZoneObject and B.ZoneObject.valid then
+			target = B.ZoneObject
+		else
+			delete = true
+		end
 	end
 
 	if not(target) and not(mo.target and mo.target.valid) then
@@ -288,6 +295,10 @@ local function BattleTagPointers(mo)
 					)
 			   ) or
 			   (B.BankGametype() and (
+			   			mo.tracer.player.skincolor
+					)
+			   ) or
+			   (B.SuddenDeath and (
 			   			mo.tracer.player.skincolor
 					)
 			   ) or
