@@ -396,7 +396,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
 		--print(t.player)
-		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+CR.GlobalAngle) or mo.angle
+		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+server.GlobalAngle) or mo.angle
 		local dist = mo.target.radius*3
 		local x = t.x+P_ReturnThrustX(mo,ang,dist)
 		local y = t.y+P_ReturnThrustY(mo,ang,dist)
