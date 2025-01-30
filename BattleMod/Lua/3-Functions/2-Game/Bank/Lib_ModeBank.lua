@@ -297,7 +297,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			local available_rings = {}
 
 			for k, ringnum in ipairs(bank.chaosrings_table) do --Gather the stealable rings
-				local v = CR.GetChaosRing[ringnum]
+				local v = CR.GetChaosRing(ringnum)
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
 					continue
 				end
