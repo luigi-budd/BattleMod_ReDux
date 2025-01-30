@@ -404,6 +404,8 @@ CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)
 
 	mo.color = SKINCOLOR_JET
 
+	if mo.lollmao then return end
+
 	//Get capturers
 	local team = {0,0}
 	local activeplayers = 0

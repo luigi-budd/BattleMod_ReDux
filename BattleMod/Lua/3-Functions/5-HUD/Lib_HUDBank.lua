@@ -13,16 +13,6 @@ local CHAOSRING4 = 1<<3
 local CHAOSRING5 = 1<<4
 local CHAOSRING6 = 1<<5
 
---Actions
-local function roundToMultipleOf5(num)
-    local remainder = num % 5
-    if remainder >= 3 then
-        return num + (5 - remainder)
-    else
-        return num - remainder
-    end
-end
-
 CR.ChaosRingCapHUD = function(v)
 	if (not(B.BankGametype())) then
 		return

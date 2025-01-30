@@ -7,7 +7,7 @@ local pinchmusic = "_PINCH"
 local overtimemusic = "_OVRTM"
 
 B.PreRoundWait = function()
-	if gametype and CV.PreRound.value// and not(B.TagGametype())
+	if gametype and CV.PreRound.value-- and not(B.TagGametype())
 		and gametyperules&GTR_STARTCOUNTDOWN and leveltime < CV_FindVar("hidetime").value*TICRATE
 		then return true
 	else return false end
@@ -21,7 +21,7 @@ B.GetPinch = function()
 		B.Overtime	 	= false
 		B.MatchPoint	= false
 	return end
-	//Get vars
+	--Get vars
 	local t 			= CV_FindVar("timelimit")
 	local ot 			= CV_FindVar("overtime")
 	local pointlimit 	= CV_FindVar("pointlimit").value
@@ -45,15 +45,15 @@ B.GetPinch = function()
 		end
 	end
 
-	//Check game mode conditions
+	--Check game mode conditions
 	if not(B.PreRoundWait())
 	and gametyperules&GTR_TIMELIMIT and t.value and pinch
-		//Pinch state
+		--Pinch state
 		if not(overtime)
 			B.SuddenDeath 	= false
 			B.Overtime 		= false
 			B.MatchPoint	= false
-			//Do pinch indicators
+			--Do pinch indicators
 			if B.Pinch == false then
 				B.Pinch = true
 				B.DebugPrint("Pinch mode triggered",DF_GAMETYPE)
@@ -62,17 +62,17 @@ B.GetPinch = function()
 				B.PinchTics = TICRATE*2
 			end
 		end
-		//Overtime state
+		--Overtime state
 		if overtime then
 			B.Pinch = false
-			//Enable sudden death
+			--Enable sudden death
 			if suddendeath and not(B.SuddenDeath)
 				B.DebugPrint("Sudden death triggered",DF_GAMETYPE)
 				B.SuddenDeath = true
 				B.PinchTics = TICRATE*2
 	 			S_StartSound(nil,sfx_s253)
 			end
-			//Do overtime indicators
+			--Do overtime indicators
 			if B.Overtime == false then
 				B.DebugPrint("Overtime triggered",DF_GAMETYPE)
 				B.Overtime = true
@@ -93,30 +93,33 @@ B.GetPinch = function()
 	end
 end
 
+B.InvalidPlayer = function(player)
+	if player.spectator then return true end
+	if player.playerstate != PST_LIVE then return true end
+	if player.exiting then return true end
+	if not(player.mo) then return true end
+	if player.revenge then return true end
+	return false
+end
+
 B.SuddenDeathBomb = function()
 	if leveltime&7 then return end
 	if B.PinchTics then return end
-	local unlucky = {} //Raffle of players to choose to bomb
-	for player in players.iterate()
-		if player.spectator or player.playerstate != PST_LIVE then continue end
-		if player.exiting then continue end
-		if not(player.mo) then continue end
-		if player.revenge then continue end
-		unlucky[#unlucky+1] = player.mo //Can be bombed
+	local unlucky = {} --Raffle of players to choose to bomb
+	for player in players.iterate() do
+		if B.InvalidPlayer(player) then continue end
+		unlucky[#unlucky+1] = player.mo --Can be bombed
 	end
-	if not(#unlucky) then return end //No one to bomb
+	if not(#unlucky) then return end --No one to bomb
 	
-	local mo = unlucky[P_RandomRange(1,#unlucky)] //And our unlucky winner is...
+	local mo = unlucky[P_RandomRange(1,#unlucky)] --And our unlucky winner is...
 	
 	local z 
-	if P_MobjFlip(mo) == 1 then
-		z = B.FixedLerp(mo.z,mo.ceilingz,P_RandomRange(FRACUNIT/2,FRACUNIT))
-	else
-		z = B.FixedLerp(mo.z,mo.floorz,P_RandomRange(FRACUNIT/2,FRACUNIT))
-	end
+	local z2 = P_MobjFlip(mo) == 1 and mo.ceilingz or mo.floorz
+	z = B.FixedLerp(mo.z,z2,P_RandomRange(FRACUNIT/2,FRACUNIT))
+
 	local b = P_SpawnMobj(mo.x,mo.y,z,MT_FBOMB)
--- 	b.bombtype = 0
--- 	b.flags = $|MF_GRENADEBOUNCE
+
 	if P_MobjFlip(mo) == -1 then
 		b.flags2 = MF2_OBJECTFLIP
 	end
@@ -131,14 +134,87 @@ B.SuddenDeathBomb = function()
 end
 
 B.SuddenDeathGrow = function(player)
-	for player in players.iterate()
-		if player.spectator
-		or player.playerstate != PST_LIVE
-		or player.exiting 
-		or not(player.mo)
-		or player.revenge then continue end
+	for player in players.iterate() do
+		if B.InvalidPlayer(player) then continue end
 		player.mo.scale = $+FRACUNIT/400
 	end
+end
+
+B.SuddenDeathZone = function()    
+    -- Initialize zone if it doesn't exist
+    if not (B.ZoneObject and B.ZoneObject.valid) then
+        local validSpawns = {}
+        for player in players.iterate() do
+            if B.InvalidPlayer(player) then continue end
+            
+            -- Prioritize players not over pits by checking if they're on ground
+			-- TODO: Remove port priority
+            if P_IsObjectOnGround(player.mo) or player.powers[pw_flashing] then
+                table.insert(validSpawns, 1, player.mo)
+            else
+                table.insert(validSpawns, player.mo)
+            end
+        end
+        
+        if #validSpawns == 0 then return end
+        
+        local chosen = validSpawns[1]
+        local zoneobject = P_SpawnMobj(chosen.x, chosen.y, chosen.z, MT_CONTROLPOINT)
+        zoneobject.cp_radius = 2048*FRACUNIT
+		zoneobject.cp_height = 320*FRACUNIT
+		zoneobject.cp_meter = 400
+		if chosen.eflags & MFE_VERTICALFLIP then
+			zoneobject.eflags = $|MFE_VERTICALFLIP
+		end
+		zoneobject.lollmao = true
+		B.ZoneObject = zoneobject
+	else -- Update zone
+		B.ZoneObject.cp_radius = max(0, $ - FRACUNIT)
+    end
+    
+    -- Check all players against zone
+    for player in players.iterate() do
+        if B.InvalidPlayer(player) then continue end
+		local pmo = player.mo
+  
+        if R_PointToDist2(pmo.x, pmo.y, B.ZoneObject.x, B.ZoneObject.y) > B.ZoneObject.cp_radius then
+			--local targ = P_SpawnMobj(pmo.x, pmo.y, pmo.z, MT_THOK)
+			--local TR_DYNAMICTRANS = B.TIMETRANS(100-(player.BT_antiAFK/2), nil, "TR_TRANS", nil, 10, 90) or TR_TRANS90
+			--targ.sprite = SPR_TARG
+			--targ.frame = $|TR_DYNAMICTRANS
+			--targ.tics = 2
+			--targ.momx, targ.momy, targ.momz = pmo.momx, pmo.momy, pmo.momz
+			if player.BT_antiAFK == 200 then
+				S_StartSound(pmo, sfx_premon)
+			end
+            player.BT_antiAFK = $ - 1
+            if player.BT_antiAFK <= 0 then
+                P_DamageMobj(pmo, nil, nil, 1, DMG_INSTAKILL)
+				local b = P_SpawnMobj(pmo.x,pmo.y,pmo.z,MT_FBOMB)
+				P_ExplodeMissile(b)
+            end
+        else
+			if S_SoundPlaying(pmo, sfx_premon) then
+				S_StopSoundByID(pmo, sfx_premon)
+			end
+            player.BT_antiAFK = 200
+        end
+    end
+
+	-- Lol lmao
+	local mo = B.ZoneObject
+	local flip = P_MobjFlip(mo)
+	local floor
+	local ceil
+	if flip == 1 then
+		floor = mo.floorz
+		ceil = mo.ceilingz
+	else
+		floor = mo.ceilingz
+		ceil = mo.floorz
+	end
+
+	B.ControlPoint.ActiveThinker(B.ZoneObject,floor,flip,ceil,mo.cp_radius,mo.cp_height,mo.cp_meter)
 end
 
 B.PinchMusic = function(player)
@@ -213,6 +289,8 @@ end
 B.PinchControl = function()
 	B.GetPinch()
 	if B.SuddenDeath then
-		B.SuddenDeathGrow()
+		--B.SuddenDeathBomb()
+		--B.SuddenDeathGrow()
+		B.SuddenDeathZone()
 	end
 end
