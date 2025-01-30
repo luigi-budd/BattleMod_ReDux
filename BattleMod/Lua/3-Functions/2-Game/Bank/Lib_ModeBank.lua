@@ -91,13 +91,27 @@ CR.GlobalAngle = ANG20
 CR.InitSpawnWait = TICRATE*25
 CR.SpawnTable = {}
 CR.WinCountdown = TICRATE*12
-CR.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
 CR.AvailableChaosRings = {}
+CR.GetChaosRing = function(num)
+	for k, v in ipairs(CR.AvailableChaosRings) do
+		if not(v) then continue end
+		if v.chaosring_num == num then
+			return v
+		end
+	end
+end
+CR.GetChaosRingKey = function(num)
+	for k, v in ipairs(CR.AvailableChaosRings) do
+		if not(v) then continue end
+		if v.chaosring_num == num then
+			return k
+		end
+	end
+end
 
 local resetVars = function()
 	CR.SpawnTable = {} --Clear the table
 	CR.WinCountdown = CHAOSRING_WINTIME
-	CR.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
 	CR.SpawnCountdown = 0
 	CR.AvailableChaosRings = {}
 	CR.GlobalAngle = ANG20
@@ -152,7 +166,6 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	thing.num = num --Store spawnpoint number
 	thing.mo.chaosring_thingspawn = thing --Store the MapThing table
 	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS --Shiny
-	CR.LiveTable[chaosringnum] = thing.mo --Connect to LiveTable
 	table.insert(CR.AvailableChaosRings, thing.mo)
 	table.remove(CR.SpawnTable, num) --Don't try to spawn here again
 	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
@@ -280,11 +293,11 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			local available_rings = {}
 
 			for k, ringnum in ipairs(bank.chaosrings_table) do --Gather the stealable rings
-				local v = CR.LiveTable[ringnum]
+				local v = CR.GetChaosRing[ringnum]
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
 					continue
 				end
-				table.insert(available_rings, CR.LiveTable[ringnum])
+				table.insert(available_rings, v)
 			end
 
 			if not(#available_rings) then return end --If there are none, we can't steal
@@ -513,7 +526,7 @@ local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 		CR.SpawnTable[chaosring.chaosring_thingspawn.num] = chaosring.chaosring_thingspawn
 
 		--Set to Respawning in LiveTable
-		CR.LiveTable[chaosring.chaosring_num] = {valid=false, respawntimer=CHAOSRING_SPAWNBUFFER}
+		CR.AvailableChaosRings[CR.GetChaosRingKey(chaosring.chaosring_num)] = {chaosring_num=chaosring.chaosring_num, valid=false, respawntimer=CHAOSRING_SPAWNBUFFER}
 
 		print("A "..CHAOSRING_TEXT(chaosring.chaosring_num).." was lost!")
 		S_StartSound(nil, sfx_kc5d)
@@ -571,8 +584,8 @@ CR.ThinkFrame = function() --Main Thinker
 	end
 
 	--Main Thinker for ALL Chaos Rings
-	for i = 1, 6 do
-		local chaosring = CR.LiveTable[i]
+	for i = 1, #CR.AvailableChaosRings do
+		local chaosring = CR.AvailableChaosRings[i]
 
 		local remove = false
 
@@ -1033,9 +1046,9 @@ CR.MapLoad = function()
 end
 
 CR.PreThinkFrame = function()
-	for i = 1, 6 do
-		if CR.LiveTable[i] and CR.LiveTable[i].valid then
-			chaosRingPreFunc(CR.LiveTable[i])
+	for i = 1, #CR.AvailableChaosRings do
+		if CR.AvailableChaosRings[i] and CR.AvailableChaosRings[i].valid then
+			chaosRingPreFunc(CR.AvailableChaosRings[i])
 			continue
 		end
 	end
