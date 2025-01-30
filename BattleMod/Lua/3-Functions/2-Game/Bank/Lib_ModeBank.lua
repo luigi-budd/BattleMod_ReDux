@@ -649,7 +649,7 @@ CR.ThinkFrame = function() --Main Thinker
 		end
 
 			-- Idle timer
-		if chaosring.idle != nil and not(chaosring.captured) and not(chaosring.target) then 
+		if chaosring.idle != nil and not(chaosring.captured) then 
 			chaosring.idle = $-1
 			if chaosring.idle == 0
 				if chaosring.captureteam then
@@ -662,7 +662,7 @@ CR.ThinkFrame = function() --Main Thinker
 			end
 		end
 
-		if delete then
+		if delete and not(chaosring.target and chaosring.target.valid) then
 			P_RemoveMobj(chaosring)
 			continue
 		end
@@ -917,7 +917,7 @@ C.ThinkFrame = function()
 		if player.mo and player.mo.health and not player.powers[pw_flashing]
 			local base = getBase(player)
 			if base == 1 -- Red base
-				if player.gotcrystal and player.ctfteam == base then
+				if player.gotcrystal and player.mo.chaosring and player.mo.chaosring.valid and player.ctfteam == base then
 					capture(player.mo, player.ctfteam, C.RedBank)
 					continue
 				end
@@ -930,7 +930,7 @@ C.ThinkFrame = function()
 					continue
 				end
 			elseif base == 2 -- Blue base
-				if player.gotcrystal and player.ctfteam == base then
+				if player.gotcrystal and player.mo.chaosring and player.mo.chaosring.valid and player.ctfteam == base then
 					capture(player.mo, player.ctfteam, C.BlueBank)
 					continue
 				end
