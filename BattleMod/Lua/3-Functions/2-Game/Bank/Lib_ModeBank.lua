@@ -647,7 +647,7 @@ CR.ThinkFrame = function() --Main Thinker
 		end
 
 			-- Idle timer
-		if chaosring.idle != nil and not(chaosring.captured) then 
+		if chaosring.idle != nil and not(chaosring.captured) and not(chaosring.target) then 
 			chaosring.idle = $-1
 			if chaosring.idle == 0
 				if chaosring.captureteam then
