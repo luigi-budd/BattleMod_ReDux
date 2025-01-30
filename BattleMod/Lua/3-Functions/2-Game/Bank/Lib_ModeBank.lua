@@ -16,9 +16,7 @@ local CHAOSRING_STEALTIME = TICRATE*5 --Time it takes to steal a Chaos Ring
 local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
 local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
-CR.SpawnCountdown = 0
-CR.GlobalAngle = ANG20
-CR.InitSpawnWait = TICRATE*25
+
 
 local CHAOSRING1 = 1<<0
 local CHAOSRING2 = 1<<1
@@ -45,9 +43,12 @@ local rotatespd = ANG1*8
 local SLOWCAPPINGALLY_SFX  = sfx_kc5a
 local SLOWCAPPINGENEMY_SFX = sfx_kc59
 
-CR.SpawnTable = {}
-CR.WinCountdown = TICRATE*12
-CR.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+local CHAOSRING_RADAR = freeslot("sfx_crng2")
+sfxinfo[CHAOSRING_RADAR].caption = "/"
+
+local freetics = TICRATE
+local idletics = TICRATE*16
+
 
 CR.Data = {
 	[1] = { --Gold
@@ -81,6 +82,17 @@ CR.Data = {
 	}
 }
 
+local CHAOSRING_TEXT = function(num)
+	return CR.Data[num].textmap.."Chaos Ring".."\x80"
+end
+
+CR.SpawnCountdown = 0
+CR.GlobalAngle = ANG20
+CR.InitSpawnWait = TICRATE*25
+CR.SpawnTable = {}
+CR.WinCountdown = TICRATE*12
+CR.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+
 local resetVars = function()
 	CR.SpawnTable = {} --Clear the table
 	CR.WinCountdown = CHAOSRING_WINTIME
@@ -109,34 +121,42 @@ local insertSpawnPoint = function(mt)
 	})
 end
 
-local CHAOSRING_DATA = CR.Data
-local CHAOSRING_TEXT = function(num)
-	return CHAOSRING_DATA[num].textmap.."Chaos Ring".."\x80"
+local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
+	if not(CR.SpawnTable[num]) then --If we're trying to access a non-existant spawnpoint, don't
+		return
+	end
+
+	if CR.SpawnTable[num].mo and CR.SpawnTable[num].mo.valid then --Only if it doesn't already have an object
+		return
+	end
+	local thing = CR.SpawnTable[num]
+	local data = CR.Data[chaosringnum]
+
+	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
+	local float = ((thing.options&MTF_OBJECTFLIP) and 1) or 0
+	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
+	local z = thing.z+(70*FRACUNIT)
+
+	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
+	if flip == -1 then
+		thing.mo.flags2 = $|MF2_OBJECTFLIP
+	end
+
+	thing.mo.scale = FixedMul(thing.scale, CHAOSRING_SCALE) --Chaos Rings are large
+	thing.mo.color = data.color --Color according to number
+	thing.mo.chaosring_num = chaosringnum --Store number
+	thing.mo.idealz = thing.mo.z --Store original Z position
+	thing.mo.idealscale = FixedMul(thing.scale, CHAOSRING_SCALE) --Store ideal scale
+	thing.num = num --Store spawnpoint number
+	thing.mo.chaosring_thingspawn = thing --Store the MapThing table
+	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS --Shiny
+	CR.LiveTable[chaosringnum] = thing.mo --Connect to LiveTable
+	table.remove(CR.SpawnTable, num) --Don't try to spawn here again
+	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
+	if re then
+		S_StartSound(nil, sfx_cdfm44)
+	end
 end
-
-addHook('MapLoad', do
-
-	if not(B.BankGametype()) then return end
-
-	resetVars()
-
-	for mt in mapthings.iterate do
-		if mt and mt.valid and (mt.type == (mobjinfo[MT_BATTLE_CHAOSRINGSPAWNER].doomednum)) then --Match Chaos Emerald Spawn
-			insertSpawnPoint(mt)
-		end
-	end
-
-	if not(#CR.SpawnTable) or (#CR.SpawnTable < 6) then
-		for mt in mapthings.iterate do
-			if mt and (mt.type == (321)) and mt.valid then --Match Chaos Emerald Spawn
-				insertSpawnPoint(mt)
-			end
-		end
-	end
-end)
-
-local freetics = TICRATE
-local idletics = TICRATE*16
 
 local function free(mo)
 	if not (mo and mo.valid) then return end
@@ -145,98 +165,135 @@ local function free(mo)
 	mo.idle = idletics
 end
 
-
 local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
-	if mo.target == toucher or not(toucher.player) -- This toucher has already collected the item, or is not a player
-	or P_PlayerInPain(toucher.player) or toucher.player.powers[pw_flashing] -- Can't touch if we've recently taken damage
-	or toucher.player.tossdelay -- Can't collect if tossflag is on cooldown
-		return true
-	end
-	local previoustarget = mo.target
-	if (G_GametypeHasTeams() and previoustarget and previoustarget.player and (previoustarget.player.ctfteam == toucher.player.ctfteam))
-		return true
-	end
-	if toucher.player.ctfteam == mo.ctfteam then
-		return true
-	end
-	if toucher.player.gotcrystal then
-		return true
-	end
-	if previoustarget and previoustarget.valid then
-		if previoustarget.player then
-			previoustarget.player.gotcrystal = false
-		end
-		mo.lasttouched = previoustarget
-	else
-		mo.lasttouched = toucher
-	end
-	if mo.captured and (toucher.player) then
-		mo.captured = nil
-		--mo.angle = 0
-		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM[mo.chaosring_num]
-		mo.bank = nil
-	end
-	if mo.target and mo.target.valid then
-		
-		if not(mo.target.player) then --Bank?
-			CR.WinCountdown = CHAOSRING_WINTIME
-		end
 
-		mo.target.chaosring = nil
+
+	if not(mo and mo.valid and toucher and toucher.valid) then
+		return
 	end
-	toucher.chaosring = mo
-	toucher.player.gotcrystal = true
-	mo.target = toucher
-	free(mo)
-	mo.idle = nil
-	mo.scale = mo.idealscale
-	mo.ctfteam = 0
+
+	local teamGT = G_GametypeHasTeams()
+
+	--Chaos Ring
+	local capturedChaosRing = (mo.captured)
+
+	--Toucher
+	local toucherIsTarget = (mo.target == toucher)
+
+	--Toucher Player
+	local toucherIsPlayer = (toucher.player)
+
+	local toucherIsPlayerInPain = (toucherIsPlayer and P_PlayerInPain(toucher.player))
+	local toucherIsFlashing 	= (toucherIsPlayer and toucher.player.powers[pw_flashing])
+	local toucherTossdelay 		= (toucherIsPlayer and toucher.player.tossdelay)
+	local toucherCTFTeam 		= (toucherIsPlayer and toucher.player.ctfteam)
+	local toucherHasCrystal 	= (toucherIsPlayer and toucher.player.gotcrystal)
+
+	--Previous Target
+	local previousTarget = (mo.target and mo.target.valid) --Old Target
+
+	local previousTargetIsPlayer = (previousTarget and mo.target and mo.target.player)
+	local previousTargetCTFTeam = (previousTargetIsPlayer and mo.target.player.ctfteam)
+	
+
+	--Combinations
+	local sameTeam = ((toucherCTFTeam == previousTargetCTFTeam) or (toucherCTFTeam == mo.captureteam))
+
+	if (toucher ~= C.RedBank) and (toucher ~= C.BlueBank) and not(toucher.player) then
+		return true
+	end
+
+	if toucherIsTarget 
+	or toucherIsPlayerInPain 
+	or toucherIsFlashing 
+	or toucherTossdelay 
+	or toucherHasCrystal then
+		return true
+	end
+
+	if previousTarget then
+		if previousTargetIsPlayer then --Last target was a Chaos Ring holder?
+			mo.target.player.gotcrystal = false --Not Anymore
+			mo.target.chaosring = nil --Disconnect Chaos Ring from player object
+		else
+			CR.WinCountdown = CHAOSRING_WINTIME --Reset the Win Countdown
+		end
+		mo.lasttouched = mo.target --Set lasttouched to them
+	else
+		mo.lasttouched = toucher --Set lasttouched to us
+	end
+
+	if capturedChaosRing then --Already at a base?
+		mo.captured = nil --Not anymore
+		mo.bank.chaosrings = $ & ~CHAOSRING_ENUM[mo.chaosring_num] --Remove it from the bank
+		mo.bank = nil --Disconnect from bank
+		mo.captureteam = 0 --The object's team is only applied upon capture
+	end
+
+	
+	toucher.chaosring = mo --Set the player object's Chaos Ring to this object
+	mo.target = toucher --Set the Chaos Ring's target to us
+	free(mo) --Set collection cooldown
+	mo.scale = mo.idealscale --Store player's scale in object
+
 	P_SetObjectMomZ(toucher, toucher.momz/2)
-	S_StartSound(mo,sfx_lvpass)
-	if (splitscreen or (displayplayer and toucher.player == displayplayer)) or (displayplayer and previoustarget and previoustarget.player and previoustarget.player == displayplayer)
-		S_StartSound(nil, sfx_kc5e)
+
+	local shouldHearSFX = (splitscreen or (displayplayer and toucher.player == displayplayer)) or (displayplayer and previoustarget and previoustarget.player and previoustarget.player == displayplayer)
+	if toucherIsPlayer then
+		toucher.player.gotcrystal = true --We have a McGuffin
+		S_StartSound(mo,sfx_lvpass)
+		if shouldHearSFX then 
+			S_StartSound(nil, sfx_kc5e)
+		end
+		toucher.spritexscale = toucher.scale 
+		toucher.spriteyscale = toucher.scale
 	end
-	toucher.spritexscale = toucher.scale
-	toucher.spriteyscale = toucher.scale
+
 	if not(previoustarget) then
 		B.PrintGameFeed(toucher.player," picked up a "..CHAOSRING_TEXT(mo.chaosring_num).."!")
 	elseif previoustarget.player
-		B.PrintGameFeed(toucher.player," stole a "..CHAOSRING_TEXT(mo.chaosring_num).." from ",previoustarget.player,"!")
+		B.PrintGameFeed(toucher.player," stole a "..CHAOSRING_TEXT(mo.chaosring_num).." from ",previousTarget.player,"!")
 	end
+
 	return true
 end
 
-
-local function captureChaosRing(mo, bank)
-	mo.flags = $ & ~MF_SPECIAL
-	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num])
-	mo.bank = bank
-	mo.captured = true
-	addPoints(mo.target.player.ctfteam, CHAOSRING_SCOREAWARD)
-	mo.fuse = CHAOSRING_INVULNTIME
-	mo.scale = mo.idealscale - (mo.idealscale/3)
-	mo.ctfteam = mo.target.player.ctfteam
+local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
+	mo.flags = $ & ~MF_SPECIAL --Can't be touched
+	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num]) --Add to Bank count
+	mo.bank = bank --Set its Bank to the new Bank
+	addPoints(mo.target.player.ctfteam, CHAOSRING_SCOREAWARD) --Reward points to the team
+	mo.fuse = CHAOSRING_INVULNTIME --Set the steal cooldown
+	mo.scale = (mo.idealscale - (mo.idealscale/3)) --Shrink it
+	mo.captureteam = mo.target.player.ctfteam --Set the team it's captured in
+	touchChaosRing(mo, bank)
+	mo.captured = true --Yes it has been captured
 end
 
-local function playerSteal(mo, bank)
-	if mo.player.gotcrystal then return end
-	if #bank.chaosrings_table then
-		if not(mo.chaosring_tosteal) then
+local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their base
+	if mo.player.gotcrystal then return end --Chaos Ringholders cannot steal
+	if #bank.chaosrings_table then --If the bank has Chaos Ring Objects
+		if not(mo.chaosring_tosteal) then --If you aren't already stealing a Chaos Ring
 			local available_rings = {}
-			for k, ringnum in ipairs(bank.chaosrings_table) do
+
+			for k, ringnum in ipairs(bank.chaosrings_table) do --Gather the stealable rings
 				local v = CR.LiveTable[ringnum]
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
 					continue
 				end
-				table.insert(available_rings, ringnum)
+				table.insert(available_rings, CR.LiveTable[ringnum])
 			end
-			if not(#available_rings) then return end
-			local pickme = CR.LiveTable[available_rings[P_RandomRange(1, #available_rings)]]
-			pickme.beingstolen = mo
-			mo.chaosring_tosteal = pickme
-		else
-			mo.stealing = true
-			mo.player.gotcrystal_time = ($~=nil and $+1) or 1
+
+			if not(#available_rings) then return end --If there are none, we can't steal
+
+			local pickme = available_rings[P_RandomRange(1, #available_rings)] --Steal a random ring
+			pickme.beingstolen = mo --It's being stolen
+			mo.chaosring_tosteal = pickme --We're stealing it
+		else --Now that we're stealing
+			mo.chaosring_stealing = true --Var to mark down that we were stealing
+			mo.player.gotcrystal_time = ($~=nil and $+1) or 1 --Add to crystal time
+
+			--Play Staggered SFX
 			local sfx = sfx_kc59
 			if mo.player.gotcrystal_time % 35 == 11 then
 				S_StartSoundAtVolume(mo, sfx, 160)
@@ -248,77 +305,22 @@ local function playerSteal(mo, bank)
 		end
 	end
 
-	if mo.player.gotcrystal_time >= CHAOSRING_STEALTIME then
-		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then
-			mo.player.gotcrystal_time = nil
-			mo.chaosring_tosteal.target = nil
-			mo.chaosring_tosteal.captured = nil
-			table.remove(bank.chaosrings_table, mo.chaosring_tosteal.bankkey)
-			mo.chaosring_tosteal.bankkey = nil
-			touchChaosRing(mo.chaosring_tosteal, mo)
-			mo.chaosring_tosteal.beingstolen = nil
-			mo.chaosring_tosteal = nil
-			mo.player.gotcrystal_time = nil
+	if (mo.player.gotcrystal_time >= CHAOSRING_STEALTIME) then --If we've been standing long enough
+		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then --And the object exists
+			touchChaosRing(mo.chaosring_tosteal, mo) --Steal it!
+			mo.player.gotcrystal_time = nil --Not counting anymore
+			table.remove(bank.chaosrings_table, mo.chaosring_tosteal.bankkey) --Remove from Bank's table
+			mo.chaosring_tosteal.bankkey = nil --Take away key
+			mo.chaosring_tosteal.beingstolen = nil --Chaos ring isn't being stolen
+			mo.chaosring_tosteal = nil --We're not stealing the Chaos Ring
 			return true
 		end
 	end
 end
 
-addHook("TouchSpecial", touchChaosRing, CHAOSRING_TYPE)
-
-addHook("MobjFuse",function(mo)
-	if not(mo.captured) then
-		mo.flags = $|MF_SPECIAL
-		return true
-	else
-		return true
-	end
-end,CHAOSRING_TYPE)
+local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 
-local function spawnChaosRing(num, chaosringnum, re)
-	if not(CR.SpawnTable[num]) then
-		return
-	end
-
-	if CR.SpawnTable[num].mo and CR.SpawnTable[num].mo.valid then
-		return
-	end
-	local thing = CR.SpawnTable[num]
-	local data = CHAOSRING_DATA[chaosringnum]
-
-	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
-	local float = ((thing.options&MTF_OBJECTFLIP) and 1) or 0
-	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
-	local z = thing.z+(70*FRACUNIT)
-
-	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
-	if flip == -1 then
-		thing.mo.flags2 = $|MF2_OBJECTFLIP
-	end
-	thing.mo.scale = FixedMul(thing.scale, CHAOSRING_SCALE)
-	thing.mo.state = S_TEAMRING
-	thing.mo.color = data.color
-	thing.mo.chaosring_num = chaosringnum
-	thing.mo.idealz = thing.mo.z
-	thing.mo.idealscale = FixedMul(thing.scale, CHAOSRING_SCALE)
-	thing.mo.spawnthing = thing
-	thing.num = num
-	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
-	CR.LiveTable[chaosringnum] = thing.mo
-	table.remove(CR.SpawnTable, num)
-	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
-	if re then
-		S_StartSound(nil, sfx_cdfm44)
-	end
-end
-
-local CHAOSRING_AMBIENCE = sfx_nullba--freeslot("sfx_crng1")
-local CHAOSRING_RADAR = freeslot("sfx_crng2")
-
-sfxinfo[CHAOSRING_RADAR].caption = "/"
-
-local chaosRingFunc = function(mo)
 	mo.shadowscale = FRACUNIT>>1
 	
 	-- Blink
@@ -328,6 +330,7 @@ local chaosRingFunc = function(mo)
 		mo.flags2 = $&~MF2_DONTDRAW
 	end
 	
+	--Set internal angle
 	mo.angle = $+rotatespd
 	
 	-- Owner has been pushed by another player
@@ -337,55 +340,30 @@ local chaosRingFunc = function(mo)
 	end
 	
 	-- Owner has taken damage or has gone missing
-	if mo.target and mo.target.player
-		if not(mo.target.valid)
-		or P_PlayerInPain(mo.target.player)
-		or mo.target.player.playerstate != PST_LIVE
-			if mo.target and mo.target.valid and mo.target.player then
-				B.PrintGameFeed(mo.target.player," dropped the "..CHAOSRING_TEXT(mo.chaosring_num)..".")
-			end
-			mo.target.player.gotcrystal = false
-			mo.target.player.gotcrystal_time = 0
-			mo.target = nil
-			B.ZLaunch(mo,FRACUNIT*bounceheight/2,true)
-			--B.XYLaunch(mo,mo.angle,FRACUNIT*5)	
-			P_InstaThrust(mo,mo.angle,FRACUNIT*5)
-			free(mo)
-			S_StartSound(mo, sfx_cdfm67)
+	local targetIsPlayer = (mo.target and mo.target.player)
+	local targetIsValid = (mo.target and mo.target.valid)
+	local targetIsPlayerInPain = (targetIsPlayer and P_PlayerInPain(mo.target.player))
+	local targetIsDeadPlayer = (targetIsPlayer and mo.target.player.playerstate != PST_LIVE)
+	if targetIsPlayer and (
+		not(targetIsValid)   or
+		targetIsPlayerInPain or
+		targetIsDeadPlayer
+	) then
+		if targetIsValid then
+			B.PrintGameFeed(mo.target.player," dropped the "..CHAOSRING_TEXT(mo.chaosring_num)..".")
 		end
+
+		mo.target.player.gotcrystal = false
+		mo.target.player.gotcrystal_time = 0
+		mo.target = nil
+
+		B.ZLaunch(mo,FRACUNIT*bounceheight/2,true)
+		P_InstaThrust(mo,mo.angle,FRACUNIT*5)
+		free(mo)
+		S_StartSound(mo, sfx_cdfm67)
 	end
 	
-	-- Unclaimed behavior
-	if not(mo.target and mo.target.valid) then
-		mo.flags = ($|MF_BOUNCE)&~MF_SLIDEME
-		if mo.flags & MF_GRENADEBOUNCE == 0
-			mo.flags = $|MF_NOGRAVITY
-			local zz = mo.idealz + (sin(leveltime * ANG10) * 128)
-			B.ZLaunch(mo, (zz - mo.z) / 120, false)
-			
-		else
-			if not(leveltime%8) then
-				local spark = P_SpawnMobjFromMobj(mo,0,0,0,MT_SUPERSPARK)
-				spark.scale = mo.scale
-				spark.colorized = true
-				spark.color = mo.color
-				spark.spriteyoffset = $-(FRACUNIT*6)
-			end
-			mo.flags = $&~MF_NOGRAVITY
-			if P_IsObjectOnGround(mo)
-				-- Bounce behavior
-				B.ZLaunch(mo, FRACUNIT*bounceheight/2, true)
-				S_StartSoundAtVolume(mo, sfx_tink, 100)
-			end
-		end
-		-- Presence ambience
-		if not S_SoundPlaying(mo, CHAOSRING_AMBIENCE)
-			S_StartSound(mo, CHAOSRING_AMBIENCE)
-		end
-	else
-		if S_SoundPlaying(mo, CHAOSRING_AMBIENCE)
-			S_StopSoundByID(mo, CHAOSRING_AMBIENCE)
-		end
+	if targetIsValid --Claimed?
 
 		if not(leveltime%8) then
 			local spark = P_SpawnMobjFromMobj(mo,0,0,0,MT_SUPERSPARK)
@@ -412,16 +390,33 @@ local chaosRingFunc = function(mo)
 		P_MoveOrigin(mo,t.x,t.y,t.z)
 		P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 		mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
+	else --Loose?
+		mo.flags = ($|MF_BOUNCE)&~MF_SLIDEME
+		if mo.flags & MF_GRENADEBOUNCE == 0
+			mo.flags = $|MF_NOGRAVITY
+			local zz = mo.idealz + (sin(leveltime * ANG10) * 128)
+			B.ZLaunch(mo, (zz - mo.z) / 120, false)
+			
+		else
+			if not(leveltime%8) then
+				local spark = P_SpawnMobjFromMobj(mo,0,0,0,MT_SUPERSPARK)
+				spark.scale = mo.scale
+				spark.colorized = true
+				spark.color = mo.color
+				spark.spriteyoffset = $-(FRACUNIT*6)
+			end
+			mo.flags = $&~MF_NOGRAVITY
+			if P_IsObjectOnGround(mo)
+				-- Bounce behavior
+				B.ZLaunch(mo, FRACUNIT*bounceheight/2, true)
+				S_StartSoundAtVolume(mo, sfx_tink, 100)
+			end
+		end
 	end
-
-	local cvar_pointlimit = CV_FindVar("pointlimit").value
-	local cvar_overtime = CV_FindVar("overtime").value
-	local cvar_timelimit = CV_FindVar("timelimit").value
-	local overtime = ((cvar_overtime) and cvar_timelimit*60-leveltime/TICRATE <= 0)
 
 	
 
-	//Determine toss blink
+	--Start Floor VFX
 	local tossblink = 0
 	if mo.lasttouched and mo.lasttouched.valid and mo.lasttouched.player and not(mo.target) then
 		tossblink = mo.lasttouched.player.tossdelay
@@ -477,9 +472,10 @@ local chaosRingFunc = function(mo)
 			mo.floorvfx = nil
 		end
 	end
+	--End Floor VFX
 end
 
-local chaosRingPreFunc = function(mo)
+local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
 	-- Press tossflag to toss ruby
 	if not(mo.target and mo.target.valid and mo.target.player) then return end
 	local player = mo.target.player
@@ -492,6 +488,7 @@ local chaosRingPreFunc = function(mo)
 			player.gotcrystal = false
 			player.gotcrystal_time = 0
 			player.tossdelay = TICRATE*2
+			player.mo.chaosring = nil
 			free(mo)
 			if not (mo and mo.valid) then return end
 			mo.target = nil
@@ -503,52 +500,59 @@ local chaosRingPreFunc = function(mo)
 	end
 end
 
-addHook("MobjThinker", chaosRingFunc, MT_BATTLE_CHAOSRING)
+local function deleteChaosRing(chaosring) --Special Behavior upon Removal
+	if chaosring and chaosring.valid then
+		local spark = P_SpawnMobjFromMobj(chaosring, 0,0,0,MT_SPARK)
+		spark.colorized = true
+		spark.color = chaosring.color
 
-CR.PreThinkFrame = function()
-	for i = 1, 6 do
-		if CR.LiveTable[i] and CR.LiveTable[i].valid then
-			chaosRingPreFunc(CR.LiveTable[i])
-			continue
-		end
+		--Re-Insert Spawnpoint
+		CR.SpawnTable[chaosring.chaosring_thingspawn.num] = chaosring.chaosring_thingspawn
+
+		--Set to Respawning in LiveTable
+		CR.LiveTable[chaosring.chaosring_num] = {valid=false, respawntimer=CHAOSRING_SPAWNBUFFER}
+
+		print("A "..CHAOSRING_TEXT(chaosring.chaosring_num).." was lost!")
+		S_StartSound(nil, sfx_kc5d)
 	end
 end
 
-local function do_delete(mo)
-	-- Remove object
-	local chaosring = mo
-	P_SpawnMobj(chaosring.x,chaosring.y,chaosring.z,MT_SPARK)
-	CR.SpawnTable[chaosring.spawnthing.num] = chaosring.spawnthing
-	CR.LiveTable[mo.chaosring_num] = {valid=false, respawntimer=CHAOSRING_SPAWNBUFFER}
-	print("A "..CHAOSRING_TEXT(mo.chaosring_num).." was lost!")
-	S_StartSound(nil, sfx_kc5d)
-end
+CR.ThinkFrame = function() --Main Thinker
 
-addHook("MobjRemoved", function(mo)
-	if mo and mo.valid then
-		do_delete(mo)
-	end
-end, CHAOSRING_TYPE)
 
-CR.ThinkFrame = function()
-	CR.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd
-	if (leveltime-(CV_FindVar("hidetime").value*TICRATE) >= CHAOSRING_STARTSPAWNBUFFER) and #CR.LiveTable < 6 then --2 Minutes in?
-		if CR.SpawnCountdown <= 0 then 
+	CR.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd --Constantly rotating
+
+	local roundTime = leveltime-(CV_FindVar("hidetime").value*TICRATE)
+	local startupChaosRings = roundTime >= CHAOSRING_STARTSPAWNBUFFER
+
+	local allChaosRings = (#CR.LiveTable >= 6)
+
+	if startupChaosRings and not(allChaosRings)  then --2 Minutes in?
+
+		if CR.SpawnCountdown <= 0 then --Counted down?
 			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
 			S_StartSound(nil, sfx_kc33)
-			if #CR.LiveTable then
+			if #CR.LiveTable then --Chaos Rings exist?
+				--Spawn the next one
 				B.CTF.GameState.CaptureHUDName = #CR.LiveTable+1
 				spawnChaosRing(P_RandomRange(1, #CR.SpawnTable), #CR.LiveTable+1)
 			else
+				--Spawn the first one
 				B.CTF.GameState.CaptureHUDName = 1
 				spawnChaosRing(P_RandomRange(1, #CR.SpawnTable), 1)
 			end
+			--Set our countdown
 			CR.SpawnCountdown = CHAOSRING_SPAWNBUFFER
 		else
+			--Start counting down
 			CR.SpawnCountdown = $-1
 		end
 	end
-	if CR.WinCountdown == 0 then
+
+
+	--Win Condition
+	if CR.WinCountdown == 0 then --Ready to win?
+		--Win
 		B.Arena.ForceWin()
 		CR.WinCountdown = -1
 	elseif CR.WinCountdown > 0
@@ -563,6 +567,7 @@ CR.ThinkFrame = function()
 		end
 	end
 
+	--Main Thinker for ALL Chaos Rings
 	for i = 1, 6 do
 		local chaosring = CR.LiveTable[i]
 
@@ -641,7 +646,9 @@ CR.ThinkFrame = function()
 		end
 	end
 end
+--End of most Chaos Ring Stuff
 
+--Bank!
 local bankTime = function(player)
 	return max(1, 6 - ( FixedSqrt(player.rings * FRACUNIT / 2)>>FRACBITS ) )
 end
@@ -829,7 +836,7 @@ local capture = function(mo, team, bank)
 	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
 	local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
 	mo.player.gotcrystal_time = ($~=nil and $+1) or 1
-	mo.chaosring.chaosring_capturing = true
+	mo.chaosring_capturing = true
 	if mo.player.gotcrystal_time % 35 == 11 then
 		S_StartSoundAtVolume(nil, sfx, 160)
 	elseif mo.player.gotcrystal_time % 35 == 22 then
@@ -841,10 +848,9 @@ local capture = function(mo, team, bank)
 		S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
 		mo.player.gotcrystal = false
 		mo.player.gotcrystal_time = 0
-		captureChaosRing(mo.chaosring, bank)
 		table.insert(bank.chaosrings_table, mo.chaosring.chaosring_num)
 		mo.chaosring.chaosring_bankkey = #bank.chaosrings_table
-		mo.chaosring.target = bank
+		captureChaosRing(mo.chaosring, bank)
 		return true
 	end
 end
@@ -893,7 +899,7 @@ C.ThinkFrame = function()
 					continue
 				end
 				if blueInRed
-					if blueInRed > redInBlue then
+					if blueInRed > redInRed then
 						if player.ctfteam == 2 then
 							playerSteal(player.mo, C.RedBank)
 						end
@@ -906,7 +912,7 @@ C.ThinkFrame = function()
 					continue
 				end
 				if redInBlue
-					if redInBlue > blueInRed
+					if redInBlue > blueInBlue
 						if player.ctfteam == 1
 							playerSteal(player.mo, C.BlueBank)
 						end
@@ -918,12 +924,12 @@ C.ThinkFrame = function()
 				baseTransaction(player, base)
 			end
 			if not(base) then
-				if player.mo.stealing then
-					player.mo.stealing = nil
+				if player.mo.chaosring_stealing then
+					player.mo.chaosring_stealing = nil
 					player.gotcrystal_time = 0
 				end
-				if player.mo.chaosring and player.mo.chaosring.valid and player.mo.chaosring.capturing then
-					player.mo.chaosring.capturing = nil
+				if player.mo.chaosring_capturing then
+					player.mo.chaosring_capturing = nil
 					player.gotcrystal_time = 0
 				end
 			end
@@ -975,3 +981,72 @@ C.ThinkFrame = function()
 	end	
 	CR.ThinkFrame() --Chaos Rings
 end
+
+CR.MapLoad = function()
+
+	if not(B.BankGametype()) then return end
+
+	resetVars()
+
+	local chaosRingSpawn = mobjinfo[MT_BATTLE_CHAOSRINGSPAWNER].doomednum
+	local chaosEmeraldSpawn = mobjinfo[MT_EMERALDSPAWN].doomednum
+
+	local bouncePanelSpawn = mobjinfo[MT_BOUNCEPICKUP].doomednum
+	local railPanelSpawn = mobjinfo[MT_RAILPICKUP].doomednum
+	local autoPanelSpawn = mobjinfo[MT_AUTOPICKUP].doomednum
+	local bombPanelSpawn = mobjinfo[MT_EXPLODEPICKUP].doomednum
+	local scatterPanelSpawn = mobjinfo[MT_SCATTERPICKUP].doomednum
+	local grenadePanelSpawn = mobjinfo[MT_GRENADEPICKUP].doomednum
+	
+
+	for mt in mapthings.iterate do
+		if mt and mt.valid and (mt.type == (chaosRingSpawn)) then --Battle Chaos Ring Spawn
+			insertSpawnPoint(mt)
+		end
+	end
+
+	if not(#CR.SpawnTable) or (#CR.SpawnTable < 6) then
+		for mt in mapthings.iterate do
+			if mt and mt.valid and (mt.type == (chaosEmeraldSpawn)) then --Match Chaos Emerald Spawn
+				insertSpawnPoint(mt)
+			end
+		end
+	end
+
+	if not(#CR.SpawnTable) or (#CR.SpawnTable < 6) then
+		for mt in mapthings.iterate do
+			if mt and mt.valid and 
+			(mt.type == (bouncePanelSpawn)) or
+			(mt.type == (railPanelSpawn)) or
+			(mt.type == (autoPanelSpawn)) or
+			(mt.type == (bombPanelSpawn)) or
+			(mt.type == (scatterPanelSpawn)) or
+			(mt.type == (grenadePanelSpawn))
+			then
+				insertSpawnPoint(mt)
+			end
+		end
+	end
+end
+
+CR.PreThinkFrame = function()
+	for i = 1, 6 do
+		if CR.LiveTable[i] and CR.LiveTable[i].valid then
+			chaosRingPreFunc(CR.LiveTable[i])
+			continue
+		end
+	end
+end
+
+addHook("MapLoad", CR.MapLoad)
+addHook("MobjFuse",function(mo)
+	if not(mo.captured) then
+		mo.flags = $|MF_SPECIAL
+		return true
+	else
+		return true
+	end
+end,CHAOSRING_TYPE)
+addHook("MobjThinker", chaosRingFunc, CHAOSRING_TYPE)
+addHook("MobjRemoved", deleteChaosRing, CHAOSRING_TYPE)
+addHook("TouchSpecial", touchChaosRing, CHAOSRING_TYPE)
