@@ -92,12 +92,14 @@ CR.InitSpawnWait = TICRATE*25
 CR.SpawnTable = {}
 CR.WinCountdown = TICRATE*12
 CR.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
+CR.AvailableChaosRings = {}
 
 local resetVars = function()
 	CR.SpawnTable = {} --Clear the table
 	CR.WinCountdown = CHAOSRING_WINTIME
 	CR.LiveTable = {nil, nil, nil, nil, nil, nil} --Table where you can get each Chaos ring's Object
 	CR.SpawnCountdown = 0
+	CR.AvailableChaosRings = {}
 	CR.GlobalAngle = ANG20
 	CR.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 end
@@ -151,6 +153,7 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	thing.mo.chaosring_thingspawn = thing --Store the MapThing table
 	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS --Shiny
 	CR.LiveTable[chaosringnum] = thing.mo --Connect to LiveTable
+	table.insert(CR.AvailableChaosRings, thing.mo)
 	table.remove(CR.SpawnTable, num) --Don't try to spawn here again
 	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
 	if re then
@@ -525,17 +528,17 @@ CR.ThinkFrame = function() --Main Thinker
 	local roundTime = leveltime-(CV_FindVar("hidetime").value*TICRATE)
 	local startupChaosRings = roundTime >= CHAOSRING_STARTSPAWNBUFFER
 
-	local allChaosRings = (#CR.LiveTable >= 6)
+	local allChaosRings = (#CR.AvailableChaosRings >= 6)
 
 	if startupChaosRings and not(allChaosRings)  then --2 Minutes in?
 
 		if CR.SpawnCountdown <= 0 then --Counted down?
 			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
 			S_StartSound(nil, sfx_kc33)
-			if #CR.LiveTable then --Chaos Rings exist?
+			if #CR.AvailableChaosRings then --Chaos Rings exist?
 				--Spawn the next one
-				B.CTF.GameState.CaptureHUDName = #CR.LiveTable+1
-				spawnChaosRing(P_RandomRange(1, #CR.SpawnTable), #CR.LiveTable+1)
+				B.CTF.GameState.CaptureHUDName = #CR.AvailableChaosRings+1
+				spawnChaosRing(P_RandomRange(1, #CR.SpawnTable), #CR.AvailableChaosRings+1)
 			else
 				--Spawn the first one
 				B.CTF.GameState.CaptureHUDName = 1

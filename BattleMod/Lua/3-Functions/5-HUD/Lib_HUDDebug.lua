@@ -200,6 +200,7 @@ B.DebugHUD = function(v, player, cam)
 			addline("SpawnTable", #CR.SpawnTable)
 			addline("WinCountdown", CR.WinCountdown)
 			addline("LiveTable", #CR.LiveTable)
+			addline("AvailableChaosRings", #CR.AvailableChaosRings)
 			for k, v in ipairs(CR.LiveTable) do
 				addline("Chaos Ring "..k, (v~=nil and (v.valid or v.respawntimer)))
 			end

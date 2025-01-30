@@ -118,7 +118,7 @@ B.RingsHUD = function(v, player, cam)
 		local radarColor = {SKINCOLOR_GREY, SKINCOLOR_BLUE, SKINCOLOR_SHAMROCK, SKINCOLOR_YELLOW, SKINCOLOR_ORANGE, SKINCOLOR_RED}
 
 		//Emblem radar. Also hidden when the menu is present.
-		for i=1,#CR.LiveTable do
+		for i=1,#CR.AvailableChaosRings do
 			local chaosring = CR.LiveTable[i]
 			local invalid = (not(chaosring and chaosring.valid) or chaosring.target or not(chaosring.valid))
 			if invalid then

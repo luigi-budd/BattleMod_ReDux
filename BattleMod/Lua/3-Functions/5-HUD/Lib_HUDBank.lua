@@ -47,7 +47,7 @@ CR.ChaosRingCapHUD = function(v)
         end
 	end
 
-    if not(#CR.LiveTable or B.PreRoundWait()) then
+    if not(#CR.AvailableChaosRings or B.PreRoundWait()) then
         local tics = CR.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE))
         local x = 320/2 * FRACUNIT
         local y = 45 * FRACUNIT
