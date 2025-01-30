@@ -182,7 +182,7 @@ B.RingsHUD = function(v, player, cam)
 			local angles = scaled_ratio * (360/spacing) / scale_factor
 			for n=1, angles do
 				local p = v.getSpritePatch("CDBR", leveltime/4 % 4, 0, n*ANG1*spacing)
-				v.draw(x, y-9, p, flags_hudtrans)
+				v.draw(x-1, y-12, p, flags_hudtrans)
 			end
 			local text = "\x86" + G_TicsToSeconds(player.actioncooldown) + "." + roundToMultipleOf5(G_TicsToCentiseconds(player.actioncooldown))
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
@@ -390,11 +390,12 @@ B.RingsHUD = function(v, player, cam)
 	end*/
 	patch = v.cachePatch("PARRYBT")
 	if (canguard or guardoverride) and not (CV.FindVarString("battleconfig_hud", "Minimal")) then
-		v.draw(x-10,y-1,patch,flags)
+		v.draw(x-10,y,patch,flags)
 		v.drawString(x,y,guardtext,flags,"thin")
 	end
 
 	--AIR DODGE
+	y = $-16
 	if candodge then
 		if (player.action2text and not (CV.FindVarString("battleconfig_hud", "Minimal") or player.gotflagdebuff)) then
 			y = $-9
@@ -408,7 +409,7 @@ B.RingsHUD = function(v, player, cam)
 			local tiny = 4 -- 0 for not tiny
 			for n=1, angles do
 				local p = v.getSpritePatch("CDBR", tiny+(leveltime/4 % 4), 0, n*ANG1*spacing)
-				v.draw(x, y-18, p, flags_hudtrans)
+				v.draw(x, y-5, p, flags_hudtrans)
 			end
 			local unsafe_dodge = (player.safedodge and player.safedodge < 0)
 			if player.dodgecooldown > maxcooldown and (unsafe_dodge or (leveltime/5 & 1)) then
@@ -418,11 +419,11 @@ B.RingsHUD = function(v, player, cam)
 					x = $ + v.RandomRange(-1,1)
 					y = $ + v.RandomRange(-1,1)
 				end
-				v.drawString(x-1,y-19,color+"!",flags,"thin")
+				v.drawString(x-1,y-2,color+"!",flags,"thin")
 			end
 		elseif not (CV.FindVarString("battleconfig_hud", "Minimal")) then
 			patch = v.cachePatch("DODGEBT")
-			v.draw(x-5,y-18,patch,flags)
+			v.draw(x-5,y,patch,flags)
 		end
 	end
 
