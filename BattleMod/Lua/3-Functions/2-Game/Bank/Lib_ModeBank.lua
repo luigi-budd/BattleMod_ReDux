@@ -87,7 +87,7 @@ local CHAOSRING_TEXT = function(num)
 end
 
 CR.VarsExist = function()
-	return (server.SpawnCountDown~=nil and 
+	return server and (server.SpawnCountDown~=nil and 
 	server.GlobalAngle~=nil and 
 	server.InitSpawnWait~=nil and
 	server.SpawnTable~=nil and
@@ -106,6 +106,7 @@ end
 CR.GetChaosRingKey = function(num)
 	for k, v in ipairs(server.AvailableChaosRings) do
 		if not(v) then continue end
+		if not(v.valid) and type(v)!="table" then continue end
 		if v.chaosring_num == num then
 			return k
 		end
