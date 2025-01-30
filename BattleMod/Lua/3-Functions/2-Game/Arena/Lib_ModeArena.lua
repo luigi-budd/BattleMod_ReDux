@@ -142,6 +142,7 @@ A.GetRanks = function(force)
 	if B.CPGametype() and G_GametypeHasTeams() then
 		return A.TeamGetRanks(force)
 	end
+	local criteria = B.CPGametype() and "captureamount" or "score"
 	local p = A.Fighters
 	A.Placements = {}
 	//Rank players
@@ -153,7 +154,7 @@ A.GetRanks = function(force)
 		for m = 1, #p
 			local otherplayer = p[m]
 			if not(p[m].valid) then continue end //sigh
-			if player.score < otherplayer.score then
+			if player[criteria] < otherplayer[criteria] then
 				player.rank = $+1
 			end
 		end
@@ -173,6 +174,7 @@ A.GetRanks = function(force)
 end
 
 A.TeamGetRanks = function(force)
+	local criteria = B.CPGametype() and "captureamount" or "score"
 	local b = A.BlueFighters
 	local r = A.RedFighters
 	//Rank players
@@ -184,15 +186,13 @@ A.TeamGetRanks = function(force)
 		for m = 1, #b
 			local botherplayer = b[m]
 			if not(b[m].valid) then continue end //sigh
-			if bplayer.score < botherplayer.score then
+			if bplayer[criteria] < botherplayer[criteria] then
 				bplayer.brank = $+1
 			end
 		end
 		if bplayer.brank == 1 and (A.Bounty or force)
-			--bplayer.bwanted = true
 			bplayer.wanted = true
 		else
-			--bplayer.bwanted = false
 			bplayer.wanted = false
 		end
 	end
@@ -204,15 +204,13 @@ A.TeamGetRanks = function(force)
 		for m = 1, #r
 			local rotherplayer = r[m]
 			if not(r[m].valid) then continue end //sigh
-			if rplayer.score < rotherplayer.score then
+			if rplayer[criteria] < rotherplayer[criteria] then
 				rplayer.rrank = $+1
 			end
 		end
 		if rplayer.rrank == 1 and (A.Bounty or force)
-			--rplayer.rwanted = true
 			rplayer.wanted = true
 		else
-			--rplayer.rwanted = false
 			rplayer.wanted = false
 		end
 	end

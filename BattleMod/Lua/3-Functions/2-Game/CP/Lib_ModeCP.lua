@@ -473,6 +473,7 @@ CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)
 			end
 			for player in players.iterate
 				if player.capturing and not(leveltime&3) then
+					player.captureamount = $+amt --for silver crown
 					P_AddPlayerScore(player,1)
 				end
 			end
