@@ -37,8 +37,8 @@ CR.ChaosRingCapHUD = function(v)
         end
 	end
 
-    if not(#CR.LiveTable or B.PreRoundWait()) then
-        local tics = CR.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE))
+    if not(#server.AvailableChaosRings or B.PreRoundWait()) then
+        local tics = server.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE))
         local x = 320/2 * FRACUNIT
         local y = 45 * FRACUNIT
         local f = V_PERPLAYER|V_SNAPTOTOP|(tics > TICRATE*10 and V_HUDTRANSHALF or V_HUDTRANS)
@@ -77,7 +77,7 @@ CR.ChaosRingCapHUD = function(v)
 
 
         if team then
-            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(CR.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(server.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
         end
     end
 end
@@ -95,9 +95,9 @@ CR.ChaosRingHUD = function(v, player)
             local flip = (t==1 and val) or -val
             for i = 1, 6 do
                 local num = i
-                local chaosring = CR.LiveTable[num]
+                local chaosring = CR.GetChaosRing(num)
                 if not(chaosring and chaosring.valid) then continue end
-                if not((chaosring.captured and ((chaosring.ctfteam == t))) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.bankkey)) and (leveltime%2)==1)) then continue end
+                if not((chaosring.captured and ((chaosring.captureteam == t))) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.bankkey)) and (leveltime%2)==1)) then continue end
                 local patch = v.cachePatch("CHRING"..num)
                 local trans = chaosring.fuse and (leveltime/6)%2==1 and V_HUDTRANSHALF or V_HUDTRANS
                 v.drawScaled((x-(FRACUNIT*3)+(flip*((FRACUNIT/3)*(28)))*(i+2)), (y+(FRACUNIT*10)), FRACUNIT/2, patch, flags|trans)

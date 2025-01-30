@@ -194,13 +194,14 @@ B.DebugHUD = function(v, player, cam)
 			subheader("BANK")
 			addline("RedBank", C.RedBank != nil)
 			addline("BlueBank", C.BlueBank != nil)
-			addline("SpawnCountdown", CR.SpawnCountdown)
-			addline("GlobalAngle", CR.GlobalAngle/ANG1)
-			addline("InitSpawnWait", CR.InitSpawnWait)
-			addline("SpawnTable", #CR.SpawnTable)
-			addline("WinCountdown", CR.WinCountdown)
-			addline("LiveTable", #CR.LiveTable)
-			for k, v in ipairs(CR.LiveTable) do
+			addline("SpawnCountdown", server.SpawnCountDown)
+			addline("GlobalAngle", server.GlobalAngle/ANG1)
+			addline("InitSpawnWait", server.InitSpawnWait)
+			addline("SpawnTable", #server.SpawnTable)
+			addline("WinCountdown", server.WinCountdown)
+			--addline("LiveTable", #CR.LiveTable)
+			addline("AvailableChaosRings", #server.AvailableChaosRings)
+			for k, v in ipairs(server.AvailableChaosRings) do
 				addline("Chaos Ring "..k, (v~=nil and (v.valid or v.respawntimer)))
 			end
 		end

@@ -74,12 +74,6 @@ function B.NetVars.Sync(network)
 	//Bank
 	C.RedBank 			= network($)
 	C.BlueBank 			= network($)
-	CR.SpawnCountdown   = network($)
-	CR.GlobalAngle      = network($)
-	CR.InitSpawnWait    = network($)
-	CR.SpawnTable 		= network($)
-	CR.WinCountdown		= network($)
-	CR.LiveTable		= network($)
 	//Game state
 	B.RedScore		= network($)
 	B.BlueScore		= network($)
