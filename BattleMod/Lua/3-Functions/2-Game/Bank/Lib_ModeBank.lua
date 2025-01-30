@@ -86,14 +86,17 @@ local CHAOSRING_TEXT = function(num)
 	return CR.Data[num].textmap.."Chaos Ring".."\x80"
 end
 
-CR.SpawnCountdown = 0
-CR.GlobalAngle = ANG20
-CR.InitSpawnWait = TICRATE*25
-CR.SpawnTable = {}
-CR.WinCountdown = TICRATE*12
-CR.AvailableChaosRings = {}
+CR.VarsExist = function()
+	return (server.SpawnCountDown~=nil and 
+	server.GlobalAngle~=nil and 
+	server.InitSpawnWait~=nil and
+	server.SpawnTable~=nil and
+	server.WinCountdown~=nil and
+	server.AvailableChaosRings~=nil)
+end
+
 CR.GetChaosRing = function(num)
-	for k, v in ipairs(CR.AvailableChaosRings) do
+	for k, v in ipairs(server.AvailableChaosRings) do
 		if not(v) then continue end
 		if v.chaosring_num == num then
 			return v
@@ -101,7 +104,7 @@ CR.GetChaosRing = function(num)
 	end
 end
 CR.GetChaosRingKey = function(num)
-	for k, v in ipairs(CR.AvailableChaosRings) do
+	for k, v in ipairs(server.AvailableChaosRings) do
 		if not(v) then continue end
 		if v.chaosring_num == num then
 			return k
@@ -110,12 +113,12 @@ CR.GetChaosRingKey = function(num)
 end
 
 local resetVars = function()
-	CR.SpawnTable = {} --Clear the table
-	CR.WinCountdown = CHAOSRING_WINTIME
-	CR.SpawnCountdown = 0
-	CR.AvailableChaosRings = {}
-	CR.GlobalAngle = ANG20
-	CR.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
+	server.SpawnTable = {} --Clear the table
+	server.WinCountdown = CHAOSRING_WINTIME
+	server.SpawnCountDown = 0
+	server.AvailableChaosRings = {}
+	server.GlobalAngle = ANG20
+	server.InitSpawnWait = CHAOSRING_STARTSPAWNBUFFER
 end
 
 local addPoints = function(team, points)
@@ -127,7 +130,7 @@ local addPoints = function(team, points)
 end
 
 local insertSpawnPoint = function(mt)
-	table.insert(CR.SpawnTable, { --Data for the spawn
+	table.insert(server.SpawnTable, { --Data for the spawn
 		x = mt.x*FRACUNIT,
 		y = mt.y*FRACUNIT,
 		z = mt.z*FRACUNIT,
@@ -138,14 +141,14 @@ local insertSpawnPoint = function(mt)
 end
 
 local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
-	if not(CR.SpawnTable[num]) then --If we're trying to access a non-existant spawnpoint, don't
+	if not(server.SpawnTable[num]) then --If we're trying to access a non-existant spawnpoint, don't
 		return
 	end
 
-	if CR.SpawnTable[num].mo and CR.SpawnTable[num].mo.valid then --Only if it doesn't already have an object
+	if server.SpawnTable[num].mo and server.SpawnTable[num].mo.valid then --Only if it doesn't already have an object
 		return
 	end
-	local thing = CR.SpawnTable[num]
+	local thing = server.SpawnTable[num]
 	local data = CR.Data[chaosringnum]
 
 	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
@@ -166,8 +169,8 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	thing.num = num --Store spawnpoint number
 	thing.mo.chaosring_thingspawn = thing --Store the MapThing table
 	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS --Shiny
-	table.insert(CR.AvailableChaosRings, thing.mo)
-	table.remove(CR.SpawnTable, num) --Don't try to spawn here again
+	table.insert(server.AvailableChaosRings, thing.mo)
+	table.remove(server.SpawnTable, num) --Don't try to spawn here again
 	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
 	if re then
 		S_StartSound(nil, sfx_cdfm44)
@@ -232,7 +235,7 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 			mo.target.player.gotcrystal = false --Not Anymore
 			mo.target.chaosring = nil --Disconnect Chaos Ring from player object
 		else
-			CR.WinCountdown = CHAOSRING_WINTIME --Reset the Win Countdown
+			server.WinCountdown = CHAOSRING_WINTIME --Reset the Win Countdown
 		end
 		mo.lasttouched = mo.target --Set lasttouched to them
 	else
@@ -523,10 +526,10 @@ local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 		spark.color = chaosring.color
 
 		--Re-Insert Spawnpoint
-		CR.SpawnTable[chaosring.chaosring_thingspawn.num] = chaosring.chaosring_thingspawn
+		server.SpawnTable[chaosring.chaosring_thingspawn.num] = chaosring.chaosring_thingspawn
 
 		--Set to Respawning in LiveTable
-		CR.AvailableChaosRings[CR.GetChaosRingKey(chaosring.chaosring_num)] = {chaosring_num=chaosring.chaosring_num, valid=false, respawntimer=CHAOSRING_SPAWNBUFFER}
+		server.AvailableChaosRings[CR.GetChaosRingKey(chaosring.chaosring_num)] = {chaosring_num=chaosring.chaosring_num, valid=false, respawntimer=CHAOSRING_SPAWNBUFFER}
 
 		print("A "..CHAOSRING_TEXT(chaosring.chaosring_num).." was lost!")
 		S_StartSound(nil, sfx_kc5d)
@@ -534,49 +537,49 @@ local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 end
 
 CR.ThinkFrame = function() --Main Thinker
+	if not(CR.VarsExist()) then return end
 
-
-	CR.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd --Constantly rotating
+	server.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd --Constantly rotating
 
 	local roundTime = leveltime-(CV_FindVar("hidetime").value*TICRATE)
 	local startupChaosRings = roundTime >= CHAOSRING_STARTSPAWNBUFFER
 
-	local allChaosRings = (#CR.AvailableChaosRings >= 6)
+	local allChaosRings = (#server.AvailableChaosRings >= 6)
 
 	if startupChaosRings and not(allChaosRings)  then --2 Minutes in?
 
-		if CR.SpawnCountdown <= 0 then --Counted down?
+		if server.SpawnCountDown <= 0 then --Counted down?
 			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
 			S_StartSound(nil, sfx_kc33)
-			if #CR.AvailableChaosRings then --Chaos Rings exist?
+			if #server.AvailableChaosRings then --Chaos Rings exist?
 				--Spawn the next one
-				B.CTF.GameState.CaptureHUDName = #CR.AvailableChaosRings+1
-				spawnChaosRing(P_RandomRange(1, #CR.SpawnTable), #CR.AvailableChaosRings+1)
+				B.CTF.GameState.CaptureHUDName = #server.AvailableChaosRings+1
+				spawnChaosRing(P_RandomRange(1, #server.SpawnTable), #server.AvailableChaosRings+1)
 			else
 				--Spawn the first one
 				B.CTF.GameState.CaptureHUDName = 1
-				spawnChaosRing(P_RandomRange(1, #CR.SpawnTable), 1)
+				spawnChaosRing(P_RandomRange(1, #server.SpawnTable), 1)
 			end
 			--Set our countdown
-			CR.SpawnCountdown = CHAOSRING_SPAWNBUFFER
+			server.SpawnCountDown = CHAOSRING_SPAWNBUFFER
 		else
 			--Start counting down
-			CR.SpawnCountdown = $-1
+			server.SpawnCountDown = $-1
 		end
 	end
 
 
 	--Win Condition
-	if CR.WinCountdown == 0 then --Ready to win?
+	if server.WinCountdown == 0 then --Ready to win?
 		--Win
 		B.Arena.ForceWin()
-		CR.WinCountdown = -1
-	elseif CR.WinCountdown > 0
+		server.WinCountdown = -1
+	elseif server.WinCountdown > 0
 		for i = 1, 2 do
 			local bank = (i==1 and C.RedBank) or C.BlueBank
 			if bank and bank.valid and bank.chaosrings == (CHAOSRING1|CHAOSRING2|CHAOSRING3|CHAOSRING4|CHAOSRING5|CHAOSRING6)
-				CR.WinCountdown = $-1
-				if CR.WinCountdown == 0 then
+				server.WinCountdown = $-1
+				if server.WinCountdown == 0 then
 					addPoints(i, CHAOSRING_WINPOINTS)
 				end
 			end
@@ -584,8 +587,8 @@ CR.ThinkFrame = function() --Main Thinker
 	end
 
 	--Main Thinker for ALL Chaos Rings
-	for i = 1, #CR.AvailableChaosRings do
-		local chaosring = CR.AvailableChaosRings[i]
+	for i = 1, #server.AvailableChaosRings do
+		local chaosring = server.AvailableChaosRings[i]
 
 		local remove = false
 
@@ -597,7 +600,7 @@ CR.ThinkFrame = function() --Main Thinker
 			remove = false
 			chaosring.respawntimer = $-1
 			if chaosring.respawntimer <= 0 then
-				spawnChaosRing(P_RandomRange(1, #CR.SpawnTable), i, true)
+				spawnChaosRing(P_RandomRange(1, #server.SpawnTable), i, true)
 			end
 			continue
 		end
@@ -875,6 +878,7 @@ end
 C.ThinkFrame = function()
 
 	if not(B.BankGametype()) then return end
+	if not(CR.VarsExist()) then return end
 	local rs = redscore
 	local bs = bluescore
 	local blueInBlue = 0
@@ -1021,7 +1025,7 @@ CR.MapLoad = function()
 		end
 	end
 
-	if not(#CR.SpawnTable) or (#CR.SpawnTable < 6) then
+	if not(#server.SpawnTable) or (#server.SpawnTable < 6) then
 		for mt in mapthings.iterate do
 			if mt and mt.valid and (mt.type == (chaosEmeraldSpawn)) then --Match Chaos Emerald Spawn
 				insertSpawnPoint(mt)
@@ -1029,7 +1033,7 @@ CR.MapLoad = function()
 		end
 	end
 
-	if not(#CR.SpawnTable) or (#CR.SpawnTable < 6) then
+	if not(#server.SpawnTable) or (#server.SpawnTable < 6) then
 		for mt in mapthings.iterate do
 			if mt and mt.valid and 
 			(mt.type == (bouncePanelSpawn)) or
@@ -1046,9 +1050,10 @@ CR.MapLoad = function()
 end
 
 CR.PreThinkFrame = function()
-	for i = 1, #CR.AvailableChaosRings do
-		if CR.AvailableChaosRings[i] and CR.AvailableChaosRings[i].valid then
-			chaosRingPreFunc(CR.AvailableChaosRings[i])
+	if not(CR.VarsExist()) then return end
+	for i = 1, #server.AvailableChaosRings do
+		if server.AvailableChaosRings[i] and server.AvailableChaosRings[i].valid then
+			chaosRingPreFunc(server.AvailableChaosRings[i])
 			continue
 		end
 	end

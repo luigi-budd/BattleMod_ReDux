@@ -47,8 +47,8 @@ CR.ChaosRingCapHUD = function(v)
         end
 	end
 
-    if not(#CR.AvailableChaosRings or B.PreRoundWait()) then
-        local tics = CR.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE))
+    if not(#server.AvailableChaosRings or B.PreRoundWait()) then
+        local tics = server.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE))
         local x = 320/2 * FRACUNIT
         local y = 45 * FRACUNIT
         local f = V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT|(tics > TICRATE*10 and V_HUDTRANSHALF or V_HUDTRANS)
@@ -87,7 +87,7 @@ CR.ChaosRingCapHUD = function(v)
 
 
         if team then
-            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(CR.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(server.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
         end
     end
 end
