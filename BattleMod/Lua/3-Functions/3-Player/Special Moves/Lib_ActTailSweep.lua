@@ -239,7 +239,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		end
 	return end
 	
-	local flying = player.panim == PA_ABILITY
+	local flying = player.panim == PA_ABILITY and not player.actionstate
 	local carrying = false
 	--[[
 		!! IMPORTANT NOTE ABOUT OPTIMIZATION:
@@ -317,7 +317,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		B.DrawAimLine(player,mo.angle)
 		B.DrawAimLine(player,mo.angle-sideangle)
 	elseif not(flying or player.actionstate == state_dash) then
-		player.actiontext = player.actionstate and "Tail Swipe" or "Tail Sweep"
+		player.actiontext = "Tail Sweep"
 	elseif not(carrying)
 		player.actiontext = "Flight Dash"
 	else
