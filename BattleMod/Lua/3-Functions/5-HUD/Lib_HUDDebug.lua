@@ -203,6 +203,7 @@ B.DebugHUD = function(v, player, cam)
 			addline("AvailableChaosRings", #server.AvailableChaosRings)
 			for k, v in ipairs(server.AvailableChaosRings) do
 				addline("Chaos Ring "..k, (v~=nil and (v.valid or v.respawntimer)))
+				addline("> Fuse "..k, (v~=nil and (v.valid and v.fuse)))
 			end
 		end
 	end
