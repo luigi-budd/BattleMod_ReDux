@@ -954,6 +954,10 @@ C.ThinkFrame = function()
 				if player.mo.chaosring_stealing then
 					player.mo.chaosring_stealing = nil
 					player.gotcrystal_time = 0
+					if player.mo.chaosring_tosteal and player.mo.chaosring_tosteal.valid then
+						player.mo.chaosring_tosteal.beingstolen = nil
+						player.mo.chaosring_tosteal = nil
+					end
 				end
 				if player.mo.chaosring_capturing then
 					player.mo.chaosring_capturing = nil
