@@ -86,7 +86,7 @@ local CHAOSRING_TEXT = function(num, donum)
 	if donum then
 		return CR.Data[num].textmap.."Chaos Ring "..num.."\x80"
 	else
-		return CR.Data[num].textmap.."Chaos Ring "..num.."\x80"
+		return CR.Data[num].textmap.."Chaos Ring".."\x80"
 	end
 end
 
@@ -304,8 +304,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 		if not(mo.chaosring_tosteal) then --If you aren't already stealing a Chaos Ring
 			local available_rings = {}
 
-			for k, ringnum in ipairs(bank.chaosrings_table) do --Gather the stealable rings
-				local v = CR.GetChaosRing(ringnum)
+			for k, v in ipairs(bank.chaosrings_table) do --Gather the stealable rings
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
 					print("Can't steal "..CHAOSRING_TEXT(ringnum, true).."\n"..
 						  "valid = "..(tostring(v and v.valid) or "nil").."\n"..
@@ -896,7 +895,7 @@ local capture = function(mo, team, bank)
 		S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
 		mo.player.gotcrystal = false
 		mo.player.gotcrystal_time = 0
-		table.insert(bank.chaosrings_table, mo.chaosring.chaosring_num)
+		table.insert(bank.chaosrings_table, mo.chaosring)
 		mo.chaosring.chaosring_bankkey = #bank.chaosrings_table
 		captureChaosRing(mo.chaosring, bank)
 		return true
