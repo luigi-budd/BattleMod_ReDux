@@ -227,7 +227,8 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 	or toucherIsPlayerInPain 
 	or toucherIsFlashing 
 	or toucherTossdelay 
-	or toucherHasCrystal then
+	or toucherHasCrystal
+	or sameTeam then
 		return true
 	end
 
