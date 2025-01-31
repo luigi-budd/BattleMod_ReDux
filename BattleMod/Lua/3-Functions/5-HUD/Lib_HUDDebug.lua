@@ -202,9 +202,11 @@ B.DebugHUD = function(v, player, cam)
 			--addline("LiveTable", #CR.LiveTable)
 			addline("AvailableChaosRings", #server.AvailableChaosRings)
 			for k, v in ipairs(server.AvailableChaosRings) do
-				addline("Chaos Ring "..k, (v~=nil and (v.valid or v.respawntimer)))
+				addline(CR.Data[v.chaosring_num].textmap.."Chaos Ring ".."\x80"..k, (v~=nil and (v.valid or v.respawntimer)))
 				addline(CR.Data[v.chaosring_num].textmap.."> Fuse ".."\x80"..k, (v~=nil and (v.valid and v.fuse)))
-				addline(CR.Data[v.chaosring_num].textmap.."> beingstolen ".."\x80"..k, (v~=nil and (v.valid and v.beingstolen)))
+				addline(CR.Data[v.chaosring_num].textmap.."> Beingstolen ".."\x80"..k, (v~=nil and (v.valid and v.beingstolen)))
+				addline(CR.Data[v.chaosring_num].textmap.."> Captured ".."\x80"..k, (v~=nil and (v.valid and v.captured)))
+				addline(CR.Data[v.chaosring_num].textmap.."> Idle".."\x80"..k, (v~=nil and (v.valid and v.idle)))
 			end
 		end
 	end
