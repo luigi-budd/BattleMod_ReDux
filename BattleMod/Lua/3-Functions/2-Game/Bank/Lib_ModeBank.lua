@@ -377,6 +377,12 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 			B.PrintGameFeed(mo.target.player," dropped the "..CHAOSRING_TEXT(mo.chaosring_num)..".")
 		end
 
+		mo.beingstolen = nil
+		mo.captured = nil
+		mo.target.chaosring_stealing = nil
+		mo.target.chaosring_capturing = nil
+		mo.target.chaosring_tosteal = nil
+
 		mo.target.player.gotcrystal = false
 		mo.target.player.gotcrystal_time = 0
 		mo.target = nil
@@ -512,6 +518,10 @@ local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
 			player.gotcrystal = false
 			player.gotcrystal_time = 0
 			player.tossdelay = TICRATE*2
+			mo.beingstolen = nil
+			mo.captured = nil
+			player.mo.chaosring_stealing = nil
+			player.mo.chaosring_capturing = nil
 			player.mo.chaosring = nil
 			free(mo)
 			if not (mo and mo.valid) then return end
