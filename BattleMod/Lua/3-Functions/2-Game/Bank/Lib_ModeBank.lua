@@ -82,8 +82,12 @@ CR.Data = {
 	}
 }
 
-local CHAOSRING_TEXT = function(num)
-	return CR.Data[num].textmap.."Chaos Ring".."\x80"
+local CHAOSRING_TEXT = function(num, donum)
+	if donum then
+		return CR.Data[num].textmap.."Chaos Ring "..num.."\x80"
+	else
+		return CR.Data[num].textmap.."Chaos Ring "..num.."\x80"
+	end
 end
 
 CR.VarsExist = function()
@@ -295,7 +299,7 @@ local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 end
 
 local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their base
-	if mo.player.gotcrystal then return end --Chaos Ringholders cannot steal
+	if mo.player.gotcrystal then print("Can't steal, has gotcrystal") return end --Chaos Ringholders cannot steal
 	if #bank.chaosrings_table then --If the bank has Chaos Ring Objects
 		if not(mo.chaosring_tosteal) then --If you aren't already stealing a Chaos Ring
 			local available_rings = {}
@@ -303,12 +307,17 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			for k, ringnum in ipairs(bank.chaosrings_table) do --Gather the stealable rings
 				local v = CR.GetChaosRing(ringnum)
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
+					print("Can't steal "..CHAOSRING_TEXT(ringnum, true).."\n"..
+						  "valid = "..(v and v.valid).."\n"..
+						  "captured = "..(v.captured).."\n"..
+						  "fuse = "..(v.fuse).."\n"..
+						  "beingstolen = "..(v.beingstolen))
 					continue
 				end
 				table.insert(available_rings, v)
 			end
 
-			if not(#available_rings) then return end --If there are none, we can't steal
+			if not(#available_rings) then print("Could not get an available ring to steal.") return end --If there are none, we can't steal
 
 			local pickme = available_rings[P_RandomRange(1, #available_rings)] --Steal a random ring
 			pickme.beingstolen = mo --It's being stolen
@@ -316,7 +325,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 		else --Now that we're stealing
 			mo.chaosring_stealing = true --Var to mark down that we were stealing
 			mo.player.gotcrystal_time = ($~=nil and $+1) or 1 --Add to crystal time
-
+			print("Stealing! gotcrystal_time = "..mo.player.gotcrystal_time)
 			--Play Staggered SFX
 			local sfx = sfx_kc59
 			if mo.player.gotcrystal_time % 35 == 11 then
@@ -327,6 +336,8 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 				S_StartSoundAtVolume(mo, sfx, 20)
 			end
 		end
+	else
+		print((((bank == C.RedBank) and "\x85".."Red") or "\x84".."Blue").." Bank doesn't have enough chaos rings to steal")
 	end
 
 	if mo.player.gotcrystal_time~=nil and (mo.player.gotcrystal_time >= CHAOSRING_STEALTIME) then --If we've been standing long enough
