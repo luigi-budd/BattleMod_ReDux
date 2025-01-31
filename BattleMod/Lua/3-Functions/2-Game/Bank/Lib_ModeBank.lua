@@ -308,10 +308,10 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 				local v = CR.GetChaosRing(ringnum)
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
 					print("Can't steal "..CHAOSRING_TEXT(ringnum, true).."\n"..
-						  "valid = "..(v and v.valid).."\n"..
-						  "captured = "..(v.captured).."\n"..
-						  "fuse = "..(v.fuse).."\n"..
-						  "beingstolen = "..(v.beingstolen))
+						  "valid = "..(tostring(v and v.valid) or "nil").."\n"..
+						  "captured = "..(tostring(v.captured) or "nil").."\n"..
+						  "fuse = "..(tostring(v.fuse) or "nil").."\n"..
+						  "beingstolen = "..(tostring(v.beingstolen) or "nil"))
 					continue
 				end
 				table.insert(available_rings, v)
