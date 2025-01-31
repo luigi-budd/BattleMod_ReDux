@@ -655,11 +655,13 @@ CR.ThinkFrame = function() --Main Thinker
 		if chaosring.idle != nil then 
 			chaosring.idle = $-1
 			if chaosring.idle == 0
-				if chaosring.captureteam then
+				if chaosring.captureteam and not(chaosring.captured)then
 					-- Remove team protection
 					chaosring.idle = nil
 					chaosring.captureteam = 0
 					chaosring.beingstolen = nil
+				else
+					delete = true
 				end
 			end
 		end
