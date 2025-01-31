@@ -83,6 +83,9 @@ CR.Data = {
 }
 
 local CHAOSRING_TEXT = function(num, donum)
+	if not(num) or not(CR.Data[num]) or not(CR.Data[num].textmap) then
+		return "INVALID CHAOS RING"
+	end
 	if donum then
 		return CR.Data[num].textmap.."Chaos Ring "..num.."\x80"
 	else
@@ -306,7 +309,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 
 			for k, v in ipairs(bank.chaosrings_table) do --Gather the stealable rings
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
-					print("Can't steal "..CHAOSRING_TEXT(ringnum, true).."\n"..
+					print("Can't steal "..CHAOSRING_TEXT((v and v.valid and v.chaosring_num), true).."\n"..
 						  "valid = "..(tostring(v and v.valid) or "nil").."\n"..
 						  "captured = "..(tostring(v.captured) or "nil").."\n"..
 						  "fuse = "..(tostring(v.fuse) or "nil").."\n"..
