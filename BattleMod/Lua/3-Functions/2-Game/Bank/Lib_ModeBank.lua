@@ -250,7 +250,7 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 		mo.captureteam = 0 --The object's team is only applied upon capture
 	end
 
-	
+	mo.beingstolen = nil
 	toucher.chaosring = mo --Set the player object's Chaos Ring to this object
 	mo.target = toucher --Set the Chaos Ring's target to us
 	free(mo) --Set collection cooldown
@@ -290,6 +290,7 @@ local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 	mo.captureteam = mo.target.player.ctfteam --Set the team it's captured in
 	touchChaosRing(mo, bank)
 	mo.captured = true --Yes it has been captured
+	mo.beingstolen = nil
 end
 
 local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their base
@@ -657,6 +658,7 @@ CR.ThinkFrame = function() --Main Thinker
 					-- Remove team protection
 					chaosring.idle = nil
 					chaosring.captureteam = 0
+					chaosring.beingstolen = nil
 				else
 					delete = true
 				end
