@@ -192,8 +192,10 @@ B.DebugHUD = function(v, player, cam)
 
 		if B.BankGametype() then
 			subheader("BANK")
-			addline("RedBank", C.RedBank != nil)
-			addline("BlueBank", C.BlueBank != nil)
+			addline("\x85".."RedBank".."\x80", C.RedBank != nil)
+			addline("\x85".."> RedBank.chaosrings_table".."\x80", (C.RedBank != nil) and C.RedBank.chaosrings_table and #C.RedBank.chaosrings_table)
+			addline("\x84".."BlueBank".."\x80", C.BlueBank != nil)
+			addline("\x84".."> BlueBank.chaosrings_table".."\x80", (C.BlueBank != nil) and C.BlueBank.chaosrings_table and #C.BlueBank.chaosrings_table)
 			addline("SpawnCountdown", server.SpawnCountDown)
 			addline("GlobalAngle", server.GlobalAngle/ANG1)
 			addline("InitSpawnWait", server.InitSpawnWait)
@@ -206,7 +208,7 @@ B.DebugHUD = function(v, player, cam)
 				addline(CR.Data[v.chaosring_num].textmap.."> Fuse ".."\x80"..k, (v~=nil and (v.valid and v.fuse)))
 				addline(CR.Data[v.chaosring_num].textmap.."> Beingstolen ".."\x80"..k, (v~=nil and (v.valid and v.beingstolen)))
 				addline(CR.Data[v.chaosring_num].textmap.."> Captured ".."\x80"..k, (v~=nil and (v.valid and v.captured)))
-				addline(CR.Data[v.chaosring_num].textmap.."> Idle".."\x80"..k, (v~=nil and (v.valid and v.idle)))
+				addline(CR.Data[v.chaosring_num].textmap.."> Idle ".."\x80"..k, (v~=nil and (v.valid and v.idle)))
 			end
 		end
 	end
