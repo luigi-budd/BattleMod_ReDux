@@ -329,10 +329,10 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 		end
 	end
 
-	if (mo.player.gotcrystal_time >= CHAOSRING_STEALTIME) then --If we've been standing long enough
+	if mo.player.gotcrystal_time~=nil and (mo.player.gotcrystal_time >= CHAOSRING_STEALTIME) then --If we've been standing long enough
 		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then --And the object exists
 			touchChaosRing(mo.chaosring_tosteal, mo) --Steal it!
-			mo.player.gotcrystal_time = nil --Not counting anymore
+			mo.player.gotcrystal_time = 0 --Not counting anymore
 			table.remove(bank.chaosrings_table, mo.chaosring_tosteal.bankkey) --Remove from Bank's table
 			mo.chaosring_tosteal.bankkey = nil --Take away key
 			mo.chaosring_tosteal.beingstolen = nil --Chaos ring isn't being stolen
@@ -652,10 +652,10 @@ CR.ThinkFrame = function() --Main Thinker
 		end
 
 			-- Idle timer
-		if chaosring.idle != nil then 
+		if chaosring.idle != nil and not(chaosring.captured) then 
 			chaosring.idle = $-1
 			if chaosring.idle == 0
-				if chaosring.captureteam and not(chaosring.captured)then
+				if chaosring.captureteam then
 					-- Remove team protection
 					chaosring.idle = nil
 					chaosring.captureteam = 0
@@ -930,6 +930,19 @@ C.ThinkFrame = function()
 						if player.ctfteam == 2 then
 							playerSteal(player.mo, C.RedBank)
 						end
+					else
+						if player.mo.chaosring_stealing then
+							player.mo.chaosring_stealing = nil
+							player.gotcrystal_time = 0
+							if player.mo.chaosring_tosteal and player.mo.chaosring_tosteal.valid then
+								player.mo.chaosring_tosteal.beingstolen = nil
+								player.mo.chaosring_tosteal = nil
+							end
+						end
+						if player.mo.chaosring_capturing then
+							player.mo.chaosring_capturing = nil
+							player.gotcrystal_time = 0
+						end
 					end
 					continue
 				end
@@ -942,6 +955,19 @@ C.ThinkFrame = function()
 					if redInBlue > blueInBlue
 						if player.ctfteam == 1
 							playerSteal(player.mo, C.BlueBank)
+						end
+					else
+						if player.mo.chaosring_stealing then
+							player.mo.chaosring_stealing = nil
+							player.gotcrystal_time = 0
+							if player.mo.chaosring_tosteal and player.mo.chaosring_tosteal.valid then
+								player.mo.chaosring_tosteal.beingstolen = nil
+								player.mo.chaosring_tosteal = nil
+							end
+						end
+						if player.mo.chaosring_capturing then
+							player.mo.chaosring_capturing = nil
+							player.gotcrystal_time = 0
 						end
 					end
 					continue
