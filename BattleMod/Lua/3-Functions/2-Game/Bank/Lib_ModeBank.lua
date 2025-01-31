@@ -522,6 +522,7 @@ local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
 			mo.captured = nil
 			player.mo.chaosring_stealing = nil
 			player.mo.chaosring_capturing = nil
+			player.mo.chaosring_tosteal = nil
 			player.mo.chaosring = nil
 			free(mo)
 			if not (mo and mo.valid) then return end
