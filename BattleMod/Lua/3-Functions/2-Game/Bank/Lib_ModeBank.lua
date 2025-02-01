@@ -344,7 +344,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			touchChaosRing(mo.chaosring_tosteal, mo) --Steal it!
 			mo.player.gotcrystal_time = 0 --Not counting anymore
 			table.remove(bank.chaosrings_table, mo.chaosring_tosteal.bankkey) --Remove from Bank's table
-			mo.chaosring_tosteal.bankkey = nil --Take away key
+			mo.chaosring_tosteal.chaosring_bankkey = nil --Take away key
 			local sorted_rings = {}
 			for k, v in ipairs(bank.chaosrings_table) do
 				if v ~= nil then
@@ -353,7 +353,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			end
 			for k,v in ipairs(sorted_rings) do
 				if v and v.valid then
-					v.bankkey = k
+					v.chaosring_bankkey = k
 				end
 			end
 			bank.chaosrings_table = sorted_rings
