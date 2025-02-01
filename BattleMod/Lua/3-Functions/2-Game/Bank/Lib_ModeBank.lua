@@ -356,11 +356,10 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then --And the object exists
 			touchChaosRing(mo.chaosring_tosteal, mo) --Steal it!
 			mo.player.gotcrystal_time = 0 --Not counting anymore
-			bank.chaosrings_table[mo.chaosring_tosteal.chaosring_bankkey] = nil --Remove from Bank's table
 			mo.chaosring_tosteal.chaosring_bankkey = nil --Take away key
 			local sorted_rings = {}
 			for k, v in ipairs(bank.chaosrings_table) do
-				if (v ~= nil) and (v and v.valid) then
+				if (v ~= mo.chaosring_tosteal) then
 					table.insert(sorted_rings, v)
 				end
 			end
