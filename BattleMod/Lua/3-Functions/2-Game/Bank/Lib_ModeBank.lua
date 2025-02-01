@@ -321,9 +321,9 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
 					chprint("Can't steal "..((v and v.valid and v.chaosring_num and CHAOSRING_TEXT((v and v.valid and v.chaosring_num), true)) or "nil").."\n"..
 						  "valid = "..(tostring(v and v.valid) or "nil").."\n"..
-						  "captured = "..(tostring(v.captured) or "nil").."\n"..
-						  "fuse = "..(tostring(v.fuse) or "nil").."\n"..
-						  "beingstolen = "..(tostring(v.beingstolen) or "nil"))
+						  "captured = "..(tostring(v and v.valid and v.captured) or "nil").."\n"..
+						  "fuse = "..(tostring(v and v.valid and v.fuse) or "nil").."\n"..
+						  "beingstolen = "..(tostring(v and v.valid and v.beingstolen) or "nil"))
 					continue
 				end
 				table.insert(available_rings, v)
@@ -356,7 +356,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then --And the object exists
 			touchChaosRing(mo.chaosring_tosteal, mo) --Steal it!
 			mo.player.gotcrystal_time = 0 --Not counting anymore
-			table.remove(bank.chaosrings_table, mo.chaosring_tosteal.bankkey) --Remove from Bank's table
+			bank.chaosrings_table[mo.chaosring_tosteal.bankkey] = nil --Remove from Bank's table
 			mo.chaosring_tosteal.chaosring_bankkey = nil --Take away key
 			local sorted_rings = {}
 			for k, v in ipairs(bank.chaosrings_table) do
