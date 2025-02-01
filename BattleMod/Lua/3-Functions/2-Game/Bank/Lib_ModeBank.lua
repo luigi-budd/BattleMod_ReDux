@@ -90,6 +90,19 @@ local CHAOSRING_TEXT = function(num, donum)
 	end
 end
 
+local chaosring_debug = CV_RegisterVar({
+    name = "chaosring_debug",
+    defaultvalue = "Off",
+    value = 0,
+    flags = CV_NETVAR,
+    PossibleValue = CV_OnOff
+})
+
+local chprint = function(string)
+	if not(chaosring_debug.value) then return end
+	print(string)
+end
+
 CR.VarsExist = function()
 	return server and (server.SpawnCountDown~=nil and 
 	server.GlobalAngle~=nil and 
@@ -299,14 +312,14 @@ local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 end
 
 local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their base
-	if mo.player.gotcrystal then print("Can't steal, has gotcrystal") return end --Chaos Ringholders cannot steal
+	if mo.player.gotcrystal then chprint("Can't steal, has gotcrystal") return end --Chaos Ringholders cannot steal
 	if #bank.chaosrings_table then --If the bank has Chaos Ring Objects
 		if not(mo.chaosring_tosteal) then --If you aren't already stealing a Chaos Ring
 			local available_rings = {}
 
 			for k, v in ipairs(bank.chaosrings_table) do --Gather the stealable rings
 				if not (v and v.valid and v.captured and not(v.fuse) and not(v.beingstolen)) then
-					print("Can't steal "..((v and v.valid and v.chaosring_num and CHAOSRING_TEXT((v and v.valid and v.chaosring_num), true)) or "nil").."\n"..
+					chprint("Can't steal "..((v and v.valid and v.chaosring_num and CHAOSRING_TEXT((v and v.valid and v.chaosring_num), true)) or "nil").."\n"..
 						  "valid = "..(tostring(v and v.valid) or "nil").."\n"..
 						  "captured = "..(tostring(v.captured) or "nil").."\n"..
 						  "fuse = "..(tostring(v.fuse) or "nil").."\n"..
@@ -316,7 +329,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 				table.insert(available_rings, v)
 			end
 
-			if not(#available_rings) then print("Could not get an available ring to steal.") return end --If there are none, we can't steal
+			if not(#available_rings) then chprint("Could not get an available ring to steal.") return end --If there are none, we can't steal
 
 			local pickme = available_rings[P_RandomRange(1, #available_rings)] --Steal a random ring
 			pickme.beingstolen = mo --It's being stolen
@@ -324,7 +337,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 		else --Now that we're stealing
 			mo.chaosring_stealing = true --Var to mark down that we were stealing
 			mo.player.gotcrystal_time = ($~=nil and $+1) or 1 --Add to crystal time
-			print("Stealing! gotcrystal_time = "..mo.player.gotcrystal_time)
+			chprint("Stealing! gotcrystal_time = "..mo.player.gotcrystal_time)
 			--Play Staggered SFX
 			local sfx = sfx_kc59
 			if mo.player.gotcrystal_time % 35 == 11 then
@@ -336,7 +349,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			end
 		end
 	else
-		print((((bank == C.RedBank) and "\x85".."Red") or "\x84".."Blue").." Bank doesn't have enough chaos rings to steal")
+		chprint((((bank == C.RedBank) and "\x85".."Red") or "\x84".."Blue").." Bank doesn't have enough chaos rings to steal")
 	end
 
 	if mo.player.gotcrystal_time~=nil and (mo.player.gotcrystal_time >= CHAOSRING_STEALTIME) then --If we've been standing long enough
@@ -347,7 +360,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			mo.chaosring_tosteal.chaosring_bankkey = nil --Take away key
 			local sorted_rings = {}
 			for k, v in ipairs(bank.chaosrings_table) do
-				if v ~= nil then
+				if (v ~= nil) and (v and v.valid) then
 					table.insert(sorted_rings, v)
 				end
 			end
@@ -427,7 +440,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
-		--print(t.player)
+		--chprint(t.player)
 		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+server.GlobalAngle) or mo.angle
 		local dist = mo.target.radius*3
 		local x = t.x+P_ReturnThrustX(mo,ang,dist)
@@ -512,14 +525,14 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		end
 	else
 		if mo.floorvfx and (type(mo.floorvfx) == "table") then
-			--print("exists")
+			--chprint("exists")
 			for k, vfx in ipairs(mo.floorvfx) do
 				if vfx and vfx.valid then
-					--print("deleted")
+					--chprint("deleted")
 					P_RemoveMobj(vfx)
 				end
 				table.remove(mo.floorvfx, k)
-				--print("removed")
+				--chprint("removed")
 			end
 			mo.floorvfx = nil
 		end
@@ -677,7 +690,7 @@ CR.ThinkFrame = function() --Main Thinker
 		local plr_has_ruby = mo.target and mo.target.valid
 
 		if not plr_has_ruby and (ruby_in_goop or (on_return_sector)) then
-			--print("fell into removal sector")
+			--chprint("fell into removal sector")
 			if (mo.target and mo.target.valid) then
 				--B.PrintGameFeed(player, " dropped a "+CHAOSRING_TEXT(chaosring.chaosring_num)+".")
 			end
