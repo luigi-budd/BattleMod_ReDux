@@ -83,9 +83,6 @@ CR.Data = {
 }
 
 local CHAOSRING_TEXT = function(num, donum)
-	if not(num) or not(CR.Data[num]) or not(CR.Data[num].textmap) then
-		return "INVALID CHAOS RING"
-	end
 	if donum then
 		return CR.Data[num].textmap.."Chaos Ring "..num.."\x80"
 	else
@@ -348,6 +345,18 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			mo.player.gotcrystal_time = 0 --Not counting anymore
 			table.remove(bank.chaosrings_table, mo.chaosring_tosteal.bankkey) --Remove from Bank's table
 			mo.chaosring_tosteal.bankkey = nil --Take away key
+			local sorted_rings = {}
+			for k, v in ipairs(bank.chaosrings_table) do
+				if v ~= nil then
+					table.insert(sorted_rings, v)
+				end
+			end
+			for k,v in ipairs(sorted_rings) do
+				if v and v.valid then
+					v.bankkey = k
+				end
+			end
+			bank.chaosrings_table = sorted_rings
 			mo.chaosring_tosteal.beingstolen = nil --Chaos ring isn't being stolen
 			mo.chaosring_tosteal = nil --We're not stealing the Chaos Ring
 			return true
