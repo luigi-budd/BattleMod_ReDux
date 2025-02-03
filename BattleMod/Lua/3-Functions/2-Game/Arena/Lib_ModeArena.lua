@@ -35,7 +35,7 @@ A.StartRings = function(player)
 	if not(B.BattleGametype()) then return end
 	player.xtralife = 9 //Prevent players from gaining extra lives in the format
 	if B.SuddenDeath then return end
-	if not(A.CheckRevenge(player)) then
+	if not(A.CheckRevenge(player)) and not(B.BankGametype()) then
 		local penalty = player.ringpenalty or 0
 		player.rings = CV.StartRings.value - penalty
 	else

@@ -644,7 +644,7 @@ B.DeathtimePenalty = function(player)
 end
 
 B.StartRingsPenalty = function(player, penalty, limit)
-	if not(CV.RingPenalty.value and B.BattleGametype()) then
+	if not(CV.RingPenalty.value and B.BattleGametype() and not(B.BankGametype())) then
 		return --Gametype doesn't benefit from StartRings
 	end
 	if player.lastpenalty and player.lastpenalty == "Autobalanced" then
