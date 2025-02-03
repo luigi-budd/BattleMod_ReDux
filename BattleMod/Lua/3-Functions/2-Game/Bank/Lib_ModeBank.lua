@@ -949,7 +949,13 @@ C.ThinkFrame = function()
 	for player in players.iterate do
 
 		if player.rings >= BANK_RINGLIMIT then
-			player.gotmaxrings = true
+			if not(player.gotmaxrings) then
+				player.gotmaxrings = true
+			end
+		else
+			if player.gotmaxrings then
+				player.gotmaxrings = nil
+			end
 		end
 
 		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
@@ -962,7 +968,6 @@ C.ThinkFrame = function()
 					player.mo.state = S_PLAY_ROLL
 				end
 			else
-				player.gotmaxrings = nil
 				player.bank_depositing.playerDepositing = nil
 				player.bank_depositing = nil
 			end
