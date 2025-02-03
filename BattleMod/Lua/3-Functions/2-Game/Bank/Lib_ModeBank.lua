@@ -16,6 +16,7 @@ local CHAOSRING_STEALTIME = TICRATE*5 --Time it takes to steal a Chaos Ring
 local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
 local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
+local CHAOSRING_CANTOSS = false
 
 
 local CHAOSRING1 = 1<<0
@@ -548,7 +549,7 @@ local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
 	if not(mo.target and mo.target.valid and mo.target.player) then return end
 	local player = mo.target.player
 	local btns = player.cmd.buttons
-	if (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())
+	if CHAOSRING_CANTOSS and (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())
 		if player.gotcrystal then
 			S_StartSound(mo, sfx_toss)
 			B.PrintGameFeed(player," tossed a "..CHAOSRING_TEXT(mo.chaosring_num)..".")
