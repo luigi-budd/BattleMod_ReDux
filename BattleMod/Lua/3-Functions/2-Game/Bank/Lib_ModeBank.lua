@@ -380,6 +380,10 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 
 	mo.shadowscale = FRACUNIT>>1
+
+	if mo.beingstolen and (not(mo.beingstolen.valid) or not(mo.beingstolen.player or (mo.beingstolen.player == PST_LIVE))) then
+		mo.beingstolen = nil
+	end
 	
 	-- Blink
 	if mo.fuse&1
