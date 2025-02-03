@@ -6,6 +6,8 @@ C.ChaosRing = {}
 local CR = C.ChaosRing
 
 --Constants
+local BANK_RINGLIMIT = 50
+
 local CHAOSRING_STARTSPAWNBUFFER = TICRATE*25 --Time it takes for Chaos Rings to start spawning
 local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
 local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
@@ -754,7 +756,7 @@ local baseSparkle = function(player, team)
 	end
 end
 
-local baseTransaction = function(player, team)
+local baseTransaction = function(player, team, animation)
 	if player.tossdelay or B.Exiting then
 		return true
 	end
@@ -767,7 +769,7 @@ local baseTransaction = function(player, team)
 	end
 	if player.ctfteam == team
 		-- Deposit rings
-		if player.rings > 0 and P_IsObjectOnGround(player.mo) and not player.actionstate
+		if player.rings > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
 			P_GivePlayerRings(player, -1)
 			P_AddPlayerScore(player, 1)
@@ -782,7 +784,7 @@ local baseTransaction = function(player, team)
 		end
 	else
 		-- Steal rings
-		if score > 0 and P_IsObjectOnGround(player.mo) and not player.actionstate
+		if score > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
 			P_AddPlayerScore(player, 1)
 			P_GivePlayerRings(player, 1)
@@ -945,7 +947,29 @@ C.ThinkFrame = function()
 	
 	-- Get player-to-base statuses
 	for player in players.iterate do
-		if player.mo and player.rings >= 100
+
+		if player.rings >= BANK_RINGLIMIT then
+			player.gotmaxrings = true
+		end
+
+		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
+			if player.rings > 0 then
+				P_SetOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
+				baseTransaction(player, player.ctfteam)
+				player.powers[pw_flashing] = ($ and max($, 2)) or 2
+				player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
+				if player.mo.state != S_PLAY_ROLL then
+					player.mo.state = S_PLAY_ROLL
+				end
+			else
+				player.gotmaxrings = nil
+				player.bank_depositing.playerDepositing = nil
+				player.bank_depositing = nil
+			end
+		end
+			
+
+		if player.mo and player.rings >= BANK_RINGLIMIT
 			highValueSparkle(player)
 		end
 		if player.mo and player.mo.health and not player.powers[pw_flashing]
@@ -1024,7 +1048,11 @@ C.ThinkFrame = function()
 				end
 			end
 			if base != 0
-				baseTransaction(player, base)
+				local bank = (base==1 and player.ctfteam==1 and C.RedBank) or C.BlueBank
+				if base == player.ctfteam and (player.rings >= BANK_RINGLIMIT) and not(player.gotcrystal) and not(bank.playerDepositing) then
+					bank.playerDepositing = player
+					player.bank_depositing = bank
+				end
 			end
 			if not(base) then
 				if player.mo.chaosring_stealing then
@@ -1184,6 +1212,31 @@ CR.PreThinkFrame = function()
 	end
 end
 
+--Experiment, cap rings at 50
+local ringTouchSpecial = function(mo, toucher)
+	if not(B.BankGametype()) then return end
+	if toucher and toucher.valid and toucher.player and toucher.player.rings >= BANK_RINGLIMIT then
+		return true
+	end
+end
+
+local monitorDamage = function(mo, inflictor, source)
+	if not(B.BankGametype()) then return end
+	if mo and mo.valid and (
+	(inflictor and inflictor.valid and inflictor.player and inflictor.player.rings >= BANK_RINGLIMIT) or 
+	(source and source.valid and source.player and source.player.rings >= BANK_RINGLIMIT)
+	) then
+		if inflictor.player then
+			inflictor.momx = -($/2)
+			inflictor.momy = -($/2)
+			inflictor.momz = -($/2)
+			S_StartSound(mo, sfx_s3k7b)
+		end
+		return false
+	end
+end
+
+
 addHook("MapLoad", CR.MapLoad)
 addHook("MobjFuse",function(mo)
 	if not(mo.captured) then
@@ -1196,3 +1249,14 @@ end,CHAOSRING_TYPE)
 addHook("MobjThinker", chaosRingFunc, CHAOSRING_TYPE)
 addHook("MobjRemoved", deleteChaosRing, CHAOSRING_TYPE)
 addHook("TouchSpecial", touchChaosRing, CHAOSRING_TYPE)
+addHook("TouchSpecial", ringTouchSpecial, MT_RING)
+addHook("TouchSpecial", ringTouchSpecial, MT_REDTEAMRING)
+addHook("TouchSpecial", ringTouchSpecial, MT_BLUETEAMRING)
+addHook("TouchSpecial", ringTouchSpecial, MT_COIN)
+addHook("TouchSpecial", ringTouchSpecial, MT_FLINGRING)
+addHook("TouchSpecial", ringTouchSpecial, MT_FLINGCOIN)
+addHook("ShouldDamage", monitorDamage, MT_RING_BOX)
+addHook("ShouldDamage", monitorDamage, MT_RING_REDBOX)
+addHook("ShouldDamage", monitorDamage, MT_RING_BLUEBOX)
+addHook("ShouldDamage", monitorDamage, MT_1UP_BOX)
+
