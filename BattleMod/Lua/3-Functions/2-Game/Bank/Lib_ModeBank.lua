@@ -11,8 +11,8 @@ local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
 local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
 local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING --Object Type
 local CHAOSRING_WINTIME = TICRATE*12 --Countdown to a team win if they have all 6
-local CHAOSRING_CAPTIME = TICRATE*5 --Time it takes to capture a Chaos Ring
-local CHAOSRING_STEALTIME = TICRATE*5 --Time it takes to steal a Chaos Ring
+local CHAOSRING_CAPTIME = TICRATE*2 --Time it takes to capture a Chaos Ring
+local CHAOSRING_STEALTIME = TICRATE*3 --Time it takes to steal a Chaos Ring
 local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
 local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
@@ -911,16 +911,16 @@ local capture = function(mo, team, bank)
 	local captime = CHAOSRING_CAPTIME
 	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
 	local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
-	--mo.player.gotcrystal_time = ($~=nil and $+1) or 1
+	mo.player.gotcrystal_time = ($~=nil and $+1) or 1
 	mo.chaosring_capturing = true
-	/*if mo.player.gotcrystal_time % 35 == 11 then
+	if mo.player.gotcrystal_time % 35 == 11 then
 		S_StartSoundAtVolume(nil, sfx, 160)
 	elseif mo.player.gotcrystal_time % 35 == 22 then
 		S_StartSoundAtVolume(nil, sfx, 90)
 	elseif mo.player.gotcrystal_time % 35 == 33 then
 		S_StartSoundAtVolume(nil, sfx, 20)
-	end*/
-	--if mo.player.gotcrystal_time > captime then
+	end
+	if mo.player.gotcrystal_time > captime then
 		S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
 		mo.player.gotcrystal = false
 		mo.player.gotcrystal_time = 0
@@ -928,7 +928,7 @@ local capture = function(mo, team, bank)
 		mo.chaosring.chaosring_bankkey = #bank.chaosrings_table
 		captureChaosRing(mo.chaosring, bank)
 		return true
-	--end
+	end
 end
 
 
@@ -1098,12 +1098,23 @@ CR.MapLoad = function()
 	local chaosRingSpawn = mobjinfo[MT_BATTLE_CHAOSRINGSPAWNER].doomednum
 	local chaosEmeraldSpawn = mobjinfo[MT_EMERALDSPAWN].doomednum
 
+	local infinityRingSpawn = mobjinfo[MT_INFINITYRING].doomednum
 	local bouncePanelSpawn = mobjinfo[MT_BOUNCEPICKUP].doomednum
 	local railPanelSpawn = mobjinfo[MT_RAILPICKUP].doomednum
 	local autoPanelSpawn = mobjinfo[MT_AUTOPICKUP].doomednum
 	local bombPanelSpawn = mobjinfo[MT_EXPLODEPICKUP].doomednum
 	local scatterPanelSpawn = mobjinfo[MT_SCATTERPICKUP].doomednum
 	local grenadePanelSpawn = mobjinfo[MT_GRENADEPICKUP].doomednum
+
+	local bounceRingSpawn = mobjinfo[MT_BOUNCERING].doomednum
+	local railRingSpawn = mobjinfo[MT_RAILRING].doomednum
+	local autoRingSpawn = mobjinfo[MT_AUTOMATICRING].doomednum
+	local bombRingSpawn = mobjinfo[MT_EXPLOSIONRING].doomednum
+	local scatterRingSpawn = mobjinfo[MT_SCATTERRING].doomednum
+	local grenadeRingSpawn = mobjinfo[MT_GRENADERING].doomednum
+
+	local ringSpawn = mobjinfo[MT_RING].doomednum --Last resort, normal ring spawnpoints
+	local coinSpawn = mobjinfo[MT_COIN].doomednum --Mario Mode or something
 	
 
 	for mt in mapthings.iterate do
@@ -1123,12 +1134,39 @@ CR.MapLoad = function()
 	if not(#server.SpawnTable) or (#server.SpawnTable < 6) then
 		for mt in mapthings.iterate do
 			if mt and mt.valid and 
+			(mt.type == (infinityRingSpawn)) or
 			(mt.type == (bouncePanelSpawn)) or
 			(mt.type == (railPanelSpawn)) or
 			(mt.type == (autoPanelSpawn)) or
 			(mt.type == (bombPanelSpawn)) or
 			(mt.type == (scatterPanelSpawn)) or
 			(mt.type == (grenadePanelSpawn))
+			then
+				insertSpawnPoint(mt)
+			end
+		end
+	end
+
+	if not(#server.SpawnTable) or (#server.SpawnTable < 6) then
+		for mt in mapthings.iterate do
+			if mt and mt.valid and 
+			(mt.type == (bounceRingSpawn)) or
+			(mt.type == (railRingSpawn)) or
+			(mt.type == (autoRingSpawn)) or
+			(mt.type == (bombRingSpawn)) or
+			(mt.type == (scatterRingSpawn)) or
+			(mt.type == (grenadeRingSpawn))
+			then
+				insertSpawnPoint(mt)
+			end
+		end
+	end
+
+	if not(#server.SpawnTable) or (#server.SpawnTable < 6) then
+		for mt in mapthings.iterate do
+			if mt and mt.valid and 
+			(mt.type == (ringSpawn)) or
+			(mt.type == (coinSpawn))
 			then
 				insertSpawnPoint(mt)
 			end
