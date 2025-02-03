@@ -910,16 +910,16 @@ local capture = function(mo, team, bank)
 	local captime = CHAOSRING_CAPTIME
 	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
 	local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
-	mo.player.gotcrystal_time = ($~=nil and $+1) or 1
+	--mo.player.gotcrystal_time = ($~=nil and $+1) or 1
 	mo.chaosring_capturing = true
-	if mo.player.gotcrystal_time % 35 == 11 then
+	/*if mo.player.gotcrystal_time % 35 == 11 then
 		S_StartSoundAtVolume(nil, sfx, 160)
 	elseif mo.player.gotcrystal_time % 35 == 22 then
 		S_StartSoundAtVolume(nil, sfx, 90)
 	elseif mo.player.gotcrystal_time % 35 == 33 then
 		S_StartSoundAtVolume(nil, sfx, 20)
-	end
-	if mo.player.gotcrystal_time > captime then
+	end*/
+	--if mo.player.gotcrystal_time > captime then
 		S_StartSound(nil, (friendly and sfx_kc5c) or sfx_kc46)
 		mo.player.gotcrystal = false
 		mo.player.gotcrystal_time = 0
@@ -927,7 +927,7 @@ local capture = function(mo, team, bank)
 		mo.chaosring.chaosring_bankkey = #bank.chaosrings_table
 		captureChaosRing(mo.chaosring, bank)
 		return true
-	end
+	--end
 end
 
 
