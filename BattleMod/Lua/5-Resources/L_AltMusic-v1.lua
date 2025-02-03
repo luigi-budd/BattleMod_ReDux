@@ -67,7 +67,6 @@ end)
 
 A.Functions.PlayerJoin = function(playernum)
     if consoleplayer and consoleplayer.jointime < 1 then
-        mapmusname = " "
         already_ran = true
     end
 end

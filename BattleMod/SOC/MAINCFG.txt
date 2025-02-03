@@ -237,6 +237,7 @@ TypeOfLevel = CTF, rubyrun
 SelectHeading = Standard
 NextLevel = F5
 SkyNum = 22
+Lua.AltMusic = ERZ2OL
 
 Level F5
 Levelname = Clockwork Towers
@@ -286,7 +287,6 @@ SkyNum = 159
 Level FA
 LevelName = Meadow Match
 Music = MP_MED
-Lua.AltMusic = MP_ME2
 TypeOfLevel = CTF, rubyrun
 SelectHeading = Standard
 NextLevel = F0
