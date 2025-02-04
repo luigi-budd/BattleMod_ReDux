@@ -959,9 +959,11 @@ C.ThinkFrame = function()
 			end
 		else
 			if player.gotmaxrings then
-				player.gotmaxrings = nil
+				player.gotmaxrings = false
 			end
 		end
+
+		player.rings = min($, BANK_RINGLIMIT)
 
 		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
 			if player.rings > 0 then
@@ -1237,13 +1239,35 @@ local monitorDamage = function(mo, inflictor, source)
 	(source and source.valid and source.player and source.player.rings >= BANK_RINGLIMIT)
 	) then
 		if inflictor.player then
-			inflictor.momx = -($/2)
-			inflictor.momy = -($/2)
-			inflictor.momz = -($/2)
+			inflictor.momx = -($)
+			inflictor.momy = -($)
+			inflictor.momz = -($)
 			S_StartSound(mo, sfx_s3k7b)
 		end
 		return false
 	end
+end
+
+local rings = {
+	MT_RING,
+	MT_FLINGRING,
+	MT_REDTEAMRING,
+	MT_BLUETEAMRING
+}
+
+local ringMonitors = {
+	MT_RING_BOX,
+	MT_RING_REDBOX,
+	MT_RING_BLUEBOX,
+	MT_1UP_BOX
+}
+
+for _, v in ipairs(rings) do
+	--addHook("TouchSpecial", ringTouchSpecial, v)
+end
+
+for _, v in ipairs(ringMonitors) do
+	--addHook("ShouldDamage", monitorDamage, v)
 end
 
 
@@ -1259,14 +1283,3 @@ end,CHAOSRING_TYPE)
 addHook("MobjThinker", chaosRingFunc, CHAOSRING_TYPE)
 addHook("MobjRemoved", deleteChaosRing, CHAOSRING_TYPE)
 addHook("TouchSpecial", touchChaosRing, CHAOSRING_TYPE)
-addHook("TouchSpecial", ringTouchSpecial, MT_RING)
-addHook("TouchSpecial", ringTouchSpecial, MT_REDTEAMRING)
-addHook("TouchSpecial", ringTouchSpecial, MT_BLUETEAMRING)
-addHook("TouchSpecial", ringTouchSpecial, MT_COIN)
-addHook("TouchSpecial", ringTouchSpecial, MT_FLINGRING)
-addHook("TouchSpecial", ringTouchSpecial, MT_FLINGCOIN)
-addHook("ShouldDamage", monitorDamage, MT_RING_BOX)
-addHook("ShouldDamage", monitorDamage, MT_RING_REDBOX)
-addHook("ShouldDamage", monitorDamage, MT_RING_BLUEBOX)
-addHook("ShouldDamage", monitorDamage, MT_1UP_BOX)
-

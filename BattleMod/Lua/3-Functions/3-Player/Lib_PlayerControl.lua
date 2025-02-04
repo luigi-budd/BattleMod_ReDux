@@ -46,6 +46,7 @@ B.InitPlayer = function(player)
 	player.ledgemeter = FRACUNIT
 	player.gotcrystal = false
 	player.gotcrystal_time = 0
+	player.gotmaxrings = false
 	--player.lifeshards = 0
 	player.shieldswap_cooldown = 0
 	player.airdodge = 0
