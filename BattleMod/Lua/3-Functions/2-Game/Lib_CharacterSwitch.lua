@@ -13,8 +13,47 @@ local function ButtonCheck2(player,button)
 	end
 	return 0
 end
+
+local Prevention = function(p)
+
+	local doSpectate = false
+
+	--// if is spectator, then we make sure this field is true
+	if p.spectator then p.waspectator = true end
+
+	--// if it is actionstate, mark as true -Mari0shi
+	if p.actionstate then p.wasactionstate = true end
+
+	--// invalid object / a spectator? don't fire
+	if not (p and p.mo) then return end
+
+	--// if realskin exists, then...
+	if p.mo.realskin then
+
+		--// if realskin is not equal to our skin and we're not spectators? then .. 
+		if p.mo.realskin ~= p.mo.skin and not p.waspectator then
+
+			--// die ... but only if it's [actionstate -Mari0shi]
+			if p.wasactionstate and (CV_FindVar("forceskin").value == -1) then
+				p.mo.flags = MF_SOLID|MF_SHOOTABLE
+				P_DamageMobj(p.mo,nil,nil,1,DMG_INSTAKILL)
+				doSpectate = true
+			end
+		end
+	end
+
+	--// for everry tic...
+	p.mo.realskin = p.mo.skin --// ..set skin
+	p.waspectator = false     --// ..reset this variable
+	p.wasactionstate = false
+	if doSpectate then
+		COM_BufInsertText(server, "serverchangeteam "..#p.." spectator")
+	end
+end
+
 -- I copied and edited some code from battle mod
 addHook("PlayerThink", function(player) -- death timer test
+	Prevention(player)
 	if (CV_FindVar("forceskin").value ~= -1) then return end
 
 	if player.deadtimer then
