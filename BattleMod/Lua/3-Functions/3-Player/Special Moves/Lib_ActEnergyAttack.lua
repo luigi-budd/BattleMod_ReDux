@@ -239,7 +239,7 @@ local resetRingSpark = function(mo, player)
 	mo.frame = 0
 	mo.sprite = SPR_PLAY
 	mo.state = (P_IsObjectOnGround(mo) and S_PLAY_STND) or S_PLAY_SPRING
-	player.shieldscale = skins[player.mo.skin].shieldscale
+	--player.shieldscale = skins[player.mo.skin].shieldscale
 	mo.metalsonic_stickyangle = nil
 	if mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid then
 		P_RemoveMobj(mo.energyattack_sparkaura)
@@ -584,7 +584,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.pflags = ($|coolflag) & ~(PF_STARTDASH|PF_SPINNING|PF_JUMPED|PF_STARTJUMP) --his ass is NOT spindashing
 		player.secondjump = 2 --No Floating allowed
 		if (player.actiontime > preptime_ringspark) then--If it's been 17 tics
-			player.shieldscale = 0
+			--player.shieldscale = 0
 			player.actiontime = 0
 			player.actionstate = state_ringspark --Ring Sparkin' time
 		end
