@@ -63,9 +63,6 @@ addHook("MapLoad",function(map)
 	B.ApplyGametypeCVars()
 	I.GetMapHeader(map)
 	I.GenerateSpawns()
-	for player in players.iterate
-		if player.mo and player.mo.valid then player.mo.color = player.skincolor end
-	end
 end)
 
 addHook("TeamSwitch", B.JoinCheck)
