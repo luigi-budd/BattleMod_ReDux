@@ -384,7 +384,12 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 	mo.shadowscale = FRACUNIT>>1
 
-	if mo.beingstolen and (not(mo.beingstolen.valid) or not(mo.beingstolen.player or (mo.beingstolen.player == PST_LIVE))) then
+	if mo.beingstolen and (
+		not(mo.beingstolen.valid) or 
+		not(mo.beingstolen.player) or 
+		(mo.beingstolen.player.playerstate ~= PST_LIVE) or 
+		(mo.captureteam and not(P_MobjTouchingSectorSpecialFlag(mo.beingstolen, (mo.captureteam==1 and SSF_REDTEAMBASE) or SSF_BLUETEAMBASE) and P_IsObjectOnGround(mo.beingstolen)))
+	) then
 		mo.beingstolen = nil
 	end
 	
@@ -960,7 +965,7 @@ C.ThinkFrame = function()
 
 		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
 			if player.rings > 0 then
-				P_SetOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
+				P_MoveOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
 				baseTransaction(player, player.ctfteam)
 				player.powers[pw_flashing] = ($ and max($, 2)) or 2
 				player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
