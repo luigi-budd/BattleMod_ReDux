@@ -41,15 +41,21 @@ B.GametypeIDtoIdentifier = {}
 
 B.AddBattleGametype = function(tabl)
 	local defaulthidetime = 15
+	local defaultstartrings = 50
 	if tabl.defaulthidetime then
 		defaulthidetime = tabl.defaulthidetime
 		tabl.defaulthidetime = nil
+	end
+	if tabl.defaultstartrings then
+		defaultstartrings = tabl.defaultstartrings
+		tabl.defaultstartrings = nil
 	end
 	G_AddGametype(tabl)
 	B.GametypeIDtoIdentifier[_G["GT_"..tabl.identifier:upper()]] = tabl.identifier:lower()
 	local pointlimit
 	local timelimit
 	local hidetime
+	local startrings
 	local team = (tabl.rules & GTR_TEAMS)
 	local scorer = (team and "a team") or "someone"
 
@@ -104,7 +110,20 @@ B.AddBattleGametype = function(tabl)
 		end
 	})
 
-	return pointlimit, timelimit, hidetime
+	startrings = CV_RegisterVar({
+		name = tabl.identifier.."_startrings",
+		defaultvalue = defaultstartrings,
+		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
+		PossibleValue = {MIN=1, MAX=999},
+		func = function(cv)
+			print("Players will start with "..cv.value.." rings in "..tabl.name.." rounds.")
+			if gametype == _G["GT_"..tabl.identifier:upper()] then
+				COM_BufInsertText(server, "startrings "..cv.value)
+			end
+		end
+	})
+
+	return pointlimit, timelimit, hidetime, startrings
 end
 -- Debug flags
 rawset(_G,"DF_GAMETYPE",	1<<0)
@@ -136,6 +155,7 @@ B.AddBattleGametype({
 	intermissiontype = int_match,
 	defaultpointlimit = 0,
 	defaulttimelimit = 4,
+	defaultstartrings = 50, --
 	headerleftcolor = 56,
 	headerrightcolor = 56,
 	description = 'Bash other players with your spin and jump moves to earn points! Collect and use rings to unleash special moves unique to each character!'
@@ -265,6 +285,7 @@ B.AddBattleGametype({
 	intermissiontype = int_ctf,
 	defaultpointlimit = 0,
 	defaulttimelimit = 8,
+	defaultstartrings = 0, --Specific to B.AddBattleGametype, default rings you start with
     headerleftcolor = 37,
     headerrightcolor = 150,
     description = "Work with your allies to rack up the most rings for your team! Collect rings and take them back to your team's rally point or steal rings from the enemy rally point to keep them from gaining the upper hand!"
@@ -294,7 +315,7 @@ B.AddBattleGametype({
 			GTR_RESPAWNDELAY | GTR_SPAWNINVUL | GTR_STARTCOUNTDOWN | 
 			GTR_DEATHMATCHSTARTS | GTR_FIXGAMESET,
 	defaulttimelimit = 6,
-	defaulthidetime = 30, --Specific to B.AddBattleGametype
+	defaulthidetime = 30, --Specific to B.AddBattleGametype, hidetime for gamemode
 	intermissiontype = int_match,
 	headercolor = 251,
 	rankingtype = GT_TAG,
