@@ -33,7 +33,8 @@ B.RubyGametype = function()
 end
 
 B.BankGametype = function()
-	return ((gametype == GT_BANK) and true) or false
+	if gametype and B.Gametypes.Bank[gametype] then return true
+	else return false end
 end
 
 B.ApplyGametypeCVars = function()
