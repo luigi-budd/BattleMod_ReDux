@@ -42,9 +42,11 @@ B.ApplyGametypeCVars = function()
 		local cvar_pointlimit = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_pointlimit")
 		local cvar_timelimit = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_timelimit")
 		local cvar_hidetime = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_hidetime")
+		local cvar_startrings = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_startrings")
 		COM_BufInsertText(server, "pointlimit "..cvar_pointlimit.value)
 		COM_BufInsertText(server, "timelimit "..cvar_timelimit.value)
 		COM_BufInsertText(server, "hidetime "..cvar_hidetime.value)
+		COM_BufInsertText(server, "battle_startrings "..cvar_startrings.value)
 	end
 end
 

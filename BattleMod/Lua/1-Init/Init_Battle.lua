@@ -42,11 +42,11 @@ B.GametypeIDtoIdentifier = {}
 B.AddBattleGametype = function(tabl)
 	local defaulthidetime = 15
 	local defaultstartrings = 50
-	if tabl.defaulthidetime then
+	if tabl.defaulthidetime ~= nil then
 		defaulthidetime = tabl.defaulthidetime
 		tabl.defaulthidetime = nil
 	end
-	if tabl.defaultstartrings then
+	if tabl.defaultstartrings ~= nil then
 		defaultstartrings = tabl.defaultstartrings
 		tabl.defaultstartrings = nil
 	end
@@ -62,7 +62,7 @@ B.AddBattleGametype = function(tabl)
 	pointlimit = CV_RegisterVar({
 		name = tabl.identifier.."_pointlimit",
 		defaultvalue = (tabl.defaultpointlimit) or 0,
-		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
+		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = CV_Unsigned,
 		func = function(cv)
 			if cv.value > 0 then
@@ -79,7 +79,7 @@ B.AddBattleGametype = function(tabl)
 	timelimit = CV_RegisterVar({
 		name = tabl.identifier.."_timelimit",
 		defaultvalue = tabl.defaulttimelimit,
-		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
+		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=1, MAX=30},
 		func = function(cv)
 			if cv.value > 0 then
@@ -96,7 +96,7 @@ B.AddBattleGametype = function(tabl)
 	hidetime = CV_RegisterVar({
 		name = tabl.identifier.."_hidetime",
 		defaultvalue = defaulthidetime,
-		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
+		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=1, MAX=9999},
 		func = function(cv)
 			if cv.value > 0 then
@@ -113,12 +113,12 @@ B.AddBattleGametype = function(tabl)
 	startrings = CV_RegisterVar({
 		name = tabl.identifier.."_startrings",
 		defaultvalue = defaultstartrings,
-		flags = CV_NETVAR|CV_CALL,--|CV_NOINIT,
-		PossibleValue = {MIN=1, MAX=999},
+		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
+		PossibleValue = {MIN=0, MAX=999},
 		func = function(cv)
 			print("Players will start with "..cv.value.." rings in "..tabl.name.." rounds.")
 			if gametype == _G["GT_"..tabl.identifier:upper()] then
-				COM_BufInsertText(server, "startrings "..cv.value)
+				COM_BufInsertText(server, "battle_startrings "..cv.value)
 			end
 		end
 	})
@@ -155,7 +155,6 @@ B.AddBattleGametype({
 	intermissiontype = int_match,
 	defaultpointlimit = 0,
 	defaulttimelimit = 4,
-	defaultstartrings = 50, --
 	headerleftcolor = 56,
 	headerrightcolor = 56,
 	description = 'Bash other players with your spin and jump moves to earn points! Collect and use rings to unleash special moves unique to each character!'
