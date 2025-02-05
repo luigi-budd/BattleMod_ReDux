@@ -97,7 +97,7 @@ CR.ChaosRingHUD = function(v, player)
                 local num = i
                 local chaosring = CR.GetChaosRing(num)
                 if not(chaosring and chaosring.valid) then continue end
-                if not((chaosring.captured and ((chaosring.captureteam == t))) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.bankkey)) and (leveltime%2)==1)) then continue end
+                if not((chaosring.captured and (chaosring.captureteam == t)) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.chaosring_bankkey)) and (leveltime%2)==1)) then continue end
                 local patch = v.cachePatch("CHRING"..num)
                 local trans = chaosring.fuse and (leveltime/6)%2==1 and V_HUDTRANSHALF or V_HUDTRANS
                 v.drawScaled((x-(FRACUNIT*3)+(flip*((FRACUNIT/3)*(28)))*(i+2)), (y+(FRACUNIT*10)), FRACUNIT/2, patch, flags|trans)

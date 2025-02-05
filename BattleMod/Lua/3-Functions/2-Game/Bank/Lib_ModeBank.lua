@@ -12,7 +12,7 @@ local CHAOSRING_STARTSPAWNBUFFER = TICRATE*25 --Time it takes for Chaos Rings to
 local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
 local CHAOSRING_SCALE = FRACUNIT+(FRACUNIT/2) --Scale of Chaos Rings
 local CHAOSRING_TYPE = MT_BATTLE_CHAOSRING --Object Type
-local CHAOSRING_WINTIME = TICRATE*12 --Countdown to a team win if they have all 6
+local CHAOSRING_WINTIME = TICRATE*3 --Countdown to a team win if they have all 6
 local CHAOSRING_CAPTIME = TICRATE*2 --Time it takes to capture a Chaos Ring
 local CHAOSRING_STEALTIME = TICRATE*3 --Time it takes to steal a Chaos Ring
 local CHAOSRING_INVULNTIME = TICRATE*15 --How long a Chaos Ring is intangible after capture
@@ -967,6 +967,9 @@ C.ThinkFrame = function()
 
 		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
 			if player.rings > 0 then
+				player.mo.momx = 0
+				player.mo.momy = 0
+				player.mo.momz = 0
 				P_MoveOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
 				baseTransaction(player, player.ctfteam)
 				player.powers[pw_flashing] = ($ and max($, 2)) or 2
