@@ -189,7 +189,7 @@ B.Action.PikoTornado = function(mo,doaction)
 		spinhammer(mo)
 		sparkle(mo)
 		//Air control
-		if player.pflags&PF_JUMPDOWN then
+		if player.pflags&PF_JUMPDOWN or doaction then
 			P_SetObjectMomZ(mo,FRACUNIT/8,1)
 		end
 		//Extra Projectiles
