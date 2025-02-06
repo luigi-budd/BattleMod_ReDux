@@ -53,7 +53,7 @@ B.SoftHoming = function(mo, dimension)
 end
 
 B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if pain[n1] or not(plr[n1] and plr[n1].valid) then
+	if pain[n1] or (plr[n2] and plr[n2].actionstate) not(plr[n1] and plr[n1].valid) then
 		return
 	end
 	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < 2 and not (plr[n2] and plr[n2].nodamage)))
