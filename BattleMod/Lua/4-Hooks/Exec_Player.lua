@@ -343,7 +343,7 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		A.KillReward(killer, target)
 	end
 	
-	if (target.player and not target.player.squashstretch)
+	if (target.player and target.player.squashstretch)
 		target.spritexscale = FRACUNIT
 		target.spriteyscale = FRACUNIT
 	end
