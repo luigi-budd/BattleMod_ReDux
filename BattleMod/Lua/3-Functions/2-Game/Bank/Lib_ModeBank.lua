@@ -103,7 +103,7 @@ local chaosring_debug = CV_RegisterVar({
 
 local chprint = function(string)
 	if not(chaosring_debug.value) then return end
-	print(string)
+	print("\x82".."chprint:".."\x80".." "..string)
 end
 
 CR.VarsExist = function()
@@ -175,7 +175,7 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
 	local float = ((thing.options&MTF_OBJECTFLIP) and 1) or 0
 	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
-	local z = thing.z+(70*FRACUNIT)
+	local z = thing.z+(24*FRACUNIT)
 
 	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
 	if flip == -1 then
@@ -352,7 +352,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 			end
 		end
 	else
-		chprint((((bank == C.RedBank) and "\x85".."Red") or "\x84".."Blue").." Bank doesn't have enough chaos rings to steal")
+		chprint((((bank == C.RedBank) and "\x85".."Red") or "\x84".."Blue").." Bank".."\x80".." doesn't have enough chaos rings to steal")
 	end
 
 	if mo.player.gotcrystal_time~=nil and (mo.player.gotcrystal_time >= CHAOSRING_STEALTIME) then --If we've been standing long enough

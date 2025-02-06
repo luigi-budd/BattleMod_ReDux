@@ -84,13 +84,13 @@ B.CanDoAction=function(player)
 	if G_RingSlingerGametype() then return false end
 	if P_PlayerInPain(player) or player.playerstate ~= PST_LIVE then return false end
 	if B.TagGametype() and not(player.pflags&PF_TAGIT or player.battletagIT) then return false end
-	if player.gotflag then return false end
-	if player.gotcrystal then return false end
-	if player.gotmaxrings then return false end
-	if player.isjettysyn then return false end
 	if player.powers[pw_nocontrol] then return false end
 	if player.powers[pw_carry] then return false end
 	if (player.airdodge > 0) then return false end
+	if player.gotmaxrings then return true end
+	if player.gotflag then return false end
+	if player.gotcrystal then return false end
+	if player.isjettysyn then return false end
 	return true
 end
 
