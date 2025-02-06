@@ -28,7 +28,7 @@ B.Action.TailSwipe_Priority = function(player)
 	if player.actionstate == state_charging
 		B.SetPriority(player,0,0,nil,0,0,"tail sweep chargeup")
 	elseif player.actionstate == state_sweep
-		B.SetPriority(player,0,0,nil,0,0,"tail sweep")
+		B.SetPriority(player,1,1,nil,1,1,"tail sweep")
 	elseif player.actionstate == state_dash or player.actionstate == state_didthrow
 		B.SetPriority(player,0,1,nil,0,1,"flight dash")
 	end
@@ -58,21 +58,6 @@ B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	end
 	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < 2 and not (plr[n2] and plr[n2].nodamage)))
 		plr[n1].tailsmarker = true
-	elseif plr[n1].actionstate
-		local shake1 = P_SpawnMobjFromMobj(mo[n1], 0, 0, mo[n1].height/2, MT_THOK)
-		local shake2 = P_SpawnMobjFromMobj(mo[n2], 0, 0, mo[n1].height/2, MT_THOK)
-		shake1.state = S_SHAKE
-		shake2.state = S_SHAKE
-		mo[n1].hitstun_tics = TICRATE/3
-		mo[n2].hitstun_tics = TICRATE/3
-		if P_IsObjectOnGround(mo[n1]) then
-			P_InstaThrust(mo[n1], mo[n1].angle, 0)
-			mo[n1].momz = P_MobjFlip(mo[n1])
-		end
-		if plr[n2] then
-			B.DoPlayerFlinch(plr[n2], 12+mo[n2].hitstun_tics, angle[n1], plr[n2].speed/2,false)
-		end
-		S_StartSound(mo[n1], sfx_s3kd7s)
 	end
 end
 
@@ -729,7 +714,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				player.pflags = $&~PF_JUMPED
 			else
 				mo.state = S_PLAY_SPRING
-				player.pflags = $|PF_JUMPED
+				player.pflags = $|PF_JUMPED|PF_NOJUMPDAMAGE
 			end
 			player.actionstate = 0
 			player.laststate = 0
