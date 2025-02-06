@@ -675,7 +675,7 @@ table.insert(hudobjs, {
 				_x = (BASEVIDWIDTH/2) + (pad) + (37*mult) + ((v.cachePatch(prefix.."FLAGICO").width/4)*-1)
 			end
 
-			v.drawScaled(_x*FRACUNIT, _y, FRACUNIT/4, what, V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER, colormap)
+			v.drawScaled(_x*FRACUNIT, _y, FRACUNIT/4, what, V_SNAPTOTOP|V_PERPLAYER, colormap)
 		end
 	end,
 })
