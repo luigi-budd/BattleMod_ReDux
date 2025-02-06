@@ -219,7 +219,7 @@ local function BattleTagPointers(mo)
 		end
 	elseif B.BankGametype() then
 		arrowscale = ARROW_INVERTSCALE
-		if mo.tracer.player.gotcrystal then
+		if mo.tracer.player.gotcrystal or (mo.tracer.player.gotmaxrings) then
 			target = ((mo.tracer.player.ctfteam == 1) and C.RedBank) or C.BlueBank
 		else
 			delete = true

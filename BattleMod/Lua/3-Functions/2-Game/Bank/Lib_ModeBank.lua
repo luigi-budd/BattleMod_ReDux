@@ -254,6 +254,11 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 
 	if previousTarget then
 		if previousTargetIsPlayer then --Last target was a Chaos Ring holder?
+			if mo.target.btagpointer and mo.target.btagpointer.valid then
+				if not(mo.target.player.gotmaxrings) then
+					P_RemoveMobj(mo.target.btagpointer)
+				end
+			end
 			mo.target.player.gotcrystal = false --Not Anymore
 			mo.target.chaosring = nil --Disconnect Chaos Ring from player object
 		else
@@ -288,6 +293,13 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 		end
 		toucher.spritexscale = toucher.scale 
 		toucher.spriteyscale = toucher.scale
+		if not(toucher.btagpointer and toucher.btagpointer.valid) then
+			toucher.btagpointer = P_SpawnMobjFromMobj(toucher, 0, 0, 0, MT_BTAG_POINTER)
+		end
+		if toucher.btagpointer and toucher.btagpointer.valid
+			toucher.btagpointer.tracer = toucher
+			toucher.btagpointer.target = ({C.RedBank, C.BlueBank})[toucher.player.ctfteam]
+		end
 	end
 
 	if toucher.player then
@@ -420,7 +432,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		targetIsDeadPlayer
 	) then
 		if targetIsValid then
-			B.PrintGameFeed(mo.target.player," dropped the "..CHAOSRING_TEXT(mo.chaosring_num)..".")
+			B.PrintGameFeed(mo.target.player," dropped a "..CHAOSRING_TEXT(mo.chaosring_num)..".")
 		end
 
 		mo.beingstolen = nil
@@ -579,7 +591,7 @@ local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
 			P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
 		end
 	end
-end
+endlost
 
 local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 	if chaosring and chaosring.valid and chaosring.chaosring_num and CR.GetChaosRingKey(chaosring.chaosring_num) then
@@ -964,6 +976,16 @@ C.ThinkFrame = function()
 		end
 
 		player.rings = min($, BANK_RINGLIMIT)
+
+		if player.mo and player.mo.valid and player.gotmaxrings then
+			if not(player.mo.btagpointer and player.mo.btagpointer.valid) then
+				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+			end
+			if player.mo.btagpointer and player.mo.btagpointer.valid then
+				player.mo.btagpointer.tracer = player.mo
+				player.mo.btagpointer.target = ({C.RedBank, C.BlueBank})[player.ctfteam]
+			end
+		end
 
 		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
 			if player.rings > 0 then
