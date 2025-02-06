@@ -106,7 +106,11 @@ B.AirDodge = function(player)
 		
 		//SFX
 		S_StartSound(mo, sfx_s3k47)
-		S_StartSoundAtVolume(mo, sfx_nbmper, 125)
+		if player.safedodge and player.safedodge > 0 then
+			S_StartSoundAtVolume(mo, sfx_nbmper, 125)
+		elseif player.safedodge and player.safedodge < 0 then
+			S_StartSoundAtVolume(mo, sfx_s3kd7s, 125)
+		end
 		
 		//Sparkle
 		local sparkle = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SUPERSPARK)
