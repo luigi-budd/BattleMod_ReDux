@@ -591,7 +591,7 @@ local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
 			P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
 		end
 	end
-endlost
+end
 
 local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 	if chaosring and chaosring.valid and chaosring.chaosring_num and CR.GetChaosRingKey(chaosring.chaosring_num) then
