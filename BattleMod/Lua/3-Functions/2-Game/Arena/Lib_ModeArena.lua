@@ -190,7 +190,7 @@ A.TeamGetRanks = function(force)
 				bplayer.brank = $+1
 			end
 		end
-		if bplayer.brank == 1 and (A.Bounty or force)
+		if bplayer.brank == 1 and (A.Bounty or force) and bplayer[criteria]
 			bplayer.wanted = true
 		else
 			bplayer.wanted = false
@@ -208,7 +208,7 @@ A.TeamGetRanks = function(force)
 				rplayer.rrank = $+1
 			end
 		end
-		if rplayer.rrank == 1 and (A.Bounty or force)
+		if rplayer.rrank == 1 and (A.Bounty or force) and rplayer[criteria]
 			rplayer.wanted = true
 		else
 			rplayer.wanted = false
