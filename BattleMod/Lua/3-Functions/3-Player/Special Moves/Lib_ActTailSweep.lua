@@ -170,7 +170,8 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 	else
 		otherplayer.holdingjump = false
 	end
-	if (tapped or held) and not(otherplayer.powers[pw_nocontrol])
+	local struggled = (tapped or held) and not(otherplayer.powers[pw_nocontrol])
+	if struggled then
 		S_StartSound(otherplayer.mo, sfx_s3kd7s)
 		otherplayer.customstunbreakcost = max(0,$-strugglerings)
 		if not (otherplayer.customstunbreakcost) then
@@ -195,7 +196,7 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 	end
 	//pain animation
 	if nopain then
-		return
+		return struggled
 	end
 	if otherplayer.followmobj
 		if otherplayer.mo.skin == "tails"
@@ -205,6 +206,7 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 		end
 	end
 	otherplayer.mo.state = S_PLAY_PAIN
+	return struggled
 end
 
 B.Action.TailSwipe = function(mo,doaction)
@@ -247,8 +249,10 @@ B.Action.TailSwipe = function(mo,doaction)
 			then //skip until we find someone that passes all of the conditions
 				continue
 			end
-			if not B.MyTeam(otherplayer.mo, mo)
-				B.CarryStun(otherplayer)
+			if not B.MyTeam(otherplayer.mo, mo) then
+				if B.CarryStun(otherplayer) and mo.momz * P_MobjFlip(mo) < 0 then
+					mo.momz = 0 
+				end
 			end
 			carrying = true 
 			break //we carrying, dont even bother checking other players
