@@ -195,19 +195,20 @@ B.RingsHUD = function(v, player, cam)
 				text = "          "..player.strugglerings.." COST"
 				text = (leveltime%2==0) and "\131"+text or "\139"+text
 			end
-			if text and not(player.gotflagdebuff) then
+			local tagguardcost = B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
+			if (text or tagguardcost) and not(player.gotflagdebuff) then
 				if player.actionstate then
 					text = "\x82" + text
 				else
 					if not B.CanDoAction(player) then
-						if B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
-							local cost = player.actionrings or "10"
-							text = CV.FindVarString("battleconfig_hud", "Minimal") and ("\x86Guard " .. "\x80" .. cost) or "\x80" .. cost
+						if tagguardcost then
+							text = "\x82"..(player.actionrings or "10")
+							v.draw(x-14,y + 14,v.cachePatch("PARRYBT"),flags)
 						else
 							text = "\x86" + text
 						end
 					end
-					if player.actionrings and not(player.actioncooldown or B.TagGametype()) then
+					if player.actionrings and not(player.actioncooldown) then
 						if not B.CanDoAction(player) then
 							if (CV.RequireRings.value and player.rings < player.actionrings) then
 								text = $ + "  \x85" + player.actionrings
@@ -219,7 +220,7 @@ B.RingsHUD = function(v, player, cam)
 						end
 					end
 				end
-				if CV.FindVarString("battleconfig_hud", "Minimal") then
+				if CV.FindVarString("battleconfig_hud", "Minimal") or tagguardcost then
 					v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 				else
 					v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
@@ -342,6 +343,10 @@ B.RingsHUD = function(v, player, cam)
 		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale2, ringpatch, flags|transrights)
 	end
 
+	if B.TagGametype() and player.actioncooldown and not (player.battletagIT or player.pflags & PF_TAGIT) then
+		return
+	end
+
 	--GUARD
 	local mo = player.mo
 	if not(mo and mo.valid) then return end
@@ -363,8 +368,6 @@ B.RingsHUD = function(v, player, cam)
 		and not (mo.eflags & MFE_JUSTHITFLOOR)
 		and not (player.weapondelay and mo.state == S_PLAY_FIRE)
 		and leveltime > TICRATE*5/4
-		--since guard is disabled for runners for now, don't show it in the hud
-		and not (B.TagGametype() and not (player.pflags & PF_TAGIT))
 	)
 	local candodge = (player.canguard
 		and CV.airtoggle.value
