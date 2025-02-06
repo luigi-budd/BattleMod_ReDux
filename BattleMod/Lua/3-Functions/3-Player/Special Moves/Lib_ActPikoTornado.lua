@@ -221,10 +221,8 @@ B.Action.PikoTornado = function(mo,doaction)
 		end
 		//Neutral
 		local nearground = P_IsObjectOnGround(mo) or mo.z+mo.momz*P_MobjFlip(mo) < mo.floorz
-		if nearground or player.actiontime > TICRATE*3/2  or player.powers[pw_carry] then
-			if nearground or doaction
-			or (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
-			then
+		if nearground or player.actiontime > TICRATE*3/2 or player.powers[pw_carry] then
+			if nearground or (player.cmd.buttons & BT_SPIN) then
 				player.melee_state = st_release
 				--mo.state = S_PLAY_MELEE
 				player.actionstate = air_special+1
