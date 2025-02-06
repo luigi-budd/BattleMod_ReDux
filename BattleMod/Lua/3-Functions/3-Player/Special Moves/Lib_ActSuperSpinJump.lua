@@ -231,6 +231,9 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		if P_IsObjectOnGround(mo) then
 			player.actionstate = 0
 		end
+		if player.actionstate == 0 and player.actiondebt then
+			B.ApplyCooldown(player, cooldown1)
+		end
 	end
 
 	//Spin Wave state
