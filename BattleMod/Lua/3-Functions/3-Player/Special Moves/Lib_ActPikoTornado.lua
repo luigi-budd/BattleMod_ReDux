@@ -21,7 +21,7 @@ B.Action.PikoTornado_Priority = function(player)
 	end
 
 	if player.actionstate == ground_special or player.actionstate == air_special then
-		B.SetPriority(player,3,1,"tails_fly",1,0,"piko spin technique")
+		B.SetPriority(player,1,1,"tails_fly",1,0,"piko spin technique")
 	end
 end
 
