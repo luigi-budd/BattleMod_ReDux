@@ -20,8 +20,11 @@ B.Action.PikoTornado_Priority = function(player)
 		player.actiontext = B.TextFlash(player.actiontext, true, player)
 	end
 
-	if player.actionstate == ground_special or player.actionstate == air_special then
-		B.SetPriority(player,1,1,"tails_fly",1,0,"piko spin technique")
+	if player.actionstate == ground_special then
+		B.SetPriority(player,1,1,"tails_fly",1,0,"piko spin")
+	end
+	if player.actionstate == air_special then
+		B.SetPriority(player,2,1,"tails_fly",1,0,"piko tornado twirl")
 	end
 end
 
