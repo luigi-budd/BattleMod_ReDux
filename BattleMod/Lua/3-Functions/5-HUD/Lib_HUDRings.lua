@@ -35,6 +35,24 @@ local getProximity = function(mo, target)
 	return i
 end
 
+local function spawnSparkle(v, x, y, m1, m2, s)
+	table.insert(hudobjs, {
+		drawtype = "sprite",
+		string = "SPRK",
+		frame = 1,
+		animlength = 8,
+		animspeed = 4,
+		animloop = false,
+		flags = V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,
+		x = x,
+		y = y,
+		momy = m1 or 0,
+		momx = m2 or 0,
+		friction = FRACUNIT * 7 / 8,
+		scale = s or FRACUNIT/2
+	})
+end
+
 B.RingsHUD = function(v, player, cam)
 	if not (B.HUDMain)
 	or not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
@@ -100,13 +118,27 @@ B.RingsHUD = function(v, player, cam)
 	local scale = FRACUNIT + (player.ringhudflash * FRACUNIT/50)
 	local ringpatchname = "HUD_RING"
 	local actionrings = player.actionrings or player.lastactionrings or 0
+	local patch2
+	local patch2percent 
 	if (player.rings == 0 and (leveltime/5 & 1)) then
 		ringpatchname = "HUD_RINGR"
 	elseif player.rings < actionrings then
 		ringpatchname = "HUD_RINGG"
+	elseif B.BankGametype() then
+		patch2 = v.cachePatch("HUD_RINGG")
+		patch2percent = (C.BANK_RINGLIMIT - player.rings) * (FRACUNIT / C.BANK_RINGLIMIT)
 	end
 	local ringpatch = v.cachePatch(ringpatchname)
 	v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
+	if patch2 and patch2percent then
+		v.drawCropped(x*FU, y*FU, scale, scale, patch2, flags_hudtrans, nil, 0, 0, patch2.width*FU, patch2.height*patch2percent)
+	elseif B.BankGametype() and player.rings >= C.BANK_RINGLIMIT and leveltime > TICRATE and (leveltime % 5 == 0) then
+		local r = function() return v.RandomFixed() - v.RandomFixed() end
+		local r1 = function() return (ringpatch.width/4)*r() end
+		local r2 = function() return (ringpatch.height/4)*r() end
+		local s = function() return (scale/3)+(FixedMul(scale/2, v.RandomFixed())) end
+		spawnSparkle(v, (x*FU)+r1(), ((y+ringpatch.height)*FU)+r2(), r1(), r2(), s())
+	end
 
 	--Chaos Ring Radar
 	if B.BankGametype() and not(player.gotcrystal) then
@@ -427,6 +459,7 @@ B.RingsHUD = function(v, player, cam)
 		elseif not (CV.FindVarString("battleconfig_hud", "Minimal")) then
 			patch = v.cachePatch("DODGEBT")
 			v.draw(x-5,y,patch,flags)
+			v.drawString(x+7,y,"AIR DODGE",flags|V_YELLOWMAP,"thin")
 		end
 	end
 

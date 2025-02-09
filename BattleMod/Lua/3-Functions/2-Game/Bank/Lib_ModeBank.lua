@@ -3,10 +3,11 @@ local C = B.Bank
 C.RedBank = nil
 C.BlueBank = nil
 C.ChaosRing = {}
+C.BANK_RINGLIMIT = 50
 local CR = C.ChaosRing
 
 --Constants
-local BANK_RINGLIMIT = 50
+local BANK_RINGLIMIT = C.BANK_RINGLIMIT
 
 local CHAOSRING_STARTSPAWNBUFFER = TICRATE*25 --Time it takes for Chaos Rings to start spawning
 local CHAOSRING_SPAWNBUFFER = TICRATE*10 --Chaos rings spawn every X seconds
