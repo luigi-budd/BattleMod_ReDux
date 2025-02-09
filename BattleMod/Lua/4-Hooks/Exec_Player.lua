@@ -80,7 +80,7 @@ addHook("AbilitySpecial",function(player)
 		end
 		
 		S_StartSound(mo, sfx_thok)
-		if player.speed > actionspd then
+		if player.speed > (actionspd+FRACUNIT) then
 			local circle = P_SpawnMobjFromMobj(mo, 0, 0, P_MobjFlip(mo)*(mo.scale * 24), MT_THOK)
 			circle.sprite = SPR_STAB
 			circle.frame =  TR_TRANS50|FF_PAPERSPRITE|_G["A"]
@@ -99,6 +99,7 @@ addHook("AbilitySpecial",function(player)
 		else
 			P_SpawnThokMobj(player)
 		end
+		player.drawangle = mo.angle
 		
 		player.pflags = $|PF_THOKKED &~ PF_SPINNING
 		return true
