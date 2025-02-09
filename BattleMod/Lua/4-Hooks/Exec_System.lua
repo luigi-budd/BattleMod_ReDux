@@ -110,6 +110,7 @@ addHook("PostThinkFrame",function()
 	A.UpdateGame()
 	A.GetRanks()
 	F.CustomCaptureSFX()
+	B.PostPinchControl()
 end)
 
 addHook("IntermissionThinker",B.Intermission)

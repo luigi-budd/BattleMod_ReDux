@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local CV = B.Console
+local frameA = A --cry
 local A = B.Arena
 
 local pinchtime = 31
@@ -140,73 +141,115 @@ B.SuddenDeathGrow = function(player)
 	end
 end
 
-B.SuddenDeathZone = function()    
-    -- Initialize zone if it doesn't exist
-    if not (B.ZoneObject and B.ZoneObject.valid) then
-        local validSpawns = {}
-        for player in players.iterate() do
-            if B.InvalidPlayer(player) then continue end
-            
-            -- Prioritize players not over pits by checking if they're on ground
-			-- TODO: Remove port priority
-            if P_IsObjectOnGround(player.mo) or player.powers[pw_flashing] then
-                table.insert(validSpawns, 1, player.mo)
-            else
-                table.insert(validSpawns, player.mo)
-            end
-
-			--Indicator Arrow
-			player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
-			if player.mo.btagpointer and player.mo.btagpointer.valid then
-				player.mo.btagpointer.tracer = player.mo
-				player.mo.btagpointer.target = B.ZoneObject
+B.SuddenDeathZone = function(remove)
+	if remove then
+		if B.ZoneObject and B.ZoneObject.valid and not (B.ZoneObject.flags2 & MF2_DONTDRAW) then
+			local vfx = P_SpawnMobjFromMobj(B.ZoneObject, 0, 0, 0, MT_THOK)
+			if vfx and vfx.valid then
+				vfx.state = S_XPLD1
+				S_StartSound(vfx, sfx_pop)
 			end
-        end
-        
-        if #validSpawns == 0 then return end
-        
-        local chosen = validSpawns[1]
-        local zoneobject = P_SpawnMobj(chosen.x, chosen.y, chosen.z, MT_CONTROLPOINT)
-        zoneobject.cp_radius = 2048*FRACUNIT
+			for p in players.iterate do
+				if p.mo then
+					if S_SoundPlaying(p.mo, sfx_premon) then
+						S_StopSoundByID(p.mo, sfx_premon)
+					end
+					if p.mo.btagpointer and p.mo.btagpointer.valid then
+						P_RemoveMobj(p.mo.btagpointer)
+					end
+				end
+			end
+			B.ZoneObject.flags2 = $ | MF2_DONTDRAW
+			B.ControlPoint.ResetFX(B.ZoneObject)
+			P_RemoveMobj(B.ZoneObject)
+		end
+		return
+	end
+
+	-- Initialize zone if it doesn't exist
+	if not (B.ZoneObject and B.ZoneObject.valid) then
+		local validSpawns = {}
+		for player in players.iterate() do
+			if B.InvalidPlayer(player) then continue end
+			
+			-- Prioritize players not over pits by checking if they're on ground
+			-- TODO: Remove port priority
+			if P_IsObjectOnGround(player.mo) or player.powers[pw_flashing] then
+				table.insert(validSpawns, 1, player.mo)
+			else
+				table.insert(validSpawns, player.mo)
+			end
+		end
+		
+		if #validSpawns == 0 then return end
+		
+		local chosen = validSpawns[1]
+		local zoneobject = P_SpawnMobj(chosen.x, chosen.y, chosen.z, MT_CONTROLPOINT)
+		zoneobject.sprite = SPR_DTHZ
+		zoneobject.cp_radius = 2048*FRACUNIT
 		zoneobject.cp_height = 320*FRACUNIT
 		zoneobject.cp_meter = 400
 		if chosen.eflags & MFE_VERTICALFLIP then
 			zoneobject.eflags = $|MFE_VERTICALFLIP
 		end
-		zoneobject.lollmao = true
+		zoneobject.isdeathzone = true
 		B.ZoneObject = zoneobject
+		B.ControlPoint.ActivateFX(zoneobject)
 	else -- Update zone
 		B.ZoneObject.cp_radius = max(0, $ - FRACUNIT)
-    end
-    
-    -- Check all players against zone
-    for player in players.iterate() do
-        if B.InvalidPlayer(player) then continue end
+		if B.ZoneObject.cp_radius <= 0 and not (B.ZoneObject.flags2 & MF2_DONTDRAW) then
+			local vfx = P_SpawnMobjFromMobj(B.ZoneObject, 0, 0, 0, MT_THOK)
+			if vfx and vfx.valid then
+				vfx.state = S_XPLD1
+				S_StartSound(vfx,sfx_pop)
+			end
+			B.ZoneObject.flags2 = $ | MF2_DONTDRAW
+			B.ControlPoint.ResetFX(B.ZoneObject)
+		end
+	end
+		
+	-- Check all players against zone
+	for player in players.iterate() do
+		if B.InvalidPlayer(player) then continue end
 		local pmo = player.mo
   
-        if R_PointToDist2(pmo.x, pmo.y, B.ZoneObject.x, B.ZoneObject.y) > B.ZoneObject.cp_radius then
-			--local targ = P_SpawnMobj(pmo.x, pmo.y, pmo.z, MT_THOK)
-			--local TR_DYNAMICTRANS = B.TIMETRANS(100-(player.BT_antiAFK/2), nil, "TR_TRANS", nil, 10, 90) or TR_TRANS90
-			--targ.sprite = SPR_TARG
-			--targ.frame = $|TR_DYNAMICTRANS
-			--targ.tics = 2
-			--targ.momx, targ.momy, targ.momz = pmo.momx, pmo.momy, pmo.momz
+		if R_PointToDist2(pmo.x, pmo.y, B.ZoneObject.x, B.ZoneObject.y) > B.ZoneObject.cp_radius then
+			local targ = P_SpawnMobj(pmo.x, pmo.y, pmo.z, MT_THOK)
+			targ.sprite = SPR_TARG
+			targ.trans = B.TIMETRANS(100-(player.BT_antiAFK/2), 1, "TR_TRANS", "", 10, 90)
+			targ.tics = 2
+			targ.frame = B.Wrap(leveltime/2, frameA, G)
+			targ.momx, targ.momy, targ.momz = pmo.momx, pmo.momy, pmo.momz
 			if player.BT_antiAFK == 200 then
 				S_StartSound(pmo, sfx_premon)
+				S_StartSound(nil, sfx_cdfm63, player)
 			end
-            player.BT_antiAFK = $ - 1
-            if player.BT_antiAFK <= 0 then
-                P_DamageMobj(pmo, nil, nil, 1, DMG_INSTAKILL)
+			if not (player.mo.btagpointer and player.mo.btagpointer.valid) then
+				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+				if player.mo.btagpointer and player.mo.btagpointer.valid then
+					player.mo.btagpointer.tracer = player.mo
+					player.mo.btagpointer.target = B.ZoneObject
+				end
+			else
+				player.mo.btagpointer.colorized = leveltime%11 < 5
+				player.mo.btagpointer.blendmode = leveltime%11 < 5 and AST_ADD or AST_TRANSLUCENT
+			end
+			player.BT_antiAFK = $ - 1
+			if player.BT_antiAFK <= 0 then
+				P_DamageMobj(pmo, nil, nil, 1, DMG_INSTAKILL)
 				local b = P_SpawnMobj(pmo.x,pmo.y,pmo.z,MT_FBOMB)
 				P_ExplodeMissile(b)
-            end
-        else
+			end
+		else
 			if S_SoundPlaying(pmo, sfx_premon) then
 				S_StopSoundByID(pmo, sfx_premon)
 			end
-            player.BT_antiAFK = 200
-        end
-    end
+			if player.mo.btagpointer and player.mo.btagpointer.valid then
+				P_RemoveMobj(player.mo.btagpointer)
+			end
+			player.BT_antiAFK = 200
+		end
+	end
 
 	-- Lol lmao
 	local mo = B.ZoneObject
@@ -222,6 +265,7 @@ B.SuddenDeathZone = function()
 	end
 
 	B.ControlPoint.ActiveThinker(B.ZoneObject,floor,flip,ceil,mo.cp_radius,mo.cp_height,mo.cp_meter)
+	B.ControlPoint.UpdateFX(B.ZoneObject, mo.cp_radius)
 end
 
 B.PinchMusic = function(player)
@@ -293,11 +337,28 @@ B.MatchPointMusic = function(player)
 	return false
 end
 
+B.SuddenDeathShockwaves = function()
+	for mo in mobjs.iterate() do
+		if mo.trans != nil then
+			mo.frame = ($ & ~FF_TRANSMASK) | mo.trans
+			mo.trans = nil
+		end
+	end
+end
+
 B.PinchControl = function()
 	B.GetPinch()
 	if B.SuddenDeath then
 		--B.SuddenDeathBomb()
 		--B.SuddenDeathGrow()
-		B.SuddenDeathZone()
+		B.SuddenDeathZone(false)
+	else
+		B.SuddenDeathZone(true)
+	end
+end
+
+B.PostPinchControl = function()
+	if B.SuddenDeath then
+		B.SuddenDeathShockwaves()
 	end
 end

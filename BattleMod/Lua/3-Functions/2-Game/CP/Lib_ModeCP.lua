@@ -212,10 +212,183 @@ CP.CalcHeight = function(value)
 	return flagheight*value*FRACUNIT
 end
 
+CP.RandomColor = function(mo) 
+	return G_GametypeHasTeams() and mo.color
+		or (SKINCOLOR_SUPERSILVER5 + P_RandomRange(0,8)*5)
+end
+
+local randomcolor = CP.RandomColor
+
+local function createSet(mo, flip, floor, radius, quadrants, teamcolor, makeghosts)
+	for n = 1, quadrants and 4 or 8 do
+		local angle = n*FRACUNIT*90
+		if n > 4
+			angle = $-FRACUNIT*45
+		end
+		angle = FixedAngle($)
+		local fx = P_SpawnMobj(mo.x + P_ReturnThrustX(mo, angle, radius), mo.y + P_ReturnThrustY(mo, angle, radius), floor, MT_CPBONUS)
+		table.insert(mo.fx, fx)
+		fx.tracer = mo
+		fx.teamcolor = teamcolor or false
+		fx.angle = angle
+		fx.distance = radius
+		fx.ghosts = makeghosts
+		fx.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+		if flip == -1 
+			fx.flags2 = $|MF2_OBJECTFLIP 
+			fx.eflags = $|MFE_VERTICALFLIP
+		end
+		if quadrants and n >= 4 then break end
+	end
+end
+
+local function createSplat(mo, flip, floor, radius, quadrants, teamcolor, makeghosts)
+	for n = 1, quadrants and 4 or 8 do
+		local angle = n*FRACUNIT*90
+		if n > 4
+			angle = $-FRACUNIT*45
+		end
+		angle = FixedAngle($)
+		local fx = P_SpawnMobj(mo.x + P_ReturnThrustX(mo, angle, radius), mo.y + P_ReturnThrustY(mo, angle, radius), floor, MT_CPBONUS)
+		table.insert(mo.fx, fx)
+		fx.sprite = SPR_THOK
+		fx.tracer = mo
+		fx.teamcolor = teamcolor or false
+		fx.angle = angle
+		fx.distance = radius
+		fx.ghosts = makeghosts
+		fx.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS|RF_FLOORSPRITE
+		if flip == -1 
+			fx.flags2 = $|MF2_OBJECTFLIP 
+			fx.eflags = $|MFE_VERTICALFLIP
+		end
+		if quadrants and n >= 4 then break end
+	end
+	
+	
+-- 	local fx = P_SpawnMobj(mo.x, mo.y, floor, MT_CPBONUS)
+-- 	table.insert(mo.fx, fx)
+-- 	fx.sprite = SPR_CPSP
+-- 	fx.frame = FF_TRANS70
+-- 	fx.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS|RF_FLOORSPRITE
+-- 	fx.spritexscale = radius/128
+-- 	fx.spriteyscale = radius/128
+-- 	fx.distance = 0
+-- 	fx.teamcolor = true
+-- 	fx.target = mo
+end
+
+
+local createFull = function(mo)
+	--Get CP attributes
+	local radius
+	local height
+	if CV.CPRadius.value > 0 then --Calculate radius
+		radius = CP.CalcRadius(CV.CPRadius.value)
+	else
+		radius = mo.cp_radius
+	end
+	if CV.CPHeight.value > 0 then --Calculate height
+		height = CP.CalcHeight(CV.CPHeight.value)
+	elseif CV.CPHeight.value == -1 then
+		height = mo.ceilingz - mo.floorz
+	elseif mo.cp_height > 0 then
+		height = mo.cp_height
+	else
+		height = mo.ceilingz - mo.floorz
+	end
+
+	--Get Orientation and surfaces
+	local flip = P_MobjFlip(mo)
+	local floor
+	local ceil
+	if flip == 1 then
+		floor = mo.floorz
+		ceil = mo.ceilingz
+	else
+		floor = mo.ceilingz
+		ceil = mo.floorz
+	end
+
+	-- Create object sets
+	createSet(mo,	flip,	floor,					radius,		false,	false,	true)
+	createSet(mo,	flip,	floor+flip*height/4,	radius/8,	true,	true,	false)
+	createSet(mo,	flip,	floor+flip*height/8,	radius/16,	true,	true,	false)
+	createSet(mo,	flip,	flip*height+floor,		radius,		false,	false,	true)
+	createSet(mo,	flip,	flip*height*3/4+floor,	radius/8,	true,	true,	false)
+	createSet(mo,	flip,	flip*height*7/8+floor,	radius/16,	true,	true,	false)
+	-- Create splats
+	createSplat(mo,	flip,	flip*height+floor,				radius,		false,	false,	true)
+	createSplat(mo,	flip,	flip*height+floor+mo.scale*4,	radius,		false,	false,	true)
+	createSplat(mo,	flip,	floor,							radius,		false,	false,	true)
+	createSplat(mo,	flip,	floor+mo.scale*4,				radius,		false,	false,	true)
+-- 	createSplat(mo,	floor+mo.scale*flip, radius)
+-- 	createSplat(mo, flip*height+floor-mo.scale*flip, radius)
+end
+
+local createShockWaves = function(mo)
+	mo.shockwaves = {}
+	local amount = 24
+	local angleIncrement = FixedAngle(360 * FRACUNIT / amount)
+
+	for i = 0, amount - 1 do
+		local angle = angleIncrement * i
+		local x = mo.x
+		local y = mo.y
+		local z = mo.z + (mo.cp_height/2)
+		local shockwave = P_SpawnMobj(x, y, z, MT_CPBONUS)
+		if shockwave and shockwave.valid then
+			shockwave.state = S_SHOCKWAVE1
+			shockwave.angle = angle + ANGLE_90
+			shockwave.target = mo
+			table.insert(mo.shockwaves, shockwave)
+		end
+	end
+end
+
+CP.ActivateFX = function(mo)
+	mo.flags2 = $&~MF2_SHADOW
+	if #mo.fx
+		return
+	end
+	
+	-- Construct visual objects table
+	createFull(mo)
+
+	if mo.isdeathzone then
+		createShockWaves(mo)
+	end
+end
+
+CP.ResetFX = function(mo)
+	mo.flags2 = $|MF2_SHADOW
+	mo.color = SKINCOLOR_CARBON
+	-- Clean up the visual objects table
+	while #mo.fx do
+		local fx = mo.fx[1]
+		if fx and fx.valid
+			P_RemoveMobj(fx)
+		end
+		table.remove(mo.fx, 1)
+	end
+	if mo.isdeathzone then
+		while #mo.shockwaves do
+			local shockwave = mo.shockwaves[1]
+			if shockwave and shockwave.valid
+				P_RemoveMobj(shockwave)
+			end
+			table.remove(mo.shockwaves, 1)
+		end
+	end
+end
+
 CP.Spawn = function(mo)
 	mo.cp_radius = CP.CalcRadius()
 	mo.cp_height = CP.CalcHeight()
 	mo.cp_meter = CP.CalcMeter()
+	mo.renderflags = $|RF_PAPERSPRITE|RF_FULLBRIGHT
+	mo.fx = {} -- Objects table for visual parts
+	CP.ResetFX(mo)
 end
 
 CP.MapThingSpawn = function(mo,thing)
@@ -346,8 +519,7 @@ CP.SeizePoint = function()
 	end
 end
 
-CP.PointHover = function(mo,floor,flip,height)
-	//Do Hover
+CP.PointHover = function(mo, floor, flip, height, active)
 	local hover_amount = flip*height/2-mo.height/2
 	local hover_speed = mo.scale*4
 	local hover_accel = hover_speed/12
@@ -356,55 +528,107 @@ CP.PointHover = function(mo,floor,flip,height)
 	end
 	if mo.z < hover_amount+floor then	
 		mo.momz = min(hover_speed,$+hover_accel)
-	end	
+	end
+	
+	--Twirl the object
+	local spd = active and ANG20 or ANG1
+	mo.angle = $ + spd
+	
+	-- Glitter
+	if active and CP.Capturing and not(leveltime % 12)
+		local r = mo.radius/FRACUNIT
+		local h = mo.height/FRACUNIT
+		local fx = P_SpawnMobjFromMobj(mo,
+			P_RandomRange(-r, r)*FRACUNIT,
+			P_RandomRange(-r, r)*FRACUNIT,
+			P_RandomRange(0, h)*FRACUNIT,
+			MT_BOXSPARKLE)
+		P_SetObjectMomZ(fx, FRACUNIT)
+	end
 end
 
-CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)	
-	//Do Aesthetic
+CP.UpdateFX = function(mo, newradius)
+	for n, fx in ipairs(mo.fx) do
+		if not(fx.valid)
+			table.remove(mo.fx, n)
+			return
+		end
+		if fx.extravalue1 and fx.fuse
+			if not(fx.target and fx.target.valid and fx.tracer and fx.tracer.valid)
+				P_RemoveMobj(fx)
+				return
+			end
+			local frac = FRACUNIT*fx.fuse/fx.extravalue1
+			local x = B.FixedLerp(fx.target.x, fx.tracer.x, frac)
+			local y = B.FixedLerp(fx.target.y, fx.tracer.y, frac)
+			local z = B.FixedLerp(fx.target.z + fx.target.height/2, fx.tracer.z + fx.tracer.height/2, frac)
+			P_MoveOrigin(fx, x, y, z)
+			return
+		end
+		
+		-- Update color
+		fx.color = fx.teamcolor and mo.color or randomcolor(mo)
+		-- Update position
+		if fx.sprite == SPR_CPBS
+			fx.angle = $ + FixedAngle(FRACUNIT*2)
+		else
+			fx.angle = $ - FixedAngle(FRACUNIT*2)
+		end
+		P_MoveOrigin(fx,
+			mo.x + P_ReturnThrustX(nil, fx.angle, fx.distance),
+			mo.y + P_ReturnThrustY(nil, fx.angle, fx.distance),
+			fx.z)
+		-- Make ghost mobj
+		if fx.ghosts
+			local ghost = P_SpawnGhostMobj(fx)
+			ghost.color = fx.color
+			ghost.renderflags = fx.renderflags
+			ghost.frame = fx.frame
+		end
+		if newradius then
+			fx.distance = newradius
+		end
+	end
+	-- Shockwaves (for survival)
+	if mo.isdeathzone then
+		local nearest = B.GetNearestPlayer(mo).mo
+		local amount = 24
+		local angleIncrement = FixedAngle(360 * FRACUNIT / amount)
+		local baseRadius = 300 * FRACUNIT	-- Base radius for scaling reference
+		local baseScale = FRACUNIT			-- Base scale at baseRadius
+
+		for i, shockwave in ipairs(mo.shockwaves) do
+			if shockwave and shockwave.valid then
+				if displayplayer and displayplayer.BT_antiAFK < 200 then
+					shockwave.trans = TR_TRANS90
+				elseif nearest and nearest.valid then
+					local xydist = R_PointToDist2(shockwave.x, shockwave.y, nearest.x, nearest.y)
+					P_MoveOrigin(shockwave, shockwave.x, shockwave.y, nearest.z + (nearest.height/2))
+					shockwave.trans = B.TIMETRANS(100-(xydist/(FU*16)), 1, "TR_TRANS", "", 10, 90, false)
+				end
+				local angle = angleIncrement * (i - 1)
+				P_MoveOrigin(shockwave,
+					mo.x + FixedMul(newradius, cos(angle)),
+					mo.y + FixedMul(newradius, sin(angle)),
+					shockwave.z)
+
+				-- Dynamic scaling based on radius
+				local scale = FixedMul(baseScale, FixedDiv(newradius, baseRadius))
+				shockwave.scale = scale
+			else
+				-- Remove invalid shockwaves from the table
+				mo.shockwaves[i] = nil
+			end
+		end
+	end
+end
+
+CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)
 	mo.flags2 = $&~MF2_SHADOW
-	
-	local function randomcolor() 
-		if G_GametypeHasTeams() then return mo.color
-		else return P_RandomRange(1,113) 
-		end
-	end
-	
-	local function visual_cp(mo,floor,radius,fuse,quadrants,color)
-		for n = 1,8
-			local t
-			local item = MT_CPBONUS
-			if n == 1 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle,radius),mo.y+P_ReturnThrustY(mo,mo.angle,radius),floor,item)
-			elseif n == 2 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle+ANGLE_90,radius),mo.y+P_ReturnThrustY(mo,mo.angle+ANGLE_90,radius),floor,item)
-			elseif n == 3 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle+ANGLE_180,radius),mo.y+P_ReturnThrustY(mo,mo.angle+ANGLE_180,radius),floor,item)
-			elseif n == 4 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle+ANGLE_270,radius),mo.y+P_ReturnThrustY(mo,mo.angle+ANGLE_270,radius),floor,item)
-			elseif n == 5 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle+ANGLE_45,radius),mo.y+P_ReturnThrustY(mo,mo.angle+ANGLE_45,radius),floor,item)
-			elseif n == 6 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle+ANGLE_135,radius),mo.y+P_ReturnThrustY(mo,mo.angle+ANGLE_135,radius),floor,item)
-			elseif n == 7 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle+ANGLE_225,radius),mo.y+P_ReturnThrustY(mo,mo.angle+ANGLE_225,radius),floor,item)
-			elseif n == 8 then t = P_SpawnMobj(mo.x+P_ReturnThrustX(mo,mo.angle+ANGLE_315,radius),mo.y+P_ReturnThrustY(mo,mo.angle+ANGLE_315,radius),floor,item)
-			end
-			if t and t.valid then
-				t.color = color
-				t.fuse = fuse
-				t.extravalue1 = t.fuse
-				if flip == -1 then t.flags2 = $|MF2_OBJECTFLIP end
-			end
-			if quadrants and n >= 4 then break end
-		end
-	end
-	
-	//Visuals
-	mo.angle = $+ANG1*2
-	visual_cp(mo,floor,radius,16,false,randomcolor())
-	visual_cp(mo,floor,radius,16,false,randomcolor())
-	visual_cp(mo,floor+flip*height/4,radius/8,2,true,mo.color)
-	visual_cp(mo,floor+flip*height/8,radius/16,2,true,mo.color)
-	visual_cp(mo,flip*height+floor,radius,16,false,randomcolor())
-	visual_cp(mo,flip*height*3/4+floor,radius/8,2,true,mo.color)
-	visual_cp(mo,flip*height*7/8+floor,radius/16,2,true,mo.color)
 
 	mo.color = SKINCOLOR_JET
 
-	if mo.lollmao then return end
+	if mo.isdeathzone then return end
 
 	//Get capturers
 	local team = {0,0}
@@ -592,13 +816,19 @@ CP.PointThinker = function(mo)
 		ceil = mo.floorz
 	end
 
-	CP.PointHover(mo,floor,flip,height)
-
+	local active = CP.Active and mo == CP.ID[CP.Num]
+	CP.PointHover(mo,floor,flip,height,active)
+	
 	//Do Active/Inactive Thinker instructions
-	if CP.Active and mo == CP.ID[CP.Num] then
+	if active then
 		CP.ActiveThinker(mo,floor,flip,ceil,radius,height,meter)
-	else
-		CP.InertThinker(mo)
+		if not #mo.fx then
+			CP.ActivateFX(mo)
+		end
+		CP.UpdateFX(mo)
+	elseif not mo.isdeathzone then
+		--CP.InertThinker(mo)
+		CP.ResetFX(mo)
 	end
 end
 

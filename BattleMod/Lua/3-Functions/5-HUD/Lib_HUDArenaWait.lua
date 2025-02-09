@@ -26,11 +26,24 @@ end
 
 A.DangerHUD = function(v, player, cam)
 	if B.SuddenDeath and player.BT_antiAFK < 200 then
-		local t = "DANGER! "..G_TicsToSeconds(player.BT_antiAFK).."."..roundToMultipleOf5(G_TicsToCentiseconds(player.BT_antiAFK)).."s"
+		local centiseconds = roundToMultipleOf5(G_TicsToCentiseconds(player.BT_antiAFK))
+        local formattedCentiseconds = string.format("%02d", centiseconds)
+        local t = "DANGER! "..G_TicsToSeconds(player.BT_antiAFK).."."..formattedCentiseconds.."s"
 		local f = V_SNAPTOTOP|V_PERPLAYER|V_ALLOWLOWERCASE
 		local V_MENACINGFLASH = leveltime%11 < 5 and V_REDMAP or V_INVERTMAP
 		v.drawString(160,yo,t,V_MENACINGFLASH|V_HUDTRANS|f,"center")
-		v.drawString(160,yo,"\nReturn to combat zone!",V_HUDTRANSHALF|f,"center")
+		if B.ZoneObject and B.ZoneObject.valid and (B.ZoneObject.flags2 & MF2_DONTDRAW) then
+			local shake = 1
+			local x = 160
+			local y = yo
+			if not (paused) then
+				x = $ + v.RandomRange(-shake,shake)
+				y = $ + v.RandomRange(-shake,shake)
+			end
+			v.drawString(x,y,"\nFight for your life!",V_HUDTRANS|f,"center")
+		else
+			v.drawString(160,yo,"\nReturn to combat zone!",V_HUDTRANSHALF|f,"center")
+		end
 	end
 end
 

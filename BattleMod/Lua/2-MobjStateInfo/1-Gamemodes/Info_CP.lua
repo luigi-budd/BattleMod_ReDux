@@ -2,7 +2,8 @@ freeslot(
 	'mt_controlpoint',
 	'mt_cpbonus',
 	's_cpbonus',
-	'spr_cpbs'
+	'spr_cpbs',
+	'spr_dthz'
 )
 
 // Control point object
