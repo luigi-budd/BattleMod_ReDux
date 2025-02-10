@@ -477,7 +477,7 @@ B.CharAbilityControl = function(player)
 end
 
 B.MidAirAbilityAllowed = function(player)
-	if player.gotcrystal or player.gotflag then 
+	if player.gotcrystal or player.gotflag or (B.TagGametype() and not (player.battletagIT)) then 
 		return false
 	else
 		return true

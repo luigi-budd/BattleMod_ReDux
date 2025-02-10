@@ -1,10 +1,10 @@
 local B = CBW_Battle
 
-B.GotFlagStats = function(player)
+B.GotFlagStats = function(player, force)
 	local skin = skins[player.mo.skin]
 	local skinvar = (pcall(do return B.SkinVars[player.mo.skin].flagstats end) and (type(B.SkinVars[player.mo.skin].flagstats) == "table") and B.SkinVars[player.mo.skin].flagstats) or {}
 	//Register debuff
-	if (player.gotflag or player.gotcrystal) and player.gotflagdebuff == false then
+	if (B.MidAirAbilityAllowed(player) == false) and (player.gotflagdebuff == false) then
 		player.gotflagdebuff = true
 		player.mo.color = player.skincolor
 		player.secondjump = 0
@@ -38,7 +38,7 @@ B.GotFlagStats = function(player)
 		end
 	end
 	//Unregister debuff and apply normal stats
-	if not(player.gotflag or player.gotcrystal) and player.gotflagdebuff == true then
+	if B.MidAirAbilityAllowed(player) and player.gotflagdebuff == true then
 		player.gotflagdebuff = false
 		player.normalspeed = skin.normalspeed
 		player.acceleration = skin.acceleration
