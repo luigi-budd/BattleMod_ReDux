@@ -10,7 +10,7 @@ mobjinfo[MT_BATTLE_CHAOSRING] = {
 
 mobjinfo[MT_BATTLE_CHAOSRINGSPAWNER] = {
 	--$Name "Chaos Ring Spawnpoint"
-	--$Sprite RINGA0
+	--$Sprite ZBCHRING
 	--$Category "BattleMod Mcguffins"
 	doomednum = 3707,
 	spawnstate = S_NULL,
