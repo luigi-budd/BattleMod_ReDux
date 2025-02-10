@@ -6,7 +6,7 @@ local F = B.CTF
 local A = B.Arena
 local CP = B.ControlPoint
 local C = B.Bank
-local CR = C.ChaosRing
+--local CR = C.ChaosRing
 
 B.clamp = function(num, minimum, maximum)
 	return min(maximum, max(num, minimum))
@@ -133,13 +133,17 @@ B.RadarHUD = function(v, player, cam)
 			table.insert(t,F.RedFlag or C.RedBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
+			local ringin = player.ctfteam == 1 and (player.gotmaxrings or player.gotcrystal)
 			if B.BankGametype() then
 				patch_clamped = v.cachePatch("RAD_RING1")
 				patch = v.cachePatch("RAD_RING2")
+				if ringin then
+					patch = v.cachePatch("RAD_RINGIN1")
+				end
 			else
 				patch = v.cachePatch("RAD_FLAG")
 			end
-			color = SKINCOLOR_RED
+			color = (ringin and leveltime%11<5) and SKINCOLOR_GOLDENROD or SKINCOLOR_RED
 			center = true
 		end
 		--Blue Flag / Bank
@@ -153,13 +157,17 @@ B.RadarHUD = function(v, player, cam)
 			table.insert(t,F.BlueFlag or C.BlueBank)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
+			local ringin = player.ctfteam == 2 and (player.gotmaxrings or player.gotcrystal)
 			if B.BankGametype() then
 				patch_clamped = v.cachePatch("RAD_RING1")
 				patch = v.cachePatch("RAD_RING2")
+				if ringin then
+					patch = v.cachePatch("RAD_RINGIN1")
+				end
 			else
 				patch = v.cachePatch("RAD_FLAG")
 			end
-			color = SKINCOLOR_BLUE
+			color = (ringin and leveltime%11<5) and SKINCOLOR_SUPERGOLD2 or SKINCOLOR_BLUE
 			center = true
 			flags = $|V_FLIP
 		end
