@@ -213,7 +213,7 @@ CP.CalcHeight = function(value)
 end
 
 CP.RandomColor = function(mo) 
-	return G_GametypeHasTeams() and mo.color
+	return (G_GametypeHasTeams() and mo) and mo.color
 		or (SKINCOLOR_SUPERSILVER5 + P_RandomRange(0,8)*5)
 end
 
