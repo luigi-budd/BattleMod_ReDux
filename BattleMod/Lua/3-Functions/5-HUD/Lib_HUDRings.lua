@@ -35,7 +35,7 @@ local getProximity = function(mo, target)
 	return i
 end
 
-local function spawnSparkle(v, x, y, m1, m2, s)
+local function spawnSparkle(v, f, x, y, m1, m2, s)
 	table.insert(hudobjs, {
 		drawtype = "sprite",
 		string = "SPRK",
@@ -43,7 +43,7 @@ local function spawnSparkle(v, x, y, m1, m2, s)
 		animlength = 8,
 		animspeed = 4,
 		animloop = false,
-		flags = V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER,
+		flags = f,
 		x = x,
 		y = y,
 		momy = m1 or 0,
@@ -137,7 +137,7 @@ B.RingsHUD = function(v, player, cam)
 		local r1 = function() return (ringpatch.width/4)*r() end
 		local r2 = function() return (ringpatch.height/4)*r() end
 		local s = function() return (scale/3)+(FixedMul(scale/2, v.RandomFixed())) end
-		spawnSparkle(v, (x*FU)+r1(), ((y+ringpatch.height)*FU)+r2(), r1(), r2(), s())
+		spawnSparkle(v, flags_hudtrans, x*FU, y*FU, r1(), r2(), s())
 	end
 
 	--Chaos Ring Radar

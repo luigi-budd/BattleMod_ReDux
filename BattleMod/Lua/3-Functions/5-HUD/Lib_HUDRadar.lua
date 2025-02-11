@@ -158,18 +158,19 @@ B.RadarHUD = function(v, player, cam)
 			fade = V_40TRANS
 			fade2 = V_60TRANS
 			local ringin = player.ctfteam == 2 and (player.gotmaxrings or player.gotcrystal)
+			flags = $|V_FLIP
 			if B.BankGametype() then
 				patch_clamped = v.cachePatch("RAD_RING1")
 				patch = v.cachePatch("RAD_RING2")
 				if ringin then
 					patch = v.cachePatch("RAD_RINGIN1")
+					flags = $ & ~V_FLIP
 				end
 			else
 				patch = v.cachePatch("RAD_FLAG")
 			end
 			color = (ringin and leveltime%11<5) and SKINCOLOR_SUPERGOLD2 or SKINCOLOR_BLUE
 			center = true
-			flags = $|V_FLIP
 		end
 		--Ruby
 		if r == 5
@@ -270,6 +271,7 @@ B.RadarHUD = function(v, player, cam)
 			local final_patch = patch
 			local dist = R_PointToDist(mo.x,mo.y)
 			local clampscale = true
+			local did_clamp = false
 			
 			if (clampedv or clampedh)
 				if not allow_clamp
@@ -277,6 +279,7 @@ B.RadarHUD = function(v, player, cam)
 				end
 				if (patch_clamped)
 					final_patch = patch_clamped
+					did_clamp = true
 				end
 			else
 				if dist < pmo.scale * 2040
@@ -317,6 +320,29 @@ B.RadarHUD = function(v, player, cam)
 				dx = $-(final_scale*12) --ugh
 			end
 			]]
+			-- Bias big clamped patches to the left based on how large they are
+			if not did_clamp then
+				-- Define the range for interpolation
+				local height_min = 30
+				local height_max = 90
+
+				-- Calculate the weight factor (t) for interpolation
+				local t = 0
+				if final_patch.height > height_min and final_patch.height < height_max then
+					t = FixedDiv(final_patch.height - height_min, height_max - height_min)
+				elseif final_patch.height >= height_max then
+					t = FRACUNIT
+				end
+
+				-- Calculate the interpolated offsets
+				local dx1 = (final_patch.width * 2 / 7) * FRACUNIT
+				local dy1 = (final_patch.height * 2 / 3) * FRACUNIT
+				local dx2 = (final_patch.width / 8) * FRACUNIT
+				local dy2 = (final_patch.height / 2) * FRACUNIT
+			
+				dx = $ - FixedMul(dx1, t) - FixedMul(dx2, FRACUNIT - t)
+				dy = $ - FixedMul(dy1, t) - FixedMul(dy2, FRACUNIT - t)
+			end
 			v.drawScaled(dx, dy, final_scale, final_patch, final_trans|flags, color and v.getColormap(colormap, color))
 		end
 	end
