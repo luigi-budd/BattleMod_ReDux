@@ -60,57 +60,22 @@ addHook("MobjMoveCollide", GetMassOfSpring)
 --Handle player vs player collision
 addHook("TouchSpecial", B.PlayerTouch,MT_PLAYER)
 
+B.AbilityHandlers = {
+    [CA_FLOAT] = B.HandleFloat,
+    [CA_THOK] = B.UncappedThok,
+    [CA_BOUNCE] = B.FastBounce
+}
+
 --Control ability usage
 addHook("AbilitySpecial",function(player)
 	local mo = player.mo
 	if not mo and mo.valid then return true end
 	if not(B.MidAirAbilityAllowed(player)) then return true end
-	--Fix metal sonic shield stuff
-	if player.charability == CA_FLOAT and (mo.state == S_PLAY_ROLL or player.secondjump == UINT8_MAX) then
-		return true
-	end
-	--Uncapped thok
-	if player.charability == CA_THOK then
-		if player.pflags&PF_THOKKED then return true end
-		local actionspd = FixedMul(mo.scale, player.actionspd) / B.WaterFactor(mo)
-		if (player.speed > player.normalspeed*3) then --already fast enough
-			P_InstaThrust(mo, mo.angle, max(actionspd,player.speed-mo.momz))
-		else
-			P_InstaThrust(mo, mo.angle, max(actionspd,player.speed))
-		end
-		
-		S_StartSound(mo, sfx_thok)
-		if player.speed > (actionspd+FRACUNIT) then
-			local circle = P_SpawnMobjFromMobj(mo, 0, 0, P_MobjFlip(mo)*(mo.scale * 24), MT_THOK)
-			circle.sprite = SPR_STAB
-			circle.frame =  TR_TRANS50|FF_PAPERSPRITE|_G["A"]
-			circle.angle = mo.angle + ANGLE_90
-			circle.fuse = 7
-			circle.scale = mo.scale / 3
-			circle.destscale = 10*mo.scale
-			circle.colorized = true
-			circle.color = mo.color
-			circle.momx = -mo.momx / 2
-			circle.momy = -mo.momy / 2
-			S_StartSound(mo, sfx_dash)
-			if (player == displayplayer) then
-				P_StartQuake(9*FRACUNIT, 2)
-			end
-		else
-			P_SpawnThokMobj(player)
-		end
-		player.drawangle = mo.angle
-		
-		player.pflags = $|PF_THOKKED &~ PF_SPINNING
-		return true
-	end
-	if player.charability == CA_BOUNCE then
-		if player.pflags&PF_THOKKED then return true end
-		mo.state = S_PLAY_BOUNCE
-		player.pflags = $ & ~(PF_JUMPED|PF_NOJUMPDAMAGE)
-		player.pflags = $ | (PF_THOKKED|PF_BOUNCING)
-		return true
-	end
+
+	local handler = B.AbilityHandlers[player.charability]
+    if handler then
+        return handler(player, mo)
+    end
 end)
 
 B.EmergencyWhirlWindJump = function(player)
