@@ -117,6 +117,7 @@ end)
 addHook("PlayerThink", function(player)
 	B.GlideSound(player)
 	B.AutoSpectator(player)
+	B.DiminishingMomentum(player)
 	-- Spring checks (Should this be dropped in `Exec_Springs.lua`?)
 	if player.mo and player.mo.valid then
 		player.suicide_watch = true // is this joke too dark?
