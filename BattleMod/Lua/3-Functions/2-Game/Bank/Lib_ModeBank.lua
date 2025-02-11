@@ -875,29 +875,29 @@ local getBase = function(player)
 end
 
 local highValueSparkle = function(player)
-	if leveltime % 2
-		local w = player.mo.radius>>FRACBITS
-		local h = player.mo.height>>FRACBITS
-		local x = P_RandomRange(-w, w) * FRACUNIT
-		local y = P_RandomRange(-w, w) * FRACUNIT
-		local z = P_RandomRange(0, h) * FRACUNIT
--- 		local fx = P_SpawnMobjFromMobj(player.mo, x, y, z, MT_BOXSPARKLE)
-		local fx = P_SpawnMobjFromMobj(player.mo, x, y, z, MT_BOXSPARKLE)
-		if fx and fx.valid
-			fx.scale = $>>1
-			fx.fuse = P_RandomRange(10, 65)
-			local spd = FixedMul(fx.scale, P_RandomRange(0, FRACUNIT-1))
-			local angle = FixedAngle(P_RandomRange(0, 259)*FRACUNIT)
-			P_Thrust(fx, angle, spd)
-			P_SetObjectMomZ(fx, P_RandomRange(0, FRACUNIT-1), true)
--- 			if P_RandomChance(FRACUNIT>>2)
-				fx.colorized = true
-				fx.color = SKINCOLOR_GOLD
--- 			end
-			if player == displayplayer
-				fx.flags2 = $|MF2_SHADOW|FF_ADD
-			end
-		end
+	if leveltime % 2 then return end
+
+	local w = player.mo.radius>>FRACBITS
+	local h = player.mo.height>>FRACBITS
+	local x = P_RandomRange(-w, w) * FRACUNIT
+	local y = P_RandomRange(-w, w) * FRACUNIT
+	local z = P_RandomRange(0, h) * FRACUNIT
+-- 	local fx = P_SpawnMobjFromMobj(player.mo, x, y, z, MT_BOXSPARKLE)
+	local fx = P_SpawnMobjFromMobj(player.mo, x, y, z, MT_BOXSPARKLE)
+	if not (fx and fx.valid) then
+		return
+	end
+
+	fx.scale = $>>1
+	fx.fuse = P_RandomRange(10, 65)
+	local spd = FixedMul(fx.scale, P_RandomRange(0, FRACUNIT-1))
+	local angle = FixedAngle(P_RandomRange(0, 259)*FRACUNIT)
+	P_Thrust(fx, angle, spd)
+	P_SetObjectMomZ(fx, P_RandomRange(0, FRACUNIT-1), true)
+	fx.colorized = true
+	fx.color = SKINCOLOR_GOLD
+	if player == displayplayer then
+		fx.flags2 = $|MF2_SHADOW|FF_ADD
 	end
 end
 
@@ -1009,7 +1009,12 @@ C.ThinkFrame = function()
 			
 
 		if player.mo and player.rings >= BANK_RINGLIMIT
+			if not S_SoundPlaying(player.mo, sfx_shimr) then
+				S_StartSoundAtVolume(player.mo, sfx_shimr, 125)
+			end
 			highValueSparkle(player)
+		elseif S_SoundPlaying(player.mo, sfx_shimr) then
+			S_StopSoundByID(player.mo, sfx_shimr)
 		end
 		if player.mo and player.mo.health and not player.powers[pw_flashing]
 			local base = getBase(player)
