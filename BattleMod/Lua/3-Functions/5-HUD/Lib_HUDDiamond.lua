@@ -33,7 +33,7 @@ end
 
 D.HUD = function(v, player, cam)
 	local id = D.Diamond
-	if not (B.HUDMain) then return end
+	if not (B.HUDMain and B.DiamondGametype()) then return end
 	if D.SpawnGrace then --whatever...
 		local xoff = 320/2
 		local yoff = 24
