@@ -488,8 +488,9 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		mo.state = S_PLAY_WALK
 -- 		player.dashmode = TICRATE*3
 		mo.frame = 0
-		mo.sprite = SPR_METL
-		mo.frame = _G["S"]
+		mo.sprite = SPR_PLAY
+		mo.sprite2 = SPR2_MSC2
+		mo.frame = 0
 		player.drawangle = mo.angle
 		player.pflags = ($|PF_JUMPED)&~PF_NOJUMPDAMAGE
 		P_SetObjectMomZ(mo,FRACUNIT/2,false) //Rise slowly

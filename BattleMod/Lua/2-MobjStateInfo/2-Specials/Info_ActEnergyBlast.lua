@@ -1,7 +1,8 @@
 freeslot(
 	'mt_energyblast',
 	'mt_energyaura',
-	'mt_energygather'
+	'mt_energygather',
+	'SPR2_MSC2'
 )
 
 //Metal Sonic's Energy Blast
