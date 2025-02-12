@@ -435,9 +435,6 @@ A.Exiting = function()
 				end
 				if player.exiting then continue end
 				P_DoPlayerExit(player)
-				if player == consoleplayer then
-					ALTMUSIC_LOCAL.block_restoremusic = false
-				end
 			end
 		end
 	end
