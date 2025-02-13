@@ -31,9 +31,10 @@ addHook("MobjMoveBlocked", function(pmo)
 		if CBW_Battle and 
 		CBW_Battle.SkinVars[pmo.skin] and 
 		CBW_Battle.SkinVars[pmo.skin].func_ledgegrab and
-		type(CBW_Battle.SkinVars[pmo.skin].func_ledgegrab) == "function" and
-		CBW_Battle.SkinVars[pmo.skin].func_ledgegrab(player) then
-			return true
+		type(CBW_Battle.SkinVars[pmo.skin].func_ledgegrab) == "function" then
+			if CBW_Battle.SkinVars[pmo.skin].func_ledgegrab(player) then
+				return
+			end
 		else
 			return
 		end
