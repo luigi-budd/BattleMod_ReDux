@@ -206,7 +206,7 @@ local function free(mo)
 	mo.idle = idletics
 end
 
-local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
+local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/Topaz code here
 
 
 	if not(mo and mo.valid and toucher and toucher.valid) then
@@ -241,6 +241,10 @@ local function touchChaosRing(mo, toucher) --Going to copy Ruby/Topaz code here
 	local sameTeam = ((toucherCTFTeam == previousTargetCTFTeam) or (toucherCTFTeam == mo.captureteam))
 
 	if (toucher ~= C.RedBank) and (toucher ~= C.BlueBank) and not(toucher.player) then
+		return true
+	end
+
+	if previousTarget and not(playercansteal) then
 		return true
 	end
 
@@ -419,7 +423,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 	-- Owner has been pushed by another player
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
 	and mo.target.pushed_last and mo.target.pushed_last.valid
-		touchChaosRing(mo,mo.target.pushed_last)
+		touchChaosRing(mo,mo.target.pushed_last, true)
 	end
 	
 	-- Owner has taken damage or has gone missing
