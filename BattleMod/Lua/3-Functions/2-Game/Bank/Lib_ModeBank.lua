@@ -962,37 +962,36 @@ C.ThinkFrame = function()
 
 		player.rings = min($, BANK_RINGLIMIT)
 
-		if player.mo and player.mo.valid and player.gotmaxrings then
-			if not(player.mo.btagpointer and player.mo.btagpointer.valid) then
-				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
-			end
-			if player.mo.btagpointer and player.mo.btagpointer.valid then
-				player.mo.btagpointer.tracer = player.mo
-				player.mo.btagpointer.target = ({C.RedBank, C.BlueBank})[player.ctfteam]
-			end
-		end
-
-		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
-			if player.rings > 0 then
-				player.mo.momx = 0
-				player.mo.momy = 0
-				player.mo.momz = 0
-				P_MoveOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
-				baseTransaction(player, player.ctfteam)
-				player.powers[pw_flashing] = ($ and max($, 2)) or 2
-				player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
-				player.nodamage = ($ and max($, 2)) or 2
-				if player.mo.state != S_PLAY_ROLL then
-					player.mo.state = S_PLAY_ROLL
-				end
-			else
-				player.bank_depositing.playerDepositing = nil
-				player.bank_depositing = nil
-			end
-		end
-			
-
 		if player.mo and player.mo.valid then
+			if player.gotmaxrings then
+				if not(player.mo.btagpointer and player.mo.btagpointer.valid) then
+					player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+				end
+				if player.mo.btagpointer and player.mo.btagpointer.valid then
+					player.mo.btagpointer.tracer = player.mo
+					player.mo.btagpointer.target = ({C.RedBank, C.BlueBank})[player.ctfteam]
+				end
+			end
+
+			if player.bank_depositing and player.bank_depositing.valid then
+				if player.rings > 0 then
+					player.mo.momx = 0
+					player.mo.momy = 0
+					player.mo.momz = 0
+					P_MoveOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
+					baseTransaction(player, player.ctfteam)
+					player.powers[pw_flashing] = ($ and max($, 2)) or 2
+					player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
+					player.nodamage = ($ and max($, 2)) or 2
+					if player.mo.state != S_PLAY_ROLL then
+						player.mo.state = S_PLAY_ROLL
+					end
+				else
+					player.bank_depositing.playerDepositing = nil
+					player.bank_depositing = nil
+				end
+			end
+			
 			if player.rings >= BANK_RINGLIMIT
 				if not S_SoundPlaying(player.mo, sfx_shimr) then
 					S_StartSoundAtVolume(player.mo, sfx_shimr, 125)
@@ -1001,20 +1000,20 @@ C.ThinkFrame = function()
 			elseif S_SoundPlaying(player.mo, sfx_shimr) then
 				S_StopSoundByID(player.mo, sfx_shimr)
 			end
-		end
-		if player.mo and player.mo.health and not player.powers[pw_flashing]
-			local base = getBase(player)
-			if base == 1 -- Red base
-				if player.ctfteam == 1
-					redInRed = $+1
-				else
-					blueInRed = $+1
-				end
-			elseif base == 2 -- Blue base
-				if player.ctfteam == 1
-					redInBlue = $+1
-				else
-					blueInBlue = $+1
+			if player.mo.health and not player.powers[pw_flashing]
+				local base = getBase(player)
+				if base == 1 -- Red base
+					if player.ctfteam == 1
+						redInRed = $+1
+					else
+						blueInRed = $+1
+					end
+				elseif base == 2 -- Blue base
+					if player.ctfteam == 1
+						redInBlue = $+1
+					else
+						blueInBlue = $+1
+					end
 				end
 			end
 		end
