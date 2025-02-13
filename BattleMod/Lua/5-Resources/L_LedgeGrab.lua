@@ -27,12 +27,14 @@ addHook("MobjMoveBlocked", function(pmo)
 	if CBW_Battle and CBW_Battle.SkinVars[pmo.skin] and CBW_Battle.SkinVars[pmo.skin].noledgegrab then return end
 	if P_PlayerInPain(player) then return end
 	if player.powers[pw_carry] then return end
-	if pcall(do return CBW_Battle.SkinVars[pmo.skin].func_ledgegrab end) then
-		if CBW_Battle.SkinVars[pmo.skin].func_ledgegrab(player) then
+	if player.actionstate then
+		if pcall(do return CBW_Battle.SkinVars[pmo.skin].func_ledgegrab end) then
+			if CBW_Battle.SkinVars[pmo.skin].func_ledgegrab(player) then
+				return
+			end
+		else
 			return
 		end
-	elseif player.actionstate then 
-		return 
 	end
 	
 	if (player.isjettysyn or player.iseggrobo or player.revenge) then return end -- BattleMod
