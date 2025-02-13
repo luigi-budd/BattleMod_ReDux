@@ -28,10 +28,12 @@ addHook("MobjMoveBlocked", function(pmo)
 	if P_PlayerInPain(player) then return end
 	if player.powers[pw_carry] then return end
 	if player.actionstate then
-		if pcall(do return CBW_Battle.SkinVars[pmo.skin].func_ledgegrab end) then
-			if CBW_Battle.SkinVars[pmo.skin].func_ledgegrab(player) then
-				return
-			end
+		if CBW_Battle and 
+		CBW_Battle.SkinVars[pmo.skin] and 
+		CBW_Battle.SkinVars[pmo.skin].func_ledgegrab and
+		type(CBW_Battle.SkinVars[pmo.skin].func_ledgegrab) == "function" and
+		CBW_Battle.SkinVars[pmo.skin].func_ledgegrab(player) then
+			return true
 		else
 			return
 		end
