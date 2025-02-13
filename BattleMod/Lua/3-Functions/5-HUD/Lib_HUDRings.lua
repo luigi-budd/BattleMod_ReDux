@@ -291,10 +291,10 @@ B.RingsHUD = function(v, player, cam)
 				colormap = v.getColormap(TC_DEFAULT, SKINCOLOR_SILVER)
 			end
 			if colormap and not (player.gotflagdebuff) then
-				v.draw(x + action_offsetx, y - 1 + action_offsety, v.cachePatch("FLAGBT"), flags, colormap)
+				v.draw(x + action_offsetx, y-2 - (action_offsety*2), v.cachePatch("FLAGBT"), flags, colormap)
 				icon_offset = 10
 			end
-			v.drawString(x + icon_offset + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
+			v.drawString(x + icon_offset + action_offsetx, y-2 - (action_offsety*2), text, flags_hudtrans, "thin")
 			--action_offsety = $ + action_offsety_line
 		end
 		if (player.gotflagdebuff) then
@@ -444,7 +444,7 @@ B.RingsHUD = function(v, player, cam)
 
 	--AIR DODGE
 	if candodge then
-		if (P_IsObjectOnGround(mo) or player.action2text) and not (minimal_hud or player.gotflagdebuff) then
+		if P_IsObjectOnGround(mo) and not (minimal_hud) then
 			y = $-9
 		end
 		if player.dodgecooldown then
