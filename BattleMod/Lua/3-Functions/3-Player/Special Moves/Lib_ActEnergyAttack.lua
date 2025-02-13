@@ -35,7 +35,7 @@ local auraMobj = MT_RINGSPARKAURA
 local skinname = "metalsonic" --For frame colorization
 
 //Charge time thresholds
-local threshold1 = 6
+local threshold1 = 9
 local threshold2 = threshold1+26
 local state_charging = 1
 local state_energyblast = 2
