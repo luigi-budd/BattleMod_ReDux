@@ -247,6 +247,7 @@ local rubyPass = function(mo) --PreThinkFrame (For Tossflag)
 					mo.target.pass_indicator = P_SpawnMobjFromMobj(mo.target,0,0,P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7)),MT_LOCKONINF)
 					mo.target.pass_indicator.flags = MF_NOTHINK|MF_NOBLOCKMAP|MF_NOCLIP
 					mo.target.pass_indicator.flags2 = $|MF2_DONTDRAW
+					mo.target.pass_indicator.fuse = 2
 				end
 				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
 					P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, mo.target.z+(P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7))))
@@ -255,6 +256,7 @@ local rubyPass = function(mo) --PreThinkFrame (For Tossflag)
 					mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
 					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
 					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+					mo.target.pass_indicator.fuse = ($ and max($, 2)) or 2
 					if mo.target.player.ctfteam == displayplayer.ctfteam then
 						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
 					end
