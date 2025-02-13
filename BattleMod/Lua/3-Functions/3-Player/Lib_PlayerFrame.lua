@@ -239,6 +239,7 @@ B.PlayerPostThinkFrame = function(player)
 
 	local mo = player.mo
 	
+	-- Hitstun effects
 	if mo and mo.hitstun_tics
 		mo.hitstun_tics = max(0, $-1)
 		mo.flags = $|MF_NOTHINK
@@ -260,5 +261,10 @@ B.PlayerPostThinkFrame = function(player)
 			mo.flags = $ &~ MF_NOTHINK
 		end
 		return true
+	end
+
+	-- Dust devils interactions
+	if player.powers[pw_carry] == CR_DUSTDEVIL and player.actionstate and not (player.actionsuper) then
+		B.ResetPlayerProperties(player)
 	end
 end
