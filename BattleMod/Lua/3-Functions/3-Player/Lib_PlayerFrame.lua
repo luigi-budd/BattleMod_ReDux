@@ -73,24 +73,6 @@ B.PlayerThinkFrame = function(player)
 		player.autobalancing = nil
 	end
 
-	-- If not in pain but flashing, set it to 3*TICRATE - 1. 
-	--[[ DETAILS:
-		This is to fix the invincibility bug. The invincibility bug happens when marine deflects a cork
-		too close to an opponent. When this happens, marine hits the opponent and the deflected
-		projectile (e.g. a cork) simultaneously hits the opponent, causing them to have their
-		[pw_flashing] set to 3*TICRATE, but the 2nd collision (assuming it was e.g. a cork) 
-		"bumps" the player out of their pain state, causing them to go into e.g. a falling state.
-		As a result, the player stays with their [pw_flashing] stuck on 3*TICRATE, causing them to be invulnerable.
-
-		One solution to this would be to tell battle's bump code to prevent players from being 
-		pushed out of their pain state, as this can lead to the invincibility bug.
-	]]
-	--[[
-	if  player.powers[pw_flashing] == (3*TICRATE) and not (P_PlayerInPain(player) or player.playerstate) then
-		player.powers[pw_flashing] =  (3*TICRATE)-1 -- let's allow vanilla srb2 to do the ticking down itself
-	end
-	]] --hey dude this is already fixed in B.flashingnerf lmao ~lu
-
 	--gotta put this before the sanity checks...
 	if player.spentrings then
 		player.spentrings = max(0,$-1)
@@ -239,6 +221,7 @@ B.PlayerPostThinkFrame = function(player)
 
 	local mo = player.mo
 	
+	-- Hitstun effects
 	if mo and mo.hitstun_tics
 		mo.hitstun_tics = max(0, $-1)
 		mo.flags = $|MF_NOTHINK
@@ -260,5 +243,10 @@ B.PlayerPostThinkFrame = function(player)
 			mo.flags = $ &~ MF_NOTHINK
 		end
 		return true
+	end
+
+	-- Dust devils interactions
+	if player.powers[pw_carry] == CR_DUSTDEVIL and player.actionstate and not (player.actionsuper) then
+		B.ResetPlayerProperties(player)
 	end
 end

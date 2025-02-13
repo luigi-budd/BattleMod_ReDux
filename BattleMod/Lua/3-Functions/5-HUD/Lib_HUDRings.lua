@@ -62,6 +62,7 @@ B.RingsHUD = function(v, player, cam)
 		return
 	end
 	
+	local minimal_hud = CV.FindVarString("battleconfig_hud", "Minimal")
 	local V_HUDTRANSQUARTER = B.GetHudQuarterTrans(v)
 	local flags = V_PERPLAYER|V_SNAPTOBOTTOM|V_SNAPTOLEFT
 	local flags_hudtrans = V_PERPLAYER|V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTOLEFT
@@ -74,9 +75,13 @@ B.RingsHUD = function(v, player, cam)
 	elseif player.tumble then
 		shake = 2
 	end
+	local xshake = 0
+	local yshake = 0
 	if shake and not (paused or player.playerstate) then
-		x = $ + v.RandomRange(-shake,shake)
-		y = $ + v.RandomRange(-shake,shake)
+		xshake = v.RandomRange(-shake,shake)
+		yshake = v.RandomRange(-shake,shake)
+		x = $ + xshake
+		y = $ + yshake
 	end
 	local num_offsetx = 4
 	local num_offsety = -5
@@ -182,9 +187,12 @@ B.RingsHUD = function(v, player, cam)
 	end
 
 	if B.StunBreakAllowed(player) then
-		local text = CV.FindVarString("battleconfig_hud", "Minimal") and "" or "Stun Break"
+		local text = minimal_hud and "" or "Stun Break"
 		local cost = player.stunbreakcosttext
+		local noshake = false
+		local colormap = nil
 		if cost != nil and player.rings >= cost then
+			noshake = true
 			if leveltime % 3 == 0 then
 				text = "\x82" + $
 			elseif leveltime % 3 == 1 then
@@ -201,8 +209,13 @@ B.RingsHUD = function(v, player, cam)
 				cost = ""
 			end
 			text = "\x86" + $ + " \x85 "..cost
+			colormap = v.getColormap(TC_RAINBOW, SKINCOLOR_CARBON)
 		end
-		v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
+		patch = v.cachePatch("PARRYBT")
+		local x_for_readability = x + 9 + action_offsetx - (noshake and xshake or xshake/2)
+		local y_for_readability = y - 8 + action_offsety - (noshake and yshake or yshake/2)
+		v.draw(x_for_readability-9, y_for_readability, patch, flags, colormap)
+		v.drawString(x_for_readability+3, y_for_readability, text, flags_hudtrans, "thin")
 	elseif player.tumble then
 		--nothing
 	else
@@ -220,7 +233,7 @@ B.RingsHUD = function(v, player, cam)
 			v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 		else
 			local text = player.actiontext or player.lastactiontext or 0
-			if CV.FindVarString("battleconfig_hud", "Minimal") then
+			if minimal_hud then
 				text = player.actionstate and "--" or ""
 			end
 			if shaking and player.jumpstasistimer and player.strugglerings then
@@ -252,7 +265,7 @@ B.RingsHUD = function(v, player, cam)
 						end
 					end
 				end
-				if CV.FindVarString("battleconfig_hud", "Minimal") or tagguardcost then
+				if minimal_hud or tagguardcost then
 					v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
 				else
 					v.drawString(x + action_offsetx, y + action_offsety, text, flags_hudtrans, "thin")
@@ -260,7 +273,7 @@ B.RingsHUD = function(v, player, cam)
 				action_offsety = $ + action_offsety_line
 			end
 		end
-		if (player.action2text and not CV.FindVarString("battleconfig_hud", "Minimal")) then
+		if (player.action2text and not minimal_hud) then
 			local text = player.action2text
 			local textflags = player.action2textflags
 			local icon_offset = 0
@@ -386,7 +399,7 @@ B.RingsHUD = function(v, player, cam)
 	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1 and not player.deadtimer
 
 	x = $+20
-	y = $+10
+	y = $-6
 	
 	local canguard = (player.canguard
 		and CV.Guard.value
@@ -397,7 +410,7 @@ B.RingsHUD = function(v, player, cam)
 		and not player.guard
 		and not player.actionstate
 		and not (player.skidtime and player.powers[pw_nocontrol])
-		and not (mo.eflags & MFE_JUSTHITFLOOR)
+		--and not (mo.eflags & MFE_JUSTHITFLOOR)
 		and not (player.weapondelay and mo.state == S_PLAY_FIRE)
 		and leveltime > TICRATE*5/4
 	)
@@ -424,15 +437,14 @@ B.RingsHUD = function(v, player, cam)
 		guardtext = $ + "\x85" + " 10"
 	end*/
 	patch = v.cachePatch("PARRYBT")
-	if (canguard or guardoverride) and not (CV.FindVarString("battleconfig_hud", "Minimal")) then
-		v.draw(x-10,y,patch,flags)
-		v.drawString(x,y,guardtext,flags,"thin")
+	if (canguard or guardoverride) and not (minimal_hud) then
+		v.draw(x-5,y,patch,flags)
+		v.drawString(x+7,y,guardtext,flags,"thin")
 	end
 
 	--AIR DODGE
-	y = $-16
 	if candodge then
-		if (player.action2text and not (CV.FindVarString("battleconfig_hud", "Minimal") or player.gotflagdebuff)) then
+		if (P_IsObjectOnGround(mo) or player.action2text) and not (minimal_hud or player.gotflagdebuff) then
 			y = $-9
 		end
 		if player.dodgecooldown then
@@ -455,8 +467,18 @@ B.RingsHUD = function(v, player, cam)
 					y = $ + v.RandomRange(-1,1)
 				end
 				v.drawString(x-1,y-2,color+"!",flags,"thin")
+				flags = ($ & ~V_HUDTRANS) | V_HUDTRANSQUARTER
+				y = $-2
+			else
+				y = $-2
+				patch = v.cachePatch("DODGEBT")
+				flags = ($ & ~V_HUDTRANS) | V_HUDTRANSHALF
+				v.draw(x-4,y,patch,flags)
 			end
-		elseif not (CV.FindVarString("battleconfig_hud", "Minimal")) then
+			if player.airdodge == 0 and not (minimal_hud or P_IsObjectOnGround(mo)) then
+				v.drawString(x+7,y,"AIR DODGE",flags|V_YELLOWMAP,"thin")
+			end
+		elseif not (minimal_hud or P_IsObjectOnGround(mo)) then
 			patch = v.cachePatch("DODGEBT")
 			v.draw(x-5,y,patch,flags)
 			v.drawString(x+7,y,"AIR DODGE",flags|V_YELLOWMAP,"thin")
