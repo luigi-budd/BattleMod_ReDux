@@ -25,6 +25,17 @@ R.GameControl = function()
 	if R.ID == nil or not(R.ID.valid) then
 		R.SpawnRuby()
 	end
+	for player in players.iterate do
+		if player and player.mo and player.mo.valid then
+			if R.ID and R.ID.valid and not(player.mo.btagpointer) then
+				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
+				if player.mo.btagpointer and player.mo.btagpointer.valid then
+					player.mo.btagpointer.tracer = player.mo
+					player.mo.btagpointer.target = R.ID
+				end
+			end
+		end
+	end
 end
 
 R.Reset = function()
@@ -227,44 +238,33 @@ local capture = function(mo, player)
 	end
 end
 
-R.PreThinker = function()
-	if not(B.RubyGametype()) then return end
-	if R.ID and R.ID.valid and G_GametypeHasTeams() then
-		if R.ID.target and R.ID.target.valid and R.ID.target.player and R.ID.target.player.gotcrystal then
-			local btns = R.ID.target.player.cmd.buttons
-			if (btns&BT_TOSSFLAG) and R.ID.target.player.ctfteam == displayplayer.ctfteam then
-				P_SpawnLockOn(displayplayer, R.ID.target, S_LOCKON1)
-			end
-		end
-	end
-	for player in players.iterate do
-		if player and player.mo then
-			if R.ID and R.ID.valid and not(player.mo.btagpointer) then
-				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
-				if player.mo.btagpointer and player.mo.btagpointer.valid then
-					player.mo.btagpointer.tracer = player.mo
-					player.mo.btagpointer.target = R.ID
+local rubyPass = function(mo) --PreThinkFrame (For Tossflag)
+	if mo and mo.valid and G_GametypeHasTeams() then
+		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
+			local btns = mo.target.player.cmd.buttons
+			if (btns&BT_TOSSFLAG) then
+				if not(mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					mo.target.pass_indicator = P_SpawnMobjFromMobj(mo.target,0,0,P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7)),MT_LOCKONINF)
+					mo.target.pass_indicator.flags = MF_NOTHINK|MF_NOBLOCKMAP|MF_NOCLIP
+					mo.target.pass_indicator.flags2 = $|MF2_DONTDRAW
 				end
-			end
-			-- Press tossflag to toss ruby
-			
-			/*if (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())
-				if player.gotcrystal then
-					local mo = R.ID
-					S_StartSound(mo, sfx_toss)
-					B.PrintGameFeed(player," tossed the "..rubytext..".")
-					player.actioncooldown = TICRATE
-					player.gotcrystal = false
-					player.gotcrystal_time = 0
-					player.tossdelay = TICRATE*2
-					free(mo)
-					if not (mo and mo.valid) then continue end
-					mo.target = nil
-					P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
-					B.ZLaunch(mo,player.mo.scale*6)
-					P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, mo.target.z+(P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7))))
+					mo.target.pass_indicator.scale = mo.scale-(mo.scale/3)
+					mo.target.pass_indicator.frame = 0
+					mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
+					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
+					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+					if mo.target.player.ctfteam == displayplayer.ctfteam then
+						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
+					end
 				end
-			end*/
+			else
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_RemoveMobj(mo.target.pass_indicator)
+				end
+				mo.target.pass_indicator = nil
+			end
 		end
 	end
 end
@@ -545,6 +545,7 @@ R.Thinker = function(mo)
 	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
+	rubyPass(mo)
 	
 	local cvar_pointlimit = CV_FindVar("pointlimit").value
 	local cvar_overtime = CV_FindVar("overtime").value

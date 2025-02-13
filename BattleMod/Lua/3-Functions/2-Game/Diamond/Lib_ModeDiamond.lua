@@ -227,16 +227,27 @@ local function spawn_steal_sparks(mo, player, scale, speed, height, spawn_explos
 	end
 end
 
-D.Collect = function(mo,toucher)
-	if mo.target == toucher or not(toucher.player) then return end --This toucher has already collected the item, or is not a player
-	if P_PlayerInPain(toucher.player) or toucher.player.powers[pw_flashing] then return end --Can't touch if we've recently taken damage
-	if toucher.player.tossdelay then return end --Can't collect if tossflag is on cooldown
-	local previoustarget = mo.target
-	mo.lasttouched = previoustarget or toucher
-	if CV.DiamondDisableStealing.value == 1 and previoustarget ~= nil then return end
-	if previoustarget ~= nil and previoustarget.player.powers[pw_flashing] > 0 then return end
-	--if previoustarget ~= nil and (previoustarget.player.guard == 1 or previoustarget.player.guardtics > 0) then return end
+D.Collect = function(mo,toucher,playercansteal)
+	local diamondIsValid = (mo and mo.valid)
+	local targetIsValid = diamondIsValid and (mo.target and mo.target.valid)
+	local toucherIsValid = (toucher and toucher.valid)
+	local targetIsToucher = targetIsValid and toucherIsValid and (mo.target == toucher)
+	local toucherIsPlayer = toucherIsValid and toucher.player
+	local targetIsPlayer = targetIsValid and mo.target.player
+	local toucherIsPlayerInPain = toucherIsValid and toucherIsPlayer and P_PlayerInPain(toucher.player)
+	local toucherIsFlashing = toucherIsValid and toucherIsPlayer and toucher.player.powers[pw_flashing]
 
+	local teammatepass = (G_GametypeHasTeams() and (targetIsValid and toucherIsValid) and not(targetIsToucher) and (toucherIsPlayer and targetIsPlayer) and (toucher.player.ctfteam == mo.target.player.ctfteam) and (mo.target.player.cmd.buttons & BT_TOSSFLAG))
+
+	
+	if targetIsValid and toucherIsValid then
+		if toucherIsPlayer and targetIsPlayer then
+			if (toucherIsPlayerInPain) or (toucherIsFlashing) then return true end
+			if not(playercansteal or teammatepass) then return true end
+		end
+	end
+
+	local previoustarget = mo.target
 	mo.target = toucher
 	free(mo)
 	mo.idle = nil
@@ -279,6 +290,37 @@ D.Collect = function(mo,toucher)
 			--play_for_all_but_player(sfx_dmstl2, mo.target.player)
 		--end
 		B.PrintGameFeed(toucher.player," stole the "..diamondtext.." from ",previoustarget.player,"!")
+	end
+end
+
+local diamondPass = function(mo) --PreThinkFrame (For Tossflag)
+	if mo and mo.valid and G_GametypeHasTeams() then
+		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
+			local btns = mo.target.player.cmd.buttons
+			if (btns&BT_TOSSFLAG) then
+				if not(mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					mo.target.pass_indicator = P_SpawnMobjFromMobj(mo.target,0,0,P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7)),MT_LOCKONINF)
+					mo.target.pass_indicator.flags = MF_NOTHINK|MF_NOBLOCKMAP|MF_NOCLIP
+					mo.target.pass_indicator.flags2 = $|MF2_DONTDRAW
+				end
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, mo.target.z+(P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7))))
+					mo.target.pass_indicator.scale = mo.scale-(mo.scale/3)
+					mo.target.pass_indicator.frame = 0
+					mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
+					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
+					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+					if mo.target.player.ctfteam == displayplayer.ctfteam then
+						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
+					end
+				end
+			else
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_RemoveMobj(mo.target.pass_indicator)
+				end
+				mo.target.pass_indicator = nil
+			end
+		end
 	end
 end
 
@@ -386,6 +428,7 @@ D.Thinker = function(mo)
 	end
 	mo.frame = $|FF_FULLBRIGHT
 	mo.angle = $+rotatespd
+
 	for player in players.iterate
 		if not player.mo then continue end
 		if D.Diamond and D.Diamond.valid and not(player.mo.btagpointer) then
@@ -396,7 +439,7 @@ D.Thinker = function(mo)
 			end
 		end
 		if player.mo == mo.target then
-			if player.cmd.buttons&BT_TOSSFLAG and not(player.tossdelay) then
+			/*if player.cmd.buttons&BT_TOSSFLAG and not(player.tossdelay) then
 				free(mo)
 				mo.target = nil
 				player.actioncooldown = TICRATE
@@ -406,12 +449,12 @@ D.Thinker = function(mo)
 				P_InstaThrust(mo,player.mo.angle,FRACUNIT*5)
 				P_SetObjectMomZ(mo,FRACUNIT*10)
 				player.tossdelay = TICRATE*2
-			else
+			else*/
 				player.gotcrystal = true
 				--points(player)
 				--player.gotcrystal_time = $ + 1
 				-- Add capture point code here..?
-			end
+			--end
 		else
 			player.gotcrystal = false
 			player.gotcrystal_time = 0
@@ -421,7 +464,7 @@ D.Thinker = function(mo)
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
 	and mo.target.pushed_last and mo.target.pushed_last.valid
 	and CV.DiamondDisableStealing.value == 0 then
-		D.Collect(mo,mo.target.pushed_last)
+		D.Collect(mo,mo.target.pushed_last,true)
 	end
 	
 	--Owner has taken damage or has gone missing
@@ -467,6 +510,7 @@ D.Thinker = function(mo)
 	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) --Do z pos while respecting level geometry
+	diamondPass(mo)
 end
 
 D.CapturePointThinker = function(mo)
