@@ -16,6 +16,7 @@ S[-1] = {
 	func_collide = nil,
 	func_postcollide = nil,
 	func_exhaust = nil,
+	func_ledgegrab = nil,
 	sprites = {},
 	supersprites = false,
 	noledgegrab = false,
