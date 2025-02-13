@@ -238,13 +238,13 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	
 
 	--Combinations
-	local sameTeam = ((toucherCTFTeam == previousTargetCTFTeam) or (toucherCTFTeam == mo.captureteam))
+	local sameTeam = ((toucherCTFTeam == previousTargetCTFTeam) or (toucherCTFTeam == mo.captureteam)) and mo.target.player.cmd.buttons & BT_TOSSFLAG
 
 	if (toucher ~= C.RedBank) and (toucher ~= C.BlueBank) and not(toucher.player) then
 		return true
 	end
 
-	if previousTarget and not(playercansteal) then
+	if previousTarget and not(playercansteal or sameTeam or not(toucherIsPlayer)) then
 		return true
 	end
 
@@ -252,8 +252,7 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	or toucherIsPlayerInPain 
 	or toucherIsFlashing 
 	or toucherTossdelay 
-	or toucherHasCrystal
-	or sameTeam then
+	or toucherHasCrystal then
 		return true
 	end
 
@@ -396,9 +395,41 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 	end
 end
 
+local chaosRingPass = function(mo) --PreThinkFrame (For Tossflag)
+	if mo and mo.valid and G_GametypeHasTeams() then
+		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
+			local btns = mo.target.player.cmd.buttons
+			if (btns&BT_TOSSFLAG) then
+				if not(mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					mo.target.pass_indicator = P_SpawnMobjFromMobj(mo.target,0,0,P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7)),MT_LOCKONINF)
+					mo.target.pass_indicator.flags = MF_NOTHINK|MF_NOBLOCKMAP|MF_NOCLIP
+					mo.target.pass_indicator.flags2 = $|MF2_DONTDRAW
+				end
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, mo.target.z+(P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7))))
+					mo.target.pass_indicator.scale = mo.scale-(mo.scale/3)
+					mo.target.pass_indicator.frame = 0
+					mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
+					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
+					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+					if mo.target.player.ctfteam == displayplayer.ctfteam then
+						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
+					end
+				end
+			else
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_RemoveMobj(mo.target.pass_indicator)
+				end
+				mo.target.pass_indicator = nil
+			end
+		end
+	end
+end
+
 local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 
+	chaosRingPass(mo)
 	mo.shadowscale = FRACUNIT>>1
 
 	if mo.beingstolen and (
@@ -566,36 +597,6 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		end
 	end
 	--End Floor VFX
-end
-
-local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
-	-- Press tossflag to toss ruby
-	if not(mo.target and mo.target.valid and mo.target.player) then return end
-	local player = mo.target.player
-	local btns = player.cmd.buttons
-	if CHAOSRING_CANTOSS and (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())
-		if player.gotcrystal then
-			S_StartSound(mo, sfx_toss)
-			B.PrintGameFeed(player," tossed a "..CHAOSRING_TEXT(mo.chaosring_num)..".")
-			player.actioncooldown = TICRATE
-			player.gotcrystal = false
-			player.gotcrystal_time = 0
-			player.tossdelay = TICRATE*2
-			mo.beingstolen = nil
-			mo.captured = nil
-			player.mo.chaosring_stealing = nil
-			player.mo.chaosring_capturing = nil
-			player.mo.chaosring_tosteal = nil
-			player.mo.chaosring = nil
-			free(mo)
-			if not (mo and mo.valid) then return end
-			mo.target = nil
-			mo.captured = nil
-			P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
-			B.ZLaunch(mo,player.mo.scale*6)
-			P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
-		end
-	end
 end
 
 local function deleteChaosRing(chaosring) --Special Behavior upon Removal
@@ -982,57 +983,58 @@ C.ThinkFrame = function()
 
 		player.rings = min($, BANK_RINGLIMIT)
 
-		if player.mo and player.mo.valid and player.gotmaxrings then
-			if not(player.mo.btagpointer and player.mo.btagpointer.valid) then
-				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
-			end
-			if player.mo.btagpointer and player.mo.btagpointer.valid then
-				player.mo.btagpointer.tracer = player.mo
-				player.mo.btagpointer.target = ({C.RedBank, C.BlueBank})[player.ctfteam]
-			end
-		end
-
-		if player.mo and player.mo.valid and player.bank_depositing and player.bank_depositing.valid then
-			if player.rings > 0 then
-				player.mo.momx = 0
-				player.mo.momy = 0
-				player.mo.momz = 0
-				P_MoveOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
-				baseTransaction(player, player.ctfteam)
-				player.powers[pw_flashing] = ($ and max($, 2)) or 2
-				player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
-				player.nodamage = ($ and max($, 2)) or 2
-				if player.mo.state != S_PLAY_ROLL then
-					player.mo.state = S_PLAY_ROLL
+		if player.mo and player.mo.valid then
+			if player.gotmaxrings then
+				if not(player.mo.btagpointer and player.mo.btagpointer.valid) then
+					player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
 				end
-			else
-				player.bank_depositing.playerDepositing = nil
-				player.bank_depositing = nil
-			end
-		end
-			
-
-		if player.mo and player.rings >= BANK_RINGLIMIT
-			if not S_SoundPlaying(player.mo, sfx_shimr) then
-				S_StartSoundAtVolume(player.mo, sfx_shimr, 125)
-			end
-			highValueSparkle(player)
-		elseif S_SoundPlaying(player.mo, sfx_shimr) then
-			S_StopSoundByID(player.mo, sfx_shimr)
-		end
-		if player.mo and player.mo.health and not player.powers[pw_flashing]
-			local base = getBase(player)
-			if base == 1 -- Red base
-				if player.ctfteam == 1
-					redInRed = $+1
-				else
-					blueInRed = $+1
+				if player.mo.btagpointer and player.mo.btagpointer.valid then
+					player.mo.btagpointer.tracer = player.mo
+					player.mo.btagpointer.target = ({C.RedBank, C.BlueBank})[player.ctfteam]
 				end
-			elseif base == 2 -- Blue base
-				if player.ctfteam == 1
-					redInBlue = $+1
+			end
+
+			if player.bank_depositing and player.bank_depositing.valid then
+				if player.rings > 0 then
+					player.mo.momx = 0
+					player.mo.momy = 0
+					player.mo.momz = 0
+					P_MoveOrigin(player.mo, player.bank_depositing.x, player.bank_depositing.y, player.bank_depositing.z)
+					baseTransaction(player, player.ctfteam)
+					player.powers[pw_flashing] = ($ and max($, 2)) or 2
+					player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
+					player.nodamage = ($ and max($, 2)) or 2
+					if player.mo.state != S_PLAY_ROLL then
+						player.mo.state = S_PLAY_ROLL
+					end
 				else
-					blueInBlue = $+1
+					player.bank_depositing.playerDepositing = nil
+					player.bank_depositing = nil
+				end
+			end
+
+			if player.rings >= BANK_RINGLIMIT
+				if not S_SoundPlaying(player.mo, sfx_shimr) then
+					S_StartSoundAtVolume(player.mo, sfx_shimr, 125)
+				end
+				highValueSparkle(player)
+			elseif S_SoundPlaying(player.mo, sfx_shimr) then
+				S_StopSoundByID(player.mo, sfx_shimr)
+			end
+			if player.mo.health and not player.powers[pw_flashing]
+				local base = getBase(player)
+				if base == 1 -- Red base
+					if player.ctfteam == 1
+						redInRed = $+1
+					else
+						blueInRed = $+1
+					end
+				elseif base == 2 -- Blue base
+					if player.ctfteam == 1
+						redInBlue = $+1
+					else
+						blueInBlue = $+1
+					end
 				end
 			end
 		end

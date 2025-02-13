@@ -76,7 +76,7 @@ addHook("PreThinkFrame", function()
 	I.GameControl()
 	B.PinchControl()
 	B.TagControl()
-	CR.PreThinkFrame()
+	--CR.PreThinkFrame()
 	//Player control
 	for player in players.iterate
 		if player.deadtimer < 0 and player.deadtimer >= -TICRATE then player.deadtimer = 0 end
