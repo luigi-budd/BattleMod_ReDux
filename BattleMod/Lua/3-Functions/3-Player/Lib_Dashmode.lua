@@ -129,7 +129,7 @@ local dash_overlayThink = function(mo) --MobjThinker
 	if not(mo and mo.valid and mo.tracer and mo.tracer.valid and mo.tracer.player) or mo.dying then
 		return
 	end
-	if B.MyTeam(mo.tracer.player, displayplayer) or (mo.tracer.player == displayplayer) or (splitscreen and (mo.tracer.player == secondarydisplayplayer)) then
+	if (displayplayer and (B.MyTeam(mo.tracer.player, displayplayer)) or (mo.tracer.player == displayplayer) or) (splitscreen and secondarydisplayplayer and (mo.tracer.player == secondarydisplayplayer)) then
 		mo.flags2 = $|MF2_DONTDRAW
 	end
 	dash_overlayVars(mo, mo.tracer.player)

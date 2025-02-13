@@ -414,7 +414,7 @@ local chaosRingPass = function(mo) --PreThinkFrame (For Tossflag)
 					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
 					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
 					mo.target.pass_indicator.fuse = ($ and max($, 2)) or 2
-					if mo.target.player.ctfteam == displayplayer.ctfteam then
+					if displayplayer and (mo.target.player.ctfteam == displayplayer.ctfteam) then
 						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
 					end
 				end
@@ -501,7 +501,6 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
-		local auto = (mo.target.player.pflags & PF_DIRECTIONCHAR) and (mo.target.player.pflags & PF_ANALOGMODE)
 		--chprint(t.player)
 		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+server.GlobalAngle) or mo.angle
 		local dist = mo.target.radius*3

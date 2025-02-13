@@ -312,7 +312,7 @@ local diamondPass = function(mo) --PreThinkFrame (For Tossflag)
 					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
 					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
 					mo.target.pass_indicator.fuse = ($ and max($, 2)) or 2
-					if mo.target.player.ctfteam == displayplayer.ctfteam then
+					if displayplayer and (mo.target.player.ctfteam == displayplayer.ctfteam) then
 						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
 					end
 				end
