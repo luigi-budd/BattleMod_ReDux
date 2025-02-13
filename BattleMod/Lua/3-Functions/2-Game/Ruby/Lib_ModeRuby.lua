@@ -109,21 +109,33 @@ R.SpawnRuby = function()
 	end
 end
 
-R.Collect = function(mo,toucher)
-	if mo.target == toucher or not(toucher.player) -- This toucher has already collected the item, or is not a player
-	or P_PlayerInPain(toucher.player) or toucher.player.powers[pw_flashing] -- Can't touch if we've recently taken damage
-	or toucher.player.tossdelay -- Can't collect if tossflag is on cooldown
-		return
+R.Collect = function(mo,toucher,playercansteal)
+
+	local rubyIsValid = (mo and mo.valid)
+	local targetIsValid = rubyIsValid and (mo.target and mo.target.valid)
+	local toucherIsValid = (toucher and toucher.valid)
+	local targetIsToucher = targetIsValid and toucherIsValid and (mo.target == toucher)
+	local toucherIsPlayer = toucherIsValid and toucher.player
+	local targetIsPlayer = targetIsValid and mo.target.player
+	local toucherIsPlayerInPain = toucherIsValid and toucherIsPlayer and P_PlayerInPain(toucher.player)
+	local toucherIsFlashing = toucherIsValid and toucherIsPlayer and toucher.player.powers[pw_flashing]
+
+	local teammatepass = (G_GametypeHasTeams() and (targetIsValid and toucherIsValid) and not(targetIsToucher) and (toucherIsPlayer and targetIsPlayer) and (toucher.player.ctfteam == mo.target.player.ctfteam) and (mo.target.player.cmd.buttons & BT_TOSSFLAG))
+
+	
+	if targetIsValid and toucherIsValid then
+		if toucherIsPlayer and targetIsPlayer then
+			if (toucherIsPlayerInPain) or (toucherIsFlashing) then return true end
+			if not(playercansteal or teammatepass) then return true end
+		end
 	end
-	if mo.target and mo.target.valid then
-		mo.lasttouched = mo.target
-	else
-		mo.lasttouched = toucher
-	end
+
+
+	if not(rubyIsValid) then return true end
+	if not(toucherIsValid) then return true end
+
+	mo.lasttouched = (targetIsValid and mo.target)
 	local previoustarget = mo.target
-	if (G_GametypeHasTeams() and previoustarget and previoustarget.player and (previoustarget.player.ctfteam == toucher.player.ctfteam))
-		return
-	end
 	mo.target = toucher
 	free(mo)
 	mo.idle = nil
@@ -217,6 +229,14 @@ end
 
 R.PreThinker = function()
 	if not(B.RubyGametype()) then return end
+	if R.ID and R.ID.valid and G_GametypeHasTeams() then
+		if R.ID.target and R.ID.target.valid and R.ID.target.player and R.ID.target.player.gotcrystal then
+			local btns = R.ID.target.player.cmd.buttons
+			if (btns&BT_TOSSFLAG) and R.ID.target.player.ctfteam == displayplayer.ctfteam then
+				P_SpawnLockOn(displayplayer, R.ID.target, S_LOCKON1)
+			end
+		end
+	end
 	for player in players.iterate do
 		if player and player.mo then
 			if R.ID and R.ID.valid and not(player.mo.btagpointer) then
@@ -227,8 +247,8 @@ R.PreThinker = function()
 				end
 			end
 			-- Press tossflag to toss ruby
-			local btns = player.cmd.buttons
-			if (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())
+			
+			/*if (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())
 				if player.gotcrystal then
 					local mo = R.ID
 					S_StartSound(mo, sfx_toss)
@@ -244,7 +264,7 @@ R.PreThinker = function()
 					B.ZLaunch(mo,player.mo.scale*6)
 					P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
 				end
-			end
+			end*/
 		end
 	end
 end
@@ -254,7 +274,7 @@ R.Thinker = function(mo)
 
 	//Determine toss blink
 	local tossblink = 0
-	if mo.lasttouched and mo.lasttouched.player then
+	if mo.lasttouched and mo.lasttouched.valid and mo.lasttouched.player then
 		tossblink = mo.lasttouched.player.tossdelay
 	end
 
@@ -428,7 +448,7 @@ R.Thinker = function(mo)
 	-- Owner has been pushed by another player
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
 	and mo.target.pushed_last and mo.target.pushed_last.valid
-		R.Collect(mo,mo.target.pushed_last)
+		R.Collect(mo,mo.target.pushed_last, true)
 	end
 	
 	-- Owner has taken damage or has gone missing
