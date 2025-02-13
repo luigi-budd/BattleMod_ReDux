@@ -496,7 +496,7 @@ D.Thinker = function(mo)
 	--Claimed behavior
 	mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 	local t = mo.target
-	local ang = mo.angle + t.angle
+	local ang = mo.angle
 	local dist = mo.target.radius*3
 	local x = t.x+P_ReturnThrustX(mo,ang,dist)
 	local y = t.y+P_ReturnThrustY(mo,ang,dist)

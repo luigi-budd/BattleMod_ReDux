@@ -447,7 +447,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 	else
 		mo.flags2 = $&~MF2_DONTDRAW
 	end
-	
+
 	--Set internal angle
 	mo.angle = $+rotatespd
 	
@@ -499,6 +499,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
+		local auto = (mo.target.player.pflags & PF_DIRECTIONCHAR) and (mo.target.player.pflags & PF_ANALOGMODE)
 		--chprint(t.player)
 		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+server.GlobalAngle) or mo.angle
 		local dist = mo.target.radius*3
