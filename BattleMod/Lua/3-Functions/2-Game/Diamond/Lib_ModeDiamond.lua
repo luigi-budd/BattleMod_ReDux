@@ -787,7 +787,7 @@ D.DiamondIndicatorThinker = function()
 
 	end
 
-	if noplayershadcrystal or CV.DiamondIndicator.value == 0 then
+	if indicator.valid and (noplayershadcrystal or CV.DiamondIndicator.value == 0) then
 		indicator.flags2 = MF2_DONTDRAW
 	end
 end
