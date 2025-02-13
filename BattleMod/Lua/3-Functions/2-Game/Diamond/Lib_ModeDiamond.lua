@@ -293,6 +293,37 @@ D.Collect = function(mo,toucher,playercansteal)
 	end
 end
 
+local diamondPass = function(mo) --PreThinkFrame (For Tossflag)
+	if mo and mo.valid and G_GametypeHasTeams() then
+		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
+			local btns = mo.target.player.cmd.buttons
+			if (btns&BT_TOSSFLAG) then
+				if not(mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					mo.target.pass_indicator = P_SpawnMobjFromMobj(mo.target,0,0,P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7)),MT_LOCKONINF)
+					mo.target.pass_indicator.flags = MF_NOTHINK|MF_NOBLOCKMAP|MF_NOCLIP
+					mo.target.pass_indicator.flags2 = $|MF2_DONTDRAW
+				end
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, mo.target.z+(P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7))))
+					mo.target.pass_indicator.scale = mo.scale-(mo.scale/3)
+					mo.target.pass_indicator.frame = 0
+					mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
+					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
+					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+					if mo.target.player.ctfteam == displayplayer.ctfteam then
+						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
+					end
+				end
+			else
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_RemoveMobj(mo.target.pass_indicator)
+				end
+				mo.target.pass_indicator = nil
+			end
+		end
+	end
+end
+
 
 D.Thinker = function(mo)
 	mo.shadowscale = FRACUNIT>>2
@@ -398,15 +429,6 @@ D.Thinker = function(mo)
 	mo.frame = $|FF_FULLBRIGHT
 	mo.angle = $+rotatespd
 
-	if mo and mo.valid and G_GametypeHasTeams() then
-		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
-			local btns = mo.target.player.cmd.buttons
-			if (btns&BT_TOSSFLAG) and mo.target.player.ctfteam == displayplayer.ctfteam then
-				P_SpawnLockOn(displayplayer, mo.target, S_LOCKON1)
-			end
-		end
-	end
-
 	for player in players.iterate
 		if not player.mo then continue end
 		if D.Diamond and D.Diamond.valid and not(player.mo.btagpointer) then
@@ -488,6 +510,7 @@ D.Thinker = function(mo)
 	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) --Do z pos while respecting level geometry
+	diamondPass(mo)
 end
 
 D.CapturePointThinker = function(mo)

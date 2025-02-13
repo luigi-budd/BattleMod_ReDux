@@ -395,9 +395,41 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 	end
 end
 
+local chaosRingPass = function(mo) --PreThinkFrame (For Tossflag)
+	if mo and mo.valid and G_GametypeHasTeams() then
+		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
+			local btns = mo.target.player.cmd.buttons
+			if (btns&BT_TOSSFLAG) then
+				if not(mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					mo.target.pass_indicator = P_SpawnMobjFromMobj(mo.target,0,0,P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7)),MT_LOCKONINF)
+					mo.target.pass_indicator.flags = MF_NOTHINK|MF_NOBLOCKMAP|MF_NOCLIP
+					mo.target.pass_indicator.flags2 = $|MF2_DONTDRAW
+				end
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, mo.target.z+(P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7))))
+					mo.target.pass_indicator.scale = mo.scale-(mo.scale/3)
+					mo.target.pass_indicator.frame = 0
+					mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
+					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
+					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+					if mo.target.player.ctfteam == displayplayer.ctfteam then
+						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
+					end
+				end
+			else
+				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
+					P_RemoveMobj(mo.target.pass_indicator)
+				end
+				mo.target.pass_indicator = nil
+			end
+		end
+	end
+end
+
 local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 
+	chaosRingPass(mo)
 	mo.shadowscale = FRACUNIT>>1
 
 	if mo.beingstolen and (
@@ -565,17 +597,6 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		end
 	end
 	--End Floor VFX
-end
-
-local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
-	if mo and mo.valid and G_GametypeHasTeams() then
-		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
-			local btns = mo.target.player.cmd.buttons
-			if (btns&BT_TOSSFLAG) and mo.target.player.ctfteam == displayplayer.ctfteam then
-				P_SpawnLockOn(displayplayer, mo.target, S_LOCKON1)
-			end
-		end
-	end
 end
 
 local function deleteChaosRing(chaosring) --Special Behavior upon Removal
@@ -991,7 +1012,7 @@ C.ThinkFrame = function()
 					player.bank_depositing = nil
 				end
 			end
-			
+
 			if player.rings >= BANK_RINGLIMIT
 				if not S_SoundPlaying(player.mo, sfx_shimr) then
 					S_StartSoundAtVolume(player.mo, sfx_shimr, 125)
