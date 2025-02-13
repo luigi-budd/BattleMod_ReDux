@@ -238,13 +238,13 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	
 
 	--Combinations
-	local sameTeam = ((toucherCTFTeam == previousTargetCTFTeam) or (toucherCTFTeam == mo.captureteam))
+	local sameTeam = ((toucherCTFTeam == previousTargetCTFTeam) or (toucherCTFTeam == mo.captureteam)) and mo.target.player.cmd.buttons & BT_TOSSFLAG
 
 	if (toucher ~= C.RedBank) and (toucher ~= C.BlueBank) and not(toucher.player) then
 		return true
 	end
 
-	if previousTarget and not(playercansteal) then
+	if previousTarget and not(playercansteal or sameTeam or not(toucherIsPlayer)) then
 		return true
 	end
 
@@ -252,8 +252,7 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	or toucherIsPlayerInPain 
 	or toucherIsFlashing 
 	or toucherTossdelay 
-	or toucherHasCrystal
-	or sameTeam then
+	or toucherHasCrystal then
 		return true
 	end
 
@@ -569,31 +568,12 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 end
 
 local chaosRingPreFunc = function(mo) --PreThinkFrame (For Tossflag)
-	-- Press tossflag to toss ruby
-	if not(mo.target and mo.target.valid and mo.target.player) then return end
-	local player = mo.target.player
-	local btns = player.cmd.buttons
-	if CHAOSRING_CANTOSS and (btns&BT_TOSSFLAG and not(player.powers[pw_carry] & CR_PLAYER) and not(player.powers[pw_super]) and not(player.tossdelay) and G_GametypeHasTeams())
-		if player.gotcrystal then
-			S_StartSound(mo, sfx_toss)
-			B.PrintGameFeed(player," tossed a "..CHAOSRING_TEXT(mo.chaosring_num)..".")
-			player.actioncooldown = TICRATE
-			player.gotcrystal = false
-			player.gotcrystal_time = 0
-			player.tossdelay = TICRATE*2
-			mo.beingstolen = nil
-			mo.captured = nil
-			player.mo.chaosring_stealing = nil
-			player.mo.chaosring_capturing = nil
-			player.mo.chaosring_tosteal = nil
-			player.mo.chaosring = nil
-			free(mo)
-			if not (mo and mo.valid) then return end
-			mo.target = nil
-			mo.captured = nil
-			P_MoveOrigin(mo,player.mo.x,player.mo.y,player.mo.z)
-			B.ZLaunch(mo,player.mo.scale*6)
-			P_InstaThrust(mo,player.mo.angle,player.mo.scale*15)
+	if mo and mo.valid and G_GametypeHasTeams() then
+		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
+			local btns = mo.target.player.cmd.buttons
+			if (btns&BT_TOSSFLAG) and mo.target.player.ctfteam == displayplayer.ctfteam then
+				P_SpawnLockOn(displayplayer, mo.target, S_LOCKON1)
+			end
 		end
 	end
 end
@@ -1012,13 +992,15 @@ C.ThinkFrame = function()
 		end
 			
 
-		if player.mo and player.rings >= BANK_RINGLIMIT
-			if not S_SoundPlaying(player.mo, sfx_shimr) then
-				S_StartSoundAtVolume(player.mo, sfx_shimr, 125)
+		if player.mo and player.mo.valid then
+			if player.rings >= BANK_RINGLIMIT
+				if not S_SoundPlaying(player.mo, sfx_shimr) then
+					S_StartSoundAtVolume(player.mo, sfx_shimr, 125)
+				end
+				highValueSparkle(player)
+			elseif S_SoundPlaying(player.mo, sfx_shimr) then
+				S_StopSoundByID(player.mo, sfx_shimr)
 			end
-			highValueSparkle(player)
-		elseif S_SoundPlaying(player.mo, sfx_shimr) then
-			S_StopSoundByID(player.mo, sfx_shimr)
 		end
 		if player.mo and player.mo.health and not player.powers[pw_flashing]
 			local base = getBase(player)
