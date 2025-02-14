@@ -25,14 +25,15 @@ local Prevention = function(p)
 	if p.actionstate then p.wasactionstate = true end
 
 	--// invalid object / a spectator? don't fire
-	if not (p and p.mo) then return end
+	if not (p and p.mo and p.mo.valid) then return end
+
+	if p.selectchar then return end
 
 	--// if realskin exists, then...
 	if p.mo.realskin then
 
 		--// if realskin is not equal to our skin and we're not spectators? then .. 
 		if p.mo.realskin ~= p.mo.skin and not p.waspectator then
-
 			--// die ... but only if it's [actionstate -Mari0shi]
 			if p.wasactionstate and (CV_FindVar("forceskin").value == -1) then
 				p.mo.flags = MF_SOLID|MF_SHOOTABLE
