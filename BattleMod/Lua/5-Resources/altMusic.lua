@@ -94,13 +94,13 @@ M06_ALTMUSIC.function_MusicChange = function(oldname, newname, mflags, looping, 
     --Pinch Music
     local playingPinchMusic = (newname == "_PINCH")
     if playingPinchMusic and M06_ALTMUSICNET.PINCHMUS and (M06_ALTMUSICNET.PINCHMUS ~= "_PINCH") then
-        return M06_ALTMUSICNET.PINCHMUS, mflags, looping, position, prefadems, fadein
+        return M06_ALTMUSICNET.PINCHMUS, mflags, looping, position, prefadems, fadeinms
     end
 
     --Overtime Music
     local playingOvertimeMusic = (newname == "_OVRTM")
     if playingOvertimeMusic and M06_ALTMUSICNET.OVERTIMEMUS and (M06_ALTMUSICNET.OVERTIMEMUS ~= "_OVRTM") then
-        return M06_ALTMUSICNET.OVERTIMEMUS, mflags, looping, position, prefadems, fadein
+        return M06_ALTMUSICNET.OVERTIMEMUS, mflags, looping, position, prefadems, fadeinms
     end
 end
 
