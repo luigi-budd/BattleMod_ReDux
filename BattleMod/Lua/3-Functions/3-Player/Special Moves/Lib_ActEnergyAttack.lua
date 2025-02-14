@@ -35,7 +35,8 @@ local auraMobj = MT_RINGSPARKAURA
 local skinname = "metalsonic" --For frame colorization
 
 //Charge time thresholds
-local threshold1 = 9
+local threshold1 = 6
+local blast_threshold = 9
 local threshold2 = threshold1+26
 local state_charging = 1
 local state_energyblast = 2
@@ -351,7 +352,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	//Action triggers
-	local attackready = (player.actiontime >= threshold1 and player.actionstate == state_charging)
+	local attackready = (player.actiontime >= blast_threshold and player.actionstate == state_charging)
 	local charging = not(slashtrigger) and (player.actionstate ~= state_dashslicerprep) and mo.energyattack_chargemeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
 	local sparktrigger = attackready and B.PlayerButtonPressed(player,BT_SPIN,false) 
 	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((attackready and doaction == 0) or (mo.energyattack_chargemeter <= 0 and doaction == 2))
