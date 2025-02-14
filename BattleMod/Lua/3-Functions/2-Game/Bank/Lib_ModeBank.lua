@@ -40,7 +40,6 @@ local CHAOSRING_GETENUM = {
 }
 local idletics = TICRATE*16
 local waittics = TICRATE*4
-local freetics = TICRATE
 local bounceheight = 10
 local rotatespd = ANG1*8
 
@@ -50,8 +49,7 @@ local SLOWCAPPINGENEMY_SFX = sfx_kc59
 local CHAOSRING_RADAR = freeslot("sfx_crng2")
 sfxinfo[CHAOSRING_RADAR].caption = "/"
 
-local freetics = TICRATE
-local idletics = TICRATE*16
+local freetics = TICRATE*2
 
 
 CR.Data = {
@@ -244,15 +242,16 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 		return true
 	end
 
-	if previousTarget and not(playercansteal or sameTeam or not(toucherIsPlayer)) then
+	if previousTarget and not(playercansteal or sameTeam) then
 		return true
 	end
 
-	if toucherIsTarget 
+	if toucherIsPlayer and 
+	(toucherIsTarget 
 	or toucherIsPlayerInPain 
 	or toucherIsFlashing 
 	or toucherTossdelay 
-	or toucherHasCrystal then
+	or toucherHasCrystal) then
 		return true
 	end
 
@@ -325,7 +324,7 @@ local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 	mo.fuse = CHAOSRING_INVULNTIME --Set the steal cooldown
 	mo.scale = (mo.idealscale - (mo.idealscale/3)) --Shrink it
 	mo.captureteam = mo.target.player.ctfteam --Set the team it's captured in
-	touchChaosRing(mo, bank)
+	touchChaosRing(mo, bank, true)
 	mo.captured = true --Yes it has been captured
 	mo.beingstolen = nil
 end
@@ -373,7 +372,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 
 	if mo.player.gotcrystal_time~=nil and (mo.player.gotcrystal_time >= CHAOSRING_STEALTIME) then --If we've been standing long enough
 		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then --And the object exists
-			touchChaosRing(mo.chaosring_tosteal, mo) --Steal it!
+			touchChaosRing(mo.chaosring_tosteal, mo, true) --Steal it!
 			mo.player.gotcrystal_time = 0 --Not counting anymore
 			mo.chaosring_tosteal.chaosring_bankkey = nil --Take away key
 			local sorted_rings = {}
@@ -1121,7 +1120,8 @@ C.ThinkFrame = function()
 				end
 			end
 		end
-		if C.RedBank and C.RedBank.valid
+	end
+	if C.RedBank and C.RedBank.valid
 			-- Color
 			if redInRed and blueInRed
 				C.RedBank.color = flashColor(SKINCOLOR_TANGERINE, SKINCOLOR_TOPAZ, 8)
@@ -1165,7 +1165,6 @@ C.ThinkFrame = function()
 				addHudSparkle(0, 0)
 			end
 		end
-	end	
 	CR.ThinkFrame() --Chaos Rings
 end
 
