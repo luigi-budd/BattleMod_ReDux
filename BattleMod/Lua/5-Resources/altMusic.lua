@@ -76,7 +76,7 @@ M06_ALTMUSIC.function_MusicChange = function(oldname, newname, mflags, looping, 
     --General Map Music
     local playingMapMusic = (newname == mapheaderinfo[gamemap].musname)
     if playingMapMusic and M06_ALTMUSICNET.MAPMUS and (mapheaderinfo[gamemap].musname ~= M06_ALTMUSICNET.MAPMUS) then 
-        return M06_ALTMUSICNET.MAPMUS
+        return M06_ALTMUSICNET.MAPMUS, mflags, looping, position, prefadems, fadeinms
     end
 
     --Win Music
@@ -94,13 +94,13 @@ M06_ALTMUSIC.function_MusicChange = function(oldname, newname, mflags, looping, 
     --Pinch Music
     local playingPinchMusic = (newname == "_PINCH")
     if playingPinchMusic and M06_ALTMUSICNET.PINCHMUS and (M06_ALTMUSICNET.PINCHMUS ~= "_PINCH") then
-        return M06_ALTMUSICNET.PINCHMUS
+        return M06_ALTMUSICNET.PINCHMUS, mflags, looping, position, prefadems, fadein
     end
 
     --Overtime Music
     local playingOvertimeMusic = (newname == "_OVRTM")
     if playingOvertimeMusic and M06_ALTMUSICNET.OVERTIMEMUS and (M06_ALTMUSICNET.OVERTIMEMUS ~= "_OVRTM") then
-        return M06_ALTMUSICNET.OVERTIMEMUS
+        return M06_ALTMUSICNET.OVERTIMEMUS, mflags, looping, position, prefadems, fadein
     end
 end
 
