@@ -1011,7 +1011,7 @@ C.ThinkFrame = function()
 
 	-- Do player in base transactions
 	for player in players.iterate do
-		if player.mo and player.mo.health and not player.powers[pw_flashing]
+		if player.mo and player.mo.valid and player.mo.health and not player.powers[pw_flashing]
 			local base = getBase(player)
 			if base == 1 -- Red base
 				if player.gotcrystal and player.mo.chaosring and player.mo.chaosring.valid and player.ctfteam == base then
