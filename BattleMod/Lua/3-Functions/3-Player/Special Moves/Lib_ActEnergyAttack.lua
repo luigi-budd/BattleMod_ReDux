@@ -51,7 +51,7 @@ local cooldown_slice = TICRATE * 2
 local cooldown_cancel = TICRATE
 local cooldown_ringspark = TICRATE * 2 --2 Second cooldown
 local cooldown_multiblast = TICRATE * 155/100
-local preptime_ringspark = 17 --Ring spark prep takes 17 tics
+local preptime_ringspark = 20 --Ring spark prep takes 17 tics
 local forcetime_ringspark = TICRATE/2 --Ring spark is forced to be active for at least half a second
 local speed_ringspark = FRACUNIT * 18 --Limited speed
 local sideangle = ANG15/4 //Horizontal spread
@@ -59,7 +59,7 @@ local vertwidth = ANG15/2 //Vertical spread
 local blastcount1 = 3
 local blastcount2 = 5
 local blastbuffer = 15 --Time between each auto-shot
-local dashslice_buildup = TICRATE/5
+local dashslice_buildup = TICRATE/4
 
 local resetdashmode = function(p)
 	local myskin = (p.mo and p.mo.valid and p.mo.skin) or p.skin
@@ -352,10 +352,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	//Action triggers
-	local attackready = (player.actiontime >= blast_threshold and player.actionstate == state_charging)
+	local blastready = (player.actiontime >= blast_threshold and player.actionstate == state_charging)
+	local attackready = (player.actionstate == state_charging)
 	local charging = not(slashtrigger) and (player.actionstate ~= state_dashslicerprep) and mo.energyattack_chargemeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
 	local sparktrigger = attackready and B.PlayerButtonPressed(player,BT_SPIN,false) 
-	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((attackready and doaction == 0) or (mo.energyattack_chargemeter <= 0 and doaction == 2))
+	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((blastready and doaction == 0) or (mo.energyattack_chargemeter <= 0 and doaction == 2))
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local slashtrigger = not(sparktrigger) and attackready and doaction == 2 and B.PlayerButtonPressed(player,BT_JUMP,false)
 	local charged = (mo.energyattack_chargemeter <= 0) 
