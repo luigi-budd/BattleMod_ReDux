@@ -26,11 +26,11 @@ local function split_with_comma(str)
     return fields
 end
 
-M06_ALTMUSICNET.MAPMUS = "spec1"
-M06_ALTMUSICNET.WINMUS = "chpass"
-M06_ALTMUSICNET.LOSSMUS = "chfail"
-M06_ALTMUSICNET.PINCHMUS = "_pinch"
-M06_ALTMUSICNET.OVERTIMEMUS = "_ovrtm"
+M06_ALTMUSICNET.MAPMUS = nil
+M06_ALTMUSICNET.WINMUS = nil
+M06_ALTMUSICNET.LOSSMUS = nil
+M06_ALTMUSICNET.PINCHMUS = nil
+M06_ALTMUSICNET.OVERTIMEMUS = nil
 
 local function getMapSongs(map)
 
