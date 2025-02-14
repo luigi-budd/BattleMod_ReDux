@@ -17,7 +17,7 @@ B.MacGuffinPass = function(mo) --PreThinkFrame (For Tossflag)
                         mo.target.pass_indicator.scale = mo.target.scale-(mo.target.scale/4)
                         mo.target.pass_indicator.frame = _G["A"]|FF_FULLBRIGHT
                         mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
-                        mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
+                        mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[mo.target.player.ctfteam][1+(((leveltime/2)%2))]
                         mo.target.pass_indicator.renderflags = $|RF_NOCOLORMAPS
                         mo.target.pass_indicator.fuse = 2
                         if displayplayer and (mo.target.player.ctfteam == displayplayer.ctfteam) then
