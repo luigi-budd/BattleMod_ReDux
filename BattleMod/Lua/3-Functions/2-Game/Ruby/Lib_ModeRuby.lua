@@ -238,39 +238,6 @@ local capture = function(mo, player)
 	end
 end
 
-local rubyPass = function(mo) --PreThinkFrame (For Tossflag)
-	if mo and mo.valid and G_GametypeHasTeams() then
-		if mo.target and mo.target.valid and mo.target.player and mo.target.player.gotcrystal then
-			local btns = mo.target.player.cmd.buttons
-			if (btns&BT_TOSSFLAG) then
-				if not(mo.target.pass_indicator and mo.target.pass_indicator.valid) then
-					mo.target.pass_indicator = P_SpawnMobjFromMobj(mo.target,0,0,P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7)),MT_LOCKONINF)
-					mo.target.pass_indicator.flags = MF_NOTHINK|MF_NOBLOCKMAP|MF_NOCLIP
-					mo.target.pass_indicator.flags2 = $|MF2_DONTDRAW
-					mo.target.pass_indicator.fuse = 2
-				end
-				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
-					P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, mo.target.z+(P_MobjFlip(mo.target)*(mo.target.height+(mo.scale*7))))
-					mo.target.pass_indicator.scale = mo.scale-(mo.scale/3)
-					mo.target.pass_indicator.frame = 0
-					mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
-					mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[displayplayer.ctfteam][1+(((leveltime/2)%2))]
-					mo.target.pass_indicator.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
-					mo.target.pass_indicator.fuse = ($ and max($, 2)) or 2
-					if displayplayer and (mo.target.player.ctfteam == displayplayer.ctfteam) then
-						mo.target.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
-					end
-				end
-			else
-				if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
-					P_RemoveMobj(mo.target.pass_indicator)
-				end
-				mo.target.pass_indicator = nil
-			end
-		end
-	end
-end
-
 R.Thinker = function(mo)
 	mo.shadowscale = FRACUNIT>>1
 
@@ -547,7 +514,7 @@ R.Thinker = function(mo)
 	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
-	rubyPass(mo)
+	B.MacGuffinPass(mo)
 	
 	local cvar_pointlimit = CV_FindVar("pointlimit").value
 	local cvar_overtime = CV_FindVar("overtime").value
