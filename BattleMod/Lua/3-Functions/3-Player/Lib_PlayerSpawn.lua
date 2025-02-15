@@ -16,7 +16,7 @@ local spawnanim = function(player)
 	if B.RubyGametype() then player.powers[pw_flashing] = 0 end
 	//Do State
 	player.panim = PA_ROLL
-	mo.state = B.SkinVars[player.mo.skin].spawnanim_state or S_PLAY_ROLL
+	mo.state = (B.SkinVars[player.mo.skin] and B.SkinVars[player.mo.skin].spawnanim_state) or S_PLAY_ROLL
 	//Do control
 	player.cmd.forwardmove = 0
 	player.cmd.sidemove = 0
