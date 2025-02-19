@@ -21,7 +21,6 @@ local CHAOSRING_SCOREAWARD = 50 --50 points per chaos ring
 local CHAOSRING_WINPOINTS = 9999
 local CHAOSRING_CANTOSS = false
 
-
 local CHAOSRING1 = 1<<0
 local CHAOSRING2 = 1<<1
 local CHAOSRING3 = 1<<2
@@ -194,6 +193,7 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	if re then
 		S_StartSound(nil, sfx_cdfm44)
 	end
+	thing.mo.radius = 16*FRACUNIT
 	return thing.mo
 end
 
@@ -673,7 +673,7 @@ CR.ThinkFrame = function() --Main Thinker
 			mo.chaosring_corona.scale = mo.scale
 			mo.chaosring_corona.spritexscale = FRACUNIT/2
 			mo.chaosring_corona.spriteyscale = FRACUNIT/2
-			mo.chaosring_corona.spriteyoffset = $+(FRACUNIT*5)
+			mo.chaosring_corona.spriteyoffset = mo.spriteyoffset
 			mo.chaosring_corona.colorized = true
 			mo.chaosring_corona.color = mo.color
 			mo.chaosring_corona.fuse = 2
