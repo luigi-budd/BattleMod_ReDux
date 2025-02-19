@@ -65,13 +65,14 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = CV_Unsigned,
 		func = function(cv)
+			if gametype == _G["GT_"..tabl.identifier:upper()] then
+				COM_BufInsertText(server, "pointlimit "..cv.value)
+			end
+			if cv.value == cv.defaultvalue then return end
 			if cv.value > 0 then
 				print(tabl.name.." rounds will end after "..scorer.." scores "..cv.value.." points.")
 			else
 				print(tabl.name.." rounds will no longer have a point limit.")
-			end
-			if gametype == _G["GT_"..tabl.identifier:upper()] then
-				COM_BufInsertText(server, "pointlimit "..cv.value)
 			end
 		end
 	})
@@ -82,13 +83,14 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=1, MAX=30},
 		func = function(cv)
+			if gametype == _G["GT_"..tabl.identifier:upper()] then
+				COM_BufInsertText(server, "timelimit "..cv.value)
+			end
+			if cv.value == cv.defaultvalue then return end
 			if cv.value > 0 then
 				print(tabl.name.." rounds will end after "..cv.value.." minutes.")
 			else
 				print(tabl.name.." rounds no longer have a time limit.")
-			end
-			if gametype == _G["GT_"..tabl.identifier:upper()] then
-				COM_BufInsertText(server, "timelimit "..cv.value)
 			end
 		end
 	})
@@ -99,13 +101,14 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=1, MAX=9999},
 		func = function(cv)
+			if gametype == _G["GT_"..tabl.identifier:upper()] then
+				COM_BufInsertText(server, "hidetime "..cv.value)
+			end
+			if cv.value == cv.defaultvalue then return end
 			if cv.value > 0 then
 				print(tabl.name.." rounds will begin after "..cv.value.." seconds.")
 			else
 				print(tabl.name.." rounds will begin instantly.")
-			end
-			if gametype == _G["GT_"..tabl.identifier:upper()] then
-				COM_BufInsertText(server, "hidetime "..cv.value)
 			end
 		end
 	})
@@ -116,10 +119,11 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=0, MAX=999},
 		func = function(cv)
-			print("Players will start with "..cv.value.." rings in "..tabl.name.." rounds.")
 			if gametype == _G["GT_"..tabl.identifier:upper()] then
 				COM_BufInsertText(server, "battle_startrings "..cv.value)
 			end
+			if cv.value == cv.defaultvalue then return end
+			print("Players will start with "..cv.value.." rings in "..tabl.name.." rounds.")
 		end
 	})
 
