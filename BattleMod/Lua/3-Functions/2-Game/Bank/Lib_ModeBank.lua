@@ -291,7 +291,7 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	if toucherIsPlayer then
 		toucher.player.gotcrystal = true --We have a McGuffin
 		S_StartSound(mo,sfx_lvpass)
-		if shouldHearSFX then 
+		if displayplayer and shouldHearSFX then 
 			S_StartSound(nil, sfx_kc5e)
 		end
 		toucher.spritexscale = toucher.scale 
