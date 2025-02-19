@@ -973,13 +973,14 @@ C.ThinkFrame = function()
 					player.powers[pw_flashing] = ($ and max($, 2)) or 2
 					player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
 					player.nodamage = ($ and max($, 2)) or 2
-					player.intangible = ($ and max($, 2)) or 2
+					player.intangible = true
 					if player.mo.state != S_PLAY_ROLL then
 						player.mo.state = S_PLAY_ROLL
 					end
 				else
 					player.bank_depositing.playerDepositing = nil
 					player.bank_depositing = nil
+					player.intangible = false
 				end
 			end
 
