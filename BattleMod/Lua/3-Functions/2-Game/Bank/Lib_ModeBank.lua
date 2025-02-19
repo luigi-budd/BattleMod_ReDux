@@ -69,7 +69,7 @@ CR.Data = {
 
 	[4] = { --Pink
 		color = SKINCOLOR_FANCY,
-		textmap = "\x81"
+		textmap = "\x8E"
 	},
 
 	[5] = { --Purple
