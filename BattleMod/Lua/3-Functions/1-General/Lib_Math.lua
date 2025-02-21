@@ -89,8 +89,10 @@ end
 B.NearPlayer = function(mo, fracunits)
 	local nearest = B.GetNearestPlayer(mo)
 	if nearest and nearest.mo then
+		nearest = nearest.mo
 		local dx = mo.x - nearest.x
 		local dy = mo.y - nearest.y
-		return FixedHypot(dx, dy) < mo.scale*fracunits
+		local dz = mo.z - nearest.z
+		return FixedHypot(FixedHypot(dx, dy), dz) < mo.scale*fracunits
 	end
 end

@@ -156,7 +156,7 @@ B.DebugHUD = function(v, player, cam)
 			addline("GameOvers",A.GameOvers)
 			addline("Bounty",(A.Bounty and A.Bounty.valid) and (""..A.Bounty.."("+A.Bounty.name+")") or "?")
 			if G_GametypeUsesLives() then
-				addline("\x80Priority", B.GetDeathZonePriority(player))
+				addline("\x80Your DZ Priority", B.GetDeathZonePriority(player))
 			end
 		end
 		

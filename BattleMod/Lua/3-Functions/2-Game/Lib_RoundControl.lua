@@ -223,16 +223,27 @@ B.SuddenDeathZone = function(remove)
 		B.ZoneObject = zoneobject
 		B.ControlPoint.ActivateFX(zoneobject)
 	else -- Update zone
-		B.ZoneObject.cp_radius = max(0, $ - FRACUNIT)
-		if B.ZoneObject.cp_radius <= 0 and not (B.ZoneObject.flags2 & MF2_DONTDRAW) then
-			local vfx = P_SpawnMobjFromMobj(B.ZoneObject, 0, 0, 0, MT_THOK)
+		local zone = B.ZoneObject
+		zone.cp_radius = max(0, $ - FRACUNIT)
+
+		-- Fight for your life!
+		if zone.cp_radius <= 0 and not (zone.flags2 & MF2_DONTDRAW) then
+			local vfx = P_SpawnMobjFromMobj(zone, 0, 0, 0, MT_THOK)
 			if vfx and vfx.valid then
 				vfx.state = S_XPLD1
 				S_StartSound(vfx,sfx_pop)
 			end
-			B.ZoneObject.flags2 = $ | MF2_DONTDRAW
+			zone.flags2 = $ | MF2_DONTDRAW
 			B.ControlPoint.ResetFX(B.ZoneObject)
 		end
+
+		-- Orbit to prevent perfect standstill tech
+		local angle = ANG1 * leveltime
+		local dist = 128 * zone.scale
+		local x = zone.x + P_ReturnThrustX(zone,angle,dist)
+		local y = zone.y + P_ReturnThrustY(zone,angle,dist)
+		local thrust = max(FRACUNIT, R_PointToDist2(zone.x, zone.y, x, y))
+		--P_InstaThrust(zone, R_PointToAngle2(zone.x, zone.y, x, y), thrust) --TODO
 	end
 		
 	-- Check all players against zone
@@ -291,8 +302,8 @@ B.SuddenDeathZone = function(remove)
 		ceil = mo.floorz
 	end
 
-	B.ControlPoint.ActiveThinker(B.ZoneObject,floor,flip,ceil,mo.cp_radius,mo.cp_height,mo.cp_meter)
-	B.ControlPoint.UpdateFX(B.ZoneObject, mo.cp_radius)
+	B.ControlPoint.ActiveThinker(mo,floor,flip,ceil,mo.cp_radius,mo.cp_height,mo.cp_meter)
+	B.ControlPoint.UpdateFX(mo,mo.cp_radius)
 end
 
 B.PinchMusic = function(player)

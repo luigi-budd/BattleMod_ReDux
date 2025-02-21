@@ -1,10 +1,12 @@
 local B = CBW_Battle
 
-B.Shuffle = function(tbl) -- Fisher-Yates algorithm
+B.Shuffle = function(actualtbl) -- Fisher-Yates algorithm
+	local tbl = actualtbl -- I'm not actually sure if this is necessary
 	for i = #tbl, 2, -1 do
-		local j = math.random(i)
+		local j = P_RandomRange(1, i) -- Please don't desynch... PLEASE.
 		tbl[i], tbl[j] = tbl[j], tbl[i]
 	end
+	return tbl
 end
 
 -- pairtype hint: ipairs preserves order while pairs prevents duplicate keys
