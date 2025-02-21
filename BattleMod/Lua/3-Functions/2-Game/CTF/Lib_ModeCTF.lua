@@ -72,6 +72,8 @@ F.TouchFlag = function(mo, pmo)
 	if not mo.fuse
 		return
 	end
+	local angle = R_PointToAngle2(pmo.x - pmo.momx, pmo.y - pmo.momy, mo.x, mo.y)
+
 	if player.guard
 	or player.airdodge > 0
 	or (player.actionstate and (player.battle_atk or player.battle_satk))
@@ -79,13 +81,14 @@ F.TouchFlag = function(mo, pmo)
 			mo.jostletimer = 16
 			S_StartSound(mo, sfx_s3k6d)
 			B.ZLaunch(mo, FRACUNIT*10)
-			P_InstaThrust(mo, R_PointToAngle2(pmo.x - pmo.momx, pmo.y - pmo.momy, mo.x, mo.y), mo.scale*4)
+			P_InstaThrust(mo, angle, mo.scale*4)
 		end
 		return true -- Disallow grabbing the flag while in one of these states
 	end
 	
 	if player.powers[pw_flashing]
 		player.powers[pw_flashing] = max($,2)
+		P_Thrust(pmo, angle + ANGLE_180, mo.scale*4)
 	end
 end
 
