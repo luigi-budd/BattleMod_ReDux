@@ -1,10 +1,6 @@
 local B = CBW_Battle
 local CV = CBW_Battle
 
--- visual indication
-local barColor, barEmptyColor
-local commonFlags = V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_PERPLAYER|V_HUDTRANS
-
 B.GetBackdraftSpeed = function(player, nearest)
 	local p_normalspeed = skins[player.mo.skin].normalspeed
 	local p_dashmode = player.dashmode
@@ -29,8 +25,10 @@ B.BackdraftThinker = function(player, nearest)
 	player.normalspeed = B.GetBackdraftSpeed(player, nearest)
 	if not player.slipping then
 		local pmo = player.mo
-		S_StartSound(player.mo, sfx_s3ka2)
-		P_SpawnParaloop(pmo.x, pmo.y, pmo.z + pmo.height / 2, pmo.height, 16, MT_DUST, pmo.angle * ANGLE_180, nil, false)
+		if not (S_SoundPlaying(pmo, sfx_cdfm40) or S_SoundPlaying(pmo, sfx_s3ka2)) then
+			B.teamSound(pmo, player, sfx_cdfm40, sfx_s3ka2, 255, true)
+			P_SpawnParaloop(pmo.x, pmo.y, pmo.z + pmo.height / 2, pmo.height, 16, MT_DUST, pmo.angle * ANGLE_180, nil, false)
+		end
 		player.slipping = true
 	end
 end
