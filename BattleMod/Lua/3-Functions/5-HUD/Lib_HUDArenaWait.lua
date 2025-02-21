@@ -141,6 +141,7 @@ A.GameSetHUD = function(v,player,cam)
 	local delay = TICRATE*3
 	if exittime > delay
 	and not(player.spectator and not G_GametypeHasTeams()) --spectators only see "GAME SET" in solo gametypes
+	and not (splitscreen)
 	then
 		lerpamt2 = B.FixedLerp(0,FRACUNIT,$*90/100)
 		subtract2 = B.FixedLerp(180,0,lerpamt2)

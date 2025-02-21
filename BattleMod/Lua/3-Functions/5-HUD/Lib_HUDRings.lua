@@ -432,7 +432,8 @@ B.RingsHUD = function(v, player, cam)
 		and leveltime>TICRATE*5/4
 	)
 	
-	local guardtext = guardoverride and player.guardtext or "\x82Guard"
+	local defaultguardtext = (B.Exiting or B.Timeout) and "Salute" or "Guard"
+	local guardtext = "\x82"..(guardoverride and player.guardtext or defaultguardtext)
 	/*if B.TagGametype() and not (player.pflags & PF_TAGIT)
 		guardtext = $ + "\x85" + " 10"
 	end*/
