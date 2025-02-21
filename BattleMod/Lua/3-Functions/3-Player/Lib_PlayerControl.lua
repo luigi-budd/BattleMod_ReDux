@@ -370,7 +370,14 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 end
 
 B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
-	if player.nodamage or player.powers[pw_invulnerability] or not (player.mo and player.mo.valid) then
+	local mo = player.mo
+	if not (mo and mo.valid) then
+		return
+	end
+	if player.nodamage or player.powers[pw_invulnerability] then
+		if P_IsObjectOnGround(mo) then
+			P_SetObjectMomZ(mo, 0)
+		end
 		return
 	end
 
