@@ -141,6 +141,31 @@ B.SuddenDeathGrow = function(player)
 	end
 end
 
+B.GetDeathZonePriority = function(player, safe)
+	local mo = player.mo
+	if not mo then return end
+	
+	local priority = 1 
+
+	local conditions = {
+		--{condition, priority increase value}
+		{B.NearGround(mo, 128), P_IsObjectOnGround(mo) and 2 or 1},
+		{B.NearPlayer(mo, 640), 1},
+		{player.pushed_creditplr and not (player.tumble or P_PlayerInPain(player) or player.powers[pw_flashing]), 2}, -- In combat
+		{player.powers[pw_flashing] and not player.pushed_creditplr, -3}, -- Hazard damage...
+		{player.slipping, 1},
+	}
+
+	for _, condition in ipairs(conditions) do
+		priority = condition[1] and $+condition[2] or $
+	end
+	if safe then
+		return max(1, priority) -- You never know what table iterations might do with zero or negative
+	else
+		return priority
+	end
+end
+
 B.SuddenDeathZone = function(remove)
 	if remove then
 		if B.ZoneObject and B.ZoneObject.valid and not (B.ZoneObject.flags2 & MF2_DONTDRAW) then
@@ -169,21 +194,23 @@ B.SuddenDeathZone = function(remove)
 	-- Initialize zone if it doesn't exist
 	if not (B.ZoneObject and B.ZoneObject.valid) then
 		local validSpawns = {}
+
 		for player in players.iterate() do
 			if B.InvalidPlayer(player) then continue end
+
+			local priority = B.GetDeathZonePriority(player, true)
 			
-			-- Prioritize players not over pits by checking if they're on ground
-			-- TODO: Remove port priority
-			if P_IsObjectOnGround(player.mo) or player.powers[pw_flashing] then
-				table.insert(validSpawns, 1, player.mo)
-			else
-				table.insert(validSpawns, player.mo)
+			for i = #validSpawns+1, priority do
+				validSpawns[i] = $ or {}
 			end
+			table.insert(validSpawns[priority], player.mo)
 		end
 		
 		if #validSpawns == 0 then return end
+		local valuableSpawns = B.LastValidTable(unpack(validSpawns))
+		valuableSpawns = B.Shuffle($) -- Eliminate port priority in case of ties
 		
-		local chosen = validSpawns[1]
+		local chosen = valuableSpawns[1]
 		local zoneobject = P_SpawnMobj(chosen.x, chosen.y, chosen.z, MT_CONTROLPOINT)
 		zoneobject.sprite = SPR_DTHZ
 		zoneobject.cp_radius = 2048*FRACUNIT

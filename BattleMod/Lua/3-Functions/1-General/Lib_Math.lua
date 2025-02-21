@@ -77,3 +77,20 @@ B.SafeRadiusIncrease = function(mo, newRadius, oldRadius, repeatable)
 	end
 	--print(mo.radius/FU)
 end
+
+B.NearGround = function(mo, fracunits)
+	if P_MobjFlip(mo) == 1 then
+		return (mo.z-mo.floorz < mo.scale*fracunits)
+	else
+		return (mo.ceilingz+mo.height-mo.z < mo.scale*fracunits)
+	end
+end
+
+B.NearPlayer = function(mo, fracunits)
+	local nearest = B.GetNearestPlayer(mo)
+	if nearest and nearest.mo then
+		local dx = mo.x - nearest.x
+		local dy = mo.y - nearest.y
+		return FixedHypot(dx, dy) < mo.scale*fracunits
+	end
+end

@@ -591,7 +591,9 @@ CP.UpdateFX = function(mo, newradius)
 	end
 	-- Shockwaves (for survival)
 	if mo.isdeathzone then
-		local source = displayplayer and displayplayer.mo or B.GetNearestPlayer(mo).mo
+		local source = (displayplayer and displayplayer.mo) and displayplayer or B.GetNearestPlayer(mo)
+		if source then source = source.mo end
+		
 		local amount = 24
 		local angleIncrement = FixedAngle(360 * FRACUNIT / amount)
 		local baseRadius = 300 * FRACUNIT	-- Base radius for scaling reference
