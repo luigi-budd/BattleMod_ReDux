@@ -591,7 +591,7 @@ CP.UpdateFX = function(mo, newradius)
 	end
 	-- Shockwaves (for survival)
 	if mo.isdeathzone then
-		local nearest = B.GetNearestPlayer(mo).mo
+		local source = displayplayer and displayplayer.mo or B.GetNearestPlayer(mo).mo
 		local amount = 24
 		local angleIncrement = FixedAngle(360 * FRACUNIT / amount)
 		local baseRadius = 300 * FRACUNIT	-- Base radius for scaling reference
@@ -601,9 +601,9 @@ CP.UpdateFX = function(mo, newradius)
 			if shockwave and shockwave.valid then
 				if displayplayer and displayplayer.BT_antiAFK < 200 then
 					shockwave.trans = TR_TRANS90
-				elseif nearest and nearest.valid then
-					local xydist = R_PointToDist2(shockwave.x, shockwave.y, nearest.x, nearest.y)
-					P_MoveOrigin(shockwave, shockwave.x, shockwave.y, nearest.z + (nearest.height/2))
+				elseif source and source.valid then
+					local xydist = R_PointToDist2(shockwave.x, shockwave.y, source.x, source.y)
+					P_MoveOrigin(shockwave, shockwave.x, shockwave.y, source.z + (source.height/2))
 					shockwave.trans = B.TIMETRANS(100-(xydist/(FU*16)), 1, "TR_TRANS", "", 10, 90, false)
 				end
 				local angle = angleIncrement * (i - 1)
