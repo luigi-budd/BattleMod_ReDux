@@ -58,3 +58,22 @@ B.Wrap = function(value, minValue, maxValue)
 	local range = maxValue - minValue + 1
 	return ((value - minValue) % range + range) % range + minValue
 end
+
+--- Fixes infamous "wallswipe" bugs - projectiles getting stuck into walls and such.
+--- Keep in mind a player's radius is 16FU, but the recommended oldRadius is 8FU or lower
+B.SafeRadiusIncrease = function(mo, newRadius, oldRadius, repeatable)
+    if (mo.flags2 & MF2_FRET) then
+		return
+	end
+
+	local z1 = (mo.flags2 & MF2_OBJECTFLIP) and mo.ceilingz or mo.floorz
+	mo.radius = newRadius
+	local z2 = (mo.flags2 & MF2_OBJECTFLIP) and mo.ceilingz or mo.floorz
+
+	if P_CheckPosition(mo, mo.x, mo.y) and abs(z1 - z2) < mo.height then
+		if not repeatable then mo.flags2 = $ | MF2_FRET end
+	else
+		mo.radius = oldRadius or mobjinfo[mo.type].radius
+	end
+	--print(mo.radius/FU)
+end

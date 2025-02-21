@@ -260,9 +260,9 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	
 	local chargepercentage = min(100,player.actiontime*100/threshold2)
-	local exhaust = max(0,200-(player.actiontime*100/threshold2))
+	--local exhaust = max(0,200-(player.actiontime*100/threshold2))
 	if player.actionstate == state_charging
-		player.action2text = "Exhaust "..exhaust.."%"
+		player.action2text = "Charge "..chargepercentage.."%"
 		player.canguard = 2
 		player.guardtext = "Cancel"
 	end
@@ -428,7 +428,7 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Charging frame
 	if player.actionstate == state_charging then
 		mo.state = S_PLAY_EDGE
-		player.pflags = $|PF_SPINDOWN&~(PF_NOJUMPDAMAGE|PF_THOKKED)
+		player.pflags = ($|PF_SPINDOWN|PF_NOJUMPDAMAGE)&~(PF_THOKKED)
 		--player.actionsuper = true
 		if not (P_IsObjectOnGround(mo) or B.WaterFactor(mo) > 1) then
 			P_SetObjectMomZ(mo,gravity/2,true) //Low grav
@@ -602,59 +602,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		--S_StopSoundByID(mo, sfx_spin)
 
 		-- aircutter circling thingy
-		if player.aircutter and player.aircutter.valid then
-			player.pflags = $ | PF_STASIS
-			local distancescaling = player.aircutter.cutterspeed/2
-			local boomerangtime = max(6,distancescaling/2/FRACUNIT)
-			
-			if player.actiontime > boomerangtime then
-				local returnfactor = player.actiontime <= boomerangtime+2 and 1 or 2
-				player.aircutter_distance = max(1,$-(distancescaling*returnfactor))
-			else
-				player.aircutter_distance = $+distancescaling
-			end
-			
-			local angle = ANGLE_45 * player.actiontime
-			local cut_x = FixedMul(player.aircutter_distance, cos(angle))
-			local cut_y = FixedMul(player.aircutter_distance, sin(angle))
-			
-			local moving = player.realforwardmove or player.realsidemove
-			if moving then
-				local inputangle = B.GetInputAngle(player)
-				local moveOffset = mo.scale * 64
-				cut_x = $ + P_ReturnThrustX(nil, inputangle, moveOffset)
-				cut_y = $ + P_ReturnThrustY(nil, inputangle, moveOffset)
-			end
-			
-			local moved = false
-			--player.aircutter.radius = 0
-			for i=1,4 do
-				moved = P_TryMove(player.aircutter, mo.x + (cut_x/i), mo.y + (cut_y/i), true)
-				if moved then break end
-			end
-			-- THE ALMIGHTY VALID CHECK
-			--[[
-			local validity = P_SpawnMobjFromMobj(player.aircutter,0,0,0,MT_BIGSONICBOOM)
-			if validity.valid then
-				validity.scale = $*5/4
-				if validity.valid then
-					validity.radius = 32*FRACUNIT
-				end
-			end
-			if validity.valid and abs(validity.z - player.aircutter.z) < mo.scale then
-				--player.aircutter.radius = 32*FRACUNIT
-				validity.colorized = true
-				validity.color = SKINCOLOR_GREEN
-			elseif validity.valid then
-				validity.colorized = true
-				validity.color = SKINCOLOR_RED
-			end
-			if validity.valid then
-				--P_RemoveMobj(validity)
-			end
-			print(player.aircutter.radius/FRACUNIT)
-			]]
-		end
+		-- NOTICE: code moved to Exec_Projectiles.lua
 
 		--Anim states
 		if player.actiontime < 6 then

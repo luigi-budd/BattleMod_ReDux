@@ -67,41 +67,84 @@ end,MT_GROUNDPOUND)
 --Tails Projectiles
 addHook("MobjThinker",function(mo)
 	if not(mo.flags&MF_SPECIAL) then return end
-	local ghostcolor = SKINCOLOR_SKY
-	if mo.target and not(mo.target.color == SKINCOLOR_ORANGE) then
-		ghostcolor = mo.target.color
+
+	-- aircutter circling thingy
+	local t = mo.target
+	local x = mo.x
+	local y = mo.y
+	local aircutter = t and t.player and t.player.aircutter and mo == t.player.aircutter
+	if aircutter then
+		local p = t.player
+		local distancescaling = mo.cutterspeed*2/5
+		local BOOMERANGTIME = max(6,distancescaling/2/FRACUNIT)
+		
+		p.pflags = $ | PF_STASIS
+		if p.actiontime > BOOMERANGTIME then
+			local returnfactor = p.actiontime <= BOOMERANGTIME+2 and 1 or 2
+			p.aircutter_distance = max(1,$-(distancescaling*returnfactor))
+		else
+			p.aircutter_distance = $+distancescaling
+		end
+		
+		mo.radius = mobjinfo[MT_SONICBOOM].radius
+		P_MoveOrigin(mo, t.x, t.y, t.z + (P_MobjFlip(t) * t.height/2))
+
+		local angle = ANGLE_45 * p.actiontime
+		local dist = p.aircutter_distance
+		x = t.x+P_ReturnThrustX(mo,angle,dist)
+		y = t.y+P_ReturnThrustY(mo,angle,dist)
+		local thrust = max(FRACUNIT*60, R_PointToDist2(mo.x, mo.y, x, y))
+		P_InstaThrust(mo, R_PointToAngle2(mo.x, mo.y, x, y), thrust)
+
+		B.SafeRadiusIncrease(mo, 32*FRACUNIT, mobjinfo[MT_SONICBOOM].radius, true)
+	else
+		B.SafeRadiusIncrease(mo, 32*FRACUNIT)
+		-- keep it fast, sliding along walls if needed
+		if FixedHypot(mo.momx, mo.momy) < FixedMul(mo.scale, mobjinfo[MT_SONICBOOM].speed) then
+			mo.momx = $ * 6/5
+			mo.momy = $ * 6/5
+		end
 	end
 
-	local ghost = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_GHOST)
-	ghost.colorized = true
-	ghost.color = ghostcolor
-	ghost.fuse = TICRATE/4
-	ghost.state = mo.state
-	ghost.sprite = mo.sprite
-	ghost.frame =  mo.frame
-	ghost.frame = $|TR_TRANS50|FF_FULLBRIGHT 
-	ghost.tics = -1
-
-	if mo.radius and mo.radius < (32*FRACUNIT) then
-		mo.radius = $+FRACUNIT
+	local transition = (aircutter and 5 or 10)
+	if mo.fuse == transition then
+		mo.destscale = 0
+		mo.scalespeed = FRACUNIT/transition
 	end
 	
-	if not (mo.valid) then return end
-
-	if mo.fuse < 10 then
-		mo.destscale = 0
-		mo.scalespeed = FRACUNIT/10
+	-- vfx
+	local col = SKINCOLOR_SKY
+	if t and not(t.color == SKINCOLOR_ORANGE) then
+		col = t.color
 	end
+	mo.color = col
 
+	local ghost = P_SpawnGhostMobj(mo) --P_SpawnMobj(x, y, mo.z, MT_GHOST)
+	P_MoveOrigin(ghost, x, y, mo.z)
+	ghost.colorized = true
+	ghost.color = col
+	ghost.fuse = TICRATE/3
+	ghost.destscale = (aircutter and mo.fuse >= transition) and ghost.scale*3/2 or ghost.scale*5/4
+	ghost.scalespeed = ghost.destscale/ghost.fuse
+	ghost.frame = mo.frame | FF_FULLBRIGHT 
+
+	local s = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPARK)
+	s.scale = $*3/4
+	if P_RandomRange(0,1) then
+		s.colorized = true
+		s.color = col
+	end
 	local radius = mo.radius/FRACUNIT
 	local r = do
 		return P_RandomRange(-radius,radius)*FRACUNIT
 	end
-	local s = P_SpawnMobjFromMobj(mo,r(),r(),0,MT_SPARK)
-	s.scale = $*3/4
-	if P_RandomRange(0,1) then
-		s.colorized = true
-		s.color = ghostcolor
+	x = x+(r())
+	y = y+(r())
+	local z1 = (s.flags2 & MF2_OBJECTFLIP) and s.ceilingz or s.floorz
+	P_MoveOrigin(s, x, y, mo.z)
+	local z2 = (s.flags2 & MF2_OBJECTFLIP) and s.ceilingz or s.floorz
+	if abs(z1 - z2) > mo.height then
+		s.flags2 = $ | MF2_DONTDRAW
 	end
 end,MT_SONICBOOM)
 addHook("TouchSpecial",B.SwipeTouch,MT_SONICBOOM)

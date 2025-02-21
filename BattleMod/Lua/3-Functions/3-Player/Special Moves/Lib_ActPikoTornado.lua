@@ -31,8 +31,13 @@ end
 local function sparkle(mo)
 	local spark = P_SpawnMobj(mo.x,mo.y,mo.z,MT_SPARK)
 	if spark and spark.valid then
+		local z1 = (spark.flags2 & MF2_OBJECTFLIP) and spark.ceilingz or spark.floorz
 		B.AngleTeleport(spark,{mo.x,mo.y,mo.z},mo.player.drawangle,0,mo.scale*64)
 		spark.scale = mo.scale
+		local z2 = (spark.flags2 & MF2_OBJECTFLIP) and spark.ceilingz or spark.floorz
+		if abs(z1 - z2) > spark.height then
+			spark.flags2 = $ | MF2_DONTDRAW
+		end
 	end
 end
 
@@ -117,7 +122,6 @@ B.Action.PikoTornado = function(mo,doaction)
 		B.analogkill(player, 2)
 		player.pflags = $|PF_JUMPSTASIS
 		spinhammer(mo, true)
-		sparkle(mo)
 		if player.actiontime < 16 then
 			player.drawangle = mo.angle-ANGLE_22h*player.actiontime
 			if player.actiontime == 8 then
@@ -129,6 +133,7 @@ B.Action.PikoTornado = function(mo,doaction)
 				S_StartSound(mo,sfx_s3k42)
 			end
 		end
+		sparkle(mo)
 		if not(player.actiontime > TICRATE) then return end
 		mo.frame = 0
 		mo.sprite2 = SPR2_MLEL
@@ -272,9 +277,7 @@ B.DustDevilThinker = function(mo)
 		P_RemoveMobj(mo)
 	return end
 
-	if mo.radius < (32*FRACUNIT) then
-		mo.radius = $+(FRACUNIT*2)
-	end
+	B.SafeRadiusIncrease(mo, 32*FRACUNIT)
 	
 	mo.angle = R_PointToAngle2(0,0,mo.momx,mo.momy)
 -- 	local p = B.GetNearestPlayer(owner,nil,-1,nil,false)
