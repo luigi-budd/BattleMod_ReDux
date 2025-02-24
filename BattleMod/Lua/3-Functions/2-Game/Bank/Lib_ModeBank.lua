@@ -486,8 +486,6 @@ end
 
 local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
-
-	B.MacGuffinPass(mo)
 	mo.shadowscale = FRACUNIT>>1
 
 	if mo.beingstolen and (
@@ -752,28 +750,9 @@ CR.ThinkFrame = function() --Main Thinker
 			continue
 		end
 
+		local delete = false
 
 		local mo = chaosring
-		if mo.chaosring_corona and mo.chaosring_corona.valid then
-			mo.chaosring_corona.fuse = max($, 2)
-			mo.chaosring_corona.scale = mo.scale
-			P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, mo.z+(P_MobjFlip(mo)*(mo.height/2)))
-		else
-			mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
-			mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
-			mo.chaosring_corona.renderflags = $|RF_NOCOLORMAPS|RF_FULLBRIGHT
-			mo.chaosring_corona.blendmode = AST_ADD
-			mo.chaosring_corona.target = mo
-			mo.chaosring_corona.scale = mo.scale
-			mo.chaosring_corona.spritexscale = FRACUNIT/2
-			mo.chaosring_corona.spriteyscale = FRACUNIT/2
-			mo.chaosring_corona.spriteyoffset = mo.spriteyoffset
-			mo.chaosring_corona.colorized = true
-			mo.chaosring_corona.color = mo.color
-			mo.chaosring_corona.fuse = 2
-		end
-
-		local delete = false
 
 		-- rev: remove ruby if on a "remove ctf flag" sector type
 		local sector = mo.subsector.sector
@@ -808,6 +787,28 @@ CR.ThinkFrame = function() --Main Thinker
 			P_RemoveMobj(chaosring)
 			continue
 		end
+
+		local mo = chaosring
+		if mo.chaosring_corona and mo.chaosring_corona.valid then
+			mo.chaosring_corona.fuse = max($, 2)
+			mo.chaosring_corona.scale = mo.scale
+			P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, mo.z+(P_MobjFlip(mo)*(mo.height/2)))
+		else
+			mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
+			mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
+			mo.chaosring_corona.renderflags = $|RF_NOCOLORMAPS|RF_FULLBRIGHT
+			mo.chaosring_corona.blendmode = AST_ADD
+			mo.chaosring_corona.target = mo
+			mo.chaosring_corona.scale = mo.scale
+			mo.chaosring_corona.spritexscale = FRACUNIT/2
+			mo.chaosring_corona.spriteyscale = FRACUNIT/2
+			mo.chaosring_corona.spriteyoffset = mo.spriteyoffset
+			mo.chaosring_corona.colorized = true
+			mo.chaosring_corona.color = mo.color
+			mo.chaosring_corona.fuse = 2
+		end
+
+		B.MacGuffinPass(mo)
 	end
 end
 --End of most Chaos Ring Stuff
