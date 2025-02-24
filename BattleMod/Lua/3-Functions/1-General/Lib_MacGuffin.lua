@@ -22,8 +22,18 @@ B.MacGuffinPass = function(mo) --PreThinkFrame (For Tossflag)
 
                 local zpos = mo.target.z+(mo.target.height+(mo.target.scale*10))
 
+                local frame = _G["A"]
+                local mirrored = false
+
                 if P_MobjFlip(mo.target) == -1 then
                     zpos = (mo.target.z+mo.target.height)-(mo.target.height+(mo.target.scale*10))
+                end
+
+                if displayplayer and displayplayer.mo and displayplayer.mo.valid and (displayplayer.mo ~= mo.target) then
+                    if (P_MobjFlip(mo.target)+P_MobjFlip(displayplayer.mo)) == 0 then
+                        frame = _G["B"]
+                        mirrored = true
+                    end
                 end
 
                 if (btns&BT_TOSSFLAG) then
@@ -37,9 +47,10 @@ B.MacGuffinPass = function(mo) --PreThinkFrame (For Tossflag)
                     end
                     if (mo.target.pass_indicator and mo.target.pass_indicator.valid) then
                         applyFlip(mo.target, mo.target.pass_indicator)
+                         mo.target.pass_indicator.mirrored = mirrored
                         P_MoveOrigin(mo.target.pass_indicator, mo.target.x, mo.target.y, zpos)
                         mo.target.pass_indicator.scale = mo.target.scale-(mo.target.scale/4)
-                        mo.target.pass_indicator.frame = _G["A"]|FF_FULLBRIGHT
+                        mo.target.pass_indicator.frame = frame|FF_FULLBRIGHT
                         mo.target.pass_indicator.sprite = SPR_MACGUFFIN_PASS
                         mo.target.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[mo.target.player.ctfteam][1+(((leveltime/2)%2))]
                         mo.target.pass_indicator.renderflags = $|RF_NOCOLORMAPS
