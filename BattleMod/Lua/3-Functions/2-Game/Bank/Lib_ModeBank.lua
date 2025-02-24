@@ -179,6 +179,20 @@ local chaosring_debug = CV_RegisterVar({
     PossibleValue = CV_OnOff
 })
 
+local applyflip = function(mo1, mo2)
+	if mo1.eflags & MFE_VERTICALFLIP then
+		mo2.eflags = $|MFE_VERTICALFLIP
+	else
+		mo2.eflags = $ & ~MFE_VERTICALFLIP
+	end
+	
+	if mo1.flags2 & MF2_OBJECTFLIP then
+		mo2.flags2 = $|MF2_OBJECTFLIP
+	else
+		mo2.flags2 = $ & ~MF2_OBJECTFLIP
+	end
+end
+
 local chprint = function(string)
 	if not(chaosring_debug.value) then return end
 	print("\x82".."chprint:".."\x80".." "..string)
@@ -372,8 +386,7 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	toucher.chaosring = mo --Set the player object's Chaos Ring to this object
 	mo.target = toucher --Set the Chaos Ring's target to us
 	free(mo) --Set collection cooldown
-	mo.scale = mo.idealscale --Store player's scale in object
-
+	mo.scale = mo.target.scale
 	P_SetObjectMomZ(toucher, toucher.momz/2)
 
 	local shouldHearSFX = (splitscreen or (displayplayer and toucher.player == displayplayer)) or (displayplayer and previoustarget and previoustarget.player and previoustarget.player == displayplayer)
@@ -414,6 +427,7 @@ local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 	mo.scale = (mo.idealscale - (mo.idealscale/3)) --Shrink it
 	mo.captureteam = mo.target.player.ctfteam --Set the team it's captured in
 	touchChaosRing(mo, bank, true)
+	mo.scale = CHAOSRING_SCALE
 	mo.captured = true --Yes it has been captured
 	mo.beingstolen = nil
 end
@@ -555,26 +569,21 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
-		local ang = (mo.captured and (ANG1*60*mo.chaosring_num)+server.GlobalAngle) or mo.angle
+		local player = t.player
+		local ang = mo.angle
 		local dist = mo.target.radius*3
 		local x = t.x+P_ReturnThrustX(mo,ang,dist)
 		local y = t.y+P_ReturnThrustY(mo,ang,dist)
 		local z = t.z+abs(leveltime&63-31)*FRACUNIT/2 -- Gives us a hovering effect
-		local floorz = mo.floorz
-		local ceilingz = mo.ceilingz
 		if P_MobjFlip(t) == 1 -- Make sure our vertical orientation is correct
 			mo.flags2 = $&~MF2_OBJECTFLIP
-			mo.eflags = $&~MFE_VERTICALFLIP
 		else
-			--floorz = mo.ceilingz
-			--ceilingz = mo.floorz
-			--z = ((t.z-(t.height))+mo.height)+abs(leveltime&63-31)*FRACUNIT/2
+	-- 		z = $+t.height
 			mo.flags2 = $|MF2_OBJECTFLIP
-			mo.eflags = $|MFE_VERTICALFLIP
 		end
 		P_MoveOrigin(mo,t.x,t.y,t.z)
 		P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
-		mo.z = max(floorz,min(ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
+		mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
 	else --Loose?
 		mo.flags = ($|MF_BOUNCE)&~MF_SLIDEME
 		if mo.flags & MF_GRENADEBOUNCE == 0
@@ -789,12 +798,18 @@ CR.ThinkFrame = function() --Main Thinker
 		end
 
 		local mo = chaosring
+
+
+
 		if mo.chaosring_corona and mo.chaosring_corona.valid then
+			applyflip(mo, mo.chaosring_corona)
 			mo.chaosring_corona.fuse = max($, 2)
 			mo.chaosring_corona.scale = mo.scale
-			P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, mo.z+(P_MobjFlip(mo)*(mo.height/2)))
-		else
-			mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,0, MT_INVINCIBLE_LIGHT)
+			P_MoveOrigin(mo.chaosring_corona, mo.x, mo.y, ((P_MobjFlip(mo)==-1) and (mo.z+mo.height-(mo.height/2))) or mo.z+(mo.height/2))
+		end
+		if not(mo.chaosring_corona and mo.chaosring_corona.valid) then
+			mo.chaosring_corona = P_SpawnMobjFromMobj(mo, 0,0,((P_MobjFlip(mo)==-1) and (mo.height-(mo.height/2))) or mo.z+(mo.height/2), MT_INVINCIBLE_LIGHT)
+			applyflip(mo, mo.chaosring_corona)
 			mo.chaosring_corona.frame = ($ & ~FF_TRANSMASK) | FF_TRANS80
 			mo.chaosring_corona.renderflags = $|RF_NOCOLORMAPS|RF_FULLBRIGHT
 			mo.chaosring_corona.blendmode = AST_ADD
