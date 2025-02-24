@@ -1069,8 +1069,9 @@ C.ThinkFrame = function()
 					player.powers[pw_nocontrol] = ($ and max($, 2)) or 2
 					player.nodamage = ($ and max($, 2)) or 2
 					player.intangible = true
-					if player.mo.state != S_PLAY_ROLL then
-						player.mo.state = S_PLAY_ROLL
+					local spawnstate = (B.SkinVars[player.mo.skin] and B.SkinVars[player.mo.skin].spawnanim_state) or S_PLAY_ROLL
+					if player.mo.state != spawnstate then
+						player.mo.state = spawnstate
 					end
 				else
 					player.bank_depositing.playerDepositing = nil
