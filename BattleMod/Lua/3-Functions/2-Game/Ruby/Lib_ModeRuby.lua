@@ -122,22 +122,24 @@ end
 
 R.Collect = function(mo,toucher,playercansteal)
 
-	local rubyIsValid = (mo and mo.valid)
-	local targetIsValid = rubyIsValid and (mo.target and mo.target.valid)
-	local toucherIsValid = (toucher and toucher.valid)
-	local targetIsToucher = targetIsValid and toucherIsValid and (mo.target == toucher)
-	local toucherIsPlayer = toucherIsValid and toucher.player
-	local targetIsPlayer = targetIsValid and mo.target.player
+	local rubyIsValid 			= (mo and mo.valid)
+	local targetIsValid			= rubyIsValid and (mo.target and mo.target.valid)
+	local toucherIsValid 		= (toucher and toucher.valid)
+	local targetIsToucher 		= targetIsValid and toucherIsValid and (mo.target == toucher)
+	local toucherIsPlayer 		= toucherIsValid and toucher.player
+	local targetIsPlayer 		= targetIsValid and mo.target.player
 	local toucherIsPlayerInPain = toucherIsValid and toucherIsPlayer and P_PlayerInPain(toucher.player)
-	local toucherIsFlashing = toucherIsValid and toucherIsPlayer and toucher.player.powers[pw_flashing]
-	local toucherIsDead = toucherIsValid and toucherIsPlayer and (toucher.player.playerstate ~= PST_LIVE)
+	local toucherIsFlashing 	= toucherIsValid and toucherIsPlayer and toucher.player.powers[pw_flashing]
+	local toucherIsDead 		= toucherIsValid and toucherIsPlayer and (toucher.player.playerstate ~= PST_LIVE)
+	local toucherIsParrying     = toucherIsValid and (toucherIsPlayer and toucher.player.guard)
+	local toucherIsAirDodging   = toucherIsValid and (toucherIsPlayer and toucher.player.airdodge > 0)
 
 	local teammatepass = (G_GametypeHasTeams() and (targetIsValid and toucherIsValid) and not(targetIsToucher) and (toucherIsPlayer and targetIsPlayer) and (toucher.player.ctfteam == mo.target.player.ctfteam) and (mo.target.player.cmd.buttons & BT_TOSSFLAG))
 
 	
 	if targetIsValid and toucherIsValid then
 		if toucherIsPlayer and targetIsPlayer then
-			if (toucherIsPlayerInPain) or (toucherIsFlashing) or (toucherIsDead) then return true end
+			if (toucherIsPlayerInPain) or (toucherIsDead) then return true end
 			if not(playercansteal or teammatepass) then return true end
 		end
 	end
@@ -145,6 +147,11 @@ R.Collect = function(mo,toucher,playercansteal)
 
 	if not(rubyIsValid) then return true end
 	if not(toucherIsValid) then return true end
+
+	if toucherIsFlashing then
+		toucher.player.powers[pw_flashing] = max($,2)
+		return true
+	end
 
 	mo.lasttouched = (targetIsValid and mo.target)
 	local previoustarget = mo.target

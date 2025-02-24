@@ -307,6 +307,8 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	local toucherTossdelay 		= (toucherIsPlayer and toucher.player.tossdelay)
 	local toucherCTFTeam 		= (toucherIsPlayer and toucher.player.ctfteam)
 	local toucherHasCrystal 	= (toucherIsPlayer and toucher.player.gotcrystal)
+	local toucherIsParrying     = (toucherIsPlayer and toucher.player.guard)
+	local toucherIsAirDodging   = (toucherIsPlayer and toucher.player.airdodge > 0)
 
 	--Previous Target
 	local previousTarget = (mo.target and mo.target.valid) --Old Target
@@ -328,12 +330,19 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 
 	if toucherIsPlayer and 
 	(toucherIsTarget 
-	or toucherIsPlayerInPain 
-	or toucherIsFlashing 
+	or toucherIsPlayerInPain
+	--or (toucherIsAirDodging and not(mo.captured))
+	--or (toucherIsParrying   and not(mo.captured))
 	or toucherTossdelay 
 	or toucherHasCrystal) then
 		return true
 	end
+
+	if toucherIsFlashing and not(mo.captured) then
+		toucher.player.powers[pw_flashing] = max($,2)
+		return true
+	end
+
 
 	if previousTarget then
 		if previousTargetIsPlayer then --Last target was a Chaos Ring holder?
