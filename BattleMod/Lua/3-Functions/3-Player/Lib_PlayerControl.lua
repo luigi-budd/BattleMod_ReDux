@@ -513,6 +513,10 @@ B.TestScript = function(player, ...)
 		elseif switchcase == 3 then
 			player.lifeshards = 2
 			return "Lifeshards"
+		elseif switchcase == 4 then
+			--player.mo.hitstun_tics = TICRATE*3
+			B.ApplyHitstun(player.mo, TICRATE*3)
+			return "Hit stun"
 		end
 	end
 	-- wheres my switch case :sob: ~lu

@@ -379,7 +379,7 @@ B.tailsthrow = function(player)
 			player.drawangle = mo.angle
 		end
 		local omg = TICRATE/5
-		mo.hitstun_tics = omg
+		B.ApplyHitstun(mo, omg)
 		P_FlashPal(player, PAL_INVERT, omg)
 		player.tailsthrown = 0
 	end

@@ -222,24 +222,24 @@ B.PlayerPostThinkFrame = function(player)
 	local mo = player.mo
 	
 	-- Hitstun effects
-	if mo and mo.hitstun_tics
+	if mo and mo.hitstun_tics then
 		mo.hitstun_tics = max(0, $-1)
 		mo.flags = $|MF_NOTHINK
-		if mo.hitstun_tics --and mo.hitstun_disrupt
+		if mo.hitstun_tics then --and mo.hitstun_disrupt
 			mo.spritexoffset = P_RandomRange(8, -8) * FRACUNIT
 			mo.spriteyoffset = P_RandomRange(2, 2) * FRACUNIT
 			if player.followmobj then
 				player.followmobj.spritexoffset = mo.spritexoffset
 				player.followmobj.spriteyoffset = mo.spriteyoffset
 			end
-		elseif not(mo.hitstun_tics)
+		elseif not(mo.hitstun_tics) then
 			mo.spritexoffset = 0
 			mo.spriteyoffset = 0
 			if player.followmobj then
 				player.followmobj.spritexoffset = 0
 				player.followmobj.spriteyoffset = 0
 			end
-			mo.hitstun_disrupt = false
+			--mo.hitstun_disrupt = false
 			mo.flags = $ &~ MF_NOTHINK
 		end
 		return true
@@ -249,4 +249,8 @@ B.PlayerPostThinkFrame = function(player)
 	if player.powers[pw_carry] == CR_DUSTDEVIL and player.actionstate and not (player.actionsuper) then
 		B.ResetPlayerProperties(player)
 	end
+end
+
+B.ApplyHitstun = function(mo, tics)
+	mo.hitstun_tics = $ and max($, tics) or tics
 end

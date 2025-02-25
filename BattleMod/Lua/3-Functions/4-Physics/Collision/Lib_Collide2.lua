@@ -396,13 +396,13 @@ B.DoPlayerInteract = function(smo,tmo)
 			impact = 5
 			S_StartSoundAtVolume(mo[n1],sfx_s3k49, 200)
 			S_StartSound(mo[n2],sfx_s3k9b)
-			mo[n1].hitstun_tics = impact
+			B.ApplyHitstun(mo[n1], impact)
 			if shake
 				P_FlashPal(displayplayer, PAL_INVERT, impact)
 				P_StartQuake(14 * FRACUNIT, impact)
 			end
 		end
-		mo[n2].hitstun_tics = impact*3
+		B.ApplyHitstun(mo[n2], impact*3)
 		local vfx = P_SpawnMobjFromMobj(mo[n2], 0, 0, mo[n2].height/2, MT_SPINDUST)
 		local hitcolors = {SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERGOLD1,SKINCOLOR_SUPERRED1}
 		if vfx.valid
