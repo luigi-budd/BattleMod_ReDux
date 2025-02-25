@@ -1,9 +1,74 @@
 Maincfg Category
+GameData = srb2battle.dat
 LoopTitle = true
 TitlePicsMode = None
 TitleMap = 99
 TitleScrollSpeed = 0
 NumDemos = 0
+IntroToPlay = 0
+UseBlackRock = false
+TutorialMap = BZ
+SPStage_Start = BZ
+SPMarathon_Start = BZ
+Use1UpSound = true
+MaxXtraLife = 0
+CustomVersion = v10
+
+Clear Unlockables
+Clear Emblems
+Clear ExtraEmblems
+Clear ConditionSets
+#Clear Levels
+
+Unlockable 1
+Name = Play as Amy
+Objective = Unlocked by default
+Height = 0
+ConditionSet = -1
+Type = Skin Amy
+NoChecklist = true
+
+Unlockable 2
+Name = Play as Fang
+Objective = Unlocked by default
+Height = 0
+ConditionSet = -1
+Type = Skin Fang
+NoChecklist = true
+
+Unlockable 3
+Name = Play as Metal Sonic
+Objective = Unlocked by default
+Height = 0
+ConditionSet = -1
+Type = Skin MetalSonic
+NoChecklist = true
+
+Unlockable 4
+Name = Sound Test
+Objective = Unlocked by default
+Height = 20
+ConditionSet = -1
+Type = SoundTest
+NoChecklist = false
+
+Unlockable 5
+Name = Pandora's Box
+Objective = Unlocked by default
+Height = 0
+ConditionSet = -1
+Type = Pandora
+NoChecklist = true
+
+Unlockable 6
+Name = Nothing
+Objective = Play for 100 hours
+Type = Header
+Height = -99
+ConditionSet = 1
+
+ConditionSet 1
+Condition1 = PlayTime 12600000
 
 Level BZ
 LevelName = Training
