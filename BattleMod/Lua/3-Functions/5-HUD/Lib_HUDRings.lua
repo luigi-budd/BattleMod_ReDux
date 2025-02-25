@@ -6,34 +6,6 @@ local TF_WHITE = 1
 local TF_YELLOW = 2
 local TF_RED = 3
 
-//3D distance used by getProximity
-local dist3D = function(mo1,mo2)
-	local x = mo2.x - mo1.x
-	local y = mo2.y - mo1.y
-	local z = mo2.z - mo1.z
-	return FixedHypot(FixedHypot(x,y),z)
-end
-//Proximity checker for the emblem radar
-local getProximity = function(mo, target)
-	if not (mo and mo.valid) or not (target and target.valid) return 1 end
-	local dist = dist3D(mo,target)/FRACUNIT
-	if target.inactive return 1 end
-	//Data taken from source code
-	local i = 1
-	if dist < 128
-		i = 6
-	elseif dist < 512
-		i = 5
-	elseif dist < 1024
-		i = 4
-	elseif dist < 2048
-		i = 3
-	elseif dist < 3072
-		i = 2
-	end
-	return i
-end
-
 local function spawnSparkle(v, f, x, y, m1, m2, s)
 	table.insert(hudobjs, {
 		drawtype = "sprite",
@@ -160,7 +132,7 @@ B.RingsHUD = function(v, player, cam)
 			if invalid then
 				continue 
 			end
-			local proximity = getProximity(p.mo, chaosring)
+			local proximity = B.GetProximity(p.mo, chaosring)
 			if proximity > 1 then
 				table.insert(beeps, {proximity=proximity, color=chaosring.color})
 			end
