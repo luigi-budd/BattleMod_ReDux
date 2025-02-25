@@ -199,10 +199,13 @@ B.BashableCollision = function(mo, other)
 		return
     end
 	--Gate for pushing solids
+	--EDIT: nvm this mega janky, probably thanks to the new srb2 update ~lu
+	--[[
 	if not(mo.battle_atk) and (mo.flags&MF_SOLID and not(other.player.battle_atk)) then
 		mo.flags = mo.info.flags
 		B.DebugPrint("Denied (pushing solids)",DF_COLLISION)
 	return end
+	]]
 	
 	--Register "pushed"
 	mo.pushed = other
