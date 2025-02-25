@@ -13,7 +13,6 @@ local dist3D = function(mo1,mo2)
 	local z = mo2.z - mo1.z
 	return FixedHypot(FixedHypot(x,y),z)
 end
-
 //Proximity checker for the emblem radar
 local getProximity = function(mo, target)
 	if not (mo and mo.valid) or not (target and target.valid) return 1 end
@@ -170,7 +169,7 @@ B.RingsHUD = function(v, player, cam)
 		if #beeps then
 			table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
 			if not(leveltime % proxBeep[beeps[1].proximity]) then
-				S_StartSoundAtVolume(p.mo, sfx_crng2, 100, p)
+				--S_StartSoundAtVolume(p.mo, sfx_crng2, 100, p)
 			end
 			v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, outline, flags_hudtrans, v.getColormap(TC_BLINK, radarColor[beeps[1].proximity]))
 		end
