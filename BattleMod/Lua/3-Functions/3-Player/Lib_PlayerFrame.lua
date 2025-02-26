@@ -246,7 +246,7 @@ B.PlayerPostThinkFrame = function(player)
 	end
 
 	-- Dust devils interactions
-	if player.powers[pw_carry] == CR_DUSTDEVIL and player.actionstate and not (player.actionsuper) then
+	if (player.powers[pw_carry] & CR_DUSTDEVIL) and (player.actionstate and not (player.actionsuper)) then
 		B.ResetPlayerProperties(player)
 	end
 end

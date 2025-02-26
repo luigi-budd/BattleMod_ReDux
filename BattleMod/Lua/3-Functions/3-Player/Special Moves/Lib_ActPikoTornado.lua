@@ -197,7 +197,7 @@ B.Action.PikoTornado = function(mo,doaction)
 		spinhammer(mo)
 		sparkle(mo)
 		//Air control
-		if player.pflags&PF_JUMPDOWN or doaction then
+		if (player.pflags&PF_JUMPDOWN or doaction) and not (player.cmd.buttons & BT_SPIN) then
 			P_SetObjectMomZ(mo,FRACUNIT/8,1)
 		end
 		//Extra Projectiles
@@ -205,7 +205,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			player.pflags = $ | PF_NOJUMPDAMAGE
 			if mo.tornadocollide and mo.tornadocollide == leveltime then
 				for n = 1,8 do
-					B.SpawnWave(player, n*ANGLE_45, n>1)
+					B.SpawnWave(player, n*ANGLE_45, n>1, n%2==0)
 				end
 			else
 				for n = 1,8 do
@@ -230,9 +230,8 @@ B.Action.PikoTornado = function(mo,doaction)
 		//Neutral
 		local nearground = P_IsObjectOnGround(mo) or mo.z+mo.momz*P_MobjFlip(mo) < mo.floorz
 		if nearground or player.actiontime > TICRATE*3/2 or player.powers[pw_carry] then
-			if nearground or (player.cmd.buttons & BT_SPIN) then
+			if (nearground or (player.cmd.buttons & BT_SPIN)) and not (player.powers[pw_carry]) then
 				player.melee_state = st_release
-				--mo.state = S_PLAY_MELEE
 				player.actionstate = air_special+1
 			else
 				mo.state = S_PLAY_FALL
@@ -246,7 +245,9 @@ B.Action.PikoTornado = function(mo,doaction)
 	end
 
 	if player.actionstate == air_special+1
-		if (player.actiontime < TICRATE-(TICRATE/3)) then 
+		local activeframes = player.actiontime < TICRATE-(TICRATE/3)
+		local ihatedustdevils = mo.momz*P_MobjFlip(mo) > mo.scale*10
+		if activeframes and not ihatedustdevils then 
 			if P_IsObjectOnGround(mo) then
 				mo.frame = 0
 				mo.sprite2 = SPR2_MLEL
