@@ -277,6 +277,12 @@ B.RingsHUD = function(v, player, cam)
 			elseif B.DiamondGametype() then
 				patch = v.cachePatch("TOPZBT")
 				color = nil
+			elseif B.BankGametype() then
+				patch = v.cachePatch("RINGBT")
+				color = ((player.mo and player.mo.valid) and 
+						(player.mo.chaosring and player.mo.chaosring.valid) and 
+						(player.mo.chaosring.chaosring_num and CR.Data[player.mo.chaosring.chaosring_num]) and
+						CR.Data[player.mo.chaosring.chaosring_num].color) or SKINCOLOR_GOLDENROD
 			elseif G_GametypeHasTeams() then
 				local flagcolors = {SKINCOLOR_BLUE, SKINCOLOR_RED}
 				color = flagcolors[player.ctfteam]
