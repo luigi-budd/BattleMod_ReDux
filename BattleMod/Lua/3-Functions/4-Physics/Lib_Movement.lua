@@ -78,3 +78,18 @@ B.ZLaunch = function(mo,thrust,relative)
 	end
 	P_SetObjectMomZ(mo,thrust,relative)
 end
+
+B.ZLimit = function(mo,amount)
+	local zlimit = FixedMul(-P_GetMobjGravity(mo)*2, FixedMul(mo.scale, amount))
+	local action = P_MobjFlip(mo) > 0 and min or max
+	mo.momz = action($, zlimit)
+end
+
+B.XYLimit = function(mo,amount)
+	local xyspeed = FixedHypot(mo.momx, mo.momy)
+	if xyspeed > amount then
+		local scale = FixedDiv(amount, xyspeed)
+		mo.momx = FixedMul(mo.momx, scale)
+		mo.momy = FixedMul(mo.momy, scale)
+	end
+end
