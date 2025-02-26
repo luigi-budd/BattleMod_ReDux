@@ -28,13 +28,13 @@ CV.ChaosRing_WinTime = CV_RegisterVar({
     flags = CV_NETVAR|CV_CALL,
     PossibleValue = CV_Natural,
     func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Collecting all 6 Chaos Rings will result in victory after "..cv.value.." seconds.")
-		end
-    end
+    	if cv.value == cv.defaultvalue then return end
+   		if cv.value > 0 then
+    		print("Collecting all 6 Chaos Rings will result in victory after "..cv.value.." seconds.")
+    	end
+	end
 })
-
+    
 CV.ChaosRing_CaptureTime = CV_RegisterVar({
     name = "chaosring_capturetime",
     defaultvalue = 2,
@@ -42,9 +42,9 @@ CV.ChaosRing_CaptureTime = CV_RegisterVar({
     PossibleValue = CV_Natural,
     func = function(cv)
 		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Chaos Rings will now take "..cv.value.." seconds to capture.")
-		end
+      	if cv.value > 0 then
+            print("Chaos Rings will now take "..cv.value.." seconds to capture.")
+      	end
     end
 })
 
@@ -55,9 +55,9 @@ CV.ChaosRing_StealTime = CV_RegisterVar({
     PossibleValue = CV_Natural,
     func = function(cv)
 		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Chaos Rings will now take "..cv.value.." seconds to steal.")
-		end
+      	if cv.value > 0 then
+            print("Chaos Rings will now take "..cv.value.." seconds to steal.")
+      	end
     end
 })
 
@@ -68,9 +68,9 @@ CV.ChaosRing_InvulnTime = CV_RegisterVar({
     PossibleValue = CV_Natural,
     func = function(cv)
 		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Chaos Rings will be protected from theft for "..cv.value.." seconds after capture.")
-		end
+      	if cv.value > 0 then
+            print("Chaos Rings will be protected from theft for "..cv.value.." seconds after capture.")
+      	end
     end
 })
 
@@ -81,13 +81,13 @@ CV.ChaosRing_CaptureScore = CV_RegisterVar({
     PossibleValue = CV_Natural,
     func = function(cv)
 		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Capturing a Chaos Ring will award your team "..cv.value.." points.")
-		end
+    	if cv.value > 0 then
+        	print("Capturing a Chaos Ring will award your team "..cv.value.." points.")
+      	end
     end
 })
 
-CV.CV.ChaosRing_Debug = CV_RegisterVar({
+CV.ChaosRing_Debug = CV_RegisterVar({
     name = "CV.ChaosRing_Debug",
     defaultvalue = "Off",
     value = 0,
