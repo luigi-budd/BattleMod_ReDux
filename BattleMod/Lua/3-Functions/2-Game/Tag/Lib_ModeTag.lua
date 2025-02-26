@@ -59,7 +59,7 @@ B.TagConverter = function(player)
 	
 	player.battletagIT = true
 	IT_Spawner(player)
-	player.BTblindfade = 0
+	--player.BTblindfade = 0
 	P_ResetScore(player)
 	player.score = 0
 	for i, p in ipairs(B.TagRunners) do
@@ -184,9 +184,9 @@ B.TagControl = function()
 		end
 		for i, player in ipairs(B.TagTaggers) do
 			player.pflags = $ | PF_FULLSTASIS
-			if player.BTblindfade < 10
+			/*if player.BTblindfade < 10
 				player.BTblindfade = $ + 1
-			end
+			end*/
 		end
 		if B.TagPreTimer > 0
 			B.TagPreTimer = $ - 1
@@ -211,9 +211,9 @@ B.TagControl = function()
 		end
 		for i, player in ipairs(B.TagTaggers) do
 			totaltaggers = $ + 1
-			if player.BTblindfade > 0
+			/*if player.BTblindfade > 0
 				player.BTblindfade = $ - 1
-			end
+			end*/
 			if player.ITindiBT == nil or not player.ITindiBT.valid
 				IT_Spawner(player)
 			end
