@@ -60,7 +60,7 @@ CR.ChaosRingCapHUD = function(v)
 		if tics > TICRATE*3 or tics%2==0 then
             v.drawString((x/FU)-2, y/FU, tics/TICRATE, f, "thin-center")
         end
-    else
+    elseif not (B.Exiting) then
         local team = nil
         for i = 1, 2 do
             local bank = (i==1 and C.RedBank) or C.BlueBank
@@ -77,31 +77,38 @@ CR.ChaosRingCapHUD = function(v)
 
 
         if team then
-            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(server.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|V_SNAPTOLEFT, "thin-center")
+            local trans = B.Timeout and V_HUDTRANSHALF or V_HUDTRANS
+            v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(server.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|trans, "thin-center")
         end
     end
 end
 
 CR.ChaosRingHUD = function(v, player)
     --Froot Loops (Chaos Rings)
-    if B.BankGametype() then
-        local flags = V_PERPLAYER|V_SNAPTOTOP
-        local x = 160*FRACUNIT
-        local y = (CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) and 26*FRACUNIT) or 26*FRACUNIT
-        local rednum = 0
-        local bluenum = 0
-        for t = 1, 2 do
-            local val = 1
-            local flip = (t==1 and val) or -val
-            for i = 1, 6 do
-                local num = i
-                local chaosring = CR.GetChaosRing(num)
-                if not(chaosring and chaosring.valid) then continue end
-                if not((chaosring.captured and (chaosring.captureteam == t)) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.chaosring_bankkey)) and (leveltime%2)==1)) then continue end
-                local patch = v.cachePatch("CHRING"..num)
-                local trans = chaosring.fuse and (leveltime/6)%2==1 and V_HUDTRANSHALF or V_HUDTRANS
-                v.drawScaled((x-(FRACUNIT*3)+(flip*((FRACUNIT/3)*(28)))*(i+2)), (y+(FRACUNIT*10)), FRACUNIT/2, patch, flags|trans)
+    if not B.BankGametype() then
+        return
+    end
+    local flags = V_PERPLAYER|V_SNAPTOTOP
+    local x = 160*FRACUNIT
+    local y = (CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) and 26*FRACUNIT) or 26*FRACUNIT
+    local rednum = 0
+    local bluenum = 0
+    for t = 1, 2 do
+        local val = 1
+        local flip = (t==1 and val) or -val
+        for i = 1, 6 do
+            local num = i
+            local chaosring = CR.GetChaosRing(num)
+            if not(chaosring and chaosring.valid) then continue end
+            if not((chaosring.captured and (chaosring.captureteam == t)) or ((chaosring.target and chaosring.target.valid and chaosring.target.player and (chaosring.target.player.ctfteam == t) and chaosring.target.player.gotcrystal_time and not(chaosring.chaosring_bankkey)) and (leveltime%2)==1)) then continue end
+            local patch = v.cachePatch("CHRING"..num)
+            local trans = (chaosring.fuse or chaosring.beingstolen) and (leveltime/6)%2==1 and V_HUDTRANSHALF or V_HUDTRANS
+            if chaosring.beingstolen then
+                local shake = 1
+                x = $ + v.RandomRange(-shake,shake)
+			    y = $ + v.RandomRange(-shake,shake)
             end
+            v.drawScaled((x-(FRACUNIT*3)+(flip*((FRACUNIT/3)*(28)))*(i+2)), (y+(FRACUNIT*10)), FRACUNIT/2, patch, flags|trans)
         end
     end
 end

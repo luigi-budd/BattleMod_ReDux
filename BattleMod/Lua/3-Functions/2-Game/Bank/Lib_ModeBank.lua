@@ -404,6 +404,29 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 	end
 end
 
+local chaosringspark = function(mo)
+	local r
+	if not(leveltime%8) then
+		if mo.beingstolen then
+			local g = P_SpawnGhostMobj(mo)
+			g.blendmode = AST_ADD
+			g.tics = 7
+			g.frame = ($ & ~FF_TRANSMASK) | FF_TRANS50
+			g.scale = $ * 8/7
+			g.destscale = mo.scale * 3/2
+			g.scalespeed = FRACUNIT/2
+			r = g
+		else
+			local spark = P_SpawnMobjFromMobj(mo,0,0,0,MT_SUPERSPARK)
+			spark.scale = mo.scale
+			spark.colorized = true
+			spark.color = mo.color
+			spark.spriteyoffset = $-(FRACUNIT*6)
+			r = spark
+		end
+	end
+	return r
+end
 
 local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
@@ -426,7 +449,11 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 	end
 
 	--Set internal angle
-	mo.angle = $+rotatespd
+	if mo.beingstolen or (mo.target and mo.target.valid and mo.target.chaosring_capturing) then
+		mo.angle = $+(rotatespd/8)
+	else
+		mo.angle = $+rotatespd
+	end
 	
 	-- Owner has been pushed by another player
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
@@ -465,24 +492,22 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 	end
 	
 	if mo.target and mo.target.valid then --Claimed?
-
-		if not(leveltime%8) then
-			local spark = P_SpawnMobjFromMobj(mo,0,0,0,MT_SUPERSPARK)
-			spark.scale = mo.scale
-			spark.colorized = true
-			spark.color = mo.color
-			spark.spriteyoffset = $-(FRACUNIT*6)
-		end
+		chaosringspark(mo)
 
 		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
 		local player = t.player
 		local ang = mo.angle
-		local dist = mo.target.radius*3
+		local dist = t.radius*3
+		if t.chaosring_capturing then
+			local offset = player and (player.gotcrystal_time*mo.scale) or 1 
+			dist = $-(offset/2)
+		end
 		local x = t.x+P_ReturnThrustX(mo,ang,dist)
 		local y = t.y+P_ReturnThrustY(mo,ang,dist)
 		local z = t.z+abs(leveltime&63-31)*FRACUNIT/2 -- Gives us a hovering effect
-		if P_MobjFlip(t) == 1 -- Make sure our vertical orientation is correct
+		local flip = P_MobjFlip(t)
+		if flip == 1 -- Make sure our vertical orientation is correct
 			mo.flags2 = $&~MF2_OBJECTFLIP
 		else
 	-- 		z = $+t.height
@@ -499,13 +524,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 			B.ZLaunch(mo, (zz - mo.z) / 120, false)
 			
 		else
-			if not(leveltime%8) then
-				local spark = P_SpawnMobjFromMobj(mo,0,0,0,MT_SUPERSPARK)
-				spark.scale = mo.scale
-				spark.colorized = true
-				spark.color = mo.color
-				spark.spriteyoffset = $-(FRACUNIT*6)
-			end
+			chaosringspark(mo)
 			mo.flags = $&~MF_NOGRAVITY
 			if P_IsObjectOnGround(mo)
 				-- Bounce behavior
@@ -939,6 +958,8 @@ local capture = function(mo, team, bank)
 		mo.chaosring.chaosring_bankkey = #bank.chaosrings_table
 		captureChaosRing(mo.chaosring, bank)
 		return true
+	else
+		
 	end
 end
 
