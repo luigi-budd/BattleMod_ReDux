@@ -205,6 +205,10 @@ B.HammerControl = function(player)
 		return
 	end
 
+	if (player.melee_state == st_hold) --failsafe because ice physics are weird!!
+		mo.state = S_PLAY_MELEE
+		mo.frame = 0
+	end 
 	if not(P_IsObjectOnGround(mo))
 		if (mo.state != S_PLAY_MELEE and mo.state != S_PLAY_MELEE_FINISH)
 			player.melee_state = st_idle
