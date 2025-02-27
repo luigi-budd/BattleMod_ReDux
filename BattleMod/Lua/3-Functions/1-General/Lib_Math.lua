@@ -96,3 +96,31 @@ B.NearPlayer = function(mo, fracunits)
 		return FixedHypot(FixedHypot(dx, dy), dz) < mo.scale*fracunits
 	end
 end
+
+//3D distance used by B.GetProximity
+B.Dist3D = function(mo1,mo2)
+	local x = mo2.x - mo1.x
+	local y = mo2.y - mo1.y
+	local z = mo2.z - mo1.z
+	return FixedHypot(FixedHypot(x,y),z)
+end
+//Proximity checker for the emblem radar
+B.GetProximity = function(mo, target)
+	if not (mo and mo.valid) or not (target and target.valid) return 1 end
+	local dist = B.Dist3D(mo,target)/FRACUNIT
+	if target.inactive return 1 end
+	//Data taken from source code
+	local i = 1
+	if dist < 128
+		i = 6
+	elseif dist < 512
+		i = 5
+	elseif dist < 1024
+		i = 4
+	elseif dist < 2048
+		i = 3
+	elseif dist < 3072
+		i = 2
+	end
+	return i
+end

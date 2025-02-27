@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local C = B.Bank
+local CV = CBW_Battle.Console
 C.RedBank = nil
 C.BlueBank = nil
 C.ChaosRing = {}
@@ -8,93 +9,6 @@ local CR = C.ChaosRing
 
 --Constants
 local BANK_RINGLIMIT = C.BANK_RINGLIMIT
-
-local cv_startspawnbuffer = CV_RegisterVar({
-    name = "chaosring_startspawnbuffer",
-    defaultvalue = 25,
-    flags = CV_NETVAR|CV_CALL,
-    PossibleValue = CV_Natural,
-    func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-        print("Chaos Rings will start spawning in Ring Rally after "..cv.value.." seconds.")
-    end
-})
-
-local cv_spawnbuffer = CV_RegisterVar({
-    name = "chaosring_spawnbuffer",
-    defaultvalue = 10,
-    flags = CV_NETVAR|CV_CALL,
-    PossibleValue = CV_Natural,
-    func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-        print("Chaos Rings will spawn in Ring Rally every "..cv.value.." seconds.")
-    end
-})
-
-local cv_wintime = CV_RegisterVar({
-    name = "chaosring_wintime",
-    defaultvalue = 3,
-    flags = CV_NETVAR|CV_CALL,
-    PossibleValue = CV_Natural,
-    func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Collecting all 6 Chaos Rings will result in victory after "..cv.value.." seconds.")
-		end
-    end
-})
-
-local cv_capturetime = CV_RegisterVar({
-    name = "chaosring_capturetime",
-    defaultvalue = 2,
-    flags = CV_NETVAR|CV_CALL,
-    PossibleValue = CV_Natural,
-    func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Chaos Rings will now take "..cv.value.." seconds to capture.")
-		end
-    end
-})
-
-local cv_stealtime = CV_RegisterVar({
-    name = "chaosring_stealtime",
-    defaultvalue = 3,
-    flags = CV_NETVAR|CV_CALL,
-    PossibleValue = CV_Natural,
-    func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Chaos Rings will now take "..cv.value.." seconds to steal.")
-		end
-    end
-})
-
-local cv_invulntime = CV_RegisterVar({
-    name = "chaosring_invulntime",
-    defaultvalue = 15,
-    flags = CV_NETVAR|CV_CALL,
-    PossibleValue = CV_Natural,
-    func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Chaos Rings will be protected from theft for "..cv.value.." seconds after capture.")
-		end
-    end
-})
-
-local cv_capturescore = CV_RegisterVar({
-    name = "chaosring_capturescore",
-    defaultvalue = 50,
-    flags = CV_NETVAR|CV_CALL,
-    PossibleValue = CV_Natural,
-    func = function(cv)
-		if cv.value == cv.defaultvalue then return end
-		if cv.value > 0 then
-       		print("Capturing a Chaos Ring will award your team "..cv.value.." points.")
-		end
-    end
-})
 
 local CHAOSRING_WINPOINTS = 9999
 
@@ -171,14 +85,6 @@ local CHAOSRING_TEXT = function(num, donum)
 	end
 end
 
-local chaosring_debug = CV_RegisterVar({
-    name = "chaosring_debug",
-    defaultvalue = "Off",
-    value = 0,
-    flags = CV_NETVAR,
-    PossibleValue = CV_OnOff
-})
-
 local applyflip = function(mo1, mo2)
 	if mo1.eflags & MFE_VERTICALFLIP then
 		mo2.eflags = $|MFE_VERTICALFLIP
@@ -194,7 +100,7 @@ local applyflip = function(mo1, mo2)
 end
 
 local chprint = function(string)
-	if not(chaosring_debug.value) then return end
+	if not(CV.ChaosRing_Debug.value) then return end
 	print("\x82".."chprint:".."\x80".." "..string)
 end
 
@@ -227,11 +133,11 @@ end
 
 local resetVars = function()
 	server.SpawnTable = {} --Clear the table
-	server.WinCountdown = cv_wintime.value*TICRATE
+	server.WinCountdown = CV.ChaosRing_WinTime.value*TICRATE
 	server.SpawnCountDown = 0
 	server.AvailableChaosRings = {}
 	server.GlobalAngle = ANG20
-	server.InitSpawnWait = cv_startspawnbuffer.value*TICRATE
+	server.InitSpawnWait = CV.ChaosRing_StartSpawnBuffer.value*TICRATE
 end
 
 local addPoints = function(team, points)
@@ -293,7 +199,7 @@ end
 
 local function free(mo)
 	if not (mo and mo.valid) then return end
-	mo.fuse = (mo.captured and cv_invulntime.value*TICRATE) or freetics
+	mo.fuse = (mo.captured and CV.ChaosRing_InvulnTime.value*TICRATE) or freetics
 	mo.flags = ($|MF_GRENADEBOUNCE) & ~(MF_SPECIAL)
 	mo.idle = idletics
 end
@@ -368,7 +274,7 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 			mo.target.player.gotcrystal = false --Not Anymore
 			mo.target.chaosring = nil --Disconnect Chaos Ring from player object
 		else
-			server.WinCountdown = cv_wintime.value*TICRATE --Reset the Win Countdown
+			server.WinCountdown = CV.ChaosRing_WinTime.value*TICRATE --Reset the Win Countdown
 		end
 		mo.lasttouched = mo.target --Set lasttouched to them
 	else
@@ -418,12 +324,13 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	return true
 end
 
+
 local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 	mo.flags = $ & ~MF_SPECIAL --Can't be touched
 	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num]) --Add to Bank count
 	mo.bank = bank --Set its Bank to the new Bank
-	addPoints(mo.target.player.ctfteam, cv_capturescore.value) --Reward points to the team
-	mo.fuse = cv_invulntime.value*TICRATE --Set the steal cooldown
+	addPoints(mo.target.player.ctfteam, CV.ChaosRing_CaptureScore.value) --Reward points to the team
+	mo.fuse = CV.ChaosRing_InvulnTime.value*TICRATE --Set the steal cooldown
 	mo.scale = (mo.idealscale - (mo.idealscale/3)) --Shrink it
 	mo.captureteam = mo.target.player.ctfteam --Set the team it's captured in
 	touchChaosRing(mo, bank, true)
@@ -473,7 +380,7 @@ local function playerSteal(mo, bank) --Steal a Chaos Ring by staying on their ba
 		chprint((((bank == C.RedBank) and "\x85".."Red") or "\x84".."Blue").." Bank".."\x80".." doesn't have enough chaos rings to steal")
 	end
 
-	if mo.player.gotcrystal_time~=nil and (mo.player.gotcrystal_time >= cv_stealtime.value*TICRATE) then --If we've been standing long enough
+	if mo.player.gotcrystal_time~=nil and (mo.player.gotcrystal_time >= CV.ChaosRing_StealTime.value*TICRATE) then --If we've been standing long enough
 		if mo.chaosring_tosteal and mo.chaosring_tosteal.valid then --And the object exists
 			touchChaosRing(mo.chaosring_tosteal, mo, true) --Steal it!
 			mo.player.gotcrystal_time = 0 --Not counting anymore
@@ -679,7 +586,7 @@ local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 		server.SpawnTable[chaosring.chaosring_thingspawn.num] = chaosring.chaosring_thingspawn
 
 		--Set to Respawning in LiveTable
-		server.AvailableChaosRings[CR.GetChaosRingKey(chaosring.chaosring_num)] = {chaosring_num=chaosring.chaosring_num, valid=false, respawntimer=cv_spawnbuffer.value*TICRATE}
+		server.AvailableChaosRings[CR.GetChaosRingKey(chaosring.chaosring_num)] = {chaosring_num=chaosring.chaosring_num, valid=false, respawntimer=CV.ChaosRing_SpawnBuffer.value*TICRATE}
 
 		print("A "..CHAOSRING_TEXT(chaosring.chaosring_num).." was lost!")
 		S_StartSound(nil, sfx_kc5d)
@@ -692,7 +599,7 @@ CR.ThinkFrame = function() --Main Thinker
 	server.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd --Constantly rotating
 
 	local roundTime = leveltime-(CV_FindVar("hidetime").value*TICRATE)
-	local startupChaosRings = roundTime >= cv_startspawnbuffer.value*TICRATE
+	local startupChaosRings = roundTime >= CV.ChaosRing_StartSpawnBuffer.value*TICRATE
 
 	local allChaosRings = (#server.AvailableChaosRings >= 6)
 
@@ -711,7 +618,7 @@ CR.ThinkFrame = function() --Main Thinker
 				table.insert(server.AvailableChaosRings, spawnChaosRing(P_RandomRange(1, #server.SpawnTable), 1))
 			end
 			--Set our countdown
-			server.SpawnCountDown = cv_spawnbuffer.value*TICRATE
+			server.SpawnCountDown = CV.ChaosRing_SpawnBuffer.value*TICRATE
 		else
 			--Start counting down
 			server.SpawnCountDown = $-1
@@ -1012,7 +919,7 @@ local addHudSparkle = function(team, direction)
 end
 
 local capture = function(mo, team, bank)
-	local captime = cv_capturetime.value*TICRATE
+	local captime = CV.ChaosRing_CaptureTime.value*TICRATE
 	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == team))
 	local sfx = friendly and SLOWCAPPINGALLY_SFX or SLOWCAPPINGENEMY_SFX
 	mo.player.gotcrystal_time = ($~=nil and $+1) or 1
@@ -1035,7 +942,6 @@ local capture = function(mo, team, bank)
 	end
 end
 
-
 C.ThinkFrame = function()
 
 	if not(B.BankGametype()) then return end
@@ -1049,6 +955,33 @@ C.ThinkFrame = function()
 	
 	-- Get player-to-base statuses
 	for player in players.iterate do
+
+		--Chaos Ring Radar
+		if not(player.gotcrystal) then
+			local p = player
+			local beeps = {}
+			local proxBeep = { 50, 50, 40, 20, 10, 5 }
+			//Emblem radar. Also hidden when the menu is present.
+			for i=1,#server.AvailableChaosRings do
+				local chaosring = server.AvailableChaosRings[i]
+				local invalid = (not(chaosring and chaosring.valid) or chaosring.target or not(chaosring.valid))
+				if invalid then
+					continue 
+				end
+				local proximity = B.GetProximity(p.mo, chaosring)
+				if proximity > 1 then
+					table.insert(beeps, {proximity=proximity, color=chaosring.color})
+				end
+			end
+
+			if #beeps then
+				table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
+				if not(leveltime % proxBeep[beeps[1].proximity]) then
+					S_StartSoundAtVolume(nil, sfx_crng2, 100, p)
+				end
+				--v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, outline, flags_hudtrans, v.getColormap(TC_BLINK, radarColor[beeps[1].proximity]))
+			end
+		end
 
 		if player.rings >= BANK_RINGLIMIT then
 			if not(player.gotmaxrings) then

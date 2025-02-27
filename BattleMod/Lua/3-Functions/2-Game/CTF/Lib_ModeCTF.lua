@@ -635,12 +635,7 @@ local function delayCap(p, team)
 	end
 end
 
--- A master HUD object, for spawning additional HUD objects
 table.insert(hudobjs, {
--- 	drawtype = "nametag",
--- 	scale = FRACUNIT/4,
--- 	color = SKINCOLOR_BLUE,
--- 	color2 = SKINCOLOR_YELLOW,
 	flags = V_SNAPTOTOP,
 	align = "right",
 	x = FRACUNIT*320,

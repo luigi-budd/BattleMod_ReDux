@@ -59,7 +59,7 @@ B.TagConverter = function(player)
 	
 	player.battletagIT = true
 	IT_Spawner(player)
-	player.BTblindfade = 0
+	--player.BTblindfade = 0
 	P_ResetScore(player)
 	player.score = 0
 	for i, p in ipairs(B.TagRunners) do
@@ -93,6 +93,31 @@ B.TagControl = function()
 	for player in players.iterate do
 		if player.solchar then player.solchar.hasallemeralds = false end
 		if B.IsValidPlayer(player)
+
+			--radar function
+			if B.TagPreRound > 1 and (timelimit * 60 * TICRATE - player.realtime <= 180 * TICRATE)
+				local opponents = (player.battletagIT and B.TagRunners) or B.TagTaggers
+				local proxBeep = {50,50,40,20,10,5}
+				local beeps = {}
+				for i=1,#opponents do
+					if not(opponents[i].mo and opponents[i].mo.valid) then continue end
+					if opponents[i] == player then continue end
+					if opponents[i].playerstate ~= PST_LIVE then continue end
+					local hori = (152 - 9*(#opponents-1)) + (18*(i-1))
+					local proximity = B.GetProximity(player.mo, opponents[i].mo)
+					if proximity > 1 then
+						table.insert(beeps, {proximity=proximity})
+					end
+				end
+
+				if #beeps then
+					table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
+					if not(leveltime % proxBeep[beeps[1].proximity]) then
+						S_StartSoundAtVolume(nil, sfx_crng2, 100, p)
+					end
+				end
+			end
+
 			//attempt to move players that have quit to spectator
 			if player.quittime != nil and player.quittime > TICRATE * 3
 				P_KillMobj(player.mo, nil, nil, DMG_SPECTATOR)
@@ -159,9 +184,9 @@ B.TagControl = function()
 		end
 		for i, player in ipairs(B.TagTaggers) do
 			player.pflags = $ | PF_FULLSTASIS
-			if player.BTblindfade < 10
+			/*if player.BTblindfade < 10
 				player.BTblindfade = $ + 1
-			end
+			end*/
 		end
 		if B.TagPreTimer > 0
 			B.TagPreTimer = $ - 1
@@ -186,9 +211,9 @@ B.TagControl = function()
 		end
 		for i, player in ipairs(B.TagTaggers) do
 			totaltaggers = $ + 1
-			if player.BTblindfade > 0
+			/*if player.BTblindfade > 0
 				player.BTblindfade = $ - 1
-			end
+			end*/
 			if player.ITindiBT == nil or not player.ITindiBT.valid
 				IT_Spawner(player)
 			end

@@ -6,12 +6,12 @@ B.TagGenHUD = function(v, player, cam)
 		return
 	end
 	
-	if player.battletagIT
+	/*if player.battletagIT
 		//blindfold taggers
 		if player.BTblindfade > 0 and camera2 == nil
 			v.fadeScreen(31, player.BTblindfade)
 		end
-	end
+	end*/
 	local flags = V_SNAPTOTOP | V_PERPLAYER | V_ALLOWLOWERCASE
 	local x = v.width() / v.dupx() / 2
 	if B.TagPreTimer > 0
@@ -20,10 +20,9 @@ B.TagGenHUD = function(v, player, cam)
 				" seconds until the Taggers are released!"
 		v.drawString(x, y, text, flags, "center")
 	end
-	//radar function
-	if B.TagPreRound > 1 and (timelimit * 60 * TICRATE - player.realtime <= 
-			180 * TICRATE)
-		local px = player.realmo.x
+	--radar function
+	if B.TagPreRound > 1 and (timelimit * 60 * TICRATE - player.realtime <= 180 * TICRATE)
+		/*local px = player.realmo.x
 		local py = player.realmo.y
 		local pz = player.realmo.z
 		local temp
@@ -56,7 +55,38 @@ B.TagGenHUD = function(v, player, cam)
 				flags = $ | V_GRAYMAP
 			end
 			v.drawString(x, y, tostring(radar) .. "m", flags, "center")
+		end*/
+
+		local opponents = (player.battletagIT and B.TagRunners) or B.TagTaggers
+		local radar1 = v.cachePatch("TGPLYR1")
+		local radar2 = v.cachePatch("TGPLYR2")
+		local radar3 = v.cachePatch("TGPLYR3")
+		local radar4 = v.cachePatch("TGPLYR4")
+		local radar5 = v.cachePatch("TGPLYR5")
+		local radar6 = v.cachePatch("TGPLYR6")
+		local radarColor = {radar1,radar2,radar3,radar4,radar5,radar6}
+		local proxBeep = {50,50,40,20,10,5}
+		local beeps = {}
+		local graphic = radar1
+		local skincolor = SKINCOLOR_GREY
+		for i=1,#opponents do
+			if not(opponents[i].mo and opponents[i].mo.valid) then continue end
+			if opponents[i] == player then continue end
+			if opponents[i].playerstate ~= PST_LIVE then continue end
+			local hori = (152 - 9*(#opponents-1)) + (18*(i-1))
+			local proximity = B.GetProximity(player.mo, opponents[i].mo)
+			if proximity > 1 then
+				table.insert(beeps, {proximity=proximity, color=radarColor[proximity], skincolor=opponents[i].skincolor})
+			end
 		end
+
+		if #beeps then
+			table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
+			graphic = beeps[1].color
+			skincolor = beeps[1].skincolor
+		end
+		v.draw(BASEVIDWIDTH/2, FRACUNIT*50, graphic, V_SNAPTOTOP|V_PERPLAYER, v.getColormap(0, skincolor))
+
 	end
 	//anti-AFK warnings
 	if player.BT_antiAFK <= TICRATE * 30 and player.BT_antiAFK > 0
@@ -114,9 +144,9 @@ B.TagRankHUD = function(v)
 	end
 
 	-- Blindfold
-	for player in players.iterate do
+	/*for player in players.iterate do
 		if player.battletagIT and displayplayer == player and player.BTblindfade > 0 and camera2 == nil
 			v.fadeScreen(31, player.BTblindfade)
 		end
-	end
+	end*/
 end
