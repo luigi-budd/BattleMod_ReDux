@@ -85,10 +85,15 @@ B.EmergencyWhirlWindJump = function(player)
 end
 
 addHook("ShieldSpecial", function(player)
-	if B.CanShieldActive(player) == false or B.EmergencyWhirlWindJump(player) then return true end
+	if B.CanShieldActive(player) == false or B.EmergencyWhirlWindJump(player) then
+		return true
+	end
+
 	if B.ShieldActions[(player.powers[pw_shield] & SH_NOSTACK)] then
-		B.DoShieldActive(player)
-		return true -- Prevent regular shield action if a battle shield action for this shield exists
+		if not (player.battleconfig_nospinshield or (B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)) then
+			B.DoShieldActive(player)
+		end
+		return true
 	end
 end)
 
