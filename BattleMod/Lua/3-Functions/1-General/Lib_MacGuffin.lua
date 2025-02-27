@@ -29,11 +29,38 @@ B.MacGuffinPass = function(mo) --PreThinkFrame (For Tossflag)
                     zpos = (mo.target.z+mo.target.height)-(mo.target.height+(mo.target.scale*10))
                 end
 
-                if displayplayer and displayplayer.mo and displayplayer.mo.valid and (displayplayer.mo ~= mo.target) then
-                    if (P_MobjFlip(mo.target)+P_MobjFlip(displayplayer.mo)) == 0 then
-                        frame = _G["B"]
-                        mirrored = true
+                local doflip = false
+
+                local flipfunc = function(screenplayer, flipcam)
+                    local flippedpassplayer = P_MobjFlip(mo.target)==-1
+                    local flippedscreenplayer = P_MobjFlip(screenplayer.mo)==-1
+                    --local flipcam = CV_FindVar('flipcam').value
+
+                    if flipcam then
+                        if (P_MobjFlip(mo.target)+P_MobjFlip(screenplayer.mo)) == 0 --Mismatched flips, with flipcam?
+                            doflip = true --Flip it so it's readable
+                        end
+                    else
+                        if flippedpassplayer then 
+                            doflip = true --Always flip it if the camera is never going to be flipped
+                        end
                     end
+                end
+
+                local skipflip = false
+
+
+                if not(splitscreen) then
+                    local screenplayer = displayplayer
+                    if screenplayer and screenplayer.mo and screenplayer.mo.valid then
+                       flipfunc(screenplayer, CV_FindVar("flipcam").value)
+                    end
+                end
+                
+
+                if doflip then
+                    frame = _G["B"]
+                    mirrored = true
                 end
 
                 if (btns&BT_TOSSFLAG) then
