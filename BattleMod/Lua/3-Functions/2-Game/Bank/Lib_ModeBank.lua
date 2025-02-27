@@ -231,7 +231,7 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	local toucherIsAirDodging   = (toucherIsPlayer and toucher.player.airdodge > 0)
 
 	--Previous Target
-	local previousTarget = (mo.target and mo.target.valid) --Old Target
+	local previousTarget = (mo.target and mo.target.valid and mo.target) --Old Target
 
 	local previousTargetIsPlayer = (previousTarget and mo.target and mo.target.player)
 	local previousTargetCTFTeam = (previousTargetIsPlayer and mo.target.player.ctfteam)
@@ -314,10 +314,18 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 	end
 
 	if toucher.player then
-		if not(previoustarget) then
+		if previousTarget then
+			if previousTarget.player then
+				if B.MyTeam(previousTarget.player, toucher.player) then
+					B.PrintGameFeed(previousTarget.player," passed their "..CHAOSRING_TEXT(mo.chaosring_num).." to ",toucher.player,"!")
+				else
+					B.PrintGameFeed(toucher.player," stole a "..CHAOSRING_TEXT(mo.chaosring_num).." from ",previousTarget.player,"!")
+				end
+			elseif (previousTarget == C.RedBank) or (previousTarget == C.BlueBank) then
+				B.PrintGameFeed(toucher.player," stole a "..CHAOSRING_TEXT(mo.chaosring_num).." from the "..(((previousTarget == C.RedBank) and "\x85".."Red") or "\x84".."Blue").." Team.".."\x80")
+			end
+		else
 			B.PrintGameFeed(toucher.player," picked up a "..CHAOSRING_TEXT(mo.chaosring_num).."!")
-		elseif previoustarget.player
-			B.PrintGameFeed(toucher.player," stole a "..CHAOSRING_TEXT(mo.chaosring_num).." from ",previousTarget.player,"!")
 		end
 	end
 
@@ -333,6 +341,7 @@ local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 	mo.fuse = CV.ChaosRing_InvulnTime.value*TICRATE --Set the steal cooldown
 	mo.scale = (mo.idealscale - (mo.idealscale/3)) --Shrink it
 	mo.captureteam = mo.target.player.ctfteam --Set the team it's captured in
+	B.PrintGameFeed(mo.target.player," captured a "..CHAOSRING_TEXT(mo.chaosring_num).."!")
 	touchChaosRing(mo, bank, true)
 	mo.scale = CHAOSRING_SCALE
 	mo.captured = true --Yes it has been captured

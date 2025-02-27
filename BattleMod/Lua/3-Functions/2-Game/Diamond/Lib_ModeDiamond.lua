@@ -297,7 +297,11 @@ D.Collect = function(mo,toucher,playercansteal)
 			--S_StartSound(nil, sfx_dmstl1, mo.target.player)
 			--play_for_all_but_player(sfx_dmstl2, mo.target.player)
 		--end
-		B.PrintGameFeed(toucher.player," stole the "..diamondtext.." from ",previoustarget.player,"!")
+		if B.MyTeam(toucher.player, previoustarget.player) then
+			B.PrintGameFeed(previoustarget.player," passed the "..diamondtext.." to ",toucher.player,"!")
+		else
+			B.PrintGameFeed(toucher.player," stole the "..diamondtext.." from ",previoustarget.player,"!")
+		end	
 	end
 end
 

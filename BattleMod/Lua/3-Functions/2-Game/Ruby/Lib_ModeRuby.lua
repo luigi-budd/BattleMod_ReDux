@@ -169,7 +169,11 @@ R.Collect = function(mo,toucher,playercansteal)
 	if not(previoustarget) then
 		B.PrintGameFeed(toucher.player," picked up the "..rubytext.."!")
 	else
-		B.PrintGameFeed(toucher.player," stole the "..rubytext.." from ",previoustarget.player,"!")
+		if B.MyTeam(toucher.player, previoustarget.player) then
+			B.PrintGameFeed(previoustarget.player," passed the "..rubytext.." to ",toucher.player,"!")
+		else
+			B.PrintGameFeed(toucher.player," stole the "..rubytext.." from ",previoustarget.player,"!")
+		end	
 	end
 end
 
