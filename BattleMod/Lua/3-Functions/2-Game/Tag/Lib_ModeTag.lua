@@ -113,7 +113,7 @@ B.TagControl = function()
 				if #beeps then
 					table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
 					if not(leveltime % proxBeep[beeps[1].proximity]) then
-						S_StartSoundAtVolume(nil, sfx_crng2, 100, p)
+						S_StartSoundAtVolume(nil, sfx_crng2, 100, player)
 					end
 				end
 			end
