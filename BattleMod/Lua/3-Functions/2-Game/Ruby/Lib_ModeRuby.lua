@@ -526,36 +526,36 @@ R.Thinker = function(mo)
 	P_MoveOrigin(mo,t.x,t.y,t.z)
 	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
 	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
-	B.MacGuffinPass(mo)
 	
 	local cvar_pointlimit = CV_FindVar("pointlimit").value
 	local cvar_overtime = CV_FindVar("overtime").value
 	local cvar_timelimit = CV_FindVar("timelimit").value
 	local overtime = ((cvar_overtime) and cvar_timelimit*60-leveltime/TICRATE <= 0)
 
-	if (B.Exiting) return end -- Ruby capturing behavior down below
+	if not(B.Exiting) then
 	
-	 -- Ruby Run capture mechanics
-	if gametyperules & GTR_TEAMFLAGS
-		if not P_IsObjectOnGround(t)
+		-- Ruby Run capture mechanics
+		if gametyperules & GTR_TEAMFLAGS
+			if not P_IsObjectOnGround(t)
+				return
+			end
+			if player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_BLUETEAMBASE)
+				if ((redscore+1 < cvar_pointlimit) or not(cvar_pointlimit)) and not(overtime) then
+					timeout()
+				end
+				redscore = $+1
+				capture(mo, player)
+				S_StartSound(nil, sfx_ruby0)
+			elseif player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_REDTEAMBASE)
+				if ((bluescore+1 < cvar_pointlimit) or not(cvar_pointlimit)) and not(overtime) then
+					timeout()
+				end
+				bluescore = $+1
+				capture(mo, player)
+				S_StartSound(nil, sfx_ruby0)
+			end
 			return
 		end
-		if player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_BLUETEAMBASE)
-			if ((redscore+1 < cvar_pointlimit) or not(cvar_pointlimit)) and not(overtime) then
-				timeout()
-			end
-			redscore = $+1
-			capture(mo, player)
-			S_StartSound(nil, sfx_ruby0)
-		elseif player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_REDTEAMBASE)
-			if ((bluescore+1 < cvar_pointlimit) or not(cvar_pointlimit)) and not(overtime) then
-				timeout()
-			end
-			bluescore = $+1
-			capture(mo, player)
-			S_StartSound(nil, sfx_ruby0)
-		end
-		return
 	end
 	
 	-- Ruby Control capture mechanics

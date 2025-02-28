@@ -757,8 +757,6 @@ CR.ThinkFrame = function() --Main Thinker
 			mo.chaosring_corona.color = mo.color
 			mo.chaosring_corona.fuse = 2
 		end
-
-		B.MacGuffinPass(mo)
 	end
 end
 --End of most Chaos Ring Stuff
