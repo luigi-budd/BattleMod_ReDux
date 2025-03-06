@@ -88,7 +88,7 @@ CV.ChaosRing_CaptureScore = CV_RegisterVar({
 })
 
 CV.ChaosRing_Debug = CV_RegisterVar({
-    name = "CV.ChaosRing_Debug",
+    name = "chaosring_debug",
     defaultvalue = "Off",
     value = 0,
     flags = CV_NETVAR,
