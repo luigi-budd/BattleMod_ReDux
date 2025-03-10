@@ -171,9 +171,9 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	local data = CR.Data[chaosringnum]
 
 	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
-	local float = ((thing.options&MTF_OBJECTFLIP) and 1) or 0
+	local float = ((thing.options&MTF_AMBUSH) and 1) or 0
 	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
-	local z = thing.z+(24*FRACUNIT)
+	local z = thing.z+(mobjinfo[CHAOSRING_TYPE].height/3)+(24*FRACUNIT*float)*flip
 
 	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
 	if flip == -1 then
