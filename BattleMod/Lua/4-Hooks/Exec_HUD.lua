@@ -56,6 +56,7 @@ hud.add(B.TagGenHUD)
 hud.add(B.StatsHUD, "scores")
 hud.add(F.RankingHUD, "scores")
 hud.add(B.TagRankHUD, "scores")
+hud.add(CR.RankingHUD, "scores")
 
 --Title HUD
 hud.add(B.TitleHUD, "title")
