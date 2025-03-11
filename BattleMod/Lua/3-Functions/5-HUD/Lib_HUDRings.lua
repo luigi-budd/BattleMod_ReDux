@@ -79,7 +79,7 @@ B.RingsHUD = function(v, player, cam)
 		facepos = B.SkinVars[skins[player.skin].name].hud_facepos or 0
 	end
 	local col = G_GametypeHasTeams() and player.skincolor or SKINCOLOR_PITCHBLACK
-	if player.rings == 0 and (leveltime/5 & 1) then
+	if player.rings == 0 and (leveltime/5 & 1) and not player.isjettysyn then
 		col = SKINCOLOR_PITCHBLACK
 	end
 	v.draw(x + 3 + facepos, 200, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
@@ -96,7 +96,7 @@ B.RingsHUD = function(v, player, cam)
 	local actionrings = player.actionrings or player.lastactionrings or 0
 	local patch2
 	local patch2percent 
-	if (player.rings == 0 and (leveltime/5 & 1)) then
+	if player.rings == 0 and (leveltime/5 & 1) and not (player.isjettysyn) then
 		ringpatchname = "HUD_RINGR"
 	elseif player.rings < actionrings then
 		ringpatchname = "HUD_RINGG"
@@ -307,8 +307,10 @@ B.RingsHUD = function(v, player, cam)
 		end
 		v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, flashpatch, flags | flash_trans)
 	end
-	
-	v.drawNum(x + num_offsetx, y + num_offsety, player.rings, flags_hudtrans)
+
+	if not (player.isjettysyn and player.rings == 0) then
+		v.drawNum(x + num_offsetx, y + num_offsety, player.rings, flags_hudtrans)
+	end
 
 	--Sweat
 	local warningtic = FRACUNIT/3
