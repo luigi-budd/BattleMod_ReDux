@@ -30,25 +30,7 @@ B.Action.TailSwipe_Priority = function(player)
 	elseif player.actionstate == state_sweep
 		B.SetPriority(player,1,1,nil,1,1,"tail sweep")
 	elseif player.actionstate == state_dash or player.actionstate == state_didthrow
-		B.SetPriority(player,0,1,nil,0,1,"flight dash")
-	end
-end
-
-B.SoftHoming = function(mo, dimension)
-	local followmo = mo.followmo
-	local speed = mo.cutterspeed or followmo.scale
-	if followmo[dimension] > mo[dimension] then
-		if mo["mom" .. dimension] > followmo["mom" .. dimension] then
-		   mo["mom" .. dimension] = $ + speed/2
-		else
-		   mo["mom" .. dimension] = $ + speed*2
-		end
-	elseif followmo[dimension] < mo[dimension] then
-		if mo["mom" .. dimension] < followmo["mom" .. dimension] then
-		   mo["mom" .. dimension] = $ - speed/2
-		else
-		   mo["mom" .. dimension] = $ - speed*2
-		end
+		B.SetPriority(player,0,0,"amy_melee",2,1,"flight dash")
 	end
 end
 
@@ -56,7 +38,7 @@ B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	if pain[n1] or (plr[n2] and plr[n2].actionstate) or not(plr[n1] and plr[n1].valid) then
 		return
 	end
-	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < 2 and not (plr[n2] and plr[n2].nodamage)))
+	if atk[n1] and plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < atk[n1] and not (plr[n2] and plr[n2].nodamage)))
 		plr[n1].tailsmarker = true
 	end
 end
@@ -525,7 +507,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		for n = 1,16
 			P_SpawnMobjFromMobj(mo,r1(),r1(),r2(),MT_DUST)
 		end
-		S_StartSound(mo,sfx_zoom)
+		S_StartSound(mo,sfx_ngjump)
 	end
 	
 	//Activate throw
@@ -677,14 +659,18 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Thrust state
 	if player.actionstate == state_dash or player.actionstate == state_didthrow
 		B.analogkill(player, 2)
-		if player.actionstate == state_dash
+		if player.actionstate == state_dash then
 			player.mo.cantouchteam = 1
 		end
-		if player.followmobj then P_SetMobjStateNF(player.followmobj,S_NULL) end
-		if not B.DrawSVSprite(player,1) then mo.state = S_PLAY_EDGE end
---		player.actiontime = $+1
-		player.drawangle = mo.angle-ANG60*player.actiontime
--- 		P_SpawnGhostMobj(mo)
+		if B.DrawSVSprite(player, player.actionstate == state_dash and 2 or 1) then
+			local tail = player.followmobj
+			if tail and tail.state >= S_TAILSOVERLAY_0DEGREES and tail.state <= S_TAILSOVERLAY_MINUS60DEGREES then
+				tail.frame = 512 + B.Wrap(leveltime/2, 0, 7)
+			end
+		else
+			mo.state = S_PLAY_EDGE
+		end
+		--player.drawangle = mo.angle-ANG60*player.actiontime
 		local radius = mo.radius/FRACUNIT
 		local height = mo.height/FRACUNIT
 		local r1 = do
@@ -706,6 +692,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		//Reset to neutral
 		if P_IsObjectOnGround(mo)
 		or B.PlayerButtonPressed(player,player.battleconfig_guard,false)
+		or mo.momz*P_MobjFlip(mo) > mo.scale * 6
 		then
 			local throwed = player.actionstate == state_didthrow
 			player.actionstate = 0

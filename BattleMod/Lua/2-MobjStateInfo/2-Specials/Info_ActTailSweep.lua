@@ -1,9 +1,17 @@
 freeslot(
 	's_tails_swipe',
-	'spr_tswp'
+	's_tails_pounce',
+	'spr_tswp',
+	'spr_pnce'
 )
 states[S_TAILS_SWIPE] = {
 	sprite = SPR_TSWP,
+	frame = A,
+	tics = 0,
+	nextstate = S_PLAY_FALL
+}
+states[S_TAILS_POUNCE] = {
+	sprite = SPR_PNCE,
 	frame = A,
 	tics = 0,
 	nextstate = S_PLAY_FALL

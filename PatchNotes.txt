@@ -9,7 +9,6 @@ Modding features
 		- B.teamSound(source, player, soundteam, soundenemy, volume, selfisenemy)
 		- B.StartSoundFromNewSource(origin, sound, duration, volume, player)
 		- B.Console.AddBattleConfig(configname, func, defaultvalue)
-		- B.SoftHoming(mo, dimension)
 		- B.CarryStun(otherplayer, strugglerings, strugglestun, noshake, nostunbreak, nopain)
 	New player variables:
 		- player.guardtext (Similar to player.action2text, only effective when player.canguard is higher than 1)

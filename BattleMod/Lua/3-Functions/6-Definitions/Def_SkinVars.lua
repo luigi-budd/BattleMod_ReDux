@@ -40,7 +40,8 @@ S["tails"] = {
 	func_collide = B.Tails_Collide,
 	func_postcollide = B.Tails_PostCollide,
 	sprites = {
-		S_TAILS_SWIPE
+		S_TAILS_SWIPE,
+		S_TAILS_POUNCE
 	}
 }
 S["knuckles"] = {
