@@ -238,12 +238,13 @@ B.SuddenDeathZone = function(remove)
 		end
 
 		-- Orbit to prevent perfect standstill tech
+		-- Very hacky because it uses itself as an anchor but whatever
 		local angle = ANG1 * leveltime
-		local dist = 128 * zone.scale
+		local dist = 2 * zone.scale
 		local x = zone.x + P_ReturnThrustX(zone,angle,dist)
 		local y = zone.y + P_ReturnThrustY(zone,angle,dist)
-		local thrust = max(FRACUNIT, R_PointToDist2(zone.x, zone.y, x, y))
-		--P_InstaThrust(zone, R_PointToAngle2(zone.x, zone.y, x, y), thrust) --TODO
+		local thrust = max(1, R_PointToDist2(zone.x, zone.y, x, y))
+		P_InstaThrust(zone, R_PointToAngle2(zone.x, zone.y, x, y), thrust)
 	end
 		
 	-- Check all players against zone
