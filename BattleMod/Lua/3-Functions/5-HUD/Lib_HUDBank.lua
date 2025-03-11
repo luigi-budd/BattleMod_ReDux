@@ -116,12 +116,19 @@ end
 local BASEVIDWIDTH = 320
 local BASEVIDHEIGHT = 200
 
+local ringframe_counter = 1
+
 -- Draws flag next to players' icons, shows the flag power-up icon, etc.
 CR.RankingHUD = function(v)
 	-- Ensure that the gametype is custom ctf!
 	if not(B.BankGametype()) then return end
 
-	local ring = v.getSpritePatch(SPR_TRNG, _G["A"])
+    ringframe_counter = (($+1)<(states[S_TEAMRING].var1+1) and $+1) or 1
+
+	local intpatch = {v.getSpritePatch(SPR_TRNG, ringframe_counter)}
+
+    local ring = intpatch[1]
+    local flip = (intpatch[2] and V_FLIP) or 0
 
 	local redplayers = 0
 	local blueplayers = 0
@@ -177,11 +184,8 @@ CR.RankingHUD = function(v)
 		local fx = cond and x-12 or x-5
 		local fy = cond and y+12 or y+8
 
-        --fx = $+16
-        --fy = $+16
-
         if p.gotcrystal and p.mo and p.mo.valid and p.mo.chaosring and p.mo.chaosring.valid then
-            v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, ring, 0, v.getColormap(0, CR.Data[p.mo.chaosring.chaosring_num].color))
+            v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, ring, 0|flip, v.getColormap(0, CR.Data[p.mo.chaosring.chaosring_num].color))
         end
 	end
 end
