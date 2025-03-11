@@ -205,7 +205,7 @@ B.HammerControl = function(player)
 		return
 	end
 
-	if (player.melee_state == st_hold) --failsafe because ice physics are weird!!
+	if (player.melee_state == st_hold and B.NearGround(mo)) --failsafe because ice physics are weird!!
 		mo.state = S_PLAY_MELEE
 		mo.frame = 0
 	end 

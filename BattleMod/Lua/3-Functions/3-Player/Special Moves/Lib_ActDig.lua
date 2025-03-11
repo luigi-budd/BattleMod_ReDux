@@ -103,13 +103,6 @@ B.Action.Dig=function(mo,doaction)
 	local grounded = P_IsObjectOnGround(mo)
 	local diggingstates = (player.actionstate == state_digging or player.actionstate == state_burrowed)
 	local getcanceltics = player.actiontime
-	local floordist
-	if P_MobjFlip(mo) == 1 then
-		floordist = mo.z-mo.floorz
-	else
-		floordist = mo.ceilingz-mo.height-mo.z
-	end
-	local nearground = (floordist < zthreshold*mo.scale)
 	
 	//****/
 	//Action properties &HUD
@@ -152,7 +145,7 @@ B.Action.Dig=function(mo,doaction)
 		(player.exhaustmeter == 0)
 		or (grounded and sludge)
 		or (player.actionstate == state_burrowed and dospin)
-		or not(nearground or climbing)	
+		or not(B.NearGround(mo, zthreshold) or climbing)	
 	
 	
 	//Execute dig

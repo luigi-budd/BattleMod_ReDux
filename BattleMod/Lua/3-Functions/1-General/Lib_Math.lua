@@ -78,12 +78,24 @@ B.SafeRadiusIncrease = function(mo, newRadius, oldRadius, repeatable)
 	--print(mo.radius/FU)
 end
 
-B.NearGround = function(mo, fracunits)
-	if P_MobjFlip(mo) == 1 then
-		return (mo.z-mo.floorz < mo.scale*fracunits)
-	else
-		return (mo.ceilingz+mo.height-mo.z < mo.scale*fracunits)
+-- fracunits, flip and momz are all optional
+B.GetGroundDistance = function(mo, flip, momz)
+	flip = $ or P_MobjFlip(mo)
+	local groundz = mo.floorz
+	local moz = mo.z
+	if flip == -1 then
+		groundz = mo.ceilingz
+		moz = $ + mo.height
 	end
+	if momz then
+		moz = $ + momz
+	end
+	return (moz - groundz) * flip
+end
+
+B.NearGround = function(mo, fracunits, flip, momz)
+	return P_IsObjectOnGround(mo)
+	or B.GetGroundDistance(mo, flip, momz) <= mo.scale * (fracunits or 0)
 end
 
 B.NearPlayer = function(mo, fracunits)

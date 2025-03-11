@@ -2,14 +2,6 @@ local B = CBW_Battle
 local G = B.GuardFunc
 local CV = B.Console
 
-local nearground = function(mo,flip)
-	if flip == 1
-		return (mo.z-mo.floorz < mo.scale*8)
-	else
-		return (mo.ceilingz+mo.height-mo.z < mo.scale*8)
-	end
-end
-
 B.GuardControl = function(player)
 	if CV.Guard.value == 0
 	or (B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
@@ -37,7 +29,7 @@ B.Guard = function(player,buttonpressed)
 	end
 	if not(player.playerstate == PST_LIVE) or (player.spectator) then return end
 	if P_PlayerInPain(player)
-	or not(P_IsObjectOnGround(mo) or (player.guard and nearground(mo,flip)))
+	or not(P_IsObjectOnGround(mo) or (player.guard and B.NearGround(mo, 8, flip)))
 	or not(player.canguard)
 	or player.tumble
 	or player.actionstate
