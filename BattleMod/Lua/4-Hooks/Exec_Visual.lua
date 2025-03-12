@@ -385,5 +385,9 @@ local function BattleTagPointers(mo)
 			end
 		end
 	end
+	if mo.interpolation_fix then
+		mo.flags = $ & ~MF_NOSECTOR
+	end
+	mo.interpolation_fix = true
 end
 addHook("MobjThinker", BattleTagPointers, MT_BTAG_POINTER)
