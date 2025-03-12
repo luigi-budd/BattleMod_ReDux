@@ -15,6 +15,7 @@ local applyFlip = function(mo1, mo2)
 end
 
 B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
+    if not(G_GametypeHasTeams()) then return end
     local btns = player.cmd.buttons
 
     local zpos = player.mo.z+(player.mo.height+(player.mo.scale*10))
@@ -75,7 +76,7 @@ B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
         player.mo.pass_indicator.scale = player.mo.scale-(player.mo.scale/4)
         player.mo.pass_indicator.frame = frame|FF_FULLBRIGHT
         player.mo.pass_indicator.sprite = SPR_MACGUFFIN_PASS
-        player.mo.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[player.mo.player.ctfteam][1+(((leveltime/2)%2))]
+        player.mo.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[player.ctfteam][1+(((leveltime/2)%2))]
         player.mo.pass_indicator.renderflags = $|RF_NOCOLORMAPS
         player.mo.pass_indicator.fuse = max($, 2)
         if displayplayer and B.MyTeam(displayplayer, player) then
