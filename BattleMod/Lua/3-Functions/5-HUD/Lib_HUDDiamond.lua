@@ -232,7 +232,7 @@ D.DiamondRankHUD = function(v)
 			local fx = cond and x-12 or x-5
 			local fy = cond and y+12 or y+8
 
-			if D.Diamond and D.Diamond.valid --and p.gotcrystal then
+			if D.Diamond and D.Diamond.valid and p.gotcrystal then
 				local intpatch = {v.getSpritePatch(D.Diamond.sprite, D.Diamond.frame)}
 
 				local ring = intpatch[1]
