@@ -155,3 +155,90 @@ D.HUD = function(v, player, cam)
 		end
 	end		
 end
+
+local ecks = CV_RegisterVar({
+    name = "ecks",
+    defaultvalue = 1,
+    flags = CV_NETVAR|CV_FLOAT,
+    PossibleValue = CV_Unsigned
+})
+
+local why = CV_RegisterVar({
+    name = "why",
+    defaultvalue = 1,
+    flags = CV_NETVAR|CV_FLOAT,
+    PossibleValue = CV_Unsigned
+})
+
+local BASEVIDWIDTH = 320
+local BASEVIDHEIGHT = 200
+-- Draws flag next to players' icons, shows the flag power-up icon, etc.
+D.DiamondRankHUD = function(v)
+	-- Ensure that the gametype is custom ctf!
+	if not(B.DiamondGametype()) then return end
+
+	if G_GametypeHasTeams() then
+		local redplayers = 0
+		local blueplayers = 0
+		local x, y = 0--40, 32
+
+		local players_sorted = {}
+		for p in players.iterate do
+			table.insert(players_sorted, p)
+		end
+
+		-- Properly sort players
+		-- TODO: This probably still won't work.. what to do?
+		-- Maybe recode the entirety of rankings i guess? :shrug:
+		table.sort(players_sorted, function(a, b)
+			if a.score == b.score then
+			return #a > #b
+			else
+			return (a.score > b.score)
+			end
+		end)
+
+		for i=1, #players_sorted do
+			local p = players_sorted[i]
+			if p.spectator then continue end
+			--if p.ctfteam == 0 then continue end
+
+			local cond = (not CV_FindVar("compactscoreboard").value) and (redplayers <= 9 or blueplayers <= 9)
+			if p.ctfteam == 1 then
+				redplayers = $+1
+				--if (redplayers > 8) then continue end
+				if cond then 
+					x = 32 + (BASEVIDWIDTH/2)
+					y = (redplayers * 16) + 16
+				else
+					x = 14 + (BASEVIDWIDTH/2)
+					y = (redplayers * 9) + 20
+				end
+			elseif p.ctfteam == 2 then
+				blueplayers = $+1
+				--if (blueplayers > 8) then continue end
+				if cond then
+					x = 32
+					y = (blueplayers * 16) + 16
+				else
+					x = 14
+					y = (blueplayers * 9) + 20
+				end
+			else 
+				continue
+			end
+
+			local iconscale = cond and FRACUNIT/2 or FRACUNIT/4
+			local fx = cond and x-12 or x-5
+			local fy = cond and y+12 or y+8
+
+			if D.Diamond and D.Diamond.valid --and p.gotcrystal then
+				local intpatch = {v.getSpritePatch(D.Diamond.sprite, D.Diamond.frame)}
+
+				local ring = intpatch[1]
+				local flip = (intpatch[2] and V_FLIP) or 0
+				v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, ring, 0|flip, v.getColormap(0, D.Diamond.color))
+			end
+		end
+	end
+end

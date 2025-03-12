@@ -58,6 +58,7 @@ hud.add(F.RankingHUD, "scores")
 hud.add(B.TagRankHUD, "scores")
 hud.add(CR.BankRankHUD, "scores")
 hud.add(R.RubyRankHUD, "scores")
+hud.add(D.DiamondRankHUD, "scores")
 
 --Title HUD
 hud.add(B.TitleHUD, "title")
