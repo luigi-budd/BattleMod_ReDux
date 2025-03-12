@@ -270,6 +270,10 @@ B.RingsHUD = function(v, player, cam)
 		end
 		if (player.gotflagdebuff) then
 			local color = SKINCOLOR_WHITE
+			local iconflags = (flags or 0)
+			local scale = FRACUNIT
+			local icon_offsetx = 4
+			local icon_offsety = 11
 			patch = v.cachePatch("FLAGBT")
 			if B.RubyGametype() then
 				patch = v.cachePatch("RUBYBT")
@@ -277,8 +281,19 @@ B.RingsHUD = function(v, player, cam)
 			elseif B.DiamondGametype() then
 				patch = v.cachePatch("TOPZBT")
 				color = nil
-			elseif B.BankGametype() then
-				patch = v.cachePatch("RINGBT")
+			elseif B.BankGametype() and (player.mo and player.mo.valid and player.mo.chaosring and player.mo.chaosring.valid) then
+				local intpatch = {v.getSpritePatch(SPR_TRNG, player.mo.chaosring.frame)}
+				local ring = intpatch[1]
+				local flip = intpatch[2]
+				scale = FRACUNIT/3
+				if flip then
+					if iconflags & V_FLIP then
+						iconflags = $ & ~V_FLIP
+					else
+						iconflags = $|V_FLIP
+					end
+				end
+				patch = ring
 				color = ((player.mo and player.mo.valid) and 
 						(player.mo.chaosring and player.mo.chaosring.valid) and 
 						(player.mo.chaosring.chaosring_num and CR.Data[player.mo.chaosring.chaosring_num]) and
@@ -287,7 +302,7 @@ B.RingsHUD = function(v, player, cam)
 				local flagcolors = {SKINCOLOR_BLUE, SKINCOLOR_RED}
 				color = flagcolors[player.ctfteam]
 			end
-			v.draw(x + action_offsetx, y - 1 + action_offsety, patch, flags, color and v.getColormap(TC_DEFAULT, color) or nil)
+			v.drawScaled((x + action_offsetx + icon_offsetx)*FRACUNIT, (y - 1 + action_offsety + icon_offsety)*FRACUNIT, scale, patch, iconflags, color and v.getColormap(TC_DEFAULT, color) or nil)
 		end
 	end
 	
