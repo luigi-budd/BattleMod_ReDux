@@ -209,6 +209,8 @@ local function spawn_steal_sparks(mo, player, scale, speed, height, spawn_explos
 	if spawn_explosion then
 		local s = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_BATTLESHIELD)
 		s.scale = scale*3
+		s.colorized = true
+		s.color = SKINCOLOR_GOLDENROD
 	end
 
 	for n = 0, 7 do
@@ -393,20 +395,21 @@ D.Thinker = function(mo)
 		local i = P_SpawnMobj(mo.x,mo.y,mo.z-mo.height/4,MT_IVSP)
 -- 		i.flags2 = $|MF2_SHADOW
 		i.scale = mo.scale
-		i.color = B.FlashRainbow(mo)
+		i.color = SKINCOLOR_COPPER
 		i.colorized = true
 		local g = B.SpawnGhostForMobj(mo)
-		g.color = B.FlashRainbow(mo)
+		g.color = SKINCOLOR_TOPAZ
 		g.colorized = true
 	end
 	--Color
-	mo.colorized = true	
+	/*mo.colorized = true	
 	if not(mo.target) then
 		--mo.color = B.FlashColor(SKINCOLOR_SUPERSILVER1,SKINCOLOR_SUPERSILVER5)
 		mo.color = B.FlashRainbow(mo)
 	else
 		mo.color = mo.target.player.skincolor
-	end
+	end*/
+	mo.color = SKINCOLOR_TOPAZ
 	mo.frame = $|FF_FULLBRIGHT
 	mo.angle = $+rotatespd
 
