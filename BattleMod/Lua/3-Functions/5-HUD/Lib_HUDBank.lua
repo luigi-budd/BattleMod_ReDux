@@ -116,7 +116,7 @@ end
 local BASEVIDWIDTH = 320
 local BASEVIDHEIGHT = 200
 -- Draws flag next to players' icons, shows the flag power-up icon, etc.
-CR.RankingHUD = function(v)
+CR.BankRankHUD = function(v)
 	-- Ensure that the gametype is custom ctf!
 	if not(B.BankGametype()) then return end
 

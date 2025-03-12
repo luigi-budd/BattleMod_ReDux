@@ -20,7 +20,7 @@ mobjinfo[MT_RUBY] = {
 states[S_PHANTOMRUBY] = {
 	sprite = SPR_PHRB,
 	frame = A|FF_ANIMATE|FF_FULLBRIGHT,
-	var1 = 3,
+	var1 = 7,
 	var2 = 8,
 	tics = -1
 }
