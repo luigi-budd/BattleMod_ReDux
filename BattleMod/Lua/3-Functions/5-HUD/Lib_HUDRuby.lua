@@ -239,7 +239,7 @@ R.RubyRankHUD = function(v)
 		local fy = cond and y+10 or y+8
 
         if R.ID and R.ID.valid and p.gotcrystal then
-            local intpatch = {v.getSpritePatch(R.ID.sprite, 0)}
+            local intpatch = {v.getSpritePatch(R.ID.sprite, R.ID.frame)}
 
             local ring = intpatch[1]
             local flip = (intpatch[2] and V_FLIP) or 0
