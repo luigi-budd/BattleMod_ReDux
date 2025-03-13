@@ -236,7 +236,7 @@ R.RubyRankHUD = function(v)
 
 		local iconscale = cond and FRACUNIT/2 or FRACUNIT/4
 		local fx = cond and x-12 or x-5
-		local fy = cond and y+10 or y+8
+		local fy = cond and y+10 or y+7
 
         if R.ID and R.ID.valid and p.gotcrystal then
             local intpatch = {v.getSpritePatch(R.ID.sprite, R.ID.frame)}
