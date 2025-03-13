@@ -271,9 +271,8 @@ B.RingsHUD = function(v, player, cam)
 		if (player.gotflagdebuff) then
 			local color = SKINCOLOR_WHITE
 			local iconflags = (flags or 0)
-			local scale = FRACUNIT
-			local icon_offsetx = 4
-			local icon_offsety = 11
+			local icon_offsetx = 0
+			local icon_offsety = 0
 			patch = v.cachePatch("FLAGBT")
 			if B.RubyGametype() then
 				patch = v.cachePatch("RUBYBT")
@@ -298,11 +297,16 @@ B.RingsHUD = function(v, player, cam)
 						(player.mo.chaosring and player.mo.chaosring.valid) and 
 						(player.mo.chaosring.chaosring_num and CR.Data[player.mo.chaosring.chaosring_num]) and
 						CR.Data[player.mo.chaosring.chaosring_num].color) or SKINCOLOR_GOLDENROD
+				icon_offsetx = 4
+				icon_offsety = 11
 			elseif G_GametypeHasTeams() then
 				local flagcolors = {SKINCOLOR_BLUE, SKINCOLOR_RED}
 				color = flagcolors[player.ctfteam]
 			end
-			v.drawScaled((x + action_offsetx + icon_offsetx)*FRACUNIT, (y - 1 + action_offsety + icon_offsety)*FRACUNIT, scale, patch, iconflags, color and v.getColormap(TC_DEFAULT, color) or nil)
+			local final_x = (x + action_offsetx + icon_offsetx) * FRACUNIT
+			local final_y = (y - 1 + action_offsety + icon_offsety) * FRACUNIT
+			local final_color = color and v.getColormap(TC_DEFAULT, color) or nil
+			v.drawScaled(final_x, final_y, scale, patch, iconflags, final_color)
 		end
 	end
 	
