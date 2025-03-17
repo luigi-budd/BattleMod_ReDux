@@ -63,10 +63,14 @@ B.AddBattleGametype = function(tabl)
 		name = tabl.identifier.."_pointlimit",
 		defaultvalue = (tabl.defaultpointlimit) or 0,
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
-		PossibleValue = CV_Unsigned,
+		PossibleValue = {MIN=0, MAX=999999999, ["None"]=0},
 		func = function(cv)
 			if gametype == _G["GT_"..tabl.identifier:upper()] then
-				COM_BufInsertText(server, "pointlimit "..cv.value)
+				if (cv.value == 0) then
+					COM_BufInsertText(server, "pointlimit None")
+				else
+					COM_BufInsertText(server, "pointlimit "..cv.value)
+				end
 			end
 			if cv.value == cv.defaultvalue then return end
 			if cv.value > 0 then
@@ -81,10 +85,14 @@ B.AddBattleGametype = function(tabl)
 		name = tabl.identifier.."_timelimit",
 		defaultvalue = tabl.defaulttimelimit,
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
-		PossibleValue = {MIN=1, MAX=30},
+		PossibleValue = {MIN=0, MAX=30, ["None"]=0},
 		func = function(cv)
 			if gametype == _G["GT_"..tabl.identifier:upper()] then
-				COM_BufInsertText(server, "timelimit "..cv.value)
+				if (cv.value == 0) then
+					COM_BufInsertText(server, "timelimit None")
+				else
+					COM_BufInsertText(server, "timelimit "..cv.value)
+				end
 			end
 			if cv.value == cv.defaultvalue then return end
 			if cv.value > 0 then
@@ -99,7 +107,7 @@ B.AddBattleGametype = function(tabl)
 		name = tabl.identifier.."_hidetime",
 		defaultvalue = defaulthidetime,
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
-		PossibleValue = {MIN=1, MAX=9999},
+		PossibleValue = {MIN=0, MAX=9999},
 		func = function(cv)
 			if gametype == _G["GT_"..tabl.identifier:upper()] then
 				COM_BufInsertText(server, "hidetime "..cv.value)
