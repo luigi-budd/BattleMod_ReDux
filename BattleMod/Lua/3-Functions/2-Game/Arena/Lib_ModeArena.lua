@@ -786,3 +786,13 @@ A.HitReward = function(hitter)
 	end
 end
 ]]
+
+B.SurvivalViewpoints = function(player, nextviewedplayer, forced)
+    if B.ArenaGametype() then
+		if G_GametypeUsesLives() then
+			return nextviewedplayer.lives
+		else
+			return nextviewedplayer.playerstate != PST_DEAD
+		end
+	end
+end

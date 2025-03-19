@@ -363,4 +363,7 @@ end, MT_EXTRALARGEBUBBLE)
 -- CTF: remove stuff on quit
 --addHook("PlayerQuit", F.PlayerFlagBurst)
 
-addHook("ViewpointSwitch",B.TagViewpoints)
+addHook("ViewpointSwitch", function(...)
+    B.TagViewpoints(...)
+    B.SurvivalViewpoints(...)
+end)
