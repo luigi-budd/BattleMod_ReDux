@@ -511,7 +511,6 @@ R.Thinker = function(mo)
 	
 	mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 	local t = mo.target
-	local player = t.player
 	local ang = mo.angle
 	local dist = mo.target.radius*3
 	local x = t.x+P_ReturnThrustX(mo,ang,dist)
@@ -539,6 +538,7 @@ R.Thinker = function(mo)
 			if not P_IsObjectOnGround(t)
 				return
 			end
+			local player = t.player
 			if player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_BLUETEAMBASE)
 				if ((redscore+1 < cvar_pointlimit) or not(cvar_pointlimit)) and not(overtime) then
 					timeout()

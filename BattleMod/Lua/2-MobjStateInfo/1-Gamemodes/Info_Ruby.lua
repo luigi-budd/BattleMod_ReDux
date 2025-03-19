@@ -13,7 +13,7 @@ mobjinfo[MT_RUBY] = {
 	doomednum = -1,
 	spawnstate = S_PHANTOMRUBY,
 	height = 32*FRACUNIT,
-	radius = 16*FRACUNIT,
+	radius = 12*FRACUNIT,
 	flags = MF_SPECIAL
 }
 
