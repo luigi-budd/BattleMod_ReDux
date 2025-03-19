@@ -509,22 +509,7 @@ R.Thinker = function(mo)
 	g.scalespeed = g.scale / g.fuse
 	g.blendmode = AST_ADD
 	
-	mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
-	local t = mo.target
-	local ang = mo.angle
-	local dist = mo.target.radius*3
-	local x = t.x+P_ReturnThrustX(mo,ang,dist)
-	local y = t.y+P_ReturnThrustY(mo,ang,dist)
-	local z = t.z+abs(leveltime&63-31)*FRACUNIT/2 -- Gives us a hovering effect
-	if P_MobjFlip(t) == 1 -- Make sure our vertical orientation is correct
-		mo.flags2 = $&~MF2_OBJECTFLIP
-	else
--- 		z = $+t.height
-		mo.flags2 = $|MF2_OBJECTFLIP
-	end
-	P_MoveOrigin(mo,t.x,t.y,t.z)
-	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
-	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
+	B.MacGuffinClaimed(mo, nil, true)
 	
 	local cvar_pointlimit = CV_FindVar("pointlimit").value
 	local cvar_overtime = CV_FindVar("overtime").value
@@ -532,6 +517,7 @@ R.Thinker = function(mo)
 	local overtime = ((cvar_overtime) and cvar_timelimit*60-leveltime/TICRATE <= 0)
 
 	if not(B.Exiting) then
+		local t = mo.target
 	
 		-- Ruby Run capture mechanics
 		if gametyperules & GTR_TEAMFLAGS

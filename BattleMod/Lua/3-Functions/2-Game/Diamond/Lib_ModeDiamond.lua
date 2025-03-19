@@ -477,23 +477,7 @@ D.Thinker = function(mo)
 		return
 	end
 	
-	--Claimed behavior
-	mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
-	local t = mo.target
-	local ang = mo.angle
-	local dist = mo.target.radius*3
-	local x = t.x+P_ReturnThrustX(mo,ang,dist)
-	local y = t.y+P_ReturnThrustY(mo,ang,dist)
-	local z = t.z+abs(leveltime&63-31)*FRACUNIT/2 --Gives us a hovering effect
-	if P_MobjFlip(t) == 1 then --Make sure our vertical orientation is correct
-		t.flags2 = $&~MF2_OBJECTFLIP
-	else
-		z = $+t.height
-		t.flags2 = $|MF2_OBJECTFLIP
-	end
-	P_MoveOrigin(mo,t.x,t.y,t.z)
-	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
-	mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) --Do z pos while respecting level geometry
+	B.MacGuffinClaimed(mo)
 end
 
 D.CapturePointThinker = function(mo)

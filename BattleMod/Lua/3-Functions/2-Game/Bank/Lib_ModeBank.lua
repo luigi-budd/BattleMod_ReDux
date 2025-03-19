@@ -499,28 +499,14 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 	if mo.target and mo.target.valid then --Claimed?
 		chaosringspark(mo)
 
-		mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
 		local t = mo.target
 		local player = t.player
-		local ang = mo.angle
-		local dist = t.radius*3
+		local customdist = t.radius*3
 		if t.chaosring_capturing then
 			local offset = player and (player.gotcrystal_time*mo.scale) or 1 
-			dist = $-(offset/2)
+			customdist = $-(offset/2)
 		end
-		local x = t.x+P_ReturnThrustX(mo,ang,dist)
-		local y = t.y+P_ReturnThrustY(mo,ang,dist)
-		local z = t.z+abs(leveltime&63-31)*FRACUNIT/2 -- Gives us a hovering effect
-		local flip = P_MobjFlip(t)
-		if flip == 1 -- Make sure our vertical orientation is correct
-			mo.flags2 = $&~MF2_OBJECTFLIP
-		else
-	-- 		z = $+t.height
-			mo.flags2 = $|MF2_OBJECTFLIP
-		end
-		P_MoveOrigin(mo,t.x,t.y,t.z)
-		P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
-		mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
+		B.MacGuffinClaimed(mo, customdist)
 	else --Loose?
 		mo.flags = ($|MF_BOUNCE)&~MF_SLIDEME
 		if mo.flags & MF_GRENADEBOUNCE == 0

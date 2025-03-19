@@ -86,3 +86,28 @@ B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
         end
     end
 end
+
+B.MacGuffinClaimed = function(mo, customdist, addxy, nofloat)
+    mo.flags = ($&~MF_BOUNCE)|MF_NOGRAVITY|MF_SLIDEME
+	local t = mo.target
+	local ang = mo.angle
+	local dist = customdist or mo.target.radius*3
+	local x = t.x+P_ReturnThrustX(mo,ang,dist)
+	local y = t.y+P_ReturnThrustY(mo,ang,dist)
+    if addxy then
+        x = $ + t.momx
+        y = $ + t.momy
+    end
+	local z = t.z+abs(leveltime&63-31)*FRACUNIT/2 -- Gives us a hovering effect
+	if P_MobjFlip(t) == 1 -- Make sure our vertical orientation is correct
+		mo.flags2 = $&~MF2_OBJECTFLIP
+	else
+-- 		z = $+t.height
+		mo.flags2 = $|MF2_OBJECTFLIP
+	end
+	P_MoveOrigin(mo,t.x,t.y,t.z)
+	P_InstaThrust(mo,R_PointToAngle2(mo.x,mo.y,x,y),min(FRACUNIT*60,R_PointToDist2(mo.x,mo.y,x,y)))
+	if not nofloat then
+        mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
+    end
+end
