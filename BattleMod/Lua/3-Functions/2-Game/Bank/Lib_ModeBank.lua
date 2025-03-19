@@ -458,11 +458,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 	end
 
 	--Set internal angle
-	if mo.beingstolen or (mo.target and mo.target.valid and mo.target.chaosring_capturing) then
-		mo.angle = $+(rotatespd/8)
-	else
-		mo.angle = $+rotatespd
-	end
+	mo.angle = $+rotatespd
 	
 	-- Owner has been pushed by another player
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
