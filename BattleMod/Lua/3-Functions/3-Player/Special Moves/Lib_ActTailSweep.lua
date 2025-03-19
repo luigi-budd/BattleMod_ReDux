@@ -15,6 +15,8 @@ local throw_enemystuntime = TICRATE*2/3
 local thrustpower = 16
 local threshold1 = TICRATE/3 --0.3s
 local threshold2 = threshold1+(TICRATE*3/2) --minimum charging time + 1.5s
+local flightdash_satk = 2 -- grab only happens if opponent's def is lower
+
 B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
 	if not (mo and mo.valid) return end
@@ -30,22 +32,27 @@ B.Action.TailSwipe_Priority = function(player)
 	elseif player.actionstate == state_sweep
 		B.SetPriority(player,1,1,nil,1,1,"tail sweep")
 	elseif player.actionstate == state_dash or player.actionstate == state_didthrow
-		B.SetPriority(player,0,0,"amy_melee",2,1,"flight dash")
+		B.SetPriority(player,0,0,"amy_melee",0,1,"flight dash") --also see: flightdash_satk
 	end
 end
 
 B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if pain[n1] or (plr[n2] and plr[n2].actionstate) or not(plr[n1] and plr[n1].valid) then
+	if pain[n1] or (plr[n2] and plr[n2].actionstate) or not(plr[n1] and plr[n1].valid)
 		return
 	end
-	if atk[n1] and plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < atk[n1] and not (plr[n2] and plr[n2].nodamage)))
-		plr[n1].tailsmarker = true
+	if atk[n1] and plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < flightdash_satk and not (plr[n2] and plr[n2].nodamage)))
+		plr[n1].tailsmarker = 1
+	elseif B.MyTeam(mo[n1], mo[n2])
+		plr[n1].tailsmarker = -1
 	end
 end
 
 B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if not (plr[n1] and plr[n1].tailsmarker and plr[n2])
 		return false
+	end
+	if plr[n1].tailsmarker < 0
+		return true
 	end
 	if plr[n1].actionstate == state_dash
 		plr[n1].actionstate = 0
