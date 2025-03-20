@@ -76,6 +76,9 @@ B.InitPlayer = function(player)
 	//variables for battle tag
 	player.battletagIT = false
 	player.BTblindfade = 0
+	if player.ITindiBT and player.ITindiBT.valid then
+		P_RemoveMobj(player.ITindiBT)
+	end
 	player.ITindiBT = nil
 	player.btagpointers = nil
 	player.BT_antiAFK = B.ArenaGametype() and 200 or TICRATE * 60

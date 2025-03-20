@@ -142,9 +142,11 @@ end
 addHook("MobjThinker", B.SpinDustThinker, MT_SPINDUST)
 
 //visual indicator for tagger
-local function BattleTagITtag(mo)
-	if gametype != GT_BATTLETAG or mo.tracerplayer == nil or not 
-			mo.tracerplayer.valid or not mo.tracerplayer.battletagIT
+B.BattleTagITtag = function(mo)
+	if gametype != GT_BATTLETAG
+	or mo.tracerplayer == nil
+	or not mo.tracerplayer.valid
+	or not mo.tracerplayer.battletagIT
 		P_RemoveMobj(mo)
 		return
 	end
@@ -165,13 +167,13 @@ local function BattleTagITtag(mo)
 		mo.flags2 = $ | MF2_DONTDRAW
 	end
 end
-addHook("MobjThinker", BattleTagITtag, MT_BATTLETAG_IT)
+addHook("MobjThinker", B.BattleTagITtag, MT_BATTLETAG_IT)
 
 local ARROW_TAGSCALE = 0
 local ARROW_CONSTANTSCALE = 1
 local ARROW_INVERTSCALE = 2
 //thinker for pointer
-local function BattleTagPointers(mo)
+B.BattleTagPointers = function(mo)
 	local delete = false
 	local arrowscale = ARROW_TAGSCALE
 	local target = mo.target
@@ -390,4 +392,4 @@ local function BattleTagPointers(mo)
 	end
 	mo.interpolation_fix = true
 end
-addHook("MobjThinker", BattleTagPointers, MT_BTAG_POINTER)
+addHook("MobjThinker", B.BattleTagPointers, MT_BTAG_POINTER)
