@@ -7,7 +7,7 @@ CV.ChaosRing_StartSpawnBuffer = CV_RegisterVar({
     PossibleValue = CV_Natural,
     func = function(cv)
 		if cv.value == cv.defaultvalue then return end
-        print("Chaos Rings will start spawning in Ring Rally after "..cv.value.." seconds.")
+        print("Chaos Rings will start spawning in Chaos Control after "..cv.value.." seconds.")
     end
 })
 
@@ -18,7 +18,7 @@ CV.ChaosRing_SpawnBuffer = CV_RegisterVar({
     PossibleValue = CV_Natural,
     func = function(cv)
 		if cv.value == cv.defaultvalue then return end
-        print("Chaos Rings will spawn in Ring Rally every "..cv.value.." seconds.")
+        print("Chaos Rings will spawn in Chaos Control every "..cv.value.." seconds.")
     end
 })
 

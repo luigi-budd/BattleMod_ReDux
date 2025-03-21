@@ -287,7 +287,7 @@ B.AddBattleGametype({
 
 freeslot('tol_bank')
 B.AddBattleGametype({
-    name = "Ring Rally",
+    name = "Chaos Control",
     identifier = "bank",
     typeoflevel = TOL_BANK|TOL_CTF|TOL_BATTLECTF,
     rules = GTR_STARTCOUNTDOWN|GTR_OVERTIME|GTR_RESPAWNDELAY|GTR_PITYSHIELD|GTR_TEAMS|GTR_SPECTATORS|GTR_POINTLIMIT|GTR_TIMELIMIT|GTR_SPAWNINVUL|GTR_DEATHPENALTY|GTR_DEATHMATCHSTARTS|

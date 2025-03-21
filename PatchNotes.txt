@@ -94,7 +94,7 @@ Diamond, Team Diamond -> Warp Heist, Team Warp Heist
 	- Team Diamond has been renamed to Team Warp Heist
 	- Diamond's mechanics have been reworked. Instead of holding the diamond for set duration until you gain points, a control point will spawn around the map as will the Warp topaz.
 	- Your goal is to take the warp topaz to the control point to gain your points.
-New mode: Ring Rally
+New mode: Chaos Control
 	- Team based gametype where both sides collect rings and take them back to a collection sector in their base.
 	- This gametype doesn't have a pointlimit and instead is a rush to collect rings until the timer runs out or all chaos rings are collected by a team.
 New mode: Ruby Run
