@@ -2,7 +2,7 @@
 
 local B = CBW_Battle
 
-local refiretime = 35
+local refiretime = 28
 
 local function newGunLook(player) 
 	local twod = (twodlevel or player.mo.flags2 & MF2_TWOD)
