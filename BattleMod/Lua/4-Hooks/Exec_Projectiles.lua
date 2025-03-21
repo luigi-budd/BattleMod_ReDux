@@ -187,8 +187,8 @@ addHook("MobjSpawn",function(mo)
 	if mo.valid
 		mo.hit_sound = sfx_hit03
 		mo.cantouchteam = true
-		mo.blockable = 0
-		mo.block_stun = 6
+		mo.blockable = 1
+		mo.block_stun = 3
 		--mo.block_sound = sfx_s3kb5
 		mo.block_hthrust = 6
 		mo.block_vthrust = 2

@@ -1,1 +1,3 @@
 name = amy
+thokitem = MT_NONE
+revitem = MT_NONE
