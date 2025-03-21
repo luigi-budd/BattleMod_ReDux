@@ -188,7 +188,10 @@ B.RingsHUD = function(v, player, cam)
 		v.draw(x_for_readability-9, y_for_readability, patch, flags, colormap)
 		v.drawString(x_for_readability+3, y_for_readability, text, flags_hudtrans, "thin")
 	elseif player.tumble then
-		--nothing
+		local x_for_readability = x + 9 + action_offsetx
+		local y_for_readability = y - 8 + action_offsety
+		patch = v.cachePatch("PRAYBT")
+		v.draw(x_for_readability-9, y_for_readability, patch, flags, colormap)
 	else
 		if (player.actioncooldown) then
 			local lastcooldown = player.lastcooldown or 1

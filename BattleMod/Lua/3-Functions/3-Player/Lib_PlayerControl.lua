@@ -478,7 +478,7 @@ B.Tumble = function(player)
 		end
 	else
 		player.panim = PA_PAIN
-		player.mo.state = S_PLAY_PAIN
+		mo.state = S_PLAY_PAIN
 		
 		player.airdodge_spin = $ + ANGLE_45
 		player.drawangle = mo.angle + player.airdodge_spin
@@ -489,6 +489,28 @@ B.Tumble = function(player)
 			g.colorized = true
 			g.destscale = g.scale * 2
 		end
+
+		if player.tumble_nostunbreak
+			local spd = 6
+			local angle = leveltime*ANG1*spd
+			local radius = 64*FRACUNIT
+			local x = FixedMul(cos(angle), radius)
+			local y = FixedMul(sin(angle), radius)
+			local z = sin(leveltime*FRACUNIT*TICRATE*spd)*32
+			local star1 = P_SpawnMobjFromMobj(mo,x,y,(mo.height*2)+z,MT_THOK)
+			local star2 = P_SpawnMobjFromMobj(mo,-x,-y,(mo.height*2)-z,MT_THOK)
+			for _, star in ipairs({star1, star2}) do
+				if star and star.valid
+					star.target = mo
+					star.sprite = SPR_NSTR
+					star.frame = B.Wrap(leveltime/3, 0, 14)
+					star.scale = $/2
+					star.destscale = 1
+				end
+			end
+		end
+
+		-- hi
 	end
 
 	--Do tumble physics
