@@ -179,13 +179,6 @@ B.DoShieldActive = function(player)
     end
 end
 
-local cycleTable = function(t)
-	if #t > 0 then
-		table.insert(t, table.remove(t, 1))
-	end
-	return t
-end
-
 local shieldbutton = BT_TOSSFLAG
 local cooldown = 15
 B.ShieldTossflagButton = function(player)
@@ -218,7 +211,7 @@ B.ShieldTossflagButton = function(player)
 	
 	else --Shield swap
 		if temp and temp == power then
-			player.shieldstock = cycleTable($)
+			player.shieldstock = B.CycleTable($)
 		end
 
 		if not player.shieldswap_cooldown

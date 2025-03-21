@@ -51,11 +51,25 @@ local function GetMassOfSpring(mo, spring)
 			mo.target.powerspringnerf = (spring.info.mass/FRACUNIT)*spring.scale
 		end
 	end
-	
 end
+local last_n = 0
+local function patchSprings()
+    for n = last_n+1, #mobjinfo-1 do
+        local mt = n-1
+        local info = mobjinfo[mt]
+        
+        if info.flags & MF_SPRING == 0
+            continue
+        end
 
-addHook("MobjCollide", GetMassOfSpring)
-addHook("MobjMoveCollide", GetMassOfSpring)
+        addHook("MobjCollide", GetMassOfSpring, mt)
+        addHook("MobjMoveCollide", GetMassOfSpring, mt)
+    end
+    
+    last_n = #mobjinfo-1
+end
+addHook("AddonLoaded", patchSprings)
+patchSprings()
 
 --Handle player vs player collision
 addHook("TouchSpecial", B.PlayerTouch,MT_PLAYER)

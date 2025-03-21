@@ -348,15 +348,6 @@ CV.SaveCVar = function(var)
 	CV.SaveConfig(consoleplayer, var.name, var.string, false)
 end
 
-CV.Find = function(tbl, value)
-	for index, v in ipairs(tbl) do
-		if v == value then
-			return index
-		end
-	end
-	return nil
-end
-
 CV.FindVarString = function(var, strings) -- utility function
 	local var = CV_FindVar(var)
 	if not var then
@@ -364,7 +355,7 @@ CV.FindVarString = function(var, strings) -- utility function
 	elseif var.string then
 		if strings then
 			if type(strings) == "table" then
-				return CV.Find(strings, var.string)
+				return CBW_Battle.Find(strings, var.string)
 			else
 				return (var.string == strings)
 			end

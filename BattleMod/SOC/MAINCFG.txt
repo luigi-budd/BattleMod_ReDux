@@ -264,7 +264,7 @@ Lua.BattleItems_HyperRoulette = 1
 Level F0
 Levelname = Lime Forest
 Music = GFZALT
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F1
 SkyNum = 1
@@ -272,7 +272,7 @@ SkyNum = 1
 Level F1
 Levelname = Lost Palace
 Music = AGZALT
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F2
 SkyNum = 8
@@ -281,7 +281,7 @@ SkyBoxScale = 32
 Level F2
 Levelname = Silver Cascade
 Music = MP_WTR
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F3
 Weather = 3
@@ -290,7 +290,7 @@ SkyNum = 20
 Level F3
 Levelname = Icicle Falls
 Music = MP_ICE
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F4
 Skynum = 55
@@ -298,7 +298,7 @@ Skynum = 55
 Level F4
 LevelName = Twisted Terminal
 Music = ERZ2
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F5
 SkyNum = 22
@@ -307,7 +307,7 @@ Lua.AltMusic = ERZ2OL
 Level F5
 Levelname = Clockwork Towers
 Music = MP_RAI
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F6
 Weather = 1
@@ -316,7 +316,7 @@ SkyNum = 20
 LEVEL F6
 Levelname = Iron Turret
 Music = THZ1
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F7
 SkyNum = 4
@@ -324,7 +324,7 @@ SkyNum = 4
 Level F7
 Levelname = Dual Fortress
 Music = CEZ1
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F8
 Weather = 1
@@ -333,7 +333,7 @@ SkyNum = 11
 Level F8
 Levelname = Nimbus Ruins
 Music = MP_AIR
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = I1
 SkyNum = 68
@@ -344,7 +344,7 @@ Level F9
 Levelname = Blazing Precipice
 Music = RVZ1
 SkyboxScaleZ = 32
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = FA
 SkyNum = 159
@@ -352,7 +352,7 @@ SkyNum = 159
 Level FA
 LevelName = Meadow Match
 Music = MP_MED
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F0
 SkyNum = 2
@@ -360,7 +360,7 @@ SkyNum = 2
 LEVEL FB
 Levelname = Sapphire Rapids
 Music = MP_GHZ
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = F0
 SkyboxScale = 64
@@ -370,7 +370,7 @@ Level G0
 LevelName = Metal Star
 Music = MP_MN2
 NextLevel = G1
-TypeOfLevel = CTF, rubyrun, bank
+TypeOfLevel = CTF,rubyrun,bank
 SkyNum = 21
 SelectHeading = Classic
 
@@ -378,7 +378,7 @@ Level G1
 LevelName = Conveyor Conflict
 Music = THZALT
 NextLevel = G2
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SkyNum = 2
 SelectHeading = Classic
 
@@ -387,14 +387,14 @@ LevelName = Isolated Canyon
 Act = 0
 Music = MP_GL2
 NextLevel = G0
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SkyNum = 2
 SelectHeading = Classic
 
 Level G3
 Levelname = Molten Fissure
 Music = RVZ2
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 NextLevel = FA
 Weather = 5
 SkyNum = 20
@@ -403,7 +403,7 @@ SelectHeading = classic
 Level G4
 Levelname = Radiant Caverns
 Music = MP_WT2
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 NextLevel = F6
 SkyNum = 21
 SelectHeading = Classic
@@ -411,7 +411,7 @@ SelectHeading = Classic
 Level G5
 Levelname = Silver Cascade
 Music = MP_WT3
-TypeOfLevel = CTF, rubyrun
+TypeOfLevel = CTF,rubyrun
 SelectHeading = Standard
 NextLevel = G0
 Weather = 3
@@ -425,7 +425,7 @@ NextLevel = F0
 Act = 0
 Music = KIRFAC
 SkyNum = 6060
-TypeOfLevel = Battlectf, rubyrun
+TypeOfLevel = Battlectf,rubyrun
 Lua.Author = STJR, Smol
 SelectHeading = EXTRA
 Lua.AltMusic = KIRPLR
@@ -441,7 +441,7 @@ Levelname = Thunder Nimbus
 Music = NIMSTM
 SkyNum = 20
 Weather = PRECIP_STORM_NORAIN
-TypeOfLevel = rubyrun, bank
+TypeOfLevel = rubyrun,bank
 Lua.Author = Smol
 SelectHeading = EXTRA
 Lua.BattleItems_GlobalRate = 55

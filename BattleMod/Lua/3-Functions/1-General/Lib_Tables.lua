@@ -1,5 +1,21 @@
 local B = CBW_Battle
 
+B.Find = function(tbl, value)
+	for index, v in ipairs(tbl) do
+		if v == value then
+			return index
+		end
+	end
+	return nil
+end
+
+B.CycleTable = function(t)
+	if #t > 0 then
+		table.insert(t, table.remove(t, 1))
+	end
+	return t
+end
+
 B.Shuffle = function(actualtbl) -- Fisher-Yates algorithm
 	local tbl = actualtbl -- I'm not actually sure if this is necessary
 	for i = #tbl, 2, -1 do

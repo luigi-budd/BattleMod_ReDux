@@ -35,4 +35,4 @@ addHook("PostThinkFrame", F.DrawIndicator)
 addHook("PreThinkFrame", F.FlagPreThinker) 
 
 -- Toss ruby
-addHook("PreThinkFrame", R.PreThinker) 
+--addHook("PreThinkFrame", R.PreThinker) 
