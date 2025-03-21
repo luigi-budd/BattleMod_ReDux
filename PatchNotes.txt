@@ -10,6 +10,7 @@ Modding features
 		- B.StartSoundFromNewSource(origin, sound, duration, volume, player)
 		- B.Console.AddBattleConfig(configname, func, defaultvalue)
 		- B.CarryStun(otherplayer, strugglerings, strugglestun, noshake, nostunbreak, nopain)
+		- More functions in Lib_Math, the entirety of Lib_Tables
 	New player variables:
 		- player.guardtext (Similar to player.action2text, only effective when player.canguard is higher than 1)
 		- player.realbuttons (provides access to the player's buttons even if they have pw_nocontrol)
@@ -85,20 +86,22 @@ Battle CTF
 	- Audio and visual cue for flag toss
 	- Returning flags grants 200 points
 	- Adjusted got flag indicator
-Zone Control, Team Zone Control
-	- Renamed from Control Point, Team Control Point
+Control Point, Team Control Point -> Zone Control, Team Zone Control
 	- Removed "Contested point" mechanic from Team Zone Control
-Diamond, Team Diamond
+Diamond, Team Diamond -> Warp Heist, Team Warp Heist
 	- The Diamond has been replaced by the Warp Topaz, including new sprites, sounds, and visual effects
 	- Diamond has been renamed to Warp Heist
 	- Team Diamond has been renamed to Team Warp Heist
-	- Diamond's mechanics have been reworked. Instead of holding the diamond for set duration until you gain points, a control point will spawn around the map as will the Warp topaz. Your goal is to take the warp topaz to the control 	  point to gain your points.
+	- Diamond's mechanics have been reworked. Instead of holding the diamond for set duration until you gain points, a control point will spawn around the map as will the Warp topaz.
+	- Your goal is to take the warp topaz to the control point to gain your points.
 New mode: Ring Rally
-	- Team based gametype where both sides collect rings and take them back to a collection sector in their base. This gametype doesn't have a pointlimit and instead is a rush to collect rings until the timer runs out
-	- Teams can intercept each others ring collection or even go to each other's bases and steal rings from their base themselves.
+	- Team based gametype where both sides collect rings and take them back to a collection sector in their base.
+	- This gametype doesn't have a pointlimit and instead is a rush to collect rings until the timer runs out or all chaos rings are collected by a team.
 New mode: Ruby Run
 	- This brand new game mode combines CTF and Ruby gameplay - a Ruby will spawn at the center of the map, and each team must try to bring the ruby to the enemy base!
 	- Added support for Ruby Run to all vanilla CTF maps.
+New mode: Battle Tag
+	- The classic game of Tag you all know, now in Battle edition!
 Sonic
 	Speed Thok
 		- Speed increased (45frac -> 50frac)
@@ -194,8 +197,8 @@ Amy
 		- Applies 1.5s of cooldown on use
 Fang
 	Popgun
-		- Increased weapondelay (22tics -> 32tics)
-		- Increased shot speed (51frac -> 70frac)
+		- Increased weapondelay (22tics -> 35tics)
+		- Increased shot speed (51frac -> 65frac)
 	Tail Bounce
 		- Removed momentum cut when starting and ending the pogo state
 		- Heavily increased cooldown (1.5s -> 4.5s)
@@ -224,9 +227,11 @@ Metal Sonic
 	Dashmode
 		- Removed flashing color, added expanding overlay
 Maintenance
+	- Fixed player incompatibility issues with recent SRB2 updates
+	- Revamped maps
 	- Fixed permanent flashing frames (player's flashing frames now always count down in battle gametypes, even if it is higher than SRB2's default)
 	- Fixed some flag debuff stats persisting after death
-	- Severely reworked battleconfig saving and loading system
+	- Heavily reworked battleconfig saving and loading system
 	- Shields in the shield stock are rendered in the correct swapping order
 	- Fixed shield swapping not working when there's two of the same shield in a row
 	- Sonic can no longer perform a frame perfect jump when touching the floor during a ground pound
@@ -246,7 +251,7 @@ Maintenance
 	- Golden monitors no longer have gravity
 	- Players no longer visually flash during PreRound and GAME SET
 	- Player 2 bots can no longer collect item bubbles
-	- Probably a lot of things we forgot to write in here
+	- A LOT of things we neglected to write in here
 Console
 	Added variables and commands
 		battle_airdodge
