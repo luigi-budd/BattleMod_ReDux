@@ -191,6 +191,13 @@ B.DoPlayerInteract = function(smo,tmo)
 	end
 	B.DebugPrint("--------------------",DF_COLLISION)
 	local hurt = 0
+	local deflect
+	for n = 1,2 do
+		if plr[n] and plr[n].gotcrystal and B.HomingDeflect(plr[3 - n], mo[n]) then
+			deflect = true
+			break
+		end
+	end
 	//Collision info
 	if pvp and G_TagGametype() and leveltime > CV_FindVar("hidetime").value*TICRATE then //! Get hidetime
 		local function tagginghand(n1,n2)
@@ -206,7 +213,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		tagginghand(s,t)
 		tagginghand(t,s)
 		
-	elseif collisiontype > 1 then //Standard Battle rules
+	elseif collisiontype > 1 and not deflect then //Standard Battle rules
 		//Do collision damage
 		hurt = B.DoPlayerCollisionDamage(mo[s],mo[t])
 		// 0: nobody was hurt
@@ -273,7 +280,7 @@ B.DoPlayerInteract = function(smo,tmo)
 	end
 	local override_physics = (op1 or op2)
 	
-	if not override_physics
+	if not (override_physics or deflect) then
 		local function applythrust(n1,n2)
 			if plr[n1] and plr[n1].climbing return end
 			//Apply XY-Thrust

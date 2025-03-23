@@ -148,7 +148,7 @@ R.Collect = function(mo,toucher,playercansteal)
 	if not(rubyIsValid) then return true end
 	if not(toucherIsValid) then return true end
 
-	if toucherIsFlashing then
+	if toucherIsFlashing or B.HomingDeflect(toucher.player, mo.target) then
 		toucher.player.powers[pw_flashing] = max($,2)
 		return true
 	end

@@ -102,6 +102,9 @@ B.PlayerThinkFrame = function(player)
 			pmo.state = S_PLAY_SPRING
 		end
 	end
+	if player.homing or (player.shadow and player.shadow.battlehoming) then
+		player.lasthoming = leveltime
+	end
 
 	-- Aerial timers
 	if P_IsObjectOnGround(pmo) then

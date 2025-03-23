@@ -6,5 +6,6 @@ freeslot(
 	'sfx_cddone',
 	'sfx_shswap',
 	'sfx_dash',
-	'sfx_recurl'
+	'sfx_recurl',
+	'sfx_deflct'
 )

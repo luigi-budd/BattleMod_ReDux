@@ -111,3 +111,21 @@ B.MacGuffinClaimed = function(mo, customdist, addxy, nofloat)
         mo.z = max(mo.floorz,min(mo.ceilingz+mo.height,z)) -- Do z pos while respecting level geometry
     end
 end
+
+B.HomingDeflect = function(player, target)
+    if player and player.lasthoming
+    and leveltime - player.lasthoming < TICRATE/5
+    then
+        if not player.powers[pw_flashing] then
+            local mo = player.mo
+            S_StartSound(mo, sfx_deflct)
+            mo.momx = -$*2/3
+            mo.momy = -$*2/3
+            local s = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_BATTLESHIELD)
+		    s.scale = s.scale*3
+		    s.colorized = true
+		    s.color = SKINCOLOR_BONE
+        end
+        return true
+    end
+end

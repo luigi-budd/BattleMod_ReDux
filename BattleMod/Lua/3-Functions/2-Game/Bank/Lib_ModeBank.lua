@@ -258,7 +258,7 @@ local function touchChaosRing(mo, toucher, playercansteal) --Going to copy Ruby/
 		return true
 	end
 
-	if toucherIsFlashing and not(mo.captured) then
+	if (toucherIsFlashing or B.HomingDeflect(toucher.player, mo.target)) and not(mo.captured) then
 		toucher.player.powers[pw_flashing] = max($,2)
 		return true
 	end
