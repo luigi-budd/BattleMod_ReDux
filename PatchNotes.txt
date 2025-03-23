@@ -33,6 +33,7 @@ Major gameplay changes
 	- Dying will permanently decrease the player's starting rings until the next map (This penalty is doubled if in overtime, otherwise, has a limit if provoked by another player)
 	- Characters will take twice as long to exhaust in non-survival gametypes
 	- Fire trails from elemental shields only damage if the player doesn't have any rings, otherwise, the player loses a ring when in contact with them
+	- Players carrying orbitals/non-flag macguffins are no longer damaged by homing attacks
 	Guard 
 		- Guard is once again possible during flashing frames, but will result in a guard break when frame-perfect-parrying this way (for example, if you're standing inside a hazard)
 		- Players can no longer guard during heavy bumps (pw_nocontrol + skidtime)
@@ -76,6 +77,11 @@ Survival, Team Survival, Arena, Team Arena
 	- Added a bounty system where killing the player with highest rank awards the killer with extra rings, score and lifeshards (customizable via the console variable battle_bounty)
 		- Additionally, in arena, hitting wanted players will award extra score
 	- The highest rank player can always be located with the radar or compass
+Survival, Team Survival
+	- New overtime gimmick: Combat Zone
+		- A wandering emblem will appear on a random player based on a number of factors (how near they are to the floor, if they are in combat, etc)
+		- This emblem represents the center of the Combat Zone, which shrinks over time until it is destroyed
+		- Staying outside of the Combat Zone for too long will result in permanent death
 Battle CTF
 	- Flag debuff now also applies a fixed jumpfactor of 100%
 	- Holding a flag no longer hinders acceleration and top speed
