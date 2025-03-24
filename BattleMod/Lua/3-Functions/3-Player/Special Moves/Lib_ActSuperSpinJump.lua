@@ -13,6 +13,7 @@ local pound_downaccel = FRACUNIT*4//4
 local jumpfriction = FRACUNIT*9/10
 local poundfriction = FRACUNIT
 local reboundthrust = 13
+local gp_distance = FRACUNIT*168
 
 B.Action.SuperSpinJump_Priority = function(player)
 	local mo = player.mo
@@ -181,24 +182,19 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			if mo.eflags&MFE_JUSTHITFLOOR then //We have hit a surface
 				player.lockjumpframe = 2
 				player.powers[pw_nocontrol] = $ or 2
-				B.ApplyCooldown(player,cooldown2)//
+				B.ApplyCooldown(player,cooldown2)
 				
-				if player == displayplayer
+				if player == displayplayer then
 					P_StartQuake(6*FRACUNIT, 3)
 				end
 				
 				S_StartSound(mo,sfx_s3k5f)
-				local blastspeed = 4
-				local fuse = 10
 				
-				//Create projectile blast
-				for n = 0, 23
-					local p = P_SPMAngle(mo,MT_GROUNDPOUND,mo.angle+n*ANG15,0)
-					if p and p.valid then
-						p.momz = mo.scale*P_MobjFlip(mo)*blastspeed/water
-						p.fuse = fuse
-					end
-				end
+				//Create damaging shockwave
+				local old_speed = mobjinfo[MT_GP_SHOCKWAVE].speed
+				mobjinfo[MT_GP_SHOCKWAVE].speed = gp_distance / mobjinfo[MT_GP_SHOCKWAVE].painchance
+				A_Shockwave(mo, MT_GP_SHOCKWAVE, 16)
+				mobjinfo[MT_GP_SHOCKWAVE].speed = old_speed
 					
 				P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/8)
 				B.ZLaunch(mo,reboundthrust*FRACUNIT,true)

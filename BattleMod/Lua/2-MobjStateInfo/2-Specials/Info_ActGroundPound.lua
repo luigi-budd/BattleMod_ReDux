@@ -116,3 +116,32 @@ states[S_SUPPERSPIN_WAVE_END] = {
 
 sfxinfo[sfx_spwvt].caption = "Spin Wave Ready"
 sfxinfo[sfx_spwve].caption = "\x82".."SPIN WAVE READY".."\x80"
+
+CBW_Battle.Action.GPTrans = function(mo)
+	local t = mobjinfo[MT_GP_SHOCKWAVE].painchance
+	if (mo.fuse <= t) then
+		local trans = ((mo.fuse + 1) * 10) / t
+		if (trans >= 1 and trans <= 9) then
+			mo.frame = $ & ~FF_TRANSMASK
+			mo.frame = $|((10-trans) << FF_TRANSSHIFT)
+		end
+	end
+	mo.spriteyscale = max($ - FRACUNIT/t/2, 1)
+end
+function A_GPShockwaveThink(actor, var1, var2)
+	if (actor.hnext)
+		A_Boss3ShockThink(actor, var1, var2)
+	end
+	CBW_Battle.Action.GPTrans(actor)
+end
+freeslot("S_GP_SHOCKWAVE", "MT_GP_SHOCKWAVE", "SPR_GPSH")
+states[S_GP_SHOCKWAVE] = {SPR_GPSH, FF_ADD|FF_PAPERSPRITE|FF_FULLBRIGHT|E, 1, A_GPShockwaveThink, 0, 0, S_GP_SHOCKWAVE}
+mobjinfo[MT_GP_SHOCKWAVE] = {
+	spawnstate = S_GP_SHOCKWAVE,
+	radius = FRACUNIT*48,
+	height = FRACUNIT*8,
+	speed = FRACUNIT*64,	-- doesnt really matter
+	damage = 3,
+	painchance = TICRATE/3,	-- also controls speed
+	flags = MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY|MF_PAPERCOLLISION
+}
