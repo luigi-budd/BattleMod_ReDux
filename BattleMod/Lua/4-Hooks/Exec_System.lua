@@ -125,3 +125,10 @@ B.AutoLoad = function(player)
 	end
 end
 addHook("PlayerThink", B.AutoLoad) --i wish this was a "PlayerJoin" hook instead but idk how to use it so here it goes!!
+
+B.Whatever = function()
+	if consoleplayer and (consoleplayer.win or consoleplayer.loss) then
+		return true
+	end
+end
+addHook("MusicChange", B.Whatever)

@@ -265,11 +265,11 @@ A.ForceWin = function()
 			or (player.wanted)
 			or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2] and not G_GametypeHasTeams())
 			then
-				player.win = true
 				S_ChangeMusic(winmusic, false, player)
+				player.win = true
 			else
-				player.loss = true
 				S_ChangeMusic(lossmusic, false, player)
+				player.loss = true
 			end
 
 			if not(winner) and (playercount == 0) or (not(G_GametypeHasTeams()) and (player.wanted or (#player_scores and player_scores[#player_scores/2] and player.score >= player_scores[#player_scores/2]))) then

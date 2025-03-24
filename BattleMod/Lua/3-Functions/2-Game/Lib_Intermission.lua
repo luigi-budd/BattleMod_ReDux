@@ -12,6 +12,8 @@ B.Intermission = function()
 	B.Exiting = false
 	B.Arena.SpawnLives = 3
 	for player in players.iterate
+		player.win = nil
+		player.loss = nil
 		if player.revenge then
 			player.revenge = false
 			player.lives = 3
