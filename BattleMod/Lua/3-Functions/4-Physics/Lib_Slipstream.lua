@@ -109,6 +109,7 @@ B.DoBackdraft = function(player)
 	if player.gradualspeed
 	and (nearest and nearest.valid)
 	and not (player.battleconfig_useslipstreambutton and not player.didslipbutton)
+	and not B.Timeout
 	then
 		B.BackdraftThinker(player, nearest)
 	elseif player.slipping then

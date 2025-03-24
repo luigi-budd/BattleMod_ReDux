@@ -789,7 +789,7 @@ end
 
 B.SurvivalViewpoints = function(player, nextviewedplayer, forced)
     if B.ArenaGametype() then
-		if G_GametypeUsesLives() then
+		if leveltime and G_GametypeUsesLives() then
 			return nextviewedplayer.lives
 		else
 			return nextviewedplayer.playerstate != PST_DEAD
