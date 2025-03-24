@@ -463,7 +463,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 	-- Owner has been pushed by another player
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
 	and mo.target.pushed_last and mo.target.pushed_last.valid
-		touchChaosRing(mo,mo.target.pushed_last, B.MyTeam(mo, mo.target.pushed_last) == false)
+		touchChaosRing(mo,mo.target.pushed_last, B.MyTeam(mo.target, mo.target.pushed_last) == false)
 	end
 	
 	-- Owner has taken damage or has gone missing
