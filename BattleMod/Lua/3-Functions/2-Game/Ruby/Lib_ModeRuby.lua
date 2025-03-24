@@ -168,7 +168,7 @@ R.Collect = function(mo,toucher,playercansteal)
 	toucher.spriteyscale = toucher.scale
 	if not(previoustarget) then
 		B.PrintGameFeed(toucher.player," picked up the "..rubytext.."!")
-	else
+	elseif toucher.player and previoustarget.player then
 		if B.MyTeam(toucher.player, previoustarget.player) then
 			B.PrintGameFeed(previoustarget.player," passed the "..rubytext.." to ",toucher.player,"!")
 		else
@@ -429,11 +429,12 @@ R.Thinker = function(mo)
 	-- Owner has been pushed by another player
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
 	and mo.target.pushed_last and mo.target.pushed_last.valid
+	and mo.target.pushed_last.player
 		R.Collect(mo,mo.target.pushed_last, true)
 	end
 	
 	-- Owner has taken damage or has gone missing
-	if mo.target 
+	if mo.target and mo.target.player
 		if not(mo.target.valid)
 		or P_PlayerInPain(mo.target.player)
 		or mo.target.player.playerstate != PST_LIVE

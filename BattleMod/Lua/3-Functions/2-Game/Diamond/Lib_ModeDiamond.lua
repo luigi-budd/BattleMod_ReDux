@@ -299,11 +299,13 @@ D.Collect = function(mo,toucher,playercansteal)
 			--S_StartSound(nil, sfx_dmstl1, mo.target.player)
 			--play_for_all_but_player(sfx_dmstl2, mo.target.player)
 		--end
-		if B.MyTeam(toucher.player, previoustarget.player) then
-			B.PrintGameFeed(previoustarget.player," passed the "..diamondtext.." to ",toucher.player,"!")
-		else
-			B.PrintGameFeed(toucher.player," stole the "..diamondtext.." from ",previoustarget.player,"!")
-		end	
+		if toucher.player and previoustarget.player then
+			if B.MyTeam(toucher.player, previoustarget.player) then
+				B.PrintGameFeed(previoustarget.player," passed the "..diamondtext.." to ",toucher.player,"!")
+			else
+				B.PrintGameFeed(toucher.player," stole the "..diamondtext.." from ",previoustarget.player,"!")
+			end
+		end
 	end
 end
 
@@ -447,12 +449,13 @@ D.Thinker = function(mo)
 	--Owner has been pushed by another player
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
 	and mo.target.pushed_last and mo.target.pushed_last.valid
+	and mo.target.pushed_last.player
 	and CV.DiamondDisableStealing.value == 0 then
 		D.Collect(mo,mo.target.pushed_last,true)
 	end
 	
 	--Owner has taken damage or has gone missing
-	if mo.target then
+	if mo.target and mo.target.player then
 		if not(mo.target.valid)
 		or P_PlayerInPain(mo.target.player)
 		or mo.target.player.playerstate != PST_LIVE
