@@ -430,7 +430,7 @@ R.Thinker = function(mo)
 	if mo.flags&MF_SPECIAL and mo.target and mo.target.valid 
 	and mo.target.pushed_last and mo.target.pushed_last.valid
 	and mo.target.pushed_last.player
-		R.Collect(mo,mo.target.pushed_last, true)
+		R.Collect(mo,mo.target.pushed_last, B.MyTeam(mo, mo.target.pushed_last) == false)
 	end
 	
 	-- Owner has taken damage or has gone missing
