@@ -40,7 +40,7 @@ B.Tails_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 	if pain[n1] or (plr[n2] and plr[n2].actionstate) or not(plr[n1] and plr[n1].valid)
 		return
 	end
-	if atk[n1] and plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < flightdash_satk and not (plr[n2] and plr[n2].nodamage)))
+	if plr[n1].actionstate == state_dash and (B.MyTeam(mo[n1], mo[n2]) or (def[n2] < flightdash_satk and not (plr[n2] and plr[n2].nodamage)))
 		plr[n1].tailsmarker = 1
 	elseif B.MyTeam(mo[n1], mo[n2])
 		plr[n1].tailsmarker = -1
@@ -670,9 +670,15 @@ B.Action.TailSwipe = function(mo,doaction)
 			player.mo.cantouchteam = 1
 		end
 		if B.DrawSVSprite(player, player.actionstate == state_dash and 2 or 1) then
-			local tail = player.followmobj
-			if tail and tail.state >= S_TAILSOVERLAY_0DEGREES and tail.state <= S_TAILSOVERLAY_MINUS60DEGREES then
-				tail.frame = 512 + B.Wrap(leveltime/2, 0, 7)
+			if player.actionstate == state_dash then
+				local tail = player.followmobj
+				if tail and tail.state >= S_TAILSOVERLAY_0DEGREES and tail.state <= S_TAILSOVERLAY_MINUS60DEGREES then
+					tail.frame = 512 + B.Wrap(leveltime/2, 0, 7)
+				end
+			else
+				if player.followmobj then P_SetMobjStateNF(player.followmobj,S_NULL) end
+				if not B.DrawSVSprite(player,1) then mo.state = S_PLAY_EDGE end
+				player.drawangle = mo.angle-ANG60*player.actiontime
 			end
 		else
 			mo.state = S_PLAY_EDGE
