@@ -55,14 +55,25 @@ end
 
 
 --Sonic ground pound
-addHook("MobjSpawn",function(mo)
+local gp = function(mo)
 	mo.hit_sound = sfx_hit00
 	mo.block_stun = 4
 	mo.block_sound = sfx_s3k49
 	mo.block_hthrust = 2
 	mo.block_vthrust = 6
-end,MT_GROUNDPOUND)
-
+end
+addHook("MobjSpawn", gp, MT_GROUNDPOUND)
+addHook("MobjSpawn", gp, MT_GP_SHOCKWAVE)
+B.InstaFlip2 = function(inst)
+	if inst.target then
+		if (inst.target.eflags & MFE_VERTICALFLIP) then
+			inst.rollangle = ANGLE_180
+		else
+			inst.rollangle = 0
+		end
+	end
+end
+addHook("MobjThinker", B.InstaFlip2, MT_GP_SHOCKWAVE)
 
 --Tails Projectiles
 addHook("MobjThinker",function(mo)
