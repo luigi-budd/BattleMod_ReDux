@@ -194,7 +194,7 @@ B.AddBattleGametype({
 	rankingtype = GT_MATCH,
 	intermissiontype = int_match,
 	defaultpointlimit = 0,
-	defaulttimelimit = 5,
+	defaulttimelimit = 4,
 	headerleftcolor = 231,
 	headerrightcolor = 231,
 	description = "It's survival of the fittest! Manage your shields and rings as you compete to be the last critter standing."
@@ -208,7 +208,7 @@ B.AddBattleGametype({
 	rankingtype = GT_TEAMMATCH,
 	intermissiontype = int_teammatch,
 	defaultpointlimit = 0,
-	defaulttimelimit = 5,
+	defaulttimelimit = 4,
 	headerleftcolor = 150,
 	headerrightcolor = 37,
 	description = "Shake'm all down in this team-based survival format. When one team runs out of lives, the other wins!"
