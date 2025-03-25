@@ -108,12 +108,12 @@ addHook("PostThinkFrame",function()
 	end
 	A.UpdateSpawnLives()
 	A.GetRanks()
-	F.CustomCaptureSFX()
 	B.PostPinchControl()
 end)
 
 addHook("PostThinkFrame", do
 	A.UpdateGame()
+	F.CustomCaptureSFX()
 end)
 
 addHook("IntermissionThinker",B.Intermission)
