@@ -277,7 +277,7 @@ B.BattleTagPointers = function(mo)
 			   (B.TagGametype() and mo.target.player.skincolor) or
 			   (B.RubyGametype() and (
 						(mo.tracer.player.gotcrystal and ({skincolor_blueteam, skincolor_redteam})[mo.tracer.player.ctfteam]) or
-						((R.ID and R.ID.valid and R.ID.target and R.ID.target.valid and R.ID.target.player) and ({skincolor_blueteam, skincolor_redteam})[R.ID.target.player.ctfteam]) or
+						((R.ID and R.ID.valid and R.ID.target and R.ID.target.valid and R.ID.target.player) and ({skincolor_redteam, skincolor_blueteam})[R.ID.target.player.ctfteam]) or
 						SKINCOLOR_MAGENTA
 					) 
 			   ) or
