@@ -89,6 +89,8 @@ R.SpawnRuby = function()
 		x = s.x
 		y = s.y
 		z = s.z
+		P_RemoveMobj(R.CheckPoint)
+		R.CheckPoint = nil
 	else
 		local list = R.GetSpawns()
 		s = list[P_RandomRange(1,#list)]
@@ -362,20 +364,25 @@ R.Thinker = function(mo)
 	light.scale = mo.scale / 2
 	light.colorized = true
 	light.color = mo.color
-	
+
 	local sector = mo.subsector.sector --P_MobjTouchingSectorSpecialFlag(mo, 0) or mo.subsector.sector --P_ThingOnSpecial3DFloor(mo) or mo.subsector.sector
-	if mo.target and mo.target.valid and GetSecSpecial(sector.special, 4) == 1
--- 		B.DebugGhost(mo, R.CheckPoint)
+	if mo.target and mo.target.valid --and GetSecSpecial(sector.special, 4) == 1
+		local floored = P_IsObjectOnGround(mo.target) or ((mo.target.eflags & MFE_JUSTHITFLOOR) and (mo.target.player.pflags & PF_STARTJUMP))
+		--local safe = B.CTF.DangerousSpecial(mo.target.subsector.sector.special) --idk how getsecspecial works
+		local safe = mo.target.health and not (P_CheckDeathPitCollide(mo.target) or P_PlayerInPain(mo.target.player))
+		local failsafe = mo.target.state != S_PLAY_PAIN
 		if not (R.CheckPoint and R.CheckPoint.valid)
-			R.CheckPoint = P_SpawnMobjFromMobj(mo.target, 0, 0, 0, 1)
-			R.CheckPoint.flags2 = $|MF2_SHADOW
-		else
+			R.CheckPoint = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
+			R.CheckPoint.tics = -1
+			R.CheckPoint.state = S_SHRD1
+		elseif floored and safe and failsafe then
 			P_MoveOrigin(R.CheckPoint, mo.target.x, mo.target.y, mo.target.z)
 		end
-		if mo.target.player.ctfteam == 1
-			R.CheckPoint.state = S_SHRD1
-		elseif mo.target.player.ctfteam == 2
-			R.CheckPoint.state = S_SHRD1
+		local debug = CV.Debug.value
+		if debug&DF_GAMETYPE then
+			R.CheckPoint.flags2 = $&~MF2_DONTDRAW
+		else
+			R.CheckPoint.flags2 = $|MF2_DONTDRAW
 		end
 	end
 	

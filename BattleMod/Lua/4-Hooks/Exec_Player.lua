@@ -285,7 +285,7 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	local killer
 	local player = target.player
 	local suicideflagdrop = false
-	
+
 	-- Drop flag if player has one
 	--if target and target.player then
 	--	if not source and not inflictor and damagetype == 0 and player.suicide_watch then

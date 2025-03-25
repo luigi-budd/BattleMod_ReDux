@@ -859,19 +859,19 @@ F.GotFlagCheck = function(p)
 	if p.mo and p.gotflag then return true end
 end
 
+F.DangerousSpecial = function(special)
+	local s = GetSecSpecial(special, 1)
+	local damage = (s >= 1 and s <= 5)
+	local death = s == 8
+	return damage or death
+end
+
 local function returnFlagcheck(mo)
 	if mo.type == MT_CREDFLAG or mo.type == MT_CBLUEFLAG then
 		-- Check sector
 		local ss = R_PointInSubsector(mo.x, mo.y)
 		local special = ss.sector.special
-		if (    (GetSecSpecial(special, 1) == 4) or
-			(GetSecSpecial(special, 1) == 3) or
-			(GetSecSpecial(special, 1) == 2) or
-			(GetSecSpecial(special, 1) == 1) or
-			(GetSecSpecial(special, 1) == 5) or
-			(GetSecSpecial(special, 1) == 8)
-			)
-		then
+		if F.DangerousSpecial(special) then
 			-- TODO: this is also a duplicate..
 			if P_IsObjectOnGround(mo) then					
 				-- Play corresponding sounds
@@ -893,15 +893,7 @@ local function returnFlagcheck(mo)
 
 		-- Check FOFs
 		for fof in mo.subsector.sector.ffloors() do
-			if      ((GetSecSpecial(fof.sector.special, 1) == 4 ) or -- Electric sector
-				 (GetSecSpecial(fof.sector.special, 1) == 3 ) or -- Fire sector
-				 (GetSecSpecial(fof.sector.special, 1) == 2 ) or -- Water damage sector
-				 (GetSecSpecial(fof.sector.special, 1) == 1 ) or -- Damage sector
-				 (GetSecSpecial(fof.sector.special, 1) == 5 ) or -- Spikes sector
-				 (GetSecSpecial(fof.sector.special, 1) == 8 )  -- Instant kill sector
-				 --or (GetSecSpecial(fof.sector.special, 1) == 6 ) or -- Death pit
-				 --(GetSecSpecial(fof.sector.special, 1) == 7 )    -- Death pit
-				)
+			if F.DangerousSpecial(fof.sector.special)
 				and
 				((P_MobjFlip(mo) == 1 and mo.z <= fof.sector.floorheight) -- Must be above FOF if normal gravity
 				or
