@@ -94,6 +94,9 @@ B.MacGuffinClaimed = function(mo, customdist, addxy, nofloat)
 	local dist = customdist or mo.target.radius*3
 	local x = t.x+P_ReturnThrustX(mo,ang,dist)
 	local y = t.y+P_ReturnThrustY(mo,ang,dist)
+    if addxy == nil then
+        addxy = t.player and t.player.deadtimer
+    end
     if addxy then
         x = $ + t.momx
         y = $ + t.momy

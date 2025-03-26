@@ -16,6 +16,7 @@ D.SpawnGrace = 0
 D.PointUnlockTime = 0
 D.CurrentPointNum = 0
 D.LastPointNum = 0
+D.CheckPoint = nil
 
 local diamondtext = "\x87".."Warp Topaz".."\x80"
 local rotatespd = ANG20
@@ -33,7 +34,11 @@ D.GameControl = function()
 
 	if D.Diamond == nil or not(D.Diamond.valid) then
 		if not(D.SpawnGrace) then
-			D.SpawnGrace = CV.DiamondSpawnDelay.value
+			if (D.CheckPoint and D.CheckPoint.valid) then
+				D.SpawnGrace = 1
+			else
+				D.SpawnGrace = CV.DiamondSpawnDelay.value
+			end
 			for p in players.iterate do
 				p.gotcrystal = false
 				p.gotcrystal_time = 0
@@ -60,6 +65,7 @@ D.Reset = function()
 	D.CapturePoints = {}
 	D.ActivePoint = nil
 	D.DiamondIndicator = nil
+	D.CheckPoint = nil
 	B.DebugPrint("Diamond mode reset",DF_GAMETYPE)
 end
 
@@ -117,30 +123,50 @@ D.SpawnCapturePoints = function()
 end
 
 D.SpawnDiamond = function()
-	B.DebugPrint("Attempting to spawn topaz",DF_GAMETYPE)
-	local num = P_RandomRange(1, #D.Spawns)
-	if #D.Spawns > 2 then
-		while num == D.LastDiamondPointNum or num == D.LastPointNum do
-			num = $ + 1
-			Wrap(num, #D.Spawns)
-		end
-	end
+    B.DebugPrint("Attempting to spawn topaz",DF_GAMETYPE)
+    local s, x, y, z
+    local fu = FRACUNIT
+	local usedcheckpoint
+    
+    if D.CheckPoint and D.CheckPoint.valid then
+        s = D.CheckPoint
+        x = s.x
+        y = s.y
+        z = s.z
+        P_RemoveMobj(D.CheckPoint)
+        D.CheckPoint = nil
+		usedcheckpoint = true
+    else
+        local num = P_RandomRange(1, #D.Spawns)
+        if #D.Spawns > 2 then
+            while num == D.LastDiamondPointNum or num == D.LastPointNum do
+                num = $ + 1
+                Wrap(num, #D.Spawns)
+            end
+        end
 
-	local s = D.Spawns[num]
-	if not s or not s.valid then return end
-	local fu = FRACUNIT
-	local x = s.x*fu
-	local y = s.y*fu
-	local z = s.z*fu
-	local subsector = R_PointInSubsector(x,y)
-	if subsector.valid and subsector.sector then
-		z = $+subsector.sector.ceilingheight
-		D.Diamond = P_SpawnMobj(x,y,z,MT_DIAMOND)
-		D.ActivatePoint(num)
-		D.LastDiamondPointNum = num
-		B.DebugPrint("Topaz coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)
-		print("The "..diamondtext.." has been spawned!")
-	end
+        s = D.Spawns[num]
+        if not s or not s.valid then return end
+        x = s.x*fu
+        y = s.y*fu
+        z = s.z*fu
+        D.LastDiamondPointNum = num
+    end
+    
+    local subsector = R_PointInSubsector(x,y)
+    if subsector.valid and subsector.sector then
+        if not usedcheckpoint then
+			z = $+subsector.sector.ceilingheight
+		end
+        D.Diamond = P_SpawnMobj(x,y,z,MT_DIAMOND)
+		if usedcheckpoint then
+			D.Diamond.idle = 16*TICRATE
+		else
+			D.ActivatePoint(D.LastDiamondPointNum)
+			print("The "..diamondtext.." has been spawned!")
+		end
+        B.DebugPrint("Topaz coordinates: "..D.Diamond.x/fu..","..D.Diamond.y/fu..","..D.Diamond.z/fu,DF_GAMETYPE)
+    end
 end
 
 D.ActivatePoint = function(num)
@@ -481,6 +507,25 @@ D.Thinker = function(mo)
 	end
 	
 	B.MacGuffinClaimed(mo)
+
+	if mo.target and mo.target.valid then
+		local floored = P_IsObjectOnGround(mo.target) or ((mo.target.eflags & MFE_JUSTHITFLOOR) and (mo.target.player.pflags & PF_STARTJUMP))
+		local safe = mo.target.health and not (P_CheckDeathPitCollide(mo.target) or P_PlayerInPain(mo.target.player))
+		local failsafe = mo.target.state != S_PLAY_PAIN
+		if not (D.CheckPoint and D.CheckPoint.valid) then
+			D.CheckPoint = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
+			D.CheckPoint.tics = -1
+			D.CheckPoint.state = S_SHRD1
+		elseif floored and safe and failsafe then
+			P_MoveOrigin(D.CheckPoint, mo.target.x - mo.target.momx, mo.target.y - mo.target.momy, mo.target.z)
+		end
+		local debug = CV.Debug.value
+		if debug&DF_GAMETYPE then
+			D.CheckPoint.flags2 = $&~MF2_DONTDRAW
+		else
+			D.CheckPoint.flags2 = $|MF2_DONTDRAW
+		end
+	end
 end
 
 D.CapturePointThinker = function(mo)
@@ -671,6 +716,10 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 		if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
 		or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 1)
 		then
+			if D.CheckPoint and D.CheckPoint.valid then
+				P_RemoveMobj(D.CheckPoint)
+				D.CheckPoint = nil
+			end
 			P_RemoveMobj(diamond)
 			S_StartSound(nil, sfx_s3kb3)
 			scoreincrease = CV.DiamondCaptureBonus.value
@@ -733,6 +782,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 			end
 		end
 		--COM_BufInsertText(server, "csay "..player.name.."\\captured the "..diamondtext.."!\\\\")--Not sure how to color this text...
+		D.ActivePoint = nil
 	end
 end
 

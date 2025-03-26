@@ -77,6 +77,63 @@ CR.Data = {
 	}
 }
 
+CR.Checkpoints = {}
+CR.UpdateCheckpoint = function(chaosring)
+	if not (chaosring and chaosring.valid and chaosring.chaosring_num) then return end
+		
+	local ringNum = chaosring.chaosring_num
+		
+	-- If the target (player) exists and is valid
+	if chaosring.target and chaosring.target.valid and chaosring.target.player then
+		local target = chaosring.target
+		local floored = P_IsObjectOnGround(target) or ((target.eflags & MFE_JUSTHITFLOOR) and (target.player.pflags & PF_STARTJUMP))
+		local safe = target.health and not (P_CheckDeathPitCollide(target) or P_PlayerInPain(target.player))
+		local failsafe = target.state != S_PLAY_PAIN
+		
+		-- Create checkpoint if it doesn't exist
+		if not CR.Checkpoints[ringNum] then
+			CR.Checkpoints[ringNum] = {
+				x = target.x,
+				y = target.y,
+				z = target.z,
+				obj = P_SpawnMobjFromMobj(chaosring, 0, 0, 0, MT_THOK)
+			}
+			CR.Checkpoints[ringNum].obj.tics = -1
+			CR.Checkpoints[ringNum].obj.state = S_SHRD1
+			CR.Checkpoints[ringNum].obj.colorized = true
+			CR.Checkpoints[ringNum].obj.color = chaosring.color
+			CR.Checkpoints[ringNum].obj.flags2 = $|MF2_DONTDRAW
+		-- Update checkpoint position if player is on solid ground and safe
+		elseif floored and safe and failsafe then
+			CR.Checkpoints[ringNum].x = target.x
+			CR.Checkpoints[ringNum].y = target.y
+			CR.Checkpoints[ringNum].z = target.z
+			
+			if CR.Checkpoints[ringNum].obj and CR.Checkpoints[ringNum].obj.valid then
+				P_MoveOrigin(CR.Checkpoints[ringNum].obj, target.x, target.y, target.z)
+			end
+		end
+		
+		-- Debug visualization
+		local debug = CV.Debug.value
+		if CR.Checkpoints[ringNum].obj and CR.Checkpoints[ringNum].obj.valid then
+			if debug&DF_GAMETYPE then
+				CR.Checkpoints[ringNum].obj.flags2 = $&~MF2_DONTDRAW
+			else
+				CR.Checkpoints[ringNum].obj.flags2 = $|MF2_DONTDRAW
+			end
+		end
+	end
+end
+CR.ResetCheckpoints = function()
+	for num, checkpoint in pairs(CR.Checkpoints) do
+		if checkpoint.obj and checkpoint.obj.valid then
+			P_RemoveMobj(checkpoint.obj)
+		end
+	end
+	CR.Checkpoints = {}
+end
+
 local CHAOSRING_TEXT = function(num, donum)
 	if donum then
 		return CR.Data[num].textmap.."Chaos Ring "..num.."\x80"
@@ -170,14 +227,37 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	local thing = server.SpawnTable[num]
 	local data = CR.Data[chaosringnum]
 
-	local sector = (R_PointInSubsector(thing.x, thing.y)).sector
+	local x, y, z
+	local useCheckpoint = false
+
+	-- Check if we have a checkpoint for this Chaos Ring
+	if CR.Checkpoints[chaosringnum] and CR.Checkpoints[chaosringnum].obj and CR.Checkpoints[chaosringnum].obj.valid then
+		x = CR.Checkpoints[chaosringnum].x
+		y = CR.Checkpoints[chaosringnum].y
+		z = CR.Checkpoints[chaosringnum].z
+		useCheckpoint = true
+		
+		P_RemoveMobj(CR.Checkpoints[chaosringnum].obj)
+		CR.Checkpoints[chaosringnum] = nil
+	else
+		-- Use the spawn point coordinates
+		x = thing.x
+		y = thing.y
+		z = thing.z
+	end
+
+	local sector = (R_PointInSubsector(x, y)).sector
 
 	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
 	local float = ((thing.options&MTF_AMBUSH) and 1) or 0
 	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
 	--local z = 
 
-	thing.mo = P_SpawnMobj(thing.x, thing.y, (((flip==-1) and sector.ceilingheight-(thing.z)) or sector.floorheight+(thing.z+(24*FRACUNIT*float))), CHAOSRING_TYPE)
+	if useCheckpoint then
+		thing.mo = P_SpawnMobj(x, y, z, CHAOSRING_TYPE)
+	else
+		thing.mo = P_SpawnMobj(thing.x, thing.y, (((flip==-1) and sector.ceilingheight-(thing.z)) or sector.floorheight+(thing.z+(24*FRACUNIT*float))), CHAOSRING_TYPE)
+	end
 	if flip == -1 then
 		thing.mo.flags2 = $|MF2_OBJECTFLIP
 	end
@@ -193,9 +273,11 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	thing.mo.chaosring_thingspawn = thing --Store the MapThing table
 	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS --Shiny
 	table.remove(server.SpawnTable, num) --Don't try to spawn here again
-	print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
-	if re then
-		S_StartSound(nil, sfx_cdfm44)
+	if not useCheckpoint then
+		print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
+		if re then
+			S_StartSound(nil, sfx_cdfm44)
+		end
 	end
 	thing.mo.radius = 16*FRACUNIT
 	return thing.mo
@@ -511,6 +593,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 			customdist = $-(offset/2)
 		end
 		B.MacGuffinClaimed(mo, customdist)
+		CR.UpdateCheckpoint(mo)
 	else --Loose?
 		mo.flags = ($|MF_BOUNCE)&~MF_SLIDEME
 		if mo.flags & MF_GRENADEBOUNCE == 0
@@ -600,9 +683,16 @@ local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 		server.SpawnTable[chaosring.chaosring_thingspawn.num] = chaosring.chaosring_thingspawn
 
 		--Set to Respawning in LiveTable
-		server.AvailableChaosRings[CR.GetChaosRingKey(chaosring.chaosring_num)] = {chaosring_num=chaosring.chaosring_num, valid=false, respawntimer=CV.ChaosRing_SpawnBuffer.value*TICRATE}
+		local checkPoint = CR.Checkpoints[chaosring.chaosring_num]
+		server.AvailableChaosRings[CR.GetChaosRingKey(chaosring.chaosring_num)] = {
+			chaosring_num = chaosring.chaosring_num,
+			valid = false,
+			respawntimer= checkPoint and 1 or CV.ChaosRing_SpawnBuffer.value*TICRATE,
+			checkpoint = checkPoint}
 
-		print("A "..CHAOSRING_TEXT(chaosring.chaosring_num).." was lost!")
+		if not checkPoint then
+			print("A "..CHAOSRING_TEXT(chaosring.chaosring_num).." was lost!")
+		end
 		S_StartSound(nil, sfx_kc5d)
 	end
 end

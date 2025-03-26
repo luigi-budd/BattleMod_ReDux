@@ -84,6 +84,7 @@ R.SpawnRuby = function()
 	B.DebugPrint("Attempting to spawn ruby",DF_GAMETYPE)
 	local s, x, y, z
 	local fu = FRACUNIT
+	local usedcheckpoint
 	if R.CheckPoint and R.CheckPoint.valid
 		s = R.CheckPoint
 		x = s.x
@@ -91,6 +92,7 @@ R.SpawnRuby = function()
 		z = s.z
 		P_RemoveMobj(R.CheckPoint)
 		R.CheckPoint = nil
+		usedcheckpoint = true
 	else
 		local list = R.GetSpawns()
 		s = list[P_RandomRange(1,#list)]
@@ -106,10 +108,12 @@ R.SpawnRuby = function()
 	if mo and mo.valid
 		if leveltime > 5
 			S_StartSound(nil, sfx_ruby2)
-			if gametype == GT_RUBYRUN
-				print("The "..rubytext.." has respawned!")
-			else
-				print("The "..rubytext.." has spawned!")
+			if not usedcheckpoint then
+				if gametype == GT_RUBYRUN
+					print("The "..rubytext.." has respawned!")
+				else
+					print("The "..rubytext.." has spawned!")
+				end
 			end
 		end
 		B.DebugPrint("Ruby coordinates: "..mo.x/fu..","..mo.y/fu..","..mo.z/fu,DF_GAMETYPE)
@@ -118,6 +122,9 @@ R.SpawnRuby = function()
 		if gametyperules & GTR_TEAMFLAGS
 			mo.fuse = waittics
 			mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS
+		end
+		if usedcheckpoint then
+			mo.idle = TICRATE*16
 		end
 	end
 end
@@ -375,11 +382,11 @@ R.Thinker = function(mo)
 			R.CheckPoint = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
 			R.CheckPoint.tics = -1
 			R.CheckPoint.state = S_SHRD1
-		elseif floored and safe and failsafe then
+		elseif floored and safe and failsafe
 			P_MoveOrigin(R.CheckPoint, mo.target.x, mo.target.y, mo.target.z)
 		end
 		local debug = CV.Debug.value
-		if debug&DF_GAMETYPE then
+		if debug&DF_GAMETYPE
 			R.CheckPoint.flags2 = $&~MF2_DONTDRAW
 		else
 			R.CheckPoint.flags2 = $|MF2_DONTDRAW
@@ -517,7 +524,7 @@ R.Thinker = function(mo)
 	g.scalespeed = g.scale / g.fuse
 	g.blendmode = AST_ADD
 	
-	B.MacGuffinClaimed(mo, nil, true)
+	B.MacGuffinClaimed(mo)
 	
 	local cvar_pointlimit = CV_FindVar("pointlimit").value
 	local cvar_overtime = CV_FindVar("overtime").value
