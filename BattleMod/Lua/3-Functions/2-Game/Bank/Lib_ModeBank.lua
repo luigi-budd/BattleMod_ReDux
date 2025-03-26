@@ -170,15 +170,19 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	local thing = server.SpawnTable[num]
 	local data = CR.Data[chaosringnum]
 
+	local sector = (R_PointInSubsector(thing.x, thing.y)).sector
+
 	local flip = ((thing.options&MTF_OBJECTFLIP) and -1) or 1
 	local float = ((thing.options&MTF_AMBUSH) and 1) or 0
 	--local z = ((thing.options & MTF_AMBUSH) and (thing.z+(24*FRACUNIT))) or thing.z
-	local z = thing.z+(mobjinfo[CHAOSRING_TYPE].height/3)+(24*FRACUNIT*float)*flip
+	--local z = 
 
-	thing.mo = P_SpawnMobj(thing.x, thing.y, z, CHAOSRING_TYPE)
+	thing.mo = P_SpawnMobj(thing.x, thing.y, (((flip==-1) and sector.ceilingheight-(thing.z)) or sector.floorheight+(thing.z+(24*FRACUNIT*float))), CHAOSRING_TYPE)
 	if flip == -1 then
 		thing.mo.flags2 = $|MF2_OBJECTFLIP
 	end
+
+	--local floor = P_FloorzAtPos(thing.x, thing.y, , mobjinfo[CHAOSRING_TYPE].height)
 
 	thing.mo.scale = FixedMul(thing.scale, CHAOSRING_SCALE) --Chaos Rings are large
 	thing.mo.color = data.color --Color according to number
