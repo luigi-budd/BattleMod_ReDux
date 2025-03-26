@@ -440,7 +440,7 @@ B.RingsHUD = function(v, player, cam)
 	end*/
 	patch = v.cachePatch("PARRYBT")
 	if (canguard or guardoverride) and not (minimal_hud) then
-		v.draw(x-5,y,patch,flags)
+		v.draw(x-5,y-1,patch,flags)
 		v.drawString(x+7,y,guardtext,flags,"thin")
 	end
 
