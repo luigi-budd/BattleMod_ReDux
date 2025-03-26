@@ -192,12 +192,13 @@ B.DoPlayerInteract = function(smo,tmo)
 	B.DebugPrint("--------------------",DF_COLLISION)
 	local hurt = 0
 	local deflect
+	--[[
 	for n = 1,2 do
 		if plr[n] and plr[n].gotcrystal and B.HomingDeflect(plr[3 - n], mo[n]) then
 			deflect = true
 			break
 		end
-	end
+	end]]
 	//Collision info
 	if pvp and G_TagGametype() and leveltime > CV_FindVar("hidetime").value*TICRATE then //! Get hidetime
 		local function tagginghand(n1,n2)
