@@ -155,14 +155,14 @@ local function drawFlagfromP(v)
 			local bheld = v.cachePatch("NONICON")
 			local BNON_X = BASEVIDWIDTH/2 - SEP - (bheld.width / 2)
 			local BNON_Y = YPOS
-			v.drawScaled(BNON_X*FRACUNIT, BNON_Y*FRACUNIT, FRACUNIT, bheld, patch_flags)
+			v.drawScaled(BNON_X*FRACUNIT, (BNON_Y+yoff)*FRACUNIT, FRACUNIT, bheld, patch_flags)
 		end
 		-- If red flag isn't at base
 		if (player.gotflag & GF_REDFLAG) then
 			local rheld = v.cachePatch("NONICON2")   
 			local RNON_X = BASEVIDWIDTH/2 + SEP - (rheld.width / 2)
 			local RNON_Y = YPOS
-			v.drawScaled(RNON_X*FRACUNIT, RNON_Y*FRACUNIT, FRACUNIT, rheld, patch_flags)
+			v.drawScaled(RNON_X*FRACUNIT, (RNON_Y+yoff)*FRACUNIT, FRACUNIT, rheld, patch_flags)
 		end
 
 
@@ -253,7 +253,7 @@ local function cctf_hud(v, p, cam)
 		rcol = v.getColormap(TC_RAINBOW, SKINCOLOR_RED)
 	end
 	if B.RubyGametype() then
-		bcol = v.getColormap(TC_RAINBOW, SKINCOLOR_WAVE)
+		bcol = v.getColormap(TC_RAINBOW, SKINCOLOR_COBALT)
 		bflag, rflag = v.cachePatch("RAD_RUBY2"), v.cachePatch("RAD_RUBY2")
 	elseif B.DiamondGametype() then
 		bflag, rflag = v.cachePatch("RAD_TOPAZ2"), v.cachePatch("RAD_TOPAZ2")
