@@ -26,6 +26,7 @@ B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 		player.spectatortime = 0
 	end
 	if team == 0 then //Penalty for abandoning the team
+		P_PlayerFlagBurst(player)
 		if player.mo and player.mo.valid then
 			local vfx = P_SpawnMobj(player.mo.x,player.mo.y,player.mo.z,MT_THOK)
 			if vfx and vfx.valid then
