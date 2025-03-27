@@ -40,7 +40,7 @@ local function GetTimer(player)
 	return tics
 end
 
-B.TimerHUD = function(v, player, cam)
+B.DrawTimer = function(v, player, cam, yoff)
 	if not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 		or not hud.enabled("time")
 	then
@@ -48,7 +48,7 @@ B.TimerHUD = function(v, player, cam)
 	end
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
 	local x = 148
-	local y = 18
+	local y = 18+(yoff or 0)
 	v.draw(160,y+5,v.cachePatch("HUD_FADBAR"),V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER|V_REVERSESUBTRACT)
 	local p = displayplayer
 	local tics = GetTimer(player)
@@ -74,4 +74,11 @@ B.TimerHUD = function(v, player, cam)
 	end
 	v.drawNum(x, y, secs, flags)
 	v.drawString(x, y + 4, "."..cs, flags, "thin")
+end
+
+B.TimerHUD = function(v, player, cam)
+	B.DrawTimer(v, player, cam)
+end
+B.ScoresTimerHUD = function(v, cam)
+	B.DrawTimer(v, consoleplayer, cam, -10)
 end

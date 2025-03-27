@@ -19,6 +19,7 @@ hud.add(B.ActionHUD)
 hud.add(B.ShieldHUD)
 hud.add(B.TeammateHUD)
 hud.add(B.TimerHUD)
+hud.add(B.ScoresTimerHUD, "scores")
 hud.add(B.StartRingsHUD)
 
 --Gamemode info
