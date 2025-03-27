@@ -20,11 +20,3 @@ B.DrawMatchPoint = function(v)
         v.drawString(x+xshake, y+yshake, txt, flags, "center")
     end
 end
-
---Using this for now because we don't have default songs
-B.DrawMatchPointDebug = function(v)
-    local debug = CV.Debug.value
-    if debug&DF_GAMETYPE then
-        B.DrawMatchPoint(v)
-    end
-end

@@ -6,6 +6,8 @@ local A = B.Arena
 local pinchtime = 31
 local pinchmusic = "_PINCH"
 local overtimemusic = "_OVRTM"
+local matchpointmusic = "BMAPNT"
+local doublematchpointmusic = "BSHDWN"
 
 B.PreRoundWait = function()
 	if gametype and CV.PreRound.value-- and not(B.TagGametype())
@@ -38,25 +40,25 @@ B.GetPinch = function()
 	if t.value and gametyperules&GTR_FIXGAMESET then
 		timeleft = $-60
 	end
-	local pinch 		= timeleft < 0
-	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0)
+	local dblmatchpoint = G_GametypeHasTeams() and B.IsTeamNearLimit(redscore) and B.IsTeamNearLimit(bluescore)
+	local pinch 		= timeleft < 0 and not dblmatchpoint
+	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0) and not dblmatchpoint
 	local suddendeath 	= (B.Gametypes.SuddenDeath[gametype] and overtime and CV.SuddenDeath.value == 1)
-	local matchpoint    = G_GametypeHasTeams() and (B.IsTeamNearLimit(redscore) or B.IsTeamNearLimit(bluescore)) and not(pinch) and not(overtime)
+	local matchpoint    = G_GametypeHasTeams() and (B.IsTeamNearLimit(redscore) or B.IsTeamNearLimit(bluescore)) and (dblmatchpoint or not(pinch or overtime))
 
 	--Match point music
-	if matchpoint then
-		--print(true)
+	--print("matchpoint: "..(matchpoint and "Y" or "N").." , dblmatchpoint: "..(dblmatchpoint and "Y" or "N"))
+	if matchpoint or dblmatchpoint then
 		if B.MatchPoint == false then
 			B.DebugPrint("Match Point triggered", DF_GAMETYPE)
 			B.MatchPoint = true
 			B.MatchPointMusic(consoleplayer)
-		elseif B.IsTeamNearLimit(redscore) and B.IsTeamNearLimit(bluescore) and B.MatchPoint != 2 then
+		elseif dblmatchpoint and B.MatchPoint != 2 then
 			B.DebugPrint("Double Match Point triggered", DF_GAMETYPE)
 			B.MatchPoint = 2
 			B.DoubleMatchPointMusic(consoleplayer)
 		end
 	else
-		--TODO: Reset music?
 		B.MatchPoint = false -- Just in case the pointlimit is altered mid-game
 	end
 
@@ -95,7 +97,7 @@ B.GetPinch = function()
 			end
 		end
 	else
-		if not(B.Exiting) and (B.Pinch or B.SuddenDeath or B.Overtime) then
+		if not(B.Exiting) and (B.Pinch or B.SuddenDeath or B.Overtime or B.MatchPoint) then
 			B.DebugPrint("Pinch mode / sudden death / overtime deactivated",DF_GAMETYPE)
 			B.Pinch = false
 			B.SuddenDeath = false
@@ -324,7 +326,7 @@ end
 B.PinchMusic = function(player)
 	if B.Exiting then return end
 	if player == nil then return end
-	if B.Pinch and player == consoleplayer then
+	if B.Pinch and player == consoleplayer and not (B.MatchPoint == 2) then
 
 		local pinch = pinchmusic
 	
@@ -339,7 +341,7 @@ end
 B.OvertimeMusic = function(player)
 	if B.Exiting then return end
 	if player == nil then return end
-	if B.Overtime and player == consoleplayer then
+	if B.Overtime and player == consoleplayer and not (B.MatchPoint == 2) then
 
 		local over = overtimemusic
 
@@ -354,14 +356,30 @@ end
 B.MatchPointMusic = function(player)
 	if B.Exiting then return end
 	if player == nil then return end
-	----
+	if B.MatchPoint == true and player == consoleplayer then
+
+		local match = matchpointmusic
+
+		B.DebugPrint("Starting match point music",DF_GAMETYPE)
+		mapmusname = match
+		S_ChangeMusic(match)
+		--COM_BufInsertText(player,"tunes "..match)
+	return true end
 	return false
 end
 
 B.DoubleMatchPointMusic = function(player)
 	if B.Exiting then return end
 	if player == nil then return end
-	----
+	if B.MatchPoint == 2 and player == consoleplayer then
+
+		local match = doublematchpointmusic
+
+		B.DebugPrint("Starting double match point music",DF_GAMETYPE)
+		mapmusname = match
+		S_ChangeMusic(match)
+		--COM_BufInsertText(player,"tunes "..match)
+	return true end
 	return false
 end
 

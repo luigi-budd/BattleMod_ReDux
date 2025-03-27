@@ -52,7 +52,7 @@ hud.add(A.GameSetHUD,player)
 hud.add(B.HitCounterHUD,player)
 hud.add(B.DebugHUD)
 hud.add(B.TagGenHUD)
-hud.add(B.DrawMatchPointDebug)
+hud.add(B.DrawMatchPoint)
 
 --Score screen
 hud.add(B.StatsHUD, "scores")
