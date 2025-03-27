@@ -142,6 +142,7 @@ B.DebugHUD = function(v, player, cam)
 			left_addline("PinchTics",B.PinchTics)
 			left_addline("Exiting",B.Exiting)
 			left_addline("Timeout",B.Timeout)
+			left_addline("MatchPoint",B.MatchPoint)
 			addheader("GAMETYPE")
 			
 		if B.ArenaGametype() then

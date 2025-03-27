@@ -14,6 +14,14 @@ B.PreRoundWait = function()
 	else return false end
 end
 
+B.GetMatchPointWindow = function()
+	return B.DiamondGametype() and CV.DiamondTeamCaptureBonus.value or 1
+end
+
+B.IsTeamNearLimit = function(teamscore)
+	return teamscore+B.GetMatchPointWindow() >= CV_FindVar("pointlimit").value
+end
+
 B.GetPinch = function()
 	B.PinchTics = max(0,$-1)
 	if B.Exiting then 
@@ -25,7 +33,6 @@ B.GetPinch = function()
 	--Get vars
 	local t 			= CV_FindVar("timelimit")
 	local ot 			= CV_FindVar("overtime")
-	local pointlimit 	= CV_FindVar("pointlimit").value
 	local pre_pinch 	= (t.value*60-pinchtime)
 	local timeleft 		= pre_pinch-leveltime/TICRATE
 	if t.value and gametyperules&GTR_FIXGAMESET then
@@ -34,7 +41,7 @@ B.GetPinch = function()
 	local pinch 		= timeleft < 0
 	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0)
 	local suddendeath 	= (B.Gametypes.SuddenDeath[gametype] and overtime and CV.SuddenDeath.value == 1)
-	local matchpoint    = G_GametypeHasTeams() and ((redscore+1 == pointlimit) or (bluescore+1 == pointlimit)) and not(pinch) and not(overtime)
+	local matchpoint    = G_GametypeHasTeams() and (B.IsTeamNearLimit(redscore) or B.IsTeamNearLimit(bluescore)) and not(pinch) and not(overtime)
 
 	--Match point music
 	if matchpoint then
@@ -43,7 +50,14 @@ B.GetPinch = function()
 			B.DebugPrint("Match Point triggered", DF_GAMETYPE)
 			B.MatchPoint = true
 			B.MatchPointMusic(consoleplayer)
+		elseif B.IsTeamNearLimit(redscore) and B.IsTeamNearLimit(bluescore) and B.MatchPoint != 2 then
+			B.DebugPrint("Double Match Point triggered", DF_GAMETYPE)
+			B.MatchPoint = 2
+			B.DoubleMatchPointMusic(consoleplayer)
 		end
+	else
+		--TODO: Reset music?
+		B.MatchPoint = false -- Just in case the pointlimit is altered mid-game
 	end
 
 	--Check game mode conditions
@@ -338,6 +352,13 @@ B.OvertimeMusic = function(player)
 end
 
 B.MatchPointMusic = function(player)
+	if B.Exiting then return end
+	if player == nil then return end
+	----
+	return false
+end
+
+B.DoubleMatchPointMusic = function(player)
 	if B.Exiting then return end
 	if player == nil then return end
 	----
