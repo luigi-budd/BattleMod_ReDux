@@ -20,7 +20,10 @@ local update_pos = function(player)
 		SEP = 22
 		YPOS = 0
 	end
-	if leveltime-yofftime > 0 then
+	if leveltime == 0 then
+		yoff = 0
+		yofftime = 0
+	elseif leveltime-yofftime > 0 then
 		yoff = 0
 	end
 end
@@ -137,6 +140,9 @@ local function getdigits(num)
 	return 0
 end
 
+local matchpoint_flash = TICRATE/2
+local matchpoint_shake = 1
+
 local ranking = false
 local function drawFlagfromP(v)
 	local patch_flags = V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
@@ -199,18 +205,29 @@ local function drawFlagfromP(v)
 	*/
 	--]]
 
+	local bpatch_flags, rpatch_flags = patch_flags, patch_flags
 	-- Blue flag score (drawn here so it's always shown on top of the flag icons)
 	local bscore = bluescore
 	local BFLG_SCR_X = BASEVIDWIDTH/2 - SEP - getdigits(bscore)*2
 	local BFLG_SCR_Y = YPOS + 15
+	if B.MatchPoint and B.IsTeamNearLimit(bscore) then
+		bpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and V_BLUEMAP or V_AZUREMAP)
+		BFLG_SCR_X = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
+		BFLG_SCR_Y = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
+	end
 
 	-- Red flag score
 	local rscore = redscore
 	local RFLG_SCR_X = BASEVIDWIDTH/2 + SEP + getdigits(rscore)*2
 	local RFLG_SCR_Y = YPOS + 15
+	if B.MatchPoint and B.IsTeamNearLimit(rscore) then
+		rpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and V_REDMAP or V_ORANGEMAP)
+		RFLG_SCR_X = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
+		RFLG_SCR_Y = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
+	end
 
-	v.drawString(BFLG_SCR_X, BFLG_SCR_Y+yoff, bscore, patch_flags, "center")
-	v.drawString(RFLG_SCR_X, RFLG_SCR_Y+yoff, rscore, patch_flags, "center")
+	v.drawString(BFLG_SCR_X, BFLG_SCR_Y+yoff, bscore, bpatch_flags, "center")
+	v.drawString(RFLG_SCR_X, RFLG_SCR_Y+yoff, rscore, rpatch_flags, "center")
 end
 
 local function cctf_hud(v, p, cam)
@@ -228,11 +245,53 @@ local function cctf_hud(v, p, cam)
 	local RFLG_POS_X = (BASEVIDWIDTH/2) + SEP - (bflag.width/4)
 	local RFLG_POS_Y = YPOS + 4
 
-	-- Drawing the flags at the top of screen
-	v.drawScaled(BFLG_POS_X*FRACUNIT, BFLG_POS_Y*FRACUNIT, FRACUNIT/2, bflag, patch_flags)
-	v.drawScaled(RFLG_POS_X*FRACUNIT, RFLG_POS_Y*FRACUNIT, FRACUNIT/2, rflag, patch_flags)
+	-- Unique icons (TODO: Possibly add an icon parameter to the gamemodes themselves?)
+	local bcol, rcol
+	local bpatch_flags, rpatch_flags = patch_flags, patch_flags
+	if gametype != GT_BATTLECTF then
+		bcol = v.getColormap(TC_RAINBOW, SKINCOLOR_BLUE)
+		rcol = v.getColormap(TC_RAINBOW, SKINCOLOR_RED)
+	end
+	if B.RubyGametype() then
+		bcol = v.getColormap(TC_RAINBOW, SKINCOLOR_WAVE)
+		bflag, rflag = v.cachePatch("RAD_RUBY2"), v.cachePatch("RAD_RUBY2")
+	elseif B.DiamondGametype() then
+		bflag, rflag = v.cachePatch("RAD_TOPAZ2"), v.cachePatch("RAD_TOPAZ2")
+	elseif B.CPGametype() then
+		bflag, rflag = v.cachePatch("RAD_CP2"), v.cachePatch("RAD_CP2")
+		BFLG_POS_X = $ + (bflag.width/5)
+		RFLG_POS_X = $ + (rflag.width/5)
+		BFLG_POS_Y = $ + (bflag.height/4)
+		RFLG_POS_Y = $ + (rflag.height/4)
+	elseif G_GametypeUsesLives() then
+		bflag = v.cachePatch("BMATCICO")
+		rflag = v.cachePatch("RMATCICO")
+	elseif B.BankGametype() or B.ArenaGametype() then
+		local frames = 24
+		local spr = SPR_NCHP
+		local freeze = 2
+		if B.BankGametype() then
+			spr = SPR_TRNG
+			freeze = 1
+		end
+		local bframe = B.Wrap(leveltime/freeze, 1, frames)
+		local rframe = B.Wrap((leveltime+12)/freeze, 1, frames)
+		if spr == SPR_TRNG then
+			if bframe > frames/2 then bpatch_flags = $ | V_FLIP end
+			if rframe > frames/2 then rpatch_flags = $ | V_FLIP end
+		end
+		bflag, rflag = v.getSpritePatch(spr, bframe-1), v.getSpritePatch(spr, rframe-1)
+		BFLG_POS_X = $ + (bflag.width/4)
+		RFLG_POS_X = $ + (rflag.width/4)
+		BFLG_POS_Y = $ + (bflag.height*2/5)
+		RFLG_POS_Y = $ + (rflag.height*2/5)
+	end
 
-	-- Draw player depended flag icons ,etc
+	-- Drawing the flags at the top of screen
+	v.drawScaled(BFLG_POS_X*FRACUNIT, (BFLG_POS_Y+yoff)*FRACUNIT, FRACUNIT/2, bflag, bpatch_flags, bcol)
+	v.drawScaled(RFLG_POS_X*FRACUNIT, (RFLG_POS_Y+yoff)*FRACUNIT, FRACUNIT/2, rflag, rpatch_flags, rcol)
+
+	-- Draw player depended flag icons. etc (TODO: Move functions from ruby, tag and stuff into this)
 	drawFlagfromP(v)
 end
 
@@ -251,7 +310,8 @@ end
 -- Draws flag next to players' icons, shows the flag power-up icon, etc.
 F.RankingHUD = function(v)
 	-- Ensure that the gametype is custom ctf!
-	if gametype ~= GT_BATTLECTF then return end
+	--if gametype ~= GT_BATTLECTF then return end
+	if not (B.BattleGametype() and G_GametypeHasTeams()) then return end
 
 	ranking = true
 	cctf_hud(v)

@@ -14,8 +14,11 @@ B.PreRoundWait = function()
 	else return false end
 end
 
-B.GetMatchPointWindow = function()
-	return B.DiamondGametype() and CV.DiamondTeamCaptureBonus.value or 1
+B.GetMatchPointWindow = function() -- TODO: Have this be a parameter per gamemode... maybe Init_Battle?
+	if B.DiamondGametype() then return CV.DiamondTeamCaptureBonus.value end
+	if B.BankGametype() then return 100 end
+	if B.ArenaGametype() and not G_GametypeUsesLives() then return 100 end
+	return 1
 end
 
 B.IsTeamNearLimit = function(teamscore)
