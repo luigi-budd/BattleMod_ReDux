@@ -4,6 +4,14 @@ local BASEVIDWIDTH = 320 --NEVER CHANGE THIS! This is the original
 local SEP = 33
 local YPOS = 8
 
+local yoff = 0
+local yofftime = 0
+local function scoreboard_detection_hacks()
+	yoff = -10
+	yofftime = leveltime
+end
+hud.add(scoreboard_detection_hacks, "scores")
+
 local update_pos = function(player)
 	if (not player) or B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		SEP = 36
@@ -11,6 +19,9 @@ local update_pos = function(player)
 	else
 		SEP = 22
 		YPOS = 0
+	end
+	if leveltime-yofftime > 0 then
+		yoff = 0
 	end
 end
 
@@ -198,8 +209,8 @@ local function drawFlagfromP(v)
 	local RFLG_SCR_X = BASEVIDWIDTH/2 + SEP + getdigits(rscore)*2
 	local RFLG_SCR_Y = YPOS + 15
 
-	v.drawString(BFLG_SCR_X, BFLG_SCR_Y, bscore, patch_flags, "center")
-	v.drawString(RFLG_SCR_X, RFLG_SCR_Y, rscore, patch_flags, "center")
+	v.drawString(BFLG_SCR_X, BFLG_SCR_Y+yoff, bscore, patch_flags, "center")
+	v.drawString(RFLG_SCR_X, RFLG_SCR_Y+yoff, rscore, patch_flags, "center")
 end
 
 local function cctf_hud(v, p, cam)
