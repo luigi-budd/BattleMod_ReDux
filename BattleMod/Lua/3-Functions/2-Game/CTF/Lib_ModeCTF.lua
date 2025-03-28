@@ -1290,6 +1290,9 @@ F.CustomCaptureSFX = function()
 				end
 				--S_StartSound(flag, sfx_s227)
 				if flag_player.mo and flag_player.mo.valid then
+					F.GameState.CaptureHUDTimer = 5*TICRATE
+					F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and B.Timeout) and flag_player.name or ""
+					F.GameState.CaptureHUDTeam = flag_player.ctfteam
 					B.DoFirework(flag_player.mo)
 				end
 			end

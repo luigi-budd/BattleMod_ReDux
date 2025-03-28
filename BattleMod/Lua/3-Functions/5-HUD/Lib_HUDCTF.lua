@@ -168,19 +168,21 @@ local function drawFlagfromP(v)
 
 		local redflag = F.RedFlag
 		local blueflag = F.BlueFlag
-		-- Display a countdown timer showing how much time left until the flag returns to base. 
-		local scr_flags = V_YELLOWMAP|V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
-		if blueflag and blueflag.valid and blueflag.fuse > 1 then
-			local BFS_X = BASEVIDWIDTH/2 - SEP
-			local BFS_Y = YPOS + 8
-			local bfuse = blueflag.fuse/TICRATE
-			v.drawString(BFS_X, BFS_Y, bfuse, scr_flags, "center")
-		end
-		if redflag and redflag.valid and redflag.fuse > 1 then
-			local RFS_X = BASEVIDWIDTH/2 + SEP
-			local RFS_Y = YPOS + 8
-			local rfuse = redflag.fuse/TICRATE
-			v.drawString(RFS_X, RFS_Y, rfuse, scr_flags, "center")
+		-- Display a countdown timer showing how much time left until the flag returns to base.
+		if not F.GameState.CaptureHUDTimer then
+			local scr_flags = V_YELLOWMAP|V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
+			if blueflag and blueflag.valid and blueflag.fuse > 1 then
+				local BFS_X = BASEVIDWIDTH/2 - SEP
+				local BFS_Y = YPOS + 8
+				local bfuse = blueflag.fuse/TICRATE
+				v.drawString(BFS_X, BFS_Y, bfuse, scr_flags, "center")
+			end
+			if redflag and redflag.valid and redflag.fuse > 1 then
+				local RFS_X = BASEVIDWIDTH/2 + SEP
+				local RFS_Y = YPOS + 8
+				local rfuse = redflag.fuse/TICRATE
+				v.drawString(RFS_X, RFS_Y, rfuse, scr_flags, "center")
+			end
 		end
 	end
 
@@ -417,7 +419,7 @@ F.CapHUD = function(v)
 	--An attempt to look exactly like the hardcode cecho
 	if not(F.GameState.CaptureHUDTimer) then --... Except for the text easing in.
 		lerpamt = FRACUNIT
-	else
+	elseif F.GameState.CaptureHUDName and F.GameState.CaptureHUDName != "" then
 		local trans = 0
 		if (F.GameState.CaptureHUDTimer <= 20) then
 			trans = V_10TRANS * ((20 - F.GameState.CaptureHUDTimer) / 2)
