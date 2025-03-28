@@ -195,6 +195,7 @@ local resetVars = function()
 	server.AvailableChaosRings = {}
 	server.GlobalAngle = ANG20
 	server.InitSpawnWait = CV.ChaosRing_StartSpawnBuffer.value*TICRATE
+	CR.ResetCheckpoints()
 end
 
 local addPoints = function(team, points)
