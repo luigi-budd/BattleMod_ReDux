@@ -50,6 +50,14 @@ B.DrawTimer = function(v, player, cam, yoff)
 	local x = 148
 	local y = 18+(yoff or 0)
 	v.draw(160,y+5,v.cachePatch("HUD_FADBAR"),V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER|V_REVERSESUBTRACT)
+	if B.MatchPoint == 2 then
+		local flash = TICRATE/2
+		if (leveltime/flash & 1) then
+			v.drawString(160, y, "FINAL", flags, "thin-center")
+			v.drawString(160, y+8, "SHOWDOWN!!", flags, "thin-center")
+		end
+		return
+	end
 	local p = displayplayer
 	local tics = GetTimer(player)
 	local mins = G_TicsToMinutes(tics)

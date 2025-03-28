@@ -42,7 +42,7 @@ B.GetPinch = function()
 	end
 	local dblmatchpoint = G_GametypeHasTeams() and B.IsTeamNearLimit(redscore) and B.IsTeamNearLimit(bluescore)
 	local pinch 		= timeleft < 0 and not dblmatchpoint
-	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0) and not dblmatchpoint
+	local overtime 		= ((ot.value) and (gametyperules & GTR_OVERTIME) and t.value*60-leveltime/TICRATE <= 0)
 	local suddendeath 	= (B.Gametypes.SuddenDeath[gametype] and overtime and CV.SuddenDeath.value == 1)
 	local matchpoint    = G_GametypeHasTeams() and (B.IsTeamNearLimit(redscore) or B.IsTeamNearLimit(bluescore)) and (dblmatchpoint or not(pinch or overtime))
 
@@ -60,6 +60,10 @@ B.GetPinch = function()
 		end
 	else
 		B.MatchPoint = false -- Just in case the pointlimit is altered mid-game
+		for player in players.iterate
+	-- 		P_RestoreMusic(player)
+			COM_BufInsertText(player,"tunes -default")
+		end
 	end
 
 	--Check game mode conditions
@@ -97,7 +101,7 @@ B.GetPinch = function()
 			end
 		end
 	else
-		if not(B.Exiting) and (B.Pinch or B.SuddenDeath or B.Overtime or B.MatchPoint) then
+		if not(B.Exiting) and (B.Pinch or B.SuddenDeath or B.Overtime) then
 			B.DebugPrint("Pinch mode / sudden death / overtime deactivated",DF_GAMETYPE)
 			B.Pinch = false
 			B.SuddenDeath = false
