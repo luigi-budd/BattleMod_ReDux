@@ -247,7 +247,7 @@ B.RingsHUD = function(v, player, cam)
 				action_offsety = $ + action_offsety_line
 			end
 		end
-		if (player.action2text and not minimal_hud) then
+		if (player.action2text and not (minimal_hud or player.gotflagdebuff)) then
 			local text = player.action2text
 			local textflags = player.action2textflags
 			local icon_offset = 0
@@ -264,11 +264,15 @@ B.RingsHUD = function(v, player, cam)
 				text = "\x86"+$
 				colormap = v.getColormap(TC_DEFAULT, SKINCOLOR_SILVER)
 			end
+			local yoff = 0
+			if player.actioncooldown then
+				yoff = -action_offsety_line*2
+			end
 			if colormap and not (player.gotflagdebuff) then
-				v.draw(x + action_offsetx, y-2 - (action_offsety*2), v.cachePatch("FLAGBT"), flags, colormap)
+				v.draw(x + action_offsetx, y-2 - (action_offsety*2)+yoff, v.cachePatch("FLAGBT"), flags, colormap)
 				icon_offset = 10
 			end
-			v.drawString(x + icon_offset + action_offsetx, y-2 - (action_offsety*2), text, flags_hudtrans, "thin")
+			v.drawString(x + icon_offset + action_offsetx, y-2 - (action_offsety*2)+yoff, text, flags_hudtrans, "thin")
 			--action_offsety = $ + action_offsety_line
 		end
 		if (player.gotflagdebuff) then
