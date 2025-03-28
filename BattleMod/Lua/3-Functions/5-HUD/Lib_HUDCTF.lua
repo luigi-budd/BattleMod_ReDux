@@ -144,6 +144,7 @@ local matchpoint_flash = TICRATE/2
 local matchpoint_shake = 1
 
 local ranking = false
+local C = B.Bank
 local function drawFlagfromP(v)
 	local patch_flags = V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
 
@@ -208,8 +209,8 @@ local function drawFlagfromP(v)
 	--]]
 
 	local bpatch_flags, rpatch_flags = patch_flags, patch_flags
-	local bscore = bluescore
-	local rscore = redscore
+	local bscore = bluescore - (C.ScoreDelay[2] or 0)
+	local rscore = redscore - (C.ScoreDelay[1] or 0)
 
 	-- Blue flag score (drawn here so it's always shown on top of the flag icons)
 	local BFLG_SCR_X = BASEVIDWIDTH/2 - SEP - getdigits(bscore)*2

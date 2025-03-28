@@ -5,6 +5,7 @@ C.RedBank = nil
 C.BlueBank = nil
 C.ChaosRing = {}
 C.BANK_RINGLIMIT = 50
+C.ScoreDelay = {}
 local CR = C.ChaosRing
 
 --Constants
@@ -883,9 +884,11 @@ local baseTransaction = function(player, team, animation)
 		-- Deposit rings
 		if player.rings > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
+			if not (player.powers[pw_nocontrol] and player.nodamage) then
+				addPoints(team, player.rings)
+				C.ScoreDelay[player.ctfteam] = player.rings
+			end
 			P_GivePlayerRings(player, -1)
-			P_AddPlayerScore(player, 1)
-			addPoints(team, 1)
 			player.tossdelay = bankTime(player)
 			local spark = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BOXSPARKLE)
 			if spark and spark.valid
@@ -898,7 +901,6 @@ local baseTransaction = function(player, team, animation)
 		-- Steal rings
 		if score > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
-			P_AddPlayerScore(player, 1)
 			P_GivePlayerRings(player, 1)
 			addPoints(team, -1)
 			player.tossdelay = robTime(player)
@@ -1285,6 +1287,10 @@ C.ThinkFrame = function()
 			end
 		end
 	CR.ThinkFrame() --Chaos Rings
+	--Make it look like the scores are smoothly increasing
+	for i, v in pairs(C.ScoreDelay) do
+		if leveltime%3==0 and v then C.ScoreDelay[i] = v - 1 end
+	end
 end
 
 CR.MapLoad = function()
