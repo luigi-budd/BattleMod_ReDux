@@ -426,6 +426,7 @@ local function captureChaosRing(mo, bank) --Capture a Chaos Ring into a Bank
 	bank.chaosrings = $|(CHAOSRING_ENUM[mo.chaosring_num]) --Add to Bank count
 	mo.bank = bank --Set its Bank to the new Bank
 	addPoints(mo.target.player.ctfteam, CV.ChaosRing_CaptureScore.value) --Reward points to the team
+	mo.target.player.preservescore = $ + CV.ChaosRing_CaptureScore.value --P_AddPlayerScore
 	mo.fuse = CV.ChaosRing_InvulnTime.value*TICRATE --Set the steal cooldown
 	mo.scale = (mo.idealscale - (mo.idealscale/3)) --Shrink it
 	mo.captureteam = mo.target.player.ctfteam --Set the team it's captured in
@@ -884,6 +885,7 @@ local baseTransaction = function(player, team, animation)
 		-- Deposit rings
 		if player.rings > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
+			player.preservescore = $+1 --P_AddPlayerScore(player, 1)
 			if not (player.powers[pw_nocontrol] and player.nodamage) then
 				addPoints(team, player.rings)
 				C.ScoreDelay[player.ctfteam] = player.rings
@@ -901,6 +903,7 @@ local baseTransaction = function(player, team, animation)
 		-- Steal rings
 		if score > 0 and not player.actionstate
 			S_StartSound(player.mo, sfx_itemup)
+			player.preservescore = $+1 --P_AddPlayerScore(player, 1)
 			P_GivePlayerRings(player, 1)
 			addPoints(team, -1)
 			player.tossdelay = robTime(player)
