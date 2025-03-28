@@ -47,19 +47,18 @@ B.GetPinch = function()
 	local matchpoint    = G_GametypeHasTeams() and (B.IsTeamNearLimit(redscore) or B.IsTeamNearLimit(bluescore)) and (dblmatchpoint or not(pinch or overtime))
 
 	--Match point music
-	--print("matchpoint: "..(matchpoint and "Y" or "N").." , dblmatchpoint: "..(dblmatchpoint and "Y" or "N"))
 	if matchpoint or dblmatchpoint then
-		if B.MatchPoint == false then
-			B.DebugPrint("Match Point triggered", DF_GAMETYPE)
-			B.MatchPoint = true
-			B.MatchPointMusic(consoleplayer)
-		elseif dblmatchpoint and B.MatchPoint != 2 then
+		if dblmatchpoint and B.MatchPoint != 2 then
 			B.DebugPrint("Double Match Point triggered", DF_GAMETYPE)
 			B.MatchPoint = 2
 			B.DoubleMatchPointMusic(consoleplayer)
+		elseif B.MatchPoint == false then
+			B.DebugPrint("Match Point triggered", DF_GAMETYPE)
+			B.MatchPoint = true
+			B.MatchPointMusic(consoleplayer)
 		end
-	else
-		B.MatchPoint = false -- Just in case the pointlimit is altered mid-game
+	elseif B.MatchPoint then -- Just in case the pointlimit is altered mid-game
+		B.MatchPoint = false
 		for player in players.iterate
 	-- 		P_RestoreMusic(player)
 			COM_BufInsertText(player,"tunes -default")

@@ -206,21 +206,22 @@ local function drawFlagfromP(v)
 	--]]
 
 	local bpatch_flags, rpatch_flags = patch_flags, patch_flags
-	-- Blue flag score (drawn here so it's always shown on top of the flag icons)
 	local bscore = bluescore
+	local rscore = redscore
+
+	-- Blue flag score (drawn here so it's always shown on top of the flag icons)
 	local BFLG_SCR_X = BASEVIDWIDTH/2 - SEP - getdigits(bscore)*2
 	local BFLG_SCR_Y = YPOS + 15
-	if B.MatchPoint and B.IsTeamNearLimit(bscore) then
+	if (B.MatchPoint and B.IsTeamNearLimit(bscore)) or (B.Pinch and bscore > rscore) then
 		bpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and V_BLUEMAP or V_AZUREMAP)
 		BFLG_SCR_X = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
 		BFLG_SCR_Y = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
 	end
 
 	-- Red flag score
-	local rscore = redscore
 	local RFLG_SCR_X = BASEVIDWIDTH/2 + SEP + getdigits(rscore)*2
 	local RFLG_SCR_Y = YPOS + 15
-	if B.MatchPoint and B.IsTeamNearLimit(rscore) then
+	if (B.MatchPoint and B.IsTeamNearLimit(rscore)) or (B.Pinch and rscore > bscore) then
 		rpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and V_REDMAP or V_ORANGEMAP)
 		RFLG_SCR_X = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
 		RFLG_SCR_Y = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
