@@ -959,18 +959,12 @@ local flashColor = function(colormin,colormax, rate)
 	c = max(colormin,min(colormax,$)) //Enforce min/max
 	return c
 end
+			
 
 local getBase = function(player)
 	if not P_IsObjectOnGround(player.mo) then return end
 
-	--// rev: credits to JAB, he figured this one out. This will work for both UDMF / Binary maps
-	if P_MobjTouchingSectorSpecialFlag(player.mo, SSF_REDTEAMBASE) then
-		return 1
-	elseif P_MobjTouchingSectorSpecialFlag(player.mo, SSF_BLUETEAMBASE) then
-		return 2
-	else
-		return 0
-	end
+	return B.MobjTouchingFlagBase(player.mo)
 end
 
 local highValueSparkle = function(player)

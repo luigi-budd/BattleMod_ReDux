@@ -540,14 +540,14 @@ R.Thinker = function(mo)
 				return
 			end
 			local player = t.player
-			if player.ctfteam == 1 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_BLUETEAMBASE)
+			if (player.ctfteam == 1) and (B.MobjTouchingFlagBase(player.mo) == 2)
 				if ((redscore+1 < cvar_pointlimit) or not(cvar_pointlimit)) and not(overtime) then
 					timeout()
 				end
 				redscore = $+1
 				capture(mo, player)
 				S_StartSound(nil, sfx_ruby0)
-			elseif player.ctfteam == 2 and P_MobjTouchingSectorSpecialFlag(player.mo, SSF_REDTEAMBASE)
+			elseif (player.ctfteam == 2) and (B.MobjTouchingFlagBase(player.mo) == 1)
 				if ((bluescore+1 < cvar_pointlimit) or not(cvar_pointlimit)) and not(overtime) then
 					timeout()
 				end

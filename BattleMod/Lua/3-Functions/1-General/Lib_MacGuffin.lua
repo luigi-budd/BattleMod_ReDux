@@ -132,3 +132,26 @@ B.HomingDeflect = function(player, target)
         return true
     end
 end
+
+B.MobjTouchingFlagBase = function(mo) --Will return who's team the base mo is touching belongs to
+	local red_team = 1
+	local blue_team = 2
+	local fof = ((P_MobjFlip(mo)==-1) and mo.ceilingrover) or mo.floorrover --FOF the object is on, if it exists
+	local touching_redbase = P_MobjTouchingSectorSpecialFlag(mo, SSF_REDTEAMBASE) --Is the object touching the Red Base? (According to the function)
+	local touching_bluebase = P_MobjTouchingSectorSpecialFlag(mo, SSF_BLUETEAMBASE) --Is the object touching the Blue Base? (According to the function)
+
+	--Set the return value to whichever team SRB2 thinks the base belongs to *first*
+	local return_value = ((touching_redbase and 1) or touching_bluebase and 2) or 0
+
+	if touching_redbase then --If SRB2 says we're touching the Red Base...
+		if fof and fof.sector and (fof.sector ~= touching_redbase) then --But we're actually on a FOF marked with a sector that is not the Red Base
+			return 0
+		end
+	elseif touching_bluebase then --If SRB2 says we're touching the Blue Base...
+		if fof and fof.sector and (fof.sector ~= touching_bluebase) then --But we're actually on a FOF marked with a sector that is not the Blue Base
+			return 0
+		end
+	end
+
+    return return_value
+end
