@@ -129,6 +129,7 @@ B.HomingDeflect = function(player, target)
 		    s.colorized = true
 		    s.color = SKINCOLOR_BONE
         end
+        B.DebugPrint(player.name.." tried to homing attack an orbital at leveltime "..leveltime". Last homing: "..player.lasthoming, DF_GAMETYPE)
         return true
     end
 end

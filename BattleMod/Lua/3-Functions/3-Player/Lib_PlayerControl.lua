@@ -73,6 +73,7 @@ B.InitPlayer = function(player)
 	player.didslipbutton = 0
 	player.nodamage = 0
 	player.temproll = 0
+	player.lasthoming = 0
 	//variables for battle tag
 	player.battletagIT = false
 	player.BTblindfade = 0
