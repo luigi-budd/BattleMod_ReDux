@@ -103,7 +103,12 @@ addHook("ShieldSpecial", function(player)
 		return true
 	end
 
-	if B.ShieldActions[(player.powers[pw_shield] & SH_NOSTACK)] then
+	local shieldType = player.powers[pw_shield] & SH_NOSTACK
+	if (player.powers[pw_shield] & ~(SH_FORCEHP|SH_STACK)) == SH_FORCE then
+        shieldType = SH_FORCE
+    end
+
+	if B.ShieldActions[shieldType] then
 		if not (player.battleconfig_nospinshield or (B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)) then
 			B.DoShieldActive(player)
 		end
