@@ -477,7 +477,7 @@ D.Thinker = function(mo)
 	and mo.target.pushed_last and mo.target.pushed_last.valid
 	and mo.target.pushed_last.player
 	and CV.DiamondDisableStealing.value == 0 then
-		D.Collect(mo,mo.target.pushed_last,tB.MyTeam(mo.target, mo.target.pushed_last) == falserue)
+		D.Collect(mo,mo.target.pushed_last,B.MyTeam(mo.target, mo.target.pushed_last) == false)
 	end
 	
 	--Owner has taken damage or has gone missing
