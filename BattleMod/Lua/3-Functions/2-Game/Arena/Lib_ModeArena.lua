@@ -157,8 +157,8 @@ A.GetRanks = function(force)
 			local p1score = player[criteria] or 0
 			local p2score = otherplayer[criteria] or 0
 			if G_GametypeUsesLives() then
-				p1score = ($*10)+player.lifeshards
-				p2score = ($*10)+otherplayer.lifeshards
+				p1score = ($*10)+(player.lifeshards or 0)
+				p2score = ($*10)+(otherplayer.lifeshards or 0)
 			end
 			if p1score < p2score then
 				player.rank = $+1
