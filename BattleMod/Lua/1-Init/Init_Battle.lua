@@ -299,7 +299,7 @@ B.AddBattleGametype({
 	defaultstartrings = 0, --Specific to B.AddBattleGametype, default rings you start with
     headerleftcolor = 37,
     headerrightcolor = 150,
-    description = "Work with your allies to secure the most rings! Be on the look out for the mysterious Holy rings..."
+    description = "Work with your allies to secure the most rings! Be on the look out for the mysterious Chaos rings..."
 })
 
 freeslot('tol_rubyrun')
