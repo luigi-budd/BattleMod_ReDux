@@ -60,10 +60,11 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 		mo[n1].state = S_PLAY_FLY
 		plr[n1].pflags = $ &~ (PF_JUMPED|PF_NOJUMPDAMAGE|PF_SPINNING|PF_STARTDASH)
 		plr[n1].pflags = $|PF_CANCARRY
-		P_SetOrigin(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+mo[n2].height)
+		local flip = P_MobjFlip(mo[n1])
+		P_SetOrigin(mo[n1],mo[n1].x,mo[n1].y,mo[n2].z+(mo[n2].height*flip))
 		plr[n2].powers[pw_carry] = CR_NONE
 		B.CarryState(plr[n1],plr[n2])
-		P_SetObjectMomZ(mo[n1],FRACUNIT*7*P_MobjFlip(mo[n1]))
+		P_SetObjectMomZ(mo[n1],FRACUNIT*7)
 		S_StartSound(mo[n1], sfx_s3ka0)
 		if not B.MyTeam(plr[n1], plr[n2])
 			plr[n2].customstunbreaktics = 5

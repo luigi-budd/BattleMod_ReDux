@@ -98,7 +98,11 @@ addHook("MobjThinker",function(mo)
 		end
 		
 		mo.radius = mobjinfo[MT_SONICBOOM].radius
-		P_MoveOrigin(mo, t.x, t.y, t.z + (P_MobjFlip(t) * t.height/2))
+		if P_MobjFlip(mo) > 0 then
+			P_MoveOrigin(mo, t.x, t.y, t.z + (t.height/2))
+		else
+			P_MoveOrigin(mo, t.x, t.y, t.z)
+		end
 
 		local angle = ANGLE_45 * p.actiontime
 		local dist = p.aircutter_distance

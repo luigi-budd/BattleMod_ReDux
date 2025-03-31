@@ -20,8 +20,9 @@ Modding features
 		- player.landlag (puts the player in recoil as they touch the floor)
 		- player.customstunbreaktics & player.customstunbreakcost (only works with player.canstunbreak)
 		Timer variables:
-			- player.nodamage (prevents the player from taking damage with no indication - used in PreRound and GAME SET)
-			- player.noshieldactive (Also resets to 0 on land)
+			- player.nodamage (Prevents the player from taking damage with no indication - used in PreRound, GAME SET and parry)
+			- player.noshieldactive (Self explanatory. Also resets to 0 on land)
+			- player.jumpstasis (Prevents the player from jumping)
 			- player.canstunbreak (If this is above 0, the player is able to stunbreak even when not in hurt state. If below 0, prevents stunbreak)
 			- player.mo.temproll (Prevents air dodge. When it reaches zero, the player goes to spring state)
 Major gameplay changes
