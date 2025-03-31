@@ -543,6 +543,11 @@ B.TestScript = function(player, ...)
 			--player.mo.hitstun_tics = TICRATE*3
 			B.ApplyHitstun(player.mo, TICRATE*3)
 			return "Hit stun"
+		elseif switchcase == 5 then
+			for p in players.iterate do
+				P_AddPlayerScore(p, 100)
+			end
+			return "Score"
 		end
 	end
 	-- wheres my switch case :sob: ~lu

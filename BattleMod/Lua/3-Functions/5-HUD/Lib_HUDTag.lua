@@ -93,7 +93,7 @@ B.TagGenHUD = function(v, player, cam)
 	if player.BT_antiAFK <= TICRATE * 30 and player.BT_antiAFK > 0
 		local warning = "Move or be spectator in " ..
 				tostring(player.BT_antiAFK / TICRATE) .. " seconds!"
-		v.drawString(x, v.height() / v.dupy() / 2, warning, flags | V_REDMAP, 
+		v.drawString(BASEVIDWIDTH/2, 132, warning, flags | V_REDMAP, 
 				"center")
 	end
 end

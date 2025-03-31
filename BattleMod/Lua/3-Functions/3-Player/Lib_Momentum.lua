@@ -6,6 +6,7 @@ B.DiminishingMomentum = function(player)
 	local diminish_time = (S[player.skinvars].momentum or S[-1].momentum)
 	if not diminish_time then return end -- Opted out
 	local mo = player.mo
+	if not(mo and mo.valid) then return end -- Doesn't exist
 	if mo.skin == "adventuresonic" then return end -- Already has momentum
 
 	local cmd = player.cmd
