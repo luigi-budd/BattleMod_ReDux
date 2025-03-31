@@ -939,10 +939,12 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		local pmo = p.mo
 		local conditions = {(p.gotflag), (p.wanted)}
 		local canhaveicon = false
-		for n=1, #conditions do
-			if conditions[n] then
-				canhaveicon = true
-				break
+		if not (pmo and pmo.valid and (pmo.flags2&MF2_DONTDRAW)) then
+			for n=1, #conditions do
+				if conditions[n] then
+					canhaveicon = true
+					break
+				end
 			end
 		end
 		if not(canhaveicon) then -- no conditions were met! so simply delete indicator
