@@ -1,6 +1,7 @@
 //separate hud in case someone wants to polish it up
 local B = CBW_Battle
 
+local BASEVIDWIDTH = 320
 B.TagGenHUD = function(v, player, cam)
 	if not B.TagGametype()
 		return
@@ -13,12 +14,12 @@ B.TagGenHUD = function(v, player, cam)
 		end
 	end*/
 	local flags = V_SNAPTOTOP | V_PERPLAYER | V_ALLOWLOWERCASE
-	local x = v.width() / v.dupx() / 2
+	--local x = v.width() / v.dupx() / 2
 	if B.TagPreTimer > 0
-		local y = v.height() / v.dupy() / 5
+		--local y = v.height() / v.dupy() / 5
 		local text = "\x80" .. tostring(B.TagPreTimer / TICRATE + 1) .. 
 				" seconds until the Taggers are released!"
-		v.drawString(x, y, text, flags, "center")
+		v.drawString(BASEVIDWIDTH/2, 32, text, flags, "center")
 	end
 	--radar function
 	if B.TagPreRound > 1 and (timelimit * 60 * TICRATE - player.realtime <= 180 * TICRATE)
@@ -97,7 +98,6 @@ B.TagGenHUD = function(v, player, cam)
 	end
 end
 
-local BASEVIDWIDTH = 320
 B.TagRankHUD = function(v)
 	if gametype != GT_BATTLETAG then
 		return

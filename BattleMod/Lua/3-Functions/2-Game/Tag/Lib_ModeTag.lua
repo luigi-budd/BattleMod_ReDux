@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local A = B.Arena
+local CV = B.Console
 
 /*B.HideTime = function()
 	if (server) then
@@ -190,6 +191,9 @@ B.TagControl = function()
 		end
 		if B.TagPreTimer > 0
 			B.TagPreTimer = $ - 1
+			if not (CV.PreRound.value) then
+				B.TagPreTimer = min($, 1)
+			end
 		else
 			S_StartSound(nil, sfx_tgrlsd)
 			B.TagPreRound = 2
