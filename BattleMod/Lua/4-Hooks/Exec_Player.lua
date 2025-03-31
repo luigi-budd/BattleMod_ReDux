@@ -383,6 +383,9 @@ end, MT_EXTRALARGEBUBBLE)
 --addHook("PlayerQuit", F.PlayerFlagBurst)
 
 addHook("ViewpointSwitch", function(...)
-    B.TagViewpoints(...)
-    B.SurvivalViewpoints(...)
+    if B.TagGametype() then
+		return B.TagViewpoints(...)
+	else
+    	return B.SurvivalViewpoints(...)
+	end
 end)
