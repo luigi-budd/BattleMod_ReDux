@@ -299,7 +299,7 @@ B.AddBattleGametype({
 	defaultstartrings = 0, --Specific to B.AddBattleGametype, default rings you start with
     headerleftcolor = 37,
     headerrightcolor = 150,
-    description = "Work with your allies to rack up the most rings for your team! Collect rings and take them back to your team's rally point or steal rings from the enemy rally point to keep them from gaining the upper hand!"
+    description = "Work with your allies to secure the most rings! Be on the look out for the mysterious Holy rings..."
 })
 
 freeslot('tol_rubyrun')
@@ -314,7 +314,7 @@ B.AddBattleGametype({
 	defaulttimelimit = 5,
     headerleftcolor = 37,
     headerrightcolor = 150,
-    description = 'Reach the goalpost with the ruby crystal in hand!'
+    description = 'Team up to send the Phantom Ruby packing! First to 5 wins!'
 })
 
 freeslot("tol_battletag")
