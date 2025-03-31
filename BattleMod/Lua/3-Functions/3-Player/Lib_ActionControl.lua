@@ -88,7 +88,6 @@ B.CanDoAction=function(player)
 	if player.powers[pw_carry] then return false end
 	if (player.airdodge > 0) then return false end
 	if B.Exiting or B.Timeout then return false end
-	if player.gotmaxrings then return true end
 	if player.gotflag then return false end
 	if player.gotcrystal then return false end
 	if player.isjettysyn then return false end
