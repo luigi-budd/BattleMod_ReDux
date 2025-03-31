@@ -154,8 +154,8 @@ A.GetRanks = function(force)
 		for m = 1, #p
 			local otherplayer = p[m]
 			if not(p[m].valid) then continue end //sigh
-			local p1score = player[criteria]
-			local p2score = otherplayer[criteria]
+			local p1score = player[criteria] or 0
+			local p2score = otherplayer[criteria] or 0
 			if G_GametypeUsesLives() then
 				p1score = ($*10)+player.lifeshards
 				p2score = ($*10)+otherplayer.lifeshards
