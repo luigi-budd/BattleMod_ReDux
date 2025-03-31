@@ -142,7 +142,7 @@ A.GetRanks = function(force)
 	if B.CPGametype() and G_GametypeHasTeams() then
 		return A.TeamGetRanks(force)
 	end
-	local criteria = B.CPGametype() and "captureamount" or "score"
+	local criteria = B.CPGametype() and "captureamount" or "preservescore"
 	local p = A.Fighters
 	A.Placements = {}
 	//Rank players
@@ -171,7 +171,7 @@ A.GetRanks = function(force)
 				break
 			end
 		end
-		if player.rank == 1 and (A.Bounty or force)
+		if player.rank == 1 and (A.Bounty or force) and player[criteria]
 			player.wanted = true
 		else
 			player.wanted = false
@@ -180,7 +180,7 @@ A.GetRanks = function(force)
 end
 
 A.TeamGetRanks = function(force)
-	local criteria = B.CPGametype() and "captureamount" or "score"
+	local criteria = B.CPGametype() and "captureamount" or "preservescore"
 	local b = A.BlueFighters
 	local r = A.RedFighters
 	//Rank players
