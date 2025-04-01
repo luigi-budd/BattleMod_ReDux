@@ -68,10 +68,11 @@ local spawnheart = function(mo, launchang, anglemod, grow, zspd)
 		hrt.fuse = 10
 		hrt.grow = grow
 		
-		if (mo.time%4) and mo.color
+		if (mo.time%4)
 			hrt.state = S_PIKOWAVE3
-			hrt.color = mo.teamcolor
 		end
+		hrt.colorized = true
+		hrt.color = mo.teamcolor
 		
 		return true
 	end
