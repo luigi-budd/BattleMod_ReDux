@@ -24,6 +24,10 @@ local customclient_skinchange = CV_RegisterVar({
 
 local Prevention = function(p)
 
+	local selectchar = (p.selectchar) or (not(B.PlayerBattleSpawning(player)) and B.PreRoundWait()) then
+
+	if selectchar then return end
+
 	local doSpectate = false
 
 	--// if is spectator, then we make sure this field is true
@@ -35,7 +39,6 @@ local Prevention = function(p)
 	--// invalid object / a spectator? don't fire
 	if not (p and p.mo and p.mo.valid) then return end
 
-	if p.selectchar then return end
 
 	--// if realskin exists, then...
 	if p.mo.realskin then
