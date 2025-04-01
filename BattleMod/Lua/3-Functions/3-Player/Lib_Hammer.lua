@@ -60,7 +60,7 @@ local function twin(player, twirl)
 					msl.extravalue2 = FRACUNIT*95/100
 					msl.fuse = 15
 					msl.flags = $ | MF_NOGRAVITY
-					local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
+					local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
 					local zangle = n*ANG1*5
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
@@ -164,10 +164,14 @@ end
 
 local doGroundHearts = function(player)
 	local mo = player.mo
-	local speed = (mo.scale * 8) --+ (abs(mo.momz) * 8)
+	local speed = mo.scale * 8
 	local spread = FRACUNIT * 4
+	if player.actionstate then
+		speed = $ + player.speed
+		spread = $ + (FRACUNIT * 2)
+	end
 	local angle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)
-	local zangle = 0
+	local zangle = player.actionstate and ANG1*5 or 1
 	for n = -2,2 do
 		local xmom = FixedMul(n * spread, cos(angle+ANGLE_90))
 		local ymom = FixedMul(n * spread, sin(angle+ANGLE_90))
@@ -180,12 +184,19 @@ local doGroundHearts = function(player)
 			msl.momx = $ + xmom + mo.momx
 			msl.momy = $ + ymom + mo.momy
 			P_SetObjectMomZ(msl, zmom)
-			msl.fuse = 15
 			msl.color = heartcolor(msl, player)
 			local dest = msl.scale
 			msl.scale = 1
-			msl.destscale = dest
-			msl.scalespeed = FRACUNIT
+			if player.actionstate then
+				msl.fuse = 30
+				msl.destscale = dest*3/2
+				msl.scalespeed = FRACUNIT/2
+			else
+				msl.fuse = 15
+				msl.destscale = dest
+				msl.scalespeed = FRACUNIT
+			end
+			msl.cusval = player.actionstate
 		end
 	end
 end
@@ -294,7 +305,6 @@ B.HammerControl = function(player)
 		end
 		player.melee_state = st_idle
 	end
-	--TODO: else, if S_PLAY_TWINSIN and P_IsObjectOnGround(mo) then doGroundHearts(player) end
 end
 
 B.PostHammerControl = function(player)

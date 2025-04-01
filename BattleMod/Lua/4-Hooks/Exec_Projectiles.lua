@@ -210,6 +210,12 @@ addHook("MobjSpawn",function(mo)
 		mo.spawnfire = true
 	end
 end,MT_LHRT)
+addHook("MobjThinker",function(mo)
+	if mo.cusval then
+		P_SpawnGhostMobj(mo)
+		P_SetObjectMomZ(mo, gravity/2, true)
+	end
+end,MT_LHRT)
 addHook("MobjSpawn",function(mo)
 	if mo.valid
 		mo.hit_sound = sfx_hit03
