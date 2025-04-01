@@ -5,12 +5,19 @@ local st_hold = 1
 local st_release = 2
 local st_jump = 3
 
-local air_special = 9
-
 local sideangle = ANG30 - ANG10
 
 local piko_special = 11
 local piko_cooldown = TICRATE * 3/2
+
+local function heartcolor(msl, player, bluecolor, redcolor)
+	msl.colorized = true
+	if G_GametypeHasTeams() then
+		return player.ctfteam == 2 and (bluecolor or SKINCOLOR_SKY) or (redcolor or SKINCOLOR_ROSY)
+	else
+		return player.mo.color
+	end
+end
 
 local function twin(player, twirl)
 	local pflags = player.pflags
@@ -28,7 +35,6 @@ local function twin(player, twirl)
 	if not(pflags&PF_NOJUMPDAMAGE)
 		local mo = player.mo
 		local speed = mo.scale * 20
-		local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
 		if twirl then
 			for n = -2,2 do
 				local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
@@ -37,13 +43,13 @@ local function twin(player, twirl)
 					msl.extravalue2 = FRACUNIT*95/100
 					msl.fuse = 15
 					msl.flags = $ | MF_NOGRAVITY
+					local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
 					local zangle = 0
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
 					msl.momy = $ + mo.momy
 					msl.momz = 0
-					msl.colorized = true
-					msl.color = player.ctfteam == 2 and SKINCOLOR_SKY or SKINCOLOR_ROSY
+					msl.color = heartcolor(msl, player)
 				end
 			end
 		else
@@ -54,13 +60,13 @@ local function twin(player, twirl)
 					msl.extravalue2 = FRACUNIT*95/100
 					msl.fuse = 15
 					msl.flags = $ | MF_NOGRAVITY
+					local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
 					local zangle = n*ANG1*5
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
 					msl.momy = $ + mo.momy
 					msl.momz = $ + mo.momz
-					msl.colorized = true
-					msl.color = player.ctfteam == 2 and SKINCOLOR_SKY or SKINCOLOR_ROSY
+					msl.color = heartcolor(msl, player)
 				end
 			end
 		end
@@ -118,16 +124,11 @@ B.SpawnWave = function(player,angle_offset,mute)
 	local mo = player.mo
 	local wave = P_SPMAngle(mo,MT_PIKOWAVE,player.drawangle + angle_offset)
 	if wave and wave.valid
-		if G_GametypeHasTeams() and player.ctfteam == 2
-			wave.teamcolor = SKINCOLOR_SAPPHIRE
-		else
-			wave.teamcolor = SKINCOLOR_RUBY
-		end
+		wave.teamcolor = heartcolor(wave, player, SKINCOLOR_SAPPHIRE, SKINCOLOR_RUBY)
 		wave.mute = mute
 		if not(wave.mute)
 			S_StartSound(wave,sfx_nbmper)
 		end
-		wave.colorized = true
 		wave.color = SKINCOLOR_GOLD
 		wave.fuse = 18
 		wave.scale = mo.scale
@@ -159,6 +160,34 @@ B.hammerjump = function(player,power)
 	end
 	mo.state = power and S_PLAY_ROLL or S_PLAY_JUMP
 	player.panim = power and PA_ROLL or PA_JUMP
+end
+
+local doGroundHearts = function(player)
+	local mo = player.mo
+	local speed = (mo.scale * 8) --+ (abs(mo.momz) * 8)
+	local spread = FRACUNIT * 4
+	local angle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)
+	local zangle = 0
+	for n = -2,2 do
+		local xmom = FixedMul(n * spread, cos(angle+ANGLE_90))
+		local ymom = FixedMul(n * spread, sin(angle+ANGLE_90))
+		local zmom = n%2==0 and spread or spread*3/2
+		local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
+		if msl and msl.valid then
+			msl.target = mo
+			msl.extravalue2 = FRACUNIT*95/100
+			B.InstaThrustZAim(msl,angle,zangle,speed,false)
+			msl.momx = $ + xmom + mo.momx
+			msl.momy = $ + ymom + mo.momy
+			P_SetObjectMomZ(msl, zmom)
+			msl.fuse = 15
+			msl.color = heartcolor(msl, player)
+			local dest = msl.scale
+			msl.scale = 1
+			msl.destscale = dest
+			msl.scalespeed = FRACUNIT
+		end
+	end
 end
 
 //Hammer ticframe control
@@ -256,34 +285,16 @@ B.HammerControl = function(player)
 				B.SpawnWave(player, 0, false)
 				player.actionstate = 0
 			end
-		elseif (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin then
-			if not(player.gotflagdebuff) and (player.actionstate ~= air_special+1) then
-				B.hammerjump(player, spin)
-			end
+		elseif ((player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin) 
+		and not (player.actionstate or player.gotflagdebuff)
+		then
+			B.hammerjump(player, spin)
 		else
-			local speed = mo.scale * 20
-			local spread = FRACUNIT * 16
-			local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle) + ANGLE_90
-			local zangle = ANG1*5
-			for n = -2,2 do
-				local xyoff = n * spread
-				local x = FixedMul(xyoff, cos(xyangle)) - FixedMul(0, sin(xyoff))
-				local y = FixedMul(xyoff, sin(xyangle)) - FixedMul(0, cos(xyoff))
-				local z = n%2==0 and spread or spread*2
-				local msl = P_SpawnMobjFromMobj(mo, x, y, z, MT_LHRT)
-				if msl and msl.valid then
-					msl.target = mo
-					msl.extravalue2 = FRACUNIT*95/100
-					B.InstaThrustZAim(msl,xyangle-ANGLE_90,zangle,speed,false)
-					msl.momx = $ + mo.momx
-					msl.momy = $ + mo.momy
-					msl.colorized = true
-					msl.color = player.ctfteam == 2 and SKINCOLOR_SKY or SKINCOLOR_ROSY
-				end
-			end
+			doGroundHearts(player)
 		end
 		player.melee_state = st_idle
 	end
+	--TODO: else, if S_PLAY_TWINSIN and P_IsObjectOnGround(mo) then doGroundHearts(player) end
 end
 
 B.PostHammerControl = function(player)

@@ -221,7 +221,13 @@ B.Action.PikoTornado = function(mo,doaction)
 						B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 						msl.momx = $ + mo.momx
 						msl.momy = $ + mo.momy
-						msl.momz = $ + mo.momz	
+						msl.momz = $ + mo.momz
+						if G_GametypeHasTeams() then
+							msl.color = player.ctfteam == 2 and SKINCOLOR_SKY or SKINCOLOR_ROSY
+						else
+							msl.color = mo.color
+						end
+						msl.colorized = true
 					end
 				end
 			end

@@ -175,11 +175,16 @@ Knuckles
 		- Adjusted proirity (1/1 all around -> 1/0 with a 2/1 sweetspot on the top)
 Amy
 	- While battleconfig_hammerstrafe is disabled (it's disabled by default), is no longer forced to always attack towards the camera
-	- Reverted abilities to piko tornado and piko jump
+	- Reverted abilities to piko tornado and piko jump (now named Tornado Jump)
 	- Increased ring cost of all battle specials (10 -> 15)
-	- When not in runnerdebuff, hammer jump turns into piko launch when holding down the spin button, which works essentially the same but horizontally
-	- No longer curls on uncharged hammerjump
 	- When curled, swinging the hammer spawns an arc of heart projectiles
+	- Hearts are now player colored
+	Hammer Attack
+		- Hammer jumps no longer create projectiles
+		- Hammer jumps no longer cause Amy to curl unless fully charged
+		- When holding down the spin button, hammer jumps turn into hammer launch (horizontal dash)
+	New Move: Hammer twirl (Replaces Double Jump)
+		- Identical to Twin spin, but the attack is horizontal and briefly causes Amy to hover
 	Pink Shield
 		- By default, hearts will only give shields if the player does not have any shields
 	Hammer Charge
