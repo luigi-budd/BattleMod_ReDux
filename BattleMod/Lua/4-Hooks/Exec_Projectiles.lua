@@ -294,8 +294,27 @@ addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit02
 	mo.blendmode = AST_ADD
 end,MT_SLASH)
+local blasteffect = function(target)
+	local zap = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_THOK)
+	if zap and zap.valid then
+		zap.state = S_CYBRAKDEMONELECTRICBARRIER_SPARK_RANDOM1 + P_RandomRange(0, 11)
+		zap.color = SKINCOLOR_SUPERSKY2
+		zap.colorized = true
+		S_StopSound(zap)
+		local g = P_SpawnGhostMobj(zap)
+		if g and g.valid then
+			P_SetOrigin(g, target.x, target.y, target.z)
+			g.color = zap.color
+			g.colorized = true
+			g.blendmode = AST_ADD
+			g.destscale = g.scale * 3/2
+			g.scalespeed = FRACUNIT/8
+		end
+	end
+	S_StartSound(target, sfx_hit01)
+end
 addHook("MobjSpawn",function(mo)
-	mo.hit_sound = sfx_hit01
+	mo.hit_sound = blasteffect
 end,MT_ENERGYBLAST)
 
 addHook("MobjSpawn",function(mo)
