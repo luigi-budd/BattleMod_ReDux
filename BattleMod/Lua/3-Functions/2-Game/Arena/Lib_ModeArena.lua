@@ -346,7 +346,7 @@ local function rubyMovement(player, timeout)
 		player.mo.momz = player.mo.scale
 	end
 
-	player.mo.momz = max($+(player.mo.scale/2), 0)
+	player.mo.momz = (P_MobjFlip(player.mo)==-1 and min($-(player.mo.scale/2), 0)) or max($+(player.mo.scale/2), 0)
 
 
 	local invtime = ((timeout-R.CapAnimTime)/2)
