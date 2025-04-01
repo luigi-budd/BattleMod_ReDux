@@ -24,7 +24,7 @@ local customclient_skinchange = CV_RegisterVar({
 
 local Prevention = function(p)
 
-	local selectchar = (p.selectchar) or (not(B.PlayerBattleSpawning(player)) and B.PreRoundWait()) then
+	local selectchar = (p.selectchar) or (not(B.PlayerBattleSpawning(p)) and B.PreRoundWait())
 
 	if selectchar then return end
 
