@@ -669,12 +669,19 @@ B.Action.TailSwipe = function(mo,doaction)
 		B.analogkill(player, 2)
 		if player.actionstate == state_dash then
 			player.mo.cantouchteam = 1
+			local tail = player.followmobj
+			if tail and tail.type == MT_TAILSOVERLAY then
+				if tail.state != S_TAILSOVERLAY_RUN then
+					tail.state = S_TAILSOVERLAY_RUN
+				end
+				tail.frame = B.Wrap(leveltime, 512, 515)
+			end
 		end
 		if B.DrawSVSprite(player, player.actionstate == state_dash and 2 or 1) then
 			if player.actionstate == state_dash then
 				local tail = player.followmobj
-				if tail and tail.state >= S_TAILSOVERLAY_0DEGREES and tail.state <= S_TAILSOVERLAY_MINUS60DEGREES then
-					tail.frame = 512 + B.Wrap(leveltime/2, 0, 7)
+				if tail and tail.type == MT_TAILSOVERLAY then
+					tail.state = S_TAILSOVERLAY_RUN
 				end
 			else
 				if player.followmobj then P_SetMobjStateNF(player.followmobj,S_NULL) end
