@@ -196,11 +196,27 @@ addHook("MobjSpawn",function(mo)
 	mo.block_vthrust = 3
 end,MT_ROCKBLAST)
 
-
+local hearteffect = function(target)
+	local heart = P_SpawnMobjFromMobj(target, 0, 0, target.height*P_MobjFlip(target), MT_THOK)
+	if heart and heart.valid then
+		heart.state = S_LHRT
+		local g = P_SpawnGhostMobj(heart)
+		if g and g.valid then
+			g.fuse = TICRATE*2/3
+			g.blendmode = AST_ADD
+			g.destscale = g.scale * 2
+			g.scalespeed = FRACUNIT/8
+			g.colorized = true
+			g.color = SKINCOLOR_PITCHROSY
+		end
+		P_RemoveMobj(heart)
+	end
+	S_StartSound(target, sfx_hit03)
+end
 --Amy love hearts
 addHook("MobjSpawn",function(mo)
 	if mo.valid
-		mo.hit_sound = sfx_hit03
+		mo.hit_sound = hearteffect
 		mo.cantouchteam = true
 		mo.blockable = 1
 		mo.block_stun = 3
@@ -301,17 +317,13 @@ addHook("MobjSpawn",function(mo)
 	mo.blendmode = AST_ADD
 end,MT_SLASH)
 local blasteffect = function(target)
-	local zap = P_SpawnMobj(target.x, target.y, target.z+target.height, MT_THOK)
+	local zap = P_SpawnMobjFromMobj(target, 0, 0, 0, MT_THOK)
 	if zap and zap.valid then
 		zap.state = S_CYBRAKDEMONELECTRICBARRIER_SPARK_RANDOM1 + P_RandomRange(0, 11)
-		zap.color = SKINCOLOR_SUPERSKY2
-		zap.colorized = true
 		S_StopSound(zap)
 		local g = P_SpawnGhostMobj(zap)
 		if g and g.valid then
 			P_SetOrigin(g, target.x, target.y, target.z)
-			g.color = zap.color
-			g.colorized = true
 			g.blendmode = AST_ADD
 			g.destscale = g.scale * 3/2
 			g.scalespeed = FRACUNIT/8
