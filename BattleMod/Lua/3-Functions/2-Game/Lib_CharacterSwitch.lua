@@ -14,7 +14,19 @@ local function ButtonCheck2(player,button)
 	return 0
 end
 
+local customclient_skinchange = CV_RegisterVar({
+    name = "customclient_skinchangeblock",
+    defaultvalue = "On",
+    value = 1,
+    flags = CV_NETVAR,
+    PossibleValue = CV_OnOff
+})
+
 local Prevention = function(p)
+
+	local selectchar = (p.selectchar) or (not(B.PlayerBattleSpawning(player)) and B.PreRoundWait()) then
+
+	if selectchar then return end
 
 	local doSpectate = false
 
@@ -27,15 +39,19 @@ local Prevention = function(p)
 	--// invalid object / a spectator? don't fire
 	if not (p and p.mo and p.mo.valid) then return end
 
-	if p.selectchar then return end
 
 	--// if realskin exists, then...
 	if p.mo.realskin then
 
+		local forceskin = CV_FindVar("forceskin")
+		local restrictskinchanges = CV_FindVar("restrictskinchange")
+
+		local actionstate_interrupted = (p.wasactionstate and (forceskin.value == -1)) --If we changed skin while in actionstate, and it wasn't a global skin change
+
 		--// if realskin is not equal to our skin and we're not spectators? then .. 
 		if p.mo.realskin ~= p.mo.skin and not p.waspectator then
 			--// die ... but only if it's [actionstate -Mari0shi]
-			if p.wasactionstate and (CV_FindVar("forceskin").value == -1) then
+			if actionstate_interrupted or (customclient_skinchange.value and restrictskinchanges.value) then
 				p.mo.flags = MF_SOLID|MF_SHOOTABLE
 				P_DamageMobj(p.mo,nil,nil,1,DMG_INSTAKILL)
 				doSpectate = true
