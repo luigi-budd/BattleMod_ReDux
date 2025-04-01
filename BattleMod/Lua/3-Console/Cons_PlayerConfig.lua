@@ -21,6 +21,7 @@ local base_battleconfigs = {
 
 local base_cvars = {
 	{"battleconfig_hud", {Old=0, New=1, Minimal=2}, "New"},
+	{"battleconfig_nojingles", CV_OnOff, "Off"},
 }
 
 -- holy moly.. maybe we should use pcall() to prevent ppl from causing warnings? ~lu

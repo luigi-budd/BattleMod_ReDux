@@ -8,6 +8,7 @@
 ]]
 
 local B = CBW_Battle
+local CV = B.Console
 local DBG_GAMELOGIC = true
 
 B.NoJingles = function()
@@ -26,7 +27,7 @@ function A_SuperSneakers(actor, var1, var2)
 		return
 	end
     local player = actor.target.player
-    if player.nojingles or B.NoJingles() then
+    if CV.FindVarString("battleconfig_nojingles", "On") or B.NoJingles() then
 	    player.powers[pw_sneakers] = sneakertics + 1
     else
         super(actor, var1, var2) --same as source
@@ -40,7 +41,7 @@ function A_Invincibility(actor, var1, var2)
 	end
 
 	local player = actor.target.player
-    if player.nojingles or B.NoJingles() then
+    if CV.FindVarString("battleconfig_nojingles", "On") or B.NoJingles() then
 	    player.powers[pw_invulnerability] = invulntics + 1
     else
         super(actor, var1, var2) --same as source
