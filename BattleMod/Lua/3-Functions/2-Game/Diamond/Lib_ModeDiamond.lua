@@ -103,6 +103,7 @@ local function free(mo)
 	mo.fuse = TICRATE
 	mo.flags = $&~MF_SPECIAL
 	mo.idle = TICRATE*16
+	S_StartSound(D.Diamond, sfx_tpzdrp)
 end
 
 D.SpawnCapturePoints = function()
@@ -162,6 +163,7 @@ D.SpawnDiamond = function()
 		if usedcheckpoint then
 			D.Diamond.idle = 16*TICRATE
 		else
+			S_StartSound(D.Diamond, sfx_tpzspn)
 			D.ActivatePoint(D.LastDiamondPointNum)
 			print("The "..diamondtext.." has been spawned!")
 		end

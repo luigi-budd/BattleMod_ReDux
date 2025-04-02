@@ -11,7 +11,9 @@ freeslot('mt_diamond',
 	"sfx_dmstl3",
 	"sfx_stle",
 	"sfx_stlt",
-	"sfx_shimr"
+	"sfx_shimr",
+	"sfx_tpzspn",
+	"sfx_tpzdrp"
 	)
 
 -- Topaz sprite
