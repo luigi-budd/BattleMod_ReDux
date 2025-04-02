@@ -859,7 +859,7 @@ F.GotFlagCheck = function(p)
 	if p.mo and p.gotflag then return true end
 end
 
-F.DangerousSpecial = function(special)
+F.DangerousSpecial = function(special) -- NOTE: Consider using B.MobjTouchingDamageFloor instead
 	local s = GetSecSpecial(special, 1)
 	local damage = (s >= 1 and s <= 5)
 	local death = s == 8

@@ -143,6 +143,29 @@ B.DebugHUD = function(v, player, cam)
 			left_addline("Exiting",B.Exiting)
 			left_addline("Timeout",B.Timeout)
 			left_addline("MatchPoint",B.MatchPoint)
+
+			left_subheader("SECTOR")
+			local mo = player.mo
+			if not (mo and mo.valid) then
+				left_addline("Player object","?")
+			else
+				local ss = mo.subsector
+				local s = ss.sector
+				--[[
+				local sp = s.special
+				left_addline("Point in SubSector", R_PointInSubsector(mo.x, mo.y))
+				left_addline("Subsector", ss)
+				left_addline("Sector special", sp)
+				for i=1,4 do
+					left_addline("GetSecSpecial "..i, GetSecSpecial(sp, i))
+				end
+				]]
+				left_addline("Damage type", s.damagetype)
+				local fof = ((P_MobjFlip(mo)==-1) and mo.ceilingrover) or mo.floorrover
+				--left_addline("FOF", fof)
+				left_addline("FOF is lava", fof and P_CheckSolidLava(nil, fof) or nil)
+			end
+
 			addheader("GAMETYPE")
 			
 		if B.ArenaGametype() then

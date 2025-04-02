@@ -374,16 +374,16 @@ R.Thinker = function(mo)
 
 	local sector = mo.subsector.sector --P_MobjTouchingSectorSpecialFlag(mo, 0) or mo.subsector.sector --P_ThingOnSpecial3DFloor(mo) or mo.subsector.sector
 	if mo.target and mo.target.valid --and GetSecSpecial(sector.special, 4) == 1
-		local floored = P_IsObjectOnGround(mo.target) or ((mo.target.eflags & MFE_JUSTHITFLOOR) and (mo.target.player.pflags & PF_STARTJUMP))
-		--local safe = B.CTF.DangerousSpecial(mo.target.subsector.sector.special) --idk how getsecspecial works
-		local safe = mo.target.health and not (P_CheckDeathPitCollide(mo.target) or P_PlayerInPain(mo.target.player))
-		local failsafe = mo.target.state != S_PLAY_PAIN
+		local t = mo.target
+		local floored = P_IsObjectOnGround(t) or ((t.eflags & MFE_JUSTHITFLOOR) and (t.player.pflags & PF_STARTJUMP))
+		--local safe = t.health and t.state != S_PLAY_PAIN not (P_CheckDeathPitCollide(t) or P_PlayerInPain(t.player) or B.MobjTouchingDamageFloor(t))
+		local safe = not B.MobjTouchingDamageFloor(t)
 		if not (R.CheckPoint and R.CheckPoint.valid)
 			R.CheckPoint = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
 			R.CheckPoint.tics = -1
 			R.CheckPoint.state = S_SHRD1
-		elseif floored and safe and failsafe
-			P_MoveOrigin(R.CheckPoint, mo.target.x, mo.target.y, mo.target.z)
+		elseif floored and safe
+			P_MoveOrigin(R.CheckPoint, t.x, t.y, t.z)
 		end
 		local debug = CV.Debug.value
 		if debug&DF_GAMETYPE
@@ -411,10 +411,11 @@ R.Thinker = function(mo)
 	local on_rflagbase = (GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE)
 	local on_bflagbase = (GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE)
 	local on_return_sector = P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG) -- rev: i don't know if this even works..
+	local on_damage_sector = B.MobjTouchingDamageFloor(mo)
 	local plr_has_ruby = mo.target and mo.target.valid
-
-	if 	not plr_has_ruby and (ruby_in_goop or (on_rflagbase or on_bflagbase or on_return_sector)) then
-		--print("fell into removal sector")
+	
+	if not plr_has_ruby and (ruby_in_goop or on_rflagbase or on_bflagbase or on_return_sector or on_damage_sector) then
+		B.DebugPrint("The ruby collided with a removal sector", DF_GAMETYPE)
 		if (mo.target and mo.target.valid) then
 			B.PrintGameFeed(player, " dropped the "+rubytext+".")
 		end

@@ -156,3 +156,8 @@ B.MobjTouchingFlagBase = function(mo) --Will return who's team the base mo is to
 
     return return_value
 end
+
+B.MobjTouchingDamageFloor = function(mo)
+	local fof = ((P_MobjFlip(mo)==-1) and mo.ceilingrover) or mo.floorrover
+    return mo.subsector.sector.damagetype or (fof and P_CheckSolidLava(nil, fof))
+end
