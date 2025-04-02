@@ -124,7 +124,7 @@ B.RingsHUD = function(v, player, cam)
 		local outline = v.cachePatch("HUD_RINGC")
 		
 		local radarColor = {SKINCOLOR_GREY, SKINCOLOR_BLUE, SKINCOLOR_SHAMROCK, SKINCOLOR_YELLOW, SKINCOLOR_ORANGE, SKINCOLOR_RED}
-
+		/*
 		//Emblem radar. Also hidden when the menu is present.
 		for i=1,#server.AvailableChaosRings do
 			local chaosring = server.AvailableChaosRings[i]
@@ -136,14 +136,14 @@ B.RingsHUD = function(v, player, cam)
 			if proximity > 1 then
 				table.insert(beeps, {proximity=proximity, color=chaosring.color})
 			end
-		end
+		end*/
 
-		if #beeps then
-			table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
-			if not(leveltime % proxBeep[beeps[1].proximity]) then
+		if player.chaosring_radarbeeps and #player.chaosring_radarbeeps then
+			--table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
+			--if not(leveltime % proxBeep[beeps[1].proximity]) then
 				--S_StartSoundAtVolume(p.mo, sfx_crng2, 100, p)
-			end
-			v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, outline, flags_hudtrans, v.getColormap(TC_BLINK, radarColor[beeps[1].proximity]))
+			--end
+			v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, outline, flags_hudtrans, v.getColormap(TC_BLINK, radarColor[player.chaosring_radarbeeps[1].proximity]))
 		end
 	end
 
