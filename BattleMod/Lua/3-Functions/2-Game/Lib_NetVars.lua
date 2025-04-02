@@ -57,6 +57,7 @@ function B.NetVars.Sync(network)
 	R.RubyFade 			 = network($)
 	R.player_respawntime = network($)
 	R.RubyWinTimeout 	 = network($)
+	R.CheckPoint		 = network($)
 	//CTF
 	F.RedFlag 			= network($)
 	F.BlueFlag			= network($)
