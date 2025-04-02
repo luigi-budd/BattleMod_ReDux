@@ -17,6 +17,7 @@ local base_battleconfigs = {
 	{"battleconfig_hammerstrafe", false},
 	{"battleconfig_slipstreambutton", BT_WEAPONNEXT},
 	{"battleconfig_useslipstreambutton", false},
+	{"battleconfig_altcontrols", false},
 }
 
 local base_cvars = {

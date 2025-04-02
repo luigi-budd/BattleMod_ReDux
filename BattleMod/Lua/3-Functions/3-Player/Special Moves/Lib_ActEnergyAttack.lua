@@ -350,15 +350,18 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		end
 		return 
 	end
+
+	local bt_sparktrigger = player.battleconfig_altcontrols and BT_JUMP or BT_SPIN
+	local bt_slashtrigger = player.battleconfig_altcontrols and BT_SPIN or BT_JUMP
 	
 	//Action triggers
 	local blastready = (player.actiontime >= blast_threshold and player.actionstate == state_charging)
 	local attackready = (player.actionstate == state_charging)
 	local charging = not(slashtrigger) and (player.actionstate ~= state_dashslicerprep) and mo.energyattack_chargemeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
-	local sparktrigger = attackready and B.PlayerButtonPressed(player,BT_SPIN,false) 
+	local sparktrigger = attackready and B.PlayerButtonPressed(player,bt_sparktrigger,false) 
 	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((blastready and doaction == 0) or (mo.energyattack_chargemeter <= 0 and doaction == 2))
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
-	local slashtrigger = not(sparktrigger) and attackready and doaction == 2 and B.PlayerButtonPressed(player,BT_JUMP,false)
+	local slashtrigger = not(sparktrigger) and attackready and doaction == 2 and B.PlayerButtonPressed(player,bt_slashtrigger,false)
 	local charged = (mo.energyattack_chargemeter <= 0) 
 	local canceltrigger =
 		not(blasttrigger or sparktrigger or slashtrigger)
@@ -624,7 +627,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				mo.energyattack_sparkaura.fuse = max($, 2)
 			end 
 			
-			if player.rings and ((player.doaction == 2 or (player.pflags & PF_SPINDOWN)) or player.actiontime <= forcetime_ringspark) then --If we have rings, and are holding either the action button or spin
+			local flag = bt_sparktrigger == BT_SPIN and PF_SPINDOWN or PF_JUMPDOWN
+			if player.rings and ((player.doaction == 2 or (player.pflags & flag)) or player.actiontime <= forcetime_ringspark) then --If we have rings, and are holding either the action button or spin
 
 				player.actionrings = 0 --They can tell rings are being drained
 				
@@ -750,7 +754,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		--Next state
 		B.ApplyCooldown(player,cooldown_slice)
 		resetvars(mo)
-		if (player.realbuttons & BT_JUMP)
+		if (player.realbuttons & bt_slashtrigger)
 			mo.momx = $ * 2/3
 			mo.momy = $ * 2/3
 			mo.energyattack_move = $ or mo.angle
