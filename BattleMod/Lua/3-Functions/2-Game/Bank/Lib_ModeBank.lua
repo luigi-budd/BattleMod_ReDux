@@ -892,11 +892,11 @@ local baseTransaction = function(player, team, animation)
 			end
 			P_GivePlayerRings(player, -1)
 			player.tossdelay = bankTime(player)
-			local spark = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BOXSPARKLE)
+			--[[local spark = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BOXSPARKLE)
 			if spark and spark.valid
 				spark.colorized = true
 				spark.color = SKINCOLOR_CARBON
-			end
+			end]]
 			baseSparkle(player, team)
 		end
 	else
