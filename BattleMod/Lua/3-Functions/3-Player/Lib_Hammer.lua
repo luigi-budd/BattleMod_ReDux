@@ -198,6 +198,7 @@ local doGroundHearts = function(player)
 				msl.scalespeed = FRACUNIT
 			end
 			msl.cusval = player.actionstate
+			msl.cantouchteam = true
 		end
 	end
 end
