@@ -681,6 +681,8 @@ CR.ThinkFrame = function() --Main Thinker
 			if newring and newring.valid then
 				GS.CaptureHUDTimer = 5*TICRATE
 			    table.insert(server.AvailableChaosRings, newring)
+				server.OrderedChaosRings[newring.chaosring_num] = newring
+				newring.available_key = #server.AvailableChaosRings
 			else
 				B.DebugPrint("Failed to spawn a "..CHAOSRING_TEXT(num).."!", DF_GAMETYPE)
 			end
@@ -724,7 +726,10 @@ CR.ThinkFrame = function() --Main Thinker
 			remove = false
 			chaosring.respawntimer = $-1
 			if chaosring.respawntimer <= 0 then
-				server.AvailableChaosRings[i] = spawnChaosRing(nil, i, true)
+				local chring = spawnChaosRing(nil, i, true)
+				server.AvailableChaosRings[i] = chring
+				server.OrderedChaosRings[chring.chaosring_num] = chring
+				chring.available_key = i
 			end
 			continue
 		end
