@@ -1249,6 +1249,7 @@ C.ThinkFrame = function()
 end
 
 CR.MapLoad = function()
+	C.ScoreDelay = {}
 
 	if not(B.BankGametype()) then return end
 

@@ -76,6 +76,7 @@ function B.NetVars.Sync(network)
 	//Bank
 	C.RedBank 			= network($)
 	C.BlueBank 			= network($)
+	C.ScoreDelay 		= network($)
 	CR.CheckPoints		= network($)
 	//Game state
 	B.RedScore		= network($)
