@@ -21,6 +21,7 @@ end
 
 local function twin(player, twirl)
 	local pflags = player.pflags
+	local hammerstrafe = player.battleconfig.hammerstrafe
 	player.panim = PA_ABILITY
 	player.mo.state = (twirl and S_AMY_PIKOTWIRL) or S_PLAY_TWINSPIN
 	player.frame = 0
@@ -43,7 +44,7 @@ local function twin(player, twirl)
 					msl.extravalue2 = FRACUNIT*95/100
 					msl.fuse = 15
 					msl.flags = $ | MF_NOGRAVITY
-					local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
+					local xyangle = (hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
 					local zangle = 0
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
@@ -60,7 +61,7 @@ local function twin(player, twirl)
 					msl.extravalue2 = FRACUNIT*95/100
 					msl.fuse = 15
 					msl.flags = $ | MF_NOGRAVITY
-					local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
+					local xyangle = hammerstrafe and mo.angle or player.drawangle
 					local zangle = n*ANG1*5
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
@@ -74,7 +75,7 @@ local function twin(player, twirl)
 	end
 
 	//Angle adjustment
-	if player.battleconfig_hammerstrafe then
+	if hammerstrafe then
 		player.drawangle = player.mo.angle
 	end
 end
@@ -170,7 +171,7 @@ local doGroundHearts = function(player)
 		speed = $ + player.speed
 		spread = $ + (FRACUNIT * 2)
 	end
-	local angle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)
+	local angle = (player.battleconfig.hammerstrafe and mo.angle or player.drawangle)
 	local zangle = player.actionstate and ANG1*5 or 1
 	for n = -2,2 do
 		local xmom = FixedMul(n * spread, cos(angle+ANGLE_90))
@@ -236,7 +237,7 @@ B.HammerControl = function(player)
 	end
 	
 	//Angle adjustment
-	if player.battleconfig_hammerstrafe
+	if player.battleconfig.hammerstrafe
 	and ((player.melee_state and P_IsObjectOnGround(mo)) or mo.state == S_PLAY_TWINSPIN)
 	and not (mo.eflags & MFE_JUSTHITFLOOR)
 		player.drawangle = mo.angle
@@ -362,7 +363,7 @@ B.ChargeHammer = function(player)
 	return end
 	
 	//Angle adjustment
-	if (player.battleconfig_hammerstrafe) and not (mo.eflags & MFE_JUSTHITFLOOR)
+	if (player.battleconfig.hammerstrafe) and not (mo.eflags & MFE_JUSTHITFLOOR)
 		player.drawangle = mo.angle
 	end
 

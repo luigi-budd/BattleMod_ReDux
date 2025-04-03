@@ -20,7 +20,8 @@ B.AirDodge = function(player)
 		--if unsafe_dodge is true, intangible_time won't do anything
 	end
 	
-	if B.ButtonCheck(player, player.battleconfig_guard) == 1
+	local config = player.battleconfig
+	if B.ButtonCheck(player, config.guard) == 1
 		and (CV.Guard.value)
 		and player.canguard
 		and player.mo.state != S_PLAY_PAIN
@@ -39,8 +40,9 @@ B.AirDodge = function(player)
 		and not mo.temproll
 		
 		local angle = B.GetInputAngle(player)
+		print(config.dodgecamera and "Y" or "N")
 		
-		if player.battleconfig_dodgecamera or (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
+		if config.dodgecamera or (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
 			angle = mo.angle
 		end
 		

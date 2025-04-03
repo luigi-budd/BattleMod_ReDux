@@ -25,7 +25,7 @@ B.AutoSpectator = function(player)
 	local mo = player.realmo
 
 	//Must be allowed via player config settings
-	if player.battleconfig_autospectator != true then return end
+	if player.battleconfig.autospectator != true then return end
 	
 	if mo.specID == nil
 		mo.specID = 0

@@ -281,7 +281,7 @@ end
 
 --Draw minimap in the bottom right corner
 B.MinimapHUD = function(v, player, cam)
-	if not consoleplayer.battleconfig_minimap
+	if not consoleplayer.battleconfig.minimap
 	or (CBW_Chaos_Library and CBW_Chaos_Library.Gametypes[gametype])
 	then
 		return

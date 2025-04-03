@@ -109,7 +109,7 @@ addHook("ShieldSpecial", function(player)
     end
 
 	if B.ShieldActions[shieldType] then
-		if not (player.battleconfig_nospinshield or (B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)) then
+		if not (player.battleconfig.nospinshield or (B.GetSkinVarsFlags(player)&SKINVARS_NOSPINSHIELD)) then
 			B.DoShieldActive(player)
 		end
 		return true

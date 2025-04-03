@@ -122,7 +122,8 @@ B.InitPlayer = function(player)
 	if not (player.lastcolor) then
 		player.lastcolor = 0
 	end
-	player.roulette = player.battleconfig_roulette == nil and true or player.battleconfig_roulette
+	local config = player.battleconfig
+	player.roulette = config.roulette == nil and true or config.roulette
 	if not (B.Exiting) then
 		player.win = nil
 		player.loss = nil
@@ -325,7 +326,7 @@ end
 
 B.DrawAimLine = function(player,angle)
 	if not(player.mo) then return end
-	if not(player.battleconfig_aimsight) then return end
+	if not(player.battleconfig.aimsight) then return end
 	if not(leveltime&1) then return end
 	if angle == nil then angle = player.mo.angle end
 	for n = 1,8

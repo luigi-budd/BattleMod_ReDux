@@ -65,7 +65,7 @@ B.glide = function(player)
 		--Angle adjustment
 		if (mo.state == S_PLAY_SWIM) then
 			B.legacykill(player, 1)
-		elseif player.battleconfig_glidestrafe and B.GetSkinVarsFlags(player)&SKINVARS_GLIDESTRAFE then
+		elseif player.battleconfig.glidestrafe and B.GetSkinVarsFlags(player)&SKINVARS_GLIDESTRAFE then
 			player.drawangle = player.mo.angle
 		end
 	end
@@ -343,7 +343,7 @@ B.tailsthrow = function(player)
 		player.customstunbreakcost = 35
 	end
 	player.actionallowed = false
-	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
+	local doguard = B.ButtonCheck(player,player.battleconfig.guard)
 	B.StunBreak(player, doguard) --this shouldn't have been necessary
 
 	local mo = player.mo

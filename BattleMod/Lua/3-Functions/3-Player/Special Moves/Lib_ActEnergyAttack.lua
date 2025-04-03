@@ -351,23 +351,24 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		return 
 	end
 
-	local bt_sparktrigger = player.battleconfig_altcontrols and BT_JUMP or BT_SPIN
-	local bt_slashtrigger = player.battleconfig_altcontrols and BT_SPIN or BT_JUMP
+	local config = player.battleconfig
+	local bt_sparktrigger = config.altcontrols and BT_JUMP or BT_SPIN
+	local bt_slashtrigger = config.altcontrols and BT_SPIN or BT_JUMP
 	
 	//Action triggers
 	local blastready = (player.actiontime >= blast_threshold and player.actionstate == state_charging)
 	local attackready = (player.actionstate == state_charging)
-	local charging = not(slashtrigger) and (player.actionstate ~= state_dashslicerprep) and mo.energyattack_chargemeter and ((B.PlayerButtonPressed(player,player.battleconfig_special,true) or not(attackready)) and player.actionstate == state_charging)
+	local charging = not(slashtrigger) and (player.actionstate ~= state_dashslicerprep) and mo.energyattack_chargemeter and ((B.PlayerButtonPressed(player,config.special,true) or not(attackready)) and player.actionstate == state_charging)
 	local sparktrigger = attackready and B.PlayerButtonPressed(player,bt_sparktrigger,false) 
 	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((blastready and doaction == 0) or (mo.energyattack_chargemeter <= 0 and doaction == 2))
-	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
+	local chargehold = (attackready and B.PlayerButtonPressed(player,config.special,true))
 	local slashtrigger = not(sparktrigger) and attackready and doaction == 2 and B.PlayerButtonPressed(player,bt_slashtrigger,false)
 	local charged = (mo.energyattack_chargemeter <= 0) 
 	local canceltrigger =
 		not(blasttrigger or sparktrigger or slashtrigger)
 		and player.actionstate == state_charging
 		and doaction == 2
-		and B.PlayerButtonPressed(player,player.battleconfig_guard,false)
+		and B.PlayerButtonPressed(player,config.guard,false)
 	local chargetrigger = (player.actionstate == 0 and doaction == 1)
 	
 	//Intercepted while charging

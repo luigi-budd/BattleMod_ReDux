@@ -175,13 +175,14 @@ B.PlayerThinkFrame = function(player)
 	A.JettySynThinker(player)
 	A.RingSpill(player)
 	B.PlayerMovementControl(player)
-	
+
+	local config = player.battleconfig
 	--Perform Actions
-	local doaction = B.ButtonCheck(player,player.battleconfig_special)
+	local doaction = B.ButtonCheck(player,config.special)
 	B.MasterActionScript(player,doaction)
 	
 	--Air dodge, Stun Break, Guard
-	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
+	local doguard = B.ButtonCheck(player,config.guard)
 	B.StunBreak(player,doguard)
 	B.AirDodge(player,doguard)
 	B.Guard(player,doguard)
