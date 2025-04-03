@@ -170,23 +170,23 @@ CR.VarsExist = function()
 	server.InitSpawnWait~=nil and
 	server.SpawnTable~=nil and
 	server.WinCountdown~=nil and
-	server.AvailableChaosRings~=nil)
+	server.AvailableChaosRings~=nil and
+	server.OrderedChaosRings~=nil)
 end
 
 CR.GetChaosRing = function(num)
-	for k, v in ipairs(server.AvailableChaosRings) do
-		if not(v) then continue end
-		if v.chaosring_num == num then
-			return v
+	if server.OrderedChaosRings and server.OrderedChaosRings[num] then
+		local chring = server.OrderedChaosRings[num]
+		if chring.valid then
+			return chring
 		end
 	end
 end
 CR.GetChaosRingKey = function(num)
-	for k, v in ipairs(server.AvailableChaosRings) do
-		if not(v) then continue end
-		if not(v.valid) and type(v)!="table" then continue end
-		if v.chaosring_num == num then
-			return k
+	if server.OrderedChaosRings and server.OrderedChaosRings[num] then
+		local chring = server.OrderedChaosRings[num]
+		if chring.valid then
+			return chring.available_key
 		end
 	end
 end
@@ -196,6 +196,7 @@ local resetVars = function()
 	server.WinCountdown = CV.ChaosRing_WinTime.value*TICRATE
 	server.SpawnCountDown = 0
 	server.AvailableChaosRings = {}
+	server.OrderedChaosRings = {}
 	server.GlobalAngle = ANG20
 	server.InitSpawnWait = CV.ChaosRing_StartSpawnBuffer.value*TICRATE
 	CR.ResetCheckpoints()
@@ -646,7 +647,9 @@ local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 			chaosring_num = chaosring.chaosring_num,
 			valid = false,
 			respawntimer= checkPoint and 1 or CV.ChaosRing_SpawnBuffer.value*TICRATE,
-			checkpoint = checkPoint}
+			checkpoint = checkPoint
+		}
+		server.OrderedChaosRings[chaosring.chaosring_num] = nil
 
 		if not checkPoint then
 			print("A "..CHAOSRING_TEXT(chaosring.chaosring_num).." was lost!")
@@ -1030,7 +1033,10 @@ C.ThinkFrame = function()
 				if not(leveltime % proxBeep[beeps[1].proximity]) then
 					S_StartSoundAtVolume(nil, sfx_crng2, 100, p)
 				end
+				player.chaosring_radarbeeps = beeps
 				--v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, outline, flags_hudtrans, v.getColormap(TC_BLINK, radarColor[beeps[1].proximity]))
+			else
+				player.chaosring_radarbeeps = nil
 			end
 		end
 
