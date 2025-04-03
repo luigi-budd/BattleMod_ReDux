@@ -259,65 +259,13 @@ local capture = function(mo, player)
 	end
 end
 
+local blink = B.Blink
+local claimedscale = B.ClaimedScale
+local macguffinclaimed = B.MacGuffinClaimed
+local updatecheckpoint = B.UpdateCheckpoint
+local handleremovalsectors = B.HandleRemovalSectors
 R.Thinker = function(mo)
 	mo.shadowscale = FRACUNIT>>1
-
-	//Determine toss blink
-	local tossblink = 0
-	if mo.lasttouched and mo.lasttouched.valid and mo.lasttouched.player then
-		tossblink = mo.lasttouched.player.tossdelay
-	end
-
-	if tossblink then
-		
-		local floorz = ((mo.flags2 & MF2_OBJECTFLIP) and mo.ceilingz-(FRACUNIT/2)) or mo.floorz+(FRACUNIT/2)
-
-		if not(mo.floorvfx and (type(mo.floorvfx) == "table")) then
-			mo.floorvfx = {}
-		end
-
-		local color = ((tossblink > (TICRATE/4)) and ({[1]=skincolor_redteam,[2]=skincolor_blueteam})[mo.lasttouched.player.ctfteam]) or SKINCOLOR_GOLD
-		local blendmode = ((tossblink > (TICRATE/4)) and AST_TRANSLUCENT) or AST_ADD
-
-		if #mo.floorvfx < 6 then
-			table.insert(mo.floorvfx, P_SpawnMobj(mo.x, mo.y, floorz, MT_GHOST_VFX))
-			local vfx = mo.floorvfx[#mo.floorvfx]
-			if (mo.flags2 & MF2_OBJECTFLIP) then
-				vfx.flags2 = $|MF2_OBJECTFLIP
-			end
-			vfx.fuse = mobjinfo[MT_GHOST].damage/2
-			vfx.renderflags = $|RF_FULLBRIGHT|RF_FLOORSPRITE|RF_ABSOLUTEOFFSETS|RF_NOCOLORMAPS
-			vfx.spritexoffset = 45*FRACUNIT
-			vfx.spriteyoffset = 45*FRACUNIT
-			vfx.blendmode = blendmode
-			vfx.sprite = SPR_STAB
-			vfx.destscale = mo.scale*2
-			vfx.frame = 0|FF_TRANS50
-			vfx.colorized = true
-			vfx.color = color
-			vfx.flags2 = $|MF2_SPLAT
-		end
-		for k, vfx in ipairs(mo.floorvfx) do
-			if not(vfx and vfx.valid) then
-				table.remove(mo.floorvfx, k)
-			else
-				vfx.color = color
-			end
-		end
-	else
-		if mo.floorvfx and (type(mo.floorvfx) == "table") then
-			--print("exists")
-			for k, vfx in ipairs(mo.floorvfx) do
-				if vfx and vfx.valid then
-					--print("deleted")
-					P_RemoveMobj(vfx)
-				end
-				table.remove(mo.floorvfx, k)
-				--print("removed")
-			end
-			mo.floorvfx = nil
-		end
-	end
 
 	-- Idle timer
 	if mo.idle != nil then 
@@ -329,6 +277,10 @@ R.Thinker = function(mo)
 				mo.ctfteam = 0
 			else
 				-- Remove object
+				if R.CheckPoint and R.CheckPoint.valid then
+					P_RemoveMobj(R.CheckPoint)
+					R.CheckPoint = nil
+				end
 				P_SpawnMobj(mo.x,mo.y,mo.z,MT_SPARK)
 				P_RemoveMobj(mo)
 				return
@@ -336,17 +288,8 @@ R.Thinker = function(mo)
 		end
 	end
 	
-	-- Blink
-	if mo.fuse&1
-		mo.flags2 = $|MF2_DONTDRAW
-	else
-		mo.flags2 = $&~MF2_DONTDRAW
-	end
-	if mo.target
-		mo.destscale = FRACUNIT
-	else
-		mo.destscale = FRACUNIT*7/3
-	end
+	blink(mo)
+	claimedscale(mo, FRACUNIT, FRACUNIT*7/3)
 	
 	mo.angle = $+rotatespd
 	
@@ -372,58 +315,9 @@ R.Thinker = function(mo)
 	light.colorized = true
 	light.color = mo.color
 
-	local sector = mo.subsector.sector --P_MobjTouchingSectorSpecialFlag(mo, 0) or mo.subsector.sector --P_ThingOnSpecial3DFloor(mo) or mo.subsector.sector
-	if mo.target and mo.target.valid --and GetSecSpecial(sector.special, 4) == 1
-		local t = mo.target
-		local floored = P_IsObjectOnGround(t) or ((t.eflags & MFE_JUSTHITFLOOR) and (t.player.pflags & PF_STARTJUMP))
-		--local safe = t.health and t.state != S_PLAY_PAIN not (P_CheckDeathPitCollide(t) or P_PlayerInPain(t.player) or B.MobjTouchingDamageFloor(t))
-		local safe = not B.MobjTouchingDamageFloor(t)
-		if not (R.CheckPoint and R.CheckPoint.valid)
-			R.CheckPoint = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
-			R.CheckPoint.tics = -1
-			R.CheckPoint.state = S_SHRD1
-		elseif floored and safe
-			P_MoveOrigin(R.CheckPoint, t.x, t.y, t.z)
-		end
-		local debug = CV.Debug.value
-		if debug&DF_GAMETYPE
-			R.CheckPoint.flags2 = $&~MF2_DONTDRAW
-		else
-			R.CheckPoint.flags2 = $|MF2_DONTDRAW
-		end
-	end
-	
-	-- Remove object if on "remove ctf flag" sector type
-	--if not(mo.target and mo.target.valid) --and P_IsObjectOnGround(mo)
---	and GetSecSpecial(sector.special, SSF_RETURNFLAG) == 2
-	--or mo.target and mo.target.valid and P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG)
---		print('fell into removal sector')
---		if mo.target and mo.target.valid
---			B.PrintGameFeed(player," dropped the "..rubytext..".")
---		end
-		
---		P_RemoveMobj(mo)
---		return
---	end
-
-	-- rev: remove ruby if on a "remove ctf flag" sector type
-	local ruby_in_goop = mo.eflags&MFE_GOOWATER
-	local on_rflagbase = (GetSecSpecial(sector.special, 4) == 3) or (sector.specialflags&SSF_REDTEAMBASE)
-	local on_bflagbase = (GetSecSpecial(sector.special, 4) == 4) or (sector.specialflags&SSF_BLUETEAMBASE)
-	local on_return_sector = P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG) -- rev: i don't know if this even works..
-	local on_damage_sector = B.MobjTouchingDamageFloor(mo)
-	local plr_has_ruby = mo.target and mo.target.valid
-	
-	if not plr_has_ruby and (ruby_in_goop or on_rflagbase or on_bflagbase or on_return_sector or on_damage_sector) then
-		B.DebugPrint("The ruby collided with a removal sector", DF_GAMETYPE)
-		if (mo.target and mo.target.valid) then
-			B.PrintGameFeed(player, " dropped the "+rubytext+".")
-		end
-
-		P_RemoveMobj(mo)
+	if handleremovalsectors(mo, rubytext) then
 		return
 	end
-
 
 	for player in players.iterate do
 		-- !!! I'm not sure why I resorted to an iterate function. I guess it's one way to ensure no other player thinks they have a crystal, but it's not cheap. Should be optimized later.
@@ -525,7 +419,8 @@ R.Thinker = function(mo)
 	g.scalespeed = g.scale / g.fuse
 	g.blendmode = AST_ADD
 	
-	B.MacGuffinClaimed(mo)
+	macguffinclaimed(mo)
+	R.CheckPoint = updatecheckpoint(mo, $)
 	
 	local cvar_pointlimit = CV_FindVar("pointlimit").value
 	local cvar_overtime = CV_FindVar("overtime").value

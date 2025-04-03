@@ -50,6 +50,7 @@ function B.NetVars.Sync(network)
 	D.LastPointNum		= network($)
 	D.CapturePoints		= network($)
 	D.DiamondIndicator	= network($)
+	D.CheckPoint		= network($)
 	//Ruby run
 	R.ID 				 = network($)
 	R.RedGoal			 = network($)
@@ -57,6 +58,7 @@ function B.NetVars.Sync(network)
 	R.RubyFade 			 = network($)
 	R.player_respawntime = network($)
 	R.RubyWinTimeout 	 = network($)
+	R.CheckPoint		 = network($)
 	//CTF
 	F.RedFlag 			= network($)
 	F.BlueFlag			= network($)
@@ -74,6 +76,7 @@ function B.NetVars.Sync(network)
 	//Bank
 	C.RedBank 			= network($)
 	C.BlueBank 			= network($)
+	CR.CheckPoints		= network($)
 	//Game state
 	B.RedScore		= network($)
 	B.BlueScore		= network($)

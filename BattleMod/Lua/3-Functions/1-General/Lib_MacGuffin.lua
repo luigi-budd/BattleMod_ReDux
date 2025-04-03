@@ -16,26 +16,26 @@ end
 
 B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
     if not(G_GametypeHasTeams()) then return end
-    local btns = player.cmd.buttons
 
-    local zpos = player.mo.z+(player.mo.height+(player.mo.scale*10))
+    local mo = player.mo
+    local zpos = mo.z+(mo.height+(mo.scale*10))
 
     local frame = _G["A"]
     local mirrored = false
 
-    if P_MobjFlip(player.mo) == -1 then
-        zpos = (player.mo.z+player.mo.height)-(player.mo.height+(player.mo.scale*10))
+    if P_MobjFlip(mo) == -1 then
+        zpos = (mo.z+mo.height)-(mo.height+(mo.scale*10))
     end
 
     local doflip = false
 
     local flipfunc = function(screenplayer, flipcam)
-        local flippedpassplayer = P_MobjFlip(player.mo)==-1
+        local flippedpassplayer = P_MobjFlip(mo)==-1
         local flippedscreenplayer = P_MobjFlip(screenplayer.mo)==-1
         --local flipcam = CV_FindVar('flipcam').value
 
         if flipcam then
-            if (P_MobjFlip(player.mo)+P_MobjFlip(screenplayer.mo)) == 0 --Mismatched flips, with flipcam?
+            if (P_MobjFlip(mo)+P_MobjFlip(screenplayer.mo)) == 0 --Mismatched flips, with flipcam?
                 doflip = true --Flip it so it's readable
             end
         else
@@ -61,30 +61,54 @@ B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
         mirrored = true
     end
 
-    if not(player.mo.pass_indicator and player.mo.pass_indicator.valid) then
-        player.mo.pass_indicator = P_SpawnMobj(player.mo.x, player.mo.y, zpos, MT_PARTICLE)
-        player.mo.pass_indicator.flags = MF_NOGRAVITY|MF_NOCLIPHEIGHT|MF_NOBLOCKMAP|MF_NOCLIP
-        player.mo.pass_indicator.flags2 = $|MF2_DONTDRAW
-        player.mo.pass_indicator.fuse = -1
-        applyFlip(player.mo, player.mo.pass_indicator)
-        return
-    end
-    if (player.mo.pass_indicator and player.mo.pass_indicator.valid) then
-        applyFlip(player.mo, player.mo.pass_indicator)
-            player.mo.pass_indicator.mirrored = mirrored
-        P_MoveOrigin(player.mo.pass_indicator, player.mo.x, player.mo.y, zpos)
-        player.mo.pass_indicator.scale = player.mo.scale-(player.mo.scale/4)
-        player.mo.pass_indicator.frame = frame|FF_FULLBRIGHT
-        player.mo.pass_indicator.sprite = SPR_MACGUFFIN_PASS
-        player.mo.pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[player.ctfteam][1+(((leveltime/2)%2))]
-        player.mo.pass_indicator.renderflags = $|RF_NOCOLORMAPS
-        player.mo.pass_indicator.fuse = max($, 2)
+    local pass_indicator = mo.pass_indicator
+
+    if (pass_indicator and pass_indicator.valid) then
+        applyFlip(mo, pass_indicator)
+        pass_indicator.mirrored = mirrored
+        P_MoveOrigin(pass_indicator, mo.x, mo.y, zpos)
+        pass_indicator.momx, pass_indicator.momy, pass_indicator.momz = mo.momx, mo.momy, mo.momz
+        pass_indicator.scale = mo.scale-(mo.scale/4)
+        pass_indicator.frame = frame|FF_FULLBRIGHT
+        pass_indicator.sprite = SPR_MACGUFFIN_PASS
+        pass_indicator.color = ({{SKINCOLOR_PINK,SKINCOLOR_CRIMSON},{SKINCOLOR_AETHER,SKINCOLOR_COBALT}})[player.ctfteam][1+(((leveltime/2)%2))]
+        pass_indicator.renderflags = $|RF_NOCOLORMAPS
+        pass_indicator.fuse = max($, 2)
         if displayplayer and B.MyTeam(displayplayer, player) then
-            player.mo.pass_indicator.flags2 = $ & ~MF2_DONTDRAW
+            pass_indicator.flags2 = $ & ~MF2_DONTDRAW
         else
-            player.mo.pass_indicator.flags2 = $|MF2_DONTDRAW
+            pass_indicator.flags2 = $|MF2_DONTDRAW
         end
+    else
+        pass_indicator = P_SpawnMobj(mo.x, mo.y, zpos, MT_PARTICLE)
+        pass_indicator.flags = MF_NOGRAVITY|MF_NOCLIPHEIGHT|MF_NOBLOCKMAP|MF_NOCLIP
+        pass_indicator.flags2 = $|MF2_DONTDRAW
+        pass_indicator.fuse = -1
+        applyFlip(mo, pass_indicator)
+        mo.pass_indicator = pass_indicator
     end
+end
+
+local CV = B.Console
+B.UpdateCheckpoint = function(mo, checkpoint)
+    local t = mo.target
+    local floored = P_IsObjectOnGround(t) or ((t.eflags & MFE_JUSTHITFLOOR) and (t.player.pflags & PF_STARTJUMP))
+	local safe = not B.MobjNearDamageFloor(t)
+	local failsafe = t.state != S_PLAY_PAIN and not P_PlayerInPain(t.player)
+	if not (checkpoint and checkpoint.valid) then
+		checkpoint = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
+		checkpoint.tics = -1
+		checkpoint.state = S_SHRD1
+	elseif floored and safe and failsafe then
+		P_MoveOrigin(checkpoint, t.x - t.momx, t.y - t.momy, t.z)
+	end
+	local debug = CV.Debug.value
+	if debug&DF_GAMETYPE then
+		checkpoint.flags2 = $&~MF2_DONTDRAW
+	else
+		checkpoint.flags2 = $|MF2_DONTDRAW
+	end
+    return checkpoint
 end
 
 B.MacGuffinClaimed = function(mo, customdist, addxy, nofloat)
@@ -157,7 +181,48 @@ B.MobjTouchingFlagBase = function(mo) --Will return who's team the base mo is to
     return return_value
 end
 
-B.MobjTouchingDamageFloor = function(mo)
+B.MobjNearDamageFloor = function(mo)
 	local fof = ((P_MobjFlip(mo)==-1) and mo.ceilingrover) or mo.floorrover
     return mo.subsector.sector.damagetype or (fof and P_CheckSolidLava(nil, fof))
+end
+
+B.Blink = function(mo)
+    if mo.fuse&1
+		mo.flags2 = $|MF2_DONTDRAW
+	else
+		mo.flags2 = $&~MF2_DONTDRAW
+	end
+end
+
+B.ClaimedScale = function(mo, s1, s2)
+    if mo.target
+		mo.destscale = s1
+	else
+		mo.destscale = s2
+	end
+end
+
+B.HandleRemovalSectors = function(mo, name, noremove)
+    if mo.target and mo.target.valid then
+        return
+    end
+
+    local sector = mo.subsector.sector
+    local special = GetSecSpecial(sector.special, 4)
+	
+	if mo.eflags&MFE_GOOWATER
+		or (special == 3) or (sector.specialflags&SSF_REDTEAMBASE)
+        or (special == 4) or (sector.specialflags&SSF_BLUETEAMBASE)
+        or P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG) -- rev: i don't know if this even works..
+        or B.MobjNearDamageFloor(mo)
+    then
+        name = $ or "MacGuffin"
+		B.DebugPrint("The "..name.." has collided with a removal sector", DF_GAMETYPE)
+		--B.PrintGameFeed(mo.target.player, " dropped the "..name..".")
+
+		if not noremove then
+            P_RemoveMobj(mo)
+        end
+		return true
+	end
 end

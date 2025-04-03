@@ -79,6 +79,7 @@ CR.Data = {
 }
 
 CR.Checkpoints = {}
+local neardamagefloor = B.MobjNearDamageFloor
 CR.UpdateCheckpoint = function(chaosring)
 	if not (chaosring and chaosring.valid and chaosring.chaosring_num) then return end
 		
@@ -86,42 +87,43 @@ CR.UpdateCheckpoint = function(chaosring)
 		
 	-- If the target (player) exists and is valid
 	if chaosring.target and chaosring.target.valid and chaosring.target.player then
-		local target = chaosring.target
-		local floored = P_IsObjectOnGround(target) or ((target.eflags & MFE_JUSTHITFLOOR) and (target.player.pflags & PF_STARTJUMP))
-		local safe = target.health and not (P_CheckDeathPitCollide(target) or P_PlayerInPain(target.player))
-		local failsafe = target.state != S_PLAY_PAIN
+		local t = chaosring.target
+		local floored = P_IsObjectOnGround(t) or ((t.eflags & MFE_JUSTHITFLOOR) and (t.player.pflags & PF_STARTJUMP))
+		local safe = not neardamagefloor(t)
+		local failsafe = t.state != S_PLAY_PAIN and not P_PlayerInPain(t.player)
+		local checkpoints = CR.Checkpoints
 		
 		-- Create checkpoint if it doesn't exist
-		if not CR.Checkpoints[ringNum] then
-			CR.Checkpoints[ringNum] = {
-				x = target.x,
-				y = target.y,
-				z = target.z,
+		if not checkpoints[ringNum] then
+			checkpoints[ringNum] = {
+				x = t.x,
+				y = t.y,
+				z = t.z,
 				obj = P_SpawnMobjFromMobj(chaosring, 0, 0, 0, MT_THOK)
 			}
-			CR.Checkpoints[ringNum].obj.tics = -1
-			CR.Checkpoints[ringNum].obj.state = S_SHRD1
-			CR.Checkpoints[ringNum].obj.colorized = true
-			CR.Checkpoints[ringNum].obj.color = chaosring.color
-			CR.Checkpoints[ringNum].obj.flags2 = $|MF2_DONTDRAW
+			checkpoints[ringNum].obj.tics = -1
+			checkpoints[ringNum].obj.state = S_SHRD1
+			checkpoints[ringNum].obj.colorized = true
+			checkpoints[ringNum].obj.color = chaosring.color
+			checkpoints[ringNum].obj.flags2 = $|MF2_DONTDRAW
 		-- Update checkpoint position if player is on solid ground and safe
 		elseif floored and safe and failsafe then
-			CR.Checkpoints[ringNum].x = target.x
-			CR.Checkpoints[ringNum].y = target.y
-			CR.Checkpoints[ringNum].z = target.z
+			checkpoints[ringNum].x = t.x
+			checkpoints[ringNum].y = t.y
+			checkpoints[ringNum].z = t.z
 			
-			if CR.Checkpoints[ringNum].obj and CR.Checkpoints[ringNum].obj.valid then
-				P_MoveOrigin(CR.Checkpoints[ringNum].obj, target.x, target.y, target.z)
+			if checkpoints[ringNum].obj and checkpoints[ringNum].obj.valid then
+				P_MoveOrigin(checkpoints[ringNum].obj, t.x, t.y, t.z)
 			end
 		end
 		
 		-- Debug visualization
 		local debug = CV.Debug.value
-		if CR.Checkpoints[ringNum].obj and CR.Checkpoints[ringNum].obj.valid then
+		if checkpoints[ringNum].obj and checkpoints[ringNum].obj.valid then
 			if debug&DF_GAMETYPE then
-				CR.Checkpoints[ringNum].obj.flags2 = $&~MF2_DONTDRAW
+				checkpoints[ringNum].obj.flags2 = $&~MF2_DONTDRAW
 			else
-				CR.Checkpoints[ringNum].obj.flags2 = $|MF2_DONTDRAW
+				checkpoints[ringNum].obj.flags2 = $|MF2_DONTDRAW
 			end
 		end
 	end
@@ -219,15 +221,25 @@ local insertSpawnPoint = function(mt)
 end
 
 local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
-	if not(server.SpawnTable[num]) then --If we're trying to access a non-existant spawnpoint, don't
-		return
+	if num == nil then -- Attempt to fetch it with a filter
+		local unnocupied_spawns = {}
+		for i, spawn in ipairs(server.SpawnTable) do
+			if not (spawn.obj and spawn.obj.valid) then
+				table.insert(unnocupied_spawns, i)
+			end
+		end
+		if #unnocupied_spawns then
+			num = unnocupied_spawns[P_RandomRange(1, #unnocupied_spawns)]
+		else
+			num = P_RandomRange(1, #server.SpawnTable)
+		end
 	end
 
-	if server.SpawnTable[num].mo and server.SpawnTable[num].mo.valid then --Only if it doesn't already have an object
+	local thing = server.SpawnTable[num]
+	if not thing then
+		B.DebugPrint("Nonexistant spawnpoint!", DF_GAMETYPE)
 		return
 	end
-	local thing = server.SpawnTable[num]
-	local data = CR.Data[chaosringnum]
 
 	local x, y, z
 	local useCheckpoint = false
@@ -242,6 +254,11 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 		P_RemoveMobj(CR.Checkpoints[chaosringnum].obj)
 		CR.Checkpoints[chaosringnum] = nil
 	else
+		if thing.mo and thing.mo.valid then
+			B.DebugPrint("Already has an object!", DF_GAMETYPE)
+			return
+		end
+		
 		-- Use the spawn point coordinates
 		x = thing.x
 		y = thing.y
@@ -265,6 +282,7 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	end
 
 	--local floor = P_FloorzAtPos(thing.x, thing.y, , mobjinfo[CHAOSRING_TYPE].height)
+	local data = CR.Data[chaosringnum]
 
 	thing.mo.scale = FixedMul(thing.scale, CHAOSRING_SCALE) --Chaos Rings are large
 	thing.mo.color = data.color --Color according to number
@@ -274,7 +292,7 @@ local function spawnChaosRing(num, chaosringnum, re) --Spawn a Chaos Ring
 	thing.num = num --Store spawnpoint number
 	thing.mo.chaosring_thingspawn = thing --Store the MapThing table
 	thing.mo.renderflags = $|RF_FULLBRIGHT|RF_NOCOLORMAPS --Shiny
-	table.remove(server.SpawnTable, num) --Don't try to spawn here again
+	--table.remove(server.SpawnTable, num) --Don't try to spawn here again
 	if not useCheckpoint then
 		print("A "..CHAOSRING_TEXT(chaosringnum).." has "..((re and "re") or "").."spawned!")
 		if re then
@@ -526,6 +544,7 @@ local chaosringspark = function(mo)
 	return r
 end
 
+local blink = B.Blink
 local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 
 	mo.shadowscale = FRACUNIT>>1
@@ -539,12 +558,7 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		mo.beingstolen = nil
 	end
 	
-	-- Blink
-	if mo.fuse&1
-		mo.flags2 = $|MF2_DONTDRAW
-	else
-		mo.flags2 = $&~MF2_DONTDRAW
-	end
+	blink(mo)
 
 	--Set internal angle
 	mo.angle = $+rotatespd
@@ -615,65 +629,6 @@ local chaosRingFunc = function(mo) --Object Thinker (Mostly taken from Ruby)
 		end
 	end
 
-	
-
-	--Start Floor VFX
-	local tossblink = 0
-	if mo.lasttouched and mo.lasttouched.valid and mo.lasttouched.player and not(mo.target) then
-		tossblink = mo.lasttouched.player.tossdelay
-	end
-
-	if tossblink then
-		
-		local floorz = ((mo.flags2 & MF2_OBJECTFLIP) and mo.ceilingz-(FRACUNIT/2)) or mo.floorz+(FRACUNIT/2)
-
-		if not(mo.floorvfx and (type(mo.floorvfx) == "table")) then
-			mo.floorvfx = {}
-		end
-
-		local color = ((tossblink > (TICRATE/4)) and ({[1]=skincolor_redteam,[2]=skincolor_blueteam})[mo.lasttouched.player.ctfteam]) or SKINCOLOR_GOLD
-		local blendmode = ((tossblink > (TICRATE/4)) and AST_TRANSLUCENT) or AST_ADD
-
-		if #mo.floorvfx < 6 then
-			table.insert(mo.floorvfx, P_SpawnMobj(mo.x, mo.y, floorz, MT_GHOST_VFX))
-			local vfx = mo.floorvfx[#mo.floorvfx]
-			if (mo.flags2 & MF2_OBJECTFLIP) then
-				vfx.flags2 = $|MF2_OBJECTFLIP
-			end
-			vfx.fuse = mobjinfo[MT_GHOST].damage/2
-			vfx.renderflags = $|RF_FULLBRIGHT|RF_FLOORSPRITE|RF_ABSOLUTEOFFSETS|RF_NOCOLORMAPS
-			vfx.spritexoffset = 45*FRACUNIT
-			vfx.spriteyoffset = 45*FRACUNIT
-			vfx.blendmode = blendmode
-			vfx.sprite = SPR_STAB
-			vfx.destscale = mo.scale*2
-			vfx.frame = 0|FF_TRANS50
-			vfx.colorized = true
-			vfx.color = color
-			vfx.flags2 = $|MF2_SPLAT
-		end
-		for k, vfx in ipairs(mo.floorvfx) do
-			if not(vfx and vfx.valid) then
-				table.remove(mo.floorvfx, k)
-			else
-				vfx.color = color
-			end
-		end
-	else
-		if mo.floorvfx and (type(mo.floorvfx) == "table") then
-			--chprint("exists")
-			for k, vfx in ipairs(mo.floorvfx) do
-				if vfx and vfx.valid then
-					--chprint("deleted")
-					P_RemoveMobj(vfx)
-				end
-				table.remove(mo.floorvfx, k)
-				--chprint("removed")
-			end
-			mo.floorvfx = nil
-		end
-	end
-	--End Floor VFX
 end
 
 local function deleteChaosRing(chaosring) --Special Behavior upon Removal
@@ -700,6 +655,8 @@ local function deleteChaosRing(chaosring) --Special Behavior upon Removal
 	end
 end
 
+local GS = B.CTF.GameState
+local handleremovalsectors = B.HandleRemovalSectors
 CR.ThinkFrame = function() --Main Thinker
 	if not(CR.VarsExist()) then return end
 
@@ -713,16 +670,16 @@ CR.ThinkFrame = function() --Main Thinker
 	if startupChaosRings and not(allChaosRings)  then --2 Minutes in?
 
 		if server.SpawnCountDown <= 0 then --Counted down?
-			B.CTF.GameState.CaptureHUDTimer = 5*TICRATE
 			S_StartSound(nil, sfx_kc33)
-			if #server.AvailableChaosRings then --Chaos Rings exist?
-				--Spawn the next one
-				B.CTF.GameState.CaptureHUDName = #server.AvailableChaosRings+1
-				table.insert(server.AvailableChaosRings, spawnChaosRing(P_RandomRange(1, #server.SpawnTable), #server.AvailableChaosRings+1))
+			local num = server.AvailableChaosRings and #server.AvailableChaosRings+1 or 1
+			GS.CaptureHUDName = num
+
+			local newring = spawnChaosRing(nil, num)
+			if newring and newring.valid then
+				GS.CaptureHUDTimer = 5*TICRATE
+			    table.insert(server.AvailableChaosRings, newring)
 			else
-				--Spawn the first one
-				B.CTF.GameState.CaptureHUDName = 1
-				table.insert(server.AvailableChaosRings, spawnChaosRing(P_RandomRange(1, #server.SpawnTable), 1))
+				B.DebugPrint("Failed to spawn a "..CHAOSRING_TEXT(num).."!", DF_GAMETYPE)
 			end
 			--Set our countdown
 			server.SpawnCountDown = CV.ChaosRing_SpawnBuffer.value*TICRATE
@@ -764,7 +721,7 @@ CR.ThinkFrame = function() --Main Thinker
 			remove = false
 			chaosring.respawntimer = $-1
 			if chaosring.respawntimer <= 0 then
-				server.AvailableChaosRings[i] = spawnChaosRing(P_RandomRange(1, #server.SpawnTable), i, true)
+				server.AvailableChaosRings[i] = spawnChaosRing(nil, i, true)
 			end
 			continue
 		end
@@ -773,27 +730,14 @@ CR.ThinkFrame = function() --Main Thinker
 			continue
 		end
 
-		local delete = false
+		local delete = handleremovalsectors(chaosring, CHAOSRING_TEXT(chaosring.chaosring_num), true)
 
-		local mo = chaosring
-
-		-- rev: remove ruby if on a "remove ctf flag" sector type
-		local sector = mo.subsector.sector
-		local ruby_in_goop = mo.eflags&MFE_GOOWATER
-		local on_return_sector = P_MobjTouchingSectorSpecialFlag(mo, SSF_RETURNFLAG) -- rev: i don't know if this even works..
-		local plr_has_ruby = mo.target and mo.target.valid
-
-		if not plr_has_ruby and (ruby_in_goop or (on_return_sector)) then
-			--chprint("fell into removal sector")
-			if (mo.target and mo.target.valid) then
-				--B.PrintGameFeed(player, " dropped a "+CHAOSRING_TEXT(chaosring.chaosring_num)+".")
-			end
-			delete = true
-		end
-
-			-- Idle timer
+		-- Idle timer
 		if chaosring.idle != nil and not(chaosring.captured) and not(chaosring.target and chaosring.target.valid and chaosring.target.player) then 
 			chaosring.idle = $-1
+			if chaosring.idle < waittics then
+				blink(chaosring)
+			end
 			if chaosring.idle == 0
 				if chaosring.captureteam then
 					-- Remove team protection
@@ -801,6 +745,11 @@ CR.ThinkFrame = function() --Main Thinker
 					chaosring.captureteam = 0
 					chaosring.beingstolen = nil
 				else
+					local num = chaosring.chaosring_num
+					if CR.Checkpoints[num] and CR.Checkpoints[num].obj and CR.Checkpoints[num].obj.valid then
+						P_RemoveMobj(CR.Checkpoints[num].obj)
+						CR.Checkpoints[num] = nil
+					end
 					delete = true
 				end
 			end
@@ -812,8 +761,6 @@ CR.ThinkFrame = function() --Main Thinker
 		end
 
 		local mo = chaosring
-
-
 
 		if mo.chaosring_corona and mo.chaosring_corona.valid then
 			applyflip(mo, mo.chaosring_corona)

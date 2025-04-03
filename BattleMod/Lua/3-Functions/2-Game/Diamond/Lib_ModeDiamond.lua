@@ -337,88 +337,28 @@ D.Collect = function(mo,toucher,playercansteal)
 	end
 end
 
-
+local blink = B.Blink
+local claimedscale = B.ClaimedScale
+local macguffinclaimed = B.MacGuffinClaimed
+local updatecheckpoint = B.UpdateCheckpoint
+local handleremovalsectors = B.HandleRemovalSectors
 D.Thinker = function(mo)
 	mo.shadowscale = FRACUNIT>>2
-
-
-	//Determine toss blink
-	local tossblink = 0
-	if mo.lasttouched and mo.lasttouched.player then
-		tossblink = mo.lasttouched.player.tossdelay
-	end
-
-	if tossblink then
-		
-		local floorz = ((mo.flags2 & MF2_OBJECTFLIP) and mo.ceilingz-(FRACUNIT/2)) or mo.floorz+(FRACUNIT/2)
-
-		if not(mo.floorvfx and (type(mo.floorvfx) == "table")) then
-			mo.floorvfx = {}
-		end
-
-		local color = ((tossblink > (TICRATE/4)) and (mo.lasttouched.player.skincolor)) or (pcall(do return skincolors[mo.lasttouched.player.skincolor].invcolor end) and skincolors[mo.lasttouched.player.skincolor].invcolor) or ((mo.lasttouched.player.skincolor == SKINCOLOR_GOLD) and SKINCOLOR_AQUAMARINE) or SKINCOLOR_GOLD
-		local blendmode = ((tossblink > (TICRATE/4)) and AST_TRANSLUCENT) or AST_ADD
-
-		if #mo.floorvfx < 6 then
-			table.insert(mo.floorvfx, P_SpawnMobj(mo.x, mo.y, floorz, MT_GHOST_VFX))
-			local vfx = mo.floorvfx[#mo.floorvfx]
-			if (mo.flags2 & MF2_OBJECTFLIP) then
-				vfx.flags2 = $|MF2_OBJECTFLIP
-			end
-			vfx.fuse = mobjinfo[MT_GHOST].damage/2
-			vfx.renderflags = $|RF_FULLBRIGHT|RF_FLOORSPRITE|RF_ABSOLUTEOFFSETS|RF_NOCOLORMAPS
-			vfx.spritexoffset = 45*FRACUNIT
-			vfx.spriteyoffset = 45*FRACUNIT
-			vfx.blendmode = blendmode
-			vfx.sprite = SPR_STAB
-			vfx.destscale = mo.scale*2
-			vfx.frame = 0|FF_TRANS50
-			vfx.colorized = true
-			vfx.color = color
-			vfx.flags2 = $|MF2_SPLAT
-		end
-		for k, vfx in ipairs(mo.floorvfx) do
-			if not(vfx and vfx.valid) then
-				table.remove(mo.floorvfx, k)
-			else
-				vfx.color = color
-			end
-		end
-	else
-		if mo.floorvfx and (type(mo.floorvfx) == "table") then
-			--print("exists")
-			for k, vfx in ipairs(mo.floorvfx) do
-				if vfx and vfx.valid then
-					--print("deleted")
-					P_RemoveMobj(vfx)
-				end
-				table.remove(mo.floorvfx, k)
-				--print("removed")
-			end
-			mo.floorvfx = nil
-		end
-	end
-
 
 	--Idle timer
 	if mo.idle != nil then 
 		mo.idle = $-1
 		if mo.idle == 0
+			if D.CheckPoint and D.CheckPoint.valid then
+				P_RemoveMobj(D.CheckPoint)
+				D.CheckPoint = nil
+			end
 			P_SpawnMobj(mo.x,mo.y,mo.z,MT_SPARK)
 			P_RemoveMobj(mo)
 		return end
 	end
-	--Blink
-	if mo.fuse&1
-		mo.flags2 = $|MF2_DONTDRAW
-	else
-		mo.flags2 = $&~MF2_DONTDRAW
-	end
-	if mo.target then 
-		mo.destscale = FRACUNIT
-	else
-		mo.destscale = FRACUNIT*2
-	end
+	blink(mo)
+	claimedscale(mo, FRACUNIT, FRACUNIT*2)
 	
 	--Sparkle
 	if not(leveltime&3) then
@@ -431,6 +371,11 @@ D.Thinker = function(mo)
 		g.color = SKINCOLOR_TOPAZ
 		g.colorized = true
 	end
+
+	if handleremovalsectors(mo, diamondtext) then
+		return
+	end
+
 	--Color
 	/*mo.colorized = true	
 	if not(mo.target) then
@@ -508,26 +453,9 @@ D.Thinker = function(mo)
 		return
 	end
 	
-	B.MacGuffinClaimed(mo)
-
-	if mo.target and mo.target.valid then
-		local floored = P_IsObjectOnGround(mo.target) or ((mo.target.eflags & MFE_JUSTHITFLOOR) and (mo.target.player.pflags & PF_STARTJUMP))
-		local safe = mo.target.health and not (P_CheckDeathPitCollide(mo.target) or P_PlayerInPain(mo.target.player))
-		local failsafe = mo.target.state != S_PLAY_PAIN
-		if not (D.CheckPoint and D.CheckPoint.valid) then
-			D.CheckPoint = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
-			D.CheckPoint.tics = -1
-			D.CheckPoint.state = S_SHRD1
-		elseif floored and safe and failsafe then
-			P_MoveOrigin(D.CheckPoint, mo.target.x - mo.target.momx, mo.target.y - mo.target.momy, mo.target.z)
-		end
-		local debug = CV.Debug.value
-		if debug&DF_GAMETYPE then
-			D.CheckPoint.flags2 = $&~MF2_DONTDRAW
-		else
-			D.CheckPoint.flags2 = $|MF2_DONTDRAW
-		end
-	end
+	--Claimed behavior
+	macguffinclaimed(mo)
+	D.CheckPoint = updatecheckpoint(mo, $)
 end
 
 D.CapturePointThinker = function(mo)
