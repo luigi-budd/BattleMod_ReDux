@@ -40,7 +40,6 @@ B.AirDodge = function(player)
 		and not mo.temproll
 		
 		local angle = B.GetInputAngle(player)
-		print(config.dodgecamera and "Y" or "N")
 		
 		if config.dodgecamera or (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
 			angle = mo.angle
