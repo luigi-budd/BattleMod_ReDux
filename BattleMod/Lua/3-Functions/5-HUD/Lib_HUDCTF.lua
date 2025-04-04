@@ -170,7 +170,8 @@ local function drawFlagfromP(v)
 		local redflag = F.RedFlag
 		local blueflag = F.BlueFlag
 		-- Display a countdown timer showing how much time left until the flag returns to base.
-		if not F.GameState.CaptureHUDTimer then
+		local name = F.GameState.CaptureHUDName 
+		if name and name != "" then
 			local scr_flags = V_YELLOWMAP|V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
 			if blueflag and blueflag.valid and blueflag.fuse > 1 then
 				local BFS_X = BASEVIDWIDTH/2 - SEP
