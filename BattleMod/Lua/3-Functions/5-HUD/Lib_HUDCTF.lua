@@ -145,6 +145,10 @@ local matchpoint_shake = 1
 
 local ranking = false
 local C = B.Bank
+local function shouldDisplay(flag)
+	local despawning = flag.fuse < TICRATE and not(flag.floorvfx and #flag.floorvfx)
+	return flag and flag.valid and flag.fuse > 1 and not despawning
+end
 local function drawFlagfromP(v)
 	local patch_flags = V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
 
@@ -170,21 +174,18 @@ local function drawFlagfromP(v)
 		local redflag = F.RedFlag
 		local blueflag = F.BlueFlag
 		-- Display a countdown timer showing how much time left until the flag returns to base.
-		local name = F.GameState.CaptureHUDName 
-		if name and name != "" then
-			local scr_flags = V_YELLOWMAP|V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
-			if blueflag and blueflag.valid and blueflag.fuse > 1 then
-				local BFS_X = BASEVIDWIDTH/2 - SEP
-				local BFS_Y = YPOS + 8
-				local bfuse = blueflag.fuse/TICRATE
-				v.drawString(BFS_X, BFS_Y, bfuse, scr_flags, "center")
-			end
-			if redflag and redflag.valid and redflag.fuse > 1 then
-				local RFS_X = BASEVIDWIDTH/2 + SEP
-				local RFS_Y = YPOS + 8
-				local rfuse = redflag.fuse/TICRATE
-				v.drawString(RFS_X, RFS_Y, rfuse, scr_flags, "center")
-			end
+		local scr_flags = V_YELLOWMAP|V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
+		if shouldDisplay(blueflag) then
+			local BFS_X = BASEVIDWIDTH/2 - SEP
+			local BFS_Y = YPOS + 8
+			local bfuse = blueflag.fuse/TICRATE
+			v.drawString(BFS_X, BFS_Y, bfuse, scr_flags, "center")
+		end
+		if shouldDisplay(redflag) then
+			local RFS_X = BASEVIDWIDTH/2 + SEP
+			local RFS_Y = YPOS + 8
+			local rfuse = redflag.fuse/TICRATE
+			v.drawString(RFS_X, RFS_Y, rfuse, scr_flags, "center")
 		end
 	end
 
