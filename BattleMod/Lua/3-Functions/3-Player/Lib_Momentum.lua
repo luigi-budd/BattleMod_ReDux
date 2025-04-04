@@ -2,9 +2,10 @@ local B = CBW_Battle
 local S = B.SkinVars
 
 B.DiminishingMomentum = function(player)
-	if player.gotflagdebuff then return end -- Nuh uh
+	if player.gotflagdebuff or not (player.skinvars and S[player.skinvars]) then return end -- Nuh uh
 	local diminish_time = (S[player.skinvars].momentum or S[-1].momentum)
 	if not diminish_time then return end -- Opted out
+	
 	local mo = player.mo
 	if not(mo and mo.valid) then return end -- Doesn't exist
 	if mo.skin == "adventuresonic" then return end -- Already has momentum
