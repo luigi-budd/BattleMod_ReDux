@@ -1002,6 +1002,10 @@ local capture = function(mo, team, bank)
 end
 
 C.ThinkFrame = function()
+	--Make it look like the scores are smoothly increasing
+	for i, v in pairs(C.ScoreDelay) do
+		if leveltime%3==0 and v then C.ScoreDelay[i] = v - 1 end
+	end
 
 	if not(B.BankGametype()) then return end
 	if not(CR.VarsExist()) then return end
@@ -1242,10 +1246,6 @@ C.ThinkFrame = function()
 			end
 		end
 	CR.ThinkFrame() --Chaos Rings
-	--Make it look like the scores are smoothly increasing
-	for i, v in pairs(C.ScoreDelay) do
-		if leveltime%3==0 and v then C.ScoreDelay[i] = v - 1 end
-	end
 end
 
 CR.MapLoad = function()
