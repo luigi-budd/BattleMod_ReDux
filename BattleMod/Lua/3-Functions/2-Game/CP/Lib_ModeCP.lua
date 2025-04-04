@@ -731,7 +731,7 @@ CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)
 	end
 	
 	//Update capturing state
-	if captureplayers == 0 or CP.Blocked then
+	if captureplayers == 0 or CP.Blocked or B.Exiting or B.Timeout then
 		CP.Capturing = false
 		CP.SFXtic = 1
 	elseif CP.Capturing == false then
@@ -752,7 +752,7 @@ CP.ActiveThinker = function(mo,floor,flip,ceil,radius,height,meter)
 		CP.SeizePoint()
 	end
 
-	if captureplayers and not(CP.Blocked) then
+	if captureplayers and not(CP.Blocked or B.Exiting or B.Timeout) then
 		local interval = 3
 -- 		if G_GametypeHasTeams() then
 -- 			interval = 3
