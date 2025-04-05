@@ -25,7 +25,7 @@ B.Action.RoboMissile=function(mo,doaction)
 	end
 	
 	//Aim control visuals
-	if B.PlayerButtonPressed(player,player.battleconfig.special,true) then
+	if B.PlayerButtonPressed(player,player.battleconfig_special,true) then
 		local angle = B.GetInputAngle(player)
 		if angle != nil then
 			B.DrawAimLine(player,angle)
@@ -203,7 +203,7 @@ B.RoboMissileRemoteControl = function(mo)
 	if mo.carry and mo.target.tracer != mo then return end //No longer carrying
 	local target = mo.target
 	local player = target.player
-	local remote = B.PlayerButtonPressed(player,player.battleconfig.special) and B.CanDoAction(player)
+	local remote = B.PlayerButtonPressed(player,player.battleconfig_special) and B.CanDoAction(player)
 	local cmd = player.cmd
 	local water = B.WaterFactor(mo)
 	if target.rccount != nil then

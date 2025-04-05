@@ -256,24 +256,21 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.canguard = 2
 		player.guardtext = "Cancel"
 	end
-
-	local specialbt = player.battleconfig.special
-	local guardbt = player.battleconfig.guard
 	
 	//Action triggers
 	local swipetrigger = (player.mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) and player.actionstate == 0 and doaction == 1 and not(flying or carrying))
 	local attackready = (not swipetrigger) and (player.actiontime >= threshold1 and player.actionstate == state_charging)
 	--local charging = ((not(attackready)) and player.actionstate == state_charging)
-	local sweeptrigger = attackready and (player.actiontime > threshold2*2 or B.ButtonCheck(player,specialbt) == 0)
-	local chargehold = (attackready and B.PlayerButtonPressed(player,specialbt,true))
+	local sweeptrigger = attackready and (player.actiontime > threshold2*2 or B.ButtonCheck(player,player.battleconfig_special) == 0)
+	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local canceltrigger =
 		not sweeptrigger
 		and player.actionstate == state_charging
-		and B.PlayerButtonPressed(player,guardbt,false)
+		and B.PlayerButtonPressed(player,player.battleconfig_guard,false)
 	local thrusttrigger = (player.actionstate == 0 and doaction == 1 and flying and not(carrying))
 	local throwtrigger = (player.actionstate == 0 and doaction == 1 and carrying)
 	local chargetrigger = (not swipetrigger) and (player.actionstate == 0 and doaction == 1 and not (flying or carrying))
-	local buffer = (player.cmd.buttons&specialbt)
+	local buffer = (player.cmd.buttons&player.battleconfig_special)
 
 	//Get thrust speed multiplier
 	local thrustfactor = mo.scale
@@ -415,7 +412,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		S_StartSound(mo,sfx_s3k7d)
 		B.ApplyCooldown(player,cooldown_cancel)
 		uncolorize(mo)
-		player.buttonhistory = $ | guardbt
+		player.buttonhistory = $ | player.battleconfig_guard
 	end
 	
 	//Charging frame
@@ -715,7 +712,7 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.guardtext = "Cancel"
 		//Reset to neutral
 		if P_IsObjectOnGround(mo)
-		or B.PlayerButtonPressed(player,guardbt,false)
+		or B.PlayerButtonPressed(player,player.battleconfig_guard,false)
 		or mo.momz*P_MobjFlip(mo) > mo.scale * 6
 		then
 			local throwed = player.actionstate == state_didthrow
@@ -726,7 +723,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			mo.frame = 0
 			if not P_IsObjectOnGround(mo) then
 				S_StartSound(mo,sfx_s251)
-				player.buttonhistory = $ | guardbt
+				player.buttonhistory = $ | player.battleconfig_guard
 				B.ResetPlayerProperties(player,false,false)
 				B.ApplyCooldown(player,cooldown_cancel)
 				P_SpawnGhostMobj(mo)

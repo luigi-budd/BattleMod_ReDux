@@ -6,18 +6,18 @@ CV.CVars = {}
 -- as of v10, player's default values are handled automatically, so don't worry about other scripts! ~lu
 local base_battleconfigs = {
 	-- {NAME, DEFAULTVALUE}
-	{"dodgecamera", true},
-	{"special", BT_ATTACK},
-	{"guard", BT_FIRENORMAL},
-	{"aimsight", true},
-	{"roulette", true},
-	{"nospinshield", false},
-----{"minimap", true},
-	{"glidestrafe", true},
-	{"hammerstrafe", false},
-	{"slipstreambutton", BT_WEAPONNEXT},
-	{"useslipstreambutton", false},
-	{"altcontrols", false},
+	{"battleconfig_dodgecamera", true},
+	{"battleconfig_special", BT_ATTACK},
+	{"battleconfig_guard", BT_FIRENORMAL},
+	{"battleconfig_aimsight", true},
+	{"battleconfig_roulette", true},
+	{"battleconfig_nospinshield", false},
+----{"battleconfig_minimap", true},
+	{"battleconfig_glidestrafe", true},
+	{"battleconfig_hammerstrafe", false},
+	{"battleconfig_slipstreambutton", BT_WEAPONNEXT},
+	{"battleconfig_useslipstreambutton", false},
+	{"battleconfig_altcontrols", false},
 }
 
 local base_cvars = {
@@ -114,17 +114,16 @@ end
 CV.AddBattleConfig = function(configname, func, defaultvalue)
 	local panic = configname != nil or func != nil or defaultvalue != nil
 	assert(panic, "AHH!! AAAHHHHHHH!!\n".."One of these values is nil! "..tostring2(configname).." "..tostring2(func).." "..tostring2(defaultvalue))
-	COM_AddCommand("battleconfig_"..configname, func, 0)
+	COM_AddCommand(configname, func, 0)
 	table.insert(CV.BattleConfigs, {configname, defaultvalue})
 end
 
 CV.DoDefaultBattleConfigs = function(player, reset)
-	player.battleconfig = {}
 	for _, battleconfig in ipairs(CV.BattleConfigs) do 
 		local config = battleconfig[1]
 		local defaultvalue = battleconfig[2]
-		if reset or player.battleconfig[config] == nil then
-			player.battleconfig[config] = defaultvalue
+		if reset or player[config] == nil then
+			player[config] = defaultvalue
 		end
 	end
 end
@@ -185,18 +184,18 @@ CV.ConfigFunc = function(player, arg, silent)
 			local config = battleconfig[1]
 			local defaultvalue = battleconfig[2]
 			local color = "\x86"
-			if player.battleconfig[config] == true then
+			if player[config] == true then
 				color = "\x83"
-			elseif player.battleconfig[config] == false then
+			elseif player[config] == false then
 				color = "\x85"
 			end
-			local modified = player.battleconfig[config] != defaultvalue and "\x82*\x80" or ""
-			table.insert(configs, color..battleconfig[1]..modified)
+			local modified = player[config] != defaultvalue and "\x82*\x80" or ""
+			table.insert(configs, color..(string.sub(battleconfig[1], 13))..modified)
 		end
 		CONS_Printf(player, "Available configurations: "..table.concat(configs, "\x80, "))
 		local cvars = {}
 		for _, cvar in ipairs(CV.CVars) do
-			table.insert(cvars, string.sub(cvar[1], 14))
+			table.insert(cvars, string.sub(cvar[1], 13))
 		end
 		CONS_Printf(player, "Client configurations: "..table.concat(cvars, ", "))
 	elseif (arg == "load") then
@@ -301,13 +300,13 @@ CV.ToggleableConfig = function(player, arg, config, defaultvalue, silent)
 		["false"] = false, ["0"] = false, ["off"] = false, ["no"] = false,
 	}
 	local option = options[arg]
-	local currenttxt = player.battleconfig[config] and "On" or "Off"
+	local currenttxt = player[config] and "On" or "Off"
 	local defaulttxt = defaultvalue and "On" or "Off"
 	if option == nil and not silent then
 		S_StartSound(nil, sfx_s25a, player)
 		CONS_Printf(player,config.." <On/Off>: Currently \135"..currenttxt.."\x80 - Default is \135"..defaulttxt)
 	else
-		player.battleconfig[config] = option
+		player[config] = option
 		if not nosave then CV.SaveConfig(player, config, option) end
 	end
 end
@@ -327,10 +326,10 @@ CV.ButtonConfig = function(player, args, config, defaultvalue, silent)
 	
 	if flags == 0 or not #args then
 		S_StartSound(nil, sfx_s25a, player)
-		CONS_Printf(player,config.." <Button>: Currently \135"..btn2str[player.battleconfig[config]].."\x80 - Default is \135"..btn2str[defaultvalue])
+		CONS_Printf(player,config.." <Button>: Currently \135"..btn2str[player[config]].."\x80 - Default is \135"..btn2str[defaultvalue])
 		print_help(player)
 	else
-		player.battleconfig[config] = flags
+		player[config] = flags
 		if not nosave then CV.SaveConfig(player, config, flags) end
 	end
 end

@@ -119,7 +119,7 @@ A.JettySynAttack = function(player)
 		if player.actiontime < 0 then return end
 		//Pull the trigger
 		if B.PlayerButtonPressed(player,BT_SPIN,false)
-		or B.PlayerButtonPressed(player,player.battleconfig.special,false)
+		or B.PlayerButtonPressed(player,player.battleconfig_special,false)
 		
 		then
 			player.actionstate = state_attacking
