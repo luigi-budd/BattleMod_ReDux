@@ -27,8 +27,7 @@ CP.ThinkFrame = function(mo)
 	if not(G_GametypeHasTeams()) and (CP.LeadCapAmt > 0 and not(CP.LeadCapPlr != nil and CP.LeadCapPlr.valid and CP.LeadCapPlr.playerstate == PST_LIVE and CP.LeadCapPlr.mo and CP.LeadCapPlr.mo.valid)) then
 		CP.RefreshLeadCapPlr()
 	end
-
-	if CP.Timer == TICRATE*10 then
+	if ((CP.Timer <= TICRATE*10)) or CP.Active then
 		for player in players.iterate do
 			if not(player.mo and player.mo.valid) then
 				continue

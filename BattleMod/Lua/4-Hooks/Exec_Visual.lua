@@ -194,7 +194,7 @@ B.BattleTagPointers = function(mo)
 			delete = true
 		end
 	elseif B.RubyGametype() then
-		arrowscale = ARROW_INVERTSCALE
+		arrowscale = ARROW_CONSTANTSCALE
 		if mo.tracer.player.gotcrystal then
 			target = ({R.BlueGoal, R.RedGoal})[mo.tracer.player.ctfteam]
 		end
@@ -202,7 +202,7 @@ B.BattleTagPointers = function(mo)
 			delete = true
 		end
 	elseif B.DiamondGametype() then
-		arrowscale = ARROW_INVERTSCALE
+		arrowscale = ARROW_CONSTANTSCALE
 		if mo.tracer.player.gotcrystal then
 			target = D.ActivePoint
 			if not(target and target.valid) then
@@ -213,8 +213,8 @@ B.BattleTagPointers = function(mo)
 			delete = true
 		end
 	elseif B.CPGametype() then
-		arrowscale = ARROW_INVERTSCALE 
-		if CP.ID and CP.Num and CP.ID[CP.Num] and CP.ID[CP.Num].valid then
+		arrowscale = ARROW_CONSTANTSCALE
+		if CP.ID and CP.Num and CP.ID[CP.Num] and CP.ID[CP.Num].valid and ((CP.Timer <= TICRATE*10) or (CP.Active == true)) then
 			target = CP.ID[CP.Num]
 		else
 			delete = true
@@ -343,7 +343,7 @@ B.BattleTagPointers = function(mo)
 		end
 
 		blink = 3
-		mo.frame = $ | FF_TRANS10
+		mo.frame = $ & ~FF_TRANSMASK
 	elseif mo.closedist <= 60
 
 		if arrowscale == ARROW_TAGSCALE then
@@ -353,7 +353,7 @@ B.BattleTagPointers = function(mo)
 		end
 
 		blink = 6
-		mo.frame = $ | FF_TRANS30
+		mo.frame = $ | FF_TRANS10
 	elseif mo.closedist <= 180
 
 		if arrowscale == ARROW_TAGSCALE then
@@ -363,7 +363,7 @@ B.BattleTagPointers = function(mo)
 		end
 
 		blink = 12
-		mo.frame = $ | FF_TRANS50
+		mo.frame = $ | FF_TRANS30
 	else
 
 		if arrowscale == ARROW_TAGSCALE then
@@ -373,7 +373,7 @@ B.BattleTagPointers = function(mo)
 		end
 
 		blink = 24
-		mo.frame = $ | FF_TRANS70
+		mo.frame = $ | FF_TRANS50
 	end
 	if leveltime % blink == 0
 		if blink == 1
