@@ -147,7 +147,7 @@ local ranking = false
 local C = B.Bank
 local function shouldDisplay(flag)
 	local despawning = flag.fuse < TICRATE and not(flag.floorvfx and #flag.floorvfx)
-	return flag and flag.valid and flag.fuse > 1 and not despawning
+	return flag.fuse > 1 and not despawning
 end
 local function drawFlagfromP(v)
 	local patch_flags = V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
@@ -175,13 +175,13 @@ local function drawFlagfromP(v)
 		local blueflag = F.BlueFlag
 		-- Display a countdown timer showing how much time left until the flag returns to base.
 		local scr_flags = V_YELLOWMAP|V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
-		if shouldDisplay(blueflag) then
+		if blueflag and blueflag.valid and shouldDisplay(blueflag) then
 			local BFS_X = BASEVIDWIDTH/2 - SEP
 			local BFS_Y = YPOS + 8
 			local bfuse = blueflag.fuse/TICRATE
 			v.drawString(BFS_X, BFS_Y, bfuse, scr_flags, "center")
 		end
-		if shouldDisplay(redflag) then
+		if redflag and redflag.valid and shouldDisplay(redflag) then
 			local RFS_X = BASEVIDWIDTH/2 + SEP
 			local RFS_Y = YPOS + 8
 			local rfuse = redflag.fuse/TICRATE
