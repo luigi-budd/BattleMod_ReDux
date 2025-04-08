@@ -47,7 +47,7 @@ local Prevention = function(p)
 		local actionstate_interrupted = (p.wasactionstate and (forceskin.value == -1)) --If we changed skin while in actionstate, and it wasn't a global skin change
 
 		--// if realskin is not equal to our skin and we're not spectators? then .. 
-		if p.mo.realskin ~= p.mo.skin and not p.waspectator and not(selectchar) then
+		if p.mo.realskin ~= p.mo.skin and not(p.waspectator) and not(selectchar) and (p.playerstate == PST_LIVE) then
 			--// die ... but only if it's [actionstate -Mari0shi]
 			if actionstate_interrupted or (customclient_skinchange.value and restrictskinchanges.value) then
 				p.mo.flags = MF_SOLID|MF_SHOOTABLE
@@ -61,6 +61,7 @@ local Prevention = function(p)
 	p.mo.realskin = p.mo.skin --// ..set skin
 	p.waspectator = false     --// ..reset this variable
 	p.wasactionstate = false
+	p.wasdead = false
 	if doSpectate then
 		COM_BufInsertText(server, "serverchangeteam "..#p.." spectator")
 	end
