@@ -429,18 +429,16 @@ B.invinciblespark = function(player)
 			player.invbarrier.colorized = true
 			player.invbarrier.color = SKINCOLOR_BONE
 		end
-		if (not S_SoundPlaying(mo, sfx_huprsa)) and player.powers[pw_invulnerability] > TICRATE*5 then
-			if player ~= displayplayer and not splitscreen then
-				S_StartSound(mo, sfx_huprsa)
-			else
-				S_StartSoundAtVolume(mo, sfx_huprsa, 160)
-			end
+		if player.powers[pw_invulnerability] > TICRATE*5 and not S_SoundPlaying(mo, sfx_huprsa) then
+			B.teamSound(mo, player, sfx_nullba, sfx_huprsa, 255, false)
+			S_StartSoundAtVolume(mo, sfx_huprsa, 255/5, player)
 		end
 	elseif player.invbarrier and player.invbarrier.valid then
 		P_RemoveMobj(player.invbarrier)
 		mo.renderflags = $&~RF_FULLBRIGHT
-	elseif S_SoundPlaying(mo, sfx_huprsa) then
-		S_StopSound(mo, sfx_huprsa)
+		if S_SoundPlaying(mo, sfx_huprsa) then
+			S_StopSound(mo, sfx_huprsa)
+		end
 	end
 end
 

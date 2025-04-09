@@ -4,7 +4,7 @@ freeslot(
 	"mt_negashield",
 	"s_battle_shield",
 	"spr_sbsh",
-	"sfx_guard1",
+	"sfx_guard1", //Deprecated
 	"sfx_rflct"
 )
 

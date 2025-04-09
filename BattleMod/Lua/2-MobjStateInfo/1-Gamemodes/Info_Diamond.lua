@@ -14,7 +14,16 @@ freeslot('mt_diamond',
 	"sfx_shimr",
 	"sfx_tpzspn",
 	"sfx_tpzdrp"
-	)
+)
+
+sfxinfo[sfx_dmstl1].caption = "Warp Topaz collected"
+sfxinfo[sfx_dmstl2].caption = "Warp Topaz stolen"
+sfxinfo[sfx_dmstl3].caption = "Warp Topaz collected"
+sfxinfo[sfx_stle].caption = "/"
+sfxinfo[sfx_stlt].caption = "/"
+sfxinfo[sfx_shimr].caption = "Shimmering"
+sfxinfo[sfx_tpzspn].caption = "Warp Topaz appeared"
+sfxinfo[sfx_tpzdrp].caption = "Warp Topaz dropped"
 
 -- Topaz sprite
 states[S_TOPAZ] = {SPR_TOPZ, 0, -1, nil, 0, 0, S_NULL, 0}
