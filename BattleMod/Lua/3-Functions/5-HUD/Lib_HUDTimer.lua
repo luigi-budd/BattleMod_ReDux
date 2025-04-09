@@ -88,5 +88,6 @@ B.TimerHUD = function(v, player, cam)
 	B.DrawTimer(v, player, cam)
 end
 B.ScoresTimerHUD = function(v, cam)
+	if not multiplayer then return end
 	B.DrawTimer(v, consoleplayer, cam, -10)
 end
