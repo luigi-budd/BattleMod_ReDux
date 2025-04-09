@@ -61,7 +61,6 @@ local Prevention = function(p)
 	p.mo.realskin = p.mo.skin --// ..set skin
 	p.waspectator = false     --// ..reset this variable
 	p.wasactionstate = false
-	p.wasdead = false
 	if doSpectate then
 		COM_BufInsertText(server, "serverchangeteam "..#p.." spectator")
 	end
