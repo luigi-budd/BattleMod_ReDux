@@ -73,7 +73,11 @@ B.InstaFlip2 = function(inst)
 		end
 	end
 end
-addHook("MobjThinker", B.InstaFlip2, MT_GP_SHOCKWAVE)
+local gpshockwavethinker = function(mo)
+	B.InstaFlip2(mo)
+	B.SafeRadiusIncrease(mo, 48*FRACUNIT)
+end
+addHook("MobjThinker", gpshockwavethinker, MT_GP_SHOCKWAVE)
 
 --Tails Projectiles
 addHook("MobjThinker",function(mo)
@@ -333,6 +337,9 @@ local blasteffect = function(target)
 end
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = blasteffect
+end,MT_ENERGYBLAST)
+addHook("MobjThinker",function(mo)
+	B.SafeRadiusIncrease(mo, 24*FRACUNIT)
 end,MT_ENERGYBLAST)
 
 addHook("MobjSpawn",function(mo)

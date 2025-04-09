@@ -138,7 +138,7 @@ freeslot("S_GP_SHOCKWAVE", "MT_GP_SHOCKWAVE", "SPR_GPSH")
 states[S_GP_SHOCKWAVE] = {SPR_GPSH, FF_ADD|FF_PAPERSPRITE|FF_FULLBRIGHT|E, 1, A_GPShockwaveThink, 0, 0, S_GP_SHOCKWAVE}
 mobjinfo[MT_GP_SHOCKWAVE] = {
 	spawnstate = S_GP_SHOCKWAVE,
-	radius = FRACUNIT*48,
+	radius = FRACUNIT*8,
 	height = FRACUNIT*8,
 	speed = FRACUNIT*64,	-- doesnt really matter
 	damage = 3,
