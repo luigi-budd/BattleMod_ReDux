@@ -4,6 +4,9 @@ local D = B.Diamond
 local CV = B.Console
 local CP = B.ControlPoint
 D.Diamond = nil
+D.RedTeamCaptureAmount = 0
+D.BlueTeamCaptureAmount = 0
+
 D.LastDiamondPointNum = 0
 D.Spawns = {}
 D.DiamondIndicator = nil
@@ -577,11 +580,29 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 	end
 
 	mo.color = SKINCOLOR_YELLOW
+	print(D.RedTeamCaptureAmount)
+	print(D.BlueTeamCaptureAmount)
 
 	local diamond = D.Diamond
-	if not diamond or not diamond.valid then return end
-	if not diamond.target or not diamond.target.valid then return end
+	if not diamond or not diamond.valid 
+	or not diamond.target or not diamond.target.valid then 
+		-- make the capture time of both teams go down if nobody possesses the diamond
+		D.RedTeamCaptureAmount = max(0, $-1)
+		D.BlueTeamCaptureAmount = max(0, $-1)
+		return 
+	end
+
 	local player = diamond.target.player
+
+	-- without this, capture time on one team is frozen if the other team gets the diamond
+	-- there's probably a nicer way to do this, but it works, that's good enough for now	~ket
+	if player.ctfteam == 1 then
+		D.BlueTeamCaptureAmount = max(0, $-1)
+	elseif player.ctfteam == 2 then
+		D.RedTeamCaptureAmount = max(0, $-1)
+	end
+
+	local has_teams = G_GametypeHasTeams()
 
 	-- if the diamond exists, make the control point the color of the diamond, just for the fun of it.
 	mo.color = diamond.color
@@ -592,7 +613,7 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 		local pdist = 0
 		for p in players.iterate() do
 			if p.spectator or not p.mo or not p.mo.valid then continue end
-			if G_GametypeHasTeams() and p.ctfteam == splayer.ctfteam then continue end
+			if has_teams and p.ctfteam == splayer.ctfteam then continue end
 			if p == splayer then continue end
 
 			pdist = R_PointToDist2(p.mo.x, p.mo.y, mo.x, mo.y)
@@ -606,113 +627,196 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 	or (P_MobjFlip(mo) == -1 and player.mo.floorz <= mo.floorz and player.mo.floorz > (mo.floorz - height)
 	or player.mo.floorz <= mo.floorz and player.mo.floorz >= mo.floorz - 5*player.mo.scale)
 
+
+	-- play diamond capture timer sounds
+	-- we must iterate through all of the players to have different sounds play depending on the team
+	local same_team = false
+	local cap_amount = 0
+	local cap_delay = CV.DiamondCaptureTime.value
+	if (has_teams) then
+		if player.ctfteam == 1 then
+			cap_amount = D.RedTeamCaptureAmount
+		elseif player.ctfteam == 2 then
+			cap_amount = D.BlueTeamCaptureAmount
+		end
+	else
+		cap_amount = player.gotcrystal_time
+	end
+
+	if cap_delay ~= 0 and (leveltime % (TICRATE/5) == 0) and ((player.gotcrystal_time > 0) or (player.ctfteam == 1 and D.RedTeamCaptureAmount > 0) or (player.ctfteam == 2 and D.BlueTeamCaptureAmount > 0)) then
+		for other in players.iterate() do
+			same_team = (has_teams and other.ctfteam == player.ctfteam) or (not has_teams and other == player)
+			if same_team then
+				S_StartSound(nil, sfx_s1cd, other)
+				S_StartSound(nil, sfx_s228, other)
+				if cap_amount > 3*cap_delay/4 then
+					S_StartSound(nil, sfx_hoop2, other)
+					spawn_steal_sparks(player.mo, player, mo.scale/2, 20, mo.floorz, false)
+				elseif cap_amount > cap_delay/3 then
+					S_StartSound(nil, sfx_hoop1, other)
+				end
+			else
+				S_StartSound(nil, sfx_s1cd, other)
+				S_StartSound(nil, sfx_s228, other)
+
+				if cap_amount > 3*cap_delay/4 then
+					S_StartSoundAtVolume(nil, sfx_buzz3, 100, other)
+					spawn_steal_sparks(player.mo, player, mo.scale/2, 20, mo.floorz, false)
+				elseif cap_amount > cap_delay/3 then
+					S_StartSoundAtVolume(nil, sfx_deton, 100, other)
+				end
+			end
+		end
+	end
+
 	if dist <= radius 
 	and (same_height_as_point)
 	and (P_IsObjectOnGround(player.mo) or P_IsObjectInGoop(player.mo))
 	then
-		S_StartSound(nil, sfx_prloop)
-		tumble_players_in_point(player)
-		spawn_steal_sparks(mo, player, mo.scale*3, 35, mo.floorz, false)
-
-		local teamscoreincrease = 0
-		local scoreincrease = 0
-		for p in players.iterate()
-			if splitscreen and p == players[1] then 
-				return
-			end
-			S_StartSound(nil, sfx_s243, p)
-			local sfx
-			local lose
-			if G_GametypeHasTeams() then
-				if (p.ctfteam == player.ctfteam) or p.spectator or splitscreen then
-					sfx = sfx_s3k68
-				else
-					sfx = sfx_lose
-					lose = true
+		-- Since we weren't previously using player.gotcrystal_time in this version of diamond, 
+		-- I figured I should just repurpose it as a timer to check how long the player has been inside the capture zone
+		-- So think of gotcrystal_time as insidepoint_timer, or something like that ~ket
+		if player.guard == 0 then
+			if has_teams then
+				if player.ctfteam == 1 then
+					D.RedTeamCaptureAmount = $ + 1
+				elseif player.ctfteam == 2 then
+					D.BlueTeamCaptureAmount = $ + 1
 				end
 			else
-				if (p == player) then
-					sfx = sfx_s3k68
-				else
-					sfx = sfx_lose
-					lose = true
-				end
+				player.gotcrystal_time = $ + 1
 			end
-			S_StartSoundAtVolume(nil, B.ShortSound(player, sfx, lose), (B.ShortSound(player, nil, nil, nil, true)).volume or 255, p)
 		end
-		local playertextmap = (pcall(do return skincolors[player.skincolor].chatcolor end) and skincolors[player.skincolor].chatcolor) or 0
-		local playerEsc = (rawget(textmapToEsc, playertextmap) and textmapToEsc[playertextmap]) or "\x80"
-		local teamEsc = ((player.ctfteam == 1) and "\x85") or ((player.ctfteam == 2) and "\x84")
-		if (not(G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 1)
-		or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 1)
+
+		if ((not has_teams) and player.gotcrystal_time > cap_delay) 
+		or (has_teams and player.ctfteam == 1 and D.RedTeamCaptureAmount > cap_delay)
+		or (has_teams and player.ctfteam == 2 and D.BlueTeamCaptureAmount > cap_delay)
 		then
-			if D.CheckPoint and D.CheckPoint.valid then
-				P_RemoveMobj(D.CheckPoint)
-				D.CheckPoint = nil
-			end
-			P_RemoveMobj(diamond)
-			S_StartSound(nil, sfx_s3kb3)
-			scoreincrease = CV.DiamondCaptureBonus.value
-			teamscoreincrease = 1
-			print(player.name.." captured the "..diamondtext.."!")--Not sure how to color this text...
-			B.DoFirework(player.mo)
+			player.gotcrystal_time = 0
+			D.RedTeamCaptureAmount = 0
+			D.BlueTeamCaptureAmount = 0
 
-			--Reuse CTF's capture HUD
-			
-			B.CTF.GameState.CaptureHUDTimer = 2*TICRATE
-			B.CTF.GameState.CaptureHUDName = (teamEsc or playerEsc)..player.name.."\x80"
-			B.CTF.GameState.CaptureHUDTeam = 0 --For now...
-		else
-			if player.captures == nil then
-				player.captures = 0
-			end
+			S_StartSound(nil, sfx_prloop)
+			tumble_players_in_point(player)
+			spawn_steal_sparks(mo, player, mo.scale*3, 35, mo.floorz, false)
 
-			if ((not G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value == 0 and player.captures == 0)
-			or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value == 0 and player.captures == 0)
+			local teamscoreincrease = 0
+			local scoreincrease = 0
+			for p in players.iterate()
+				if splitscreen and p == players[1] then 
+					return
+				end
+				S_StartSound(nil, sfx_s243, p)
+				local sfx
+				local lose
+				if has_teams then
+					if (p.ctfteam == player.ctfteam) or p.spectator or splitscreen then
+						sfx = sfx_s3k68
+					else
+						sfx = sfx_lose
+						lose = true
+					end
+				else
+					if (p == player) then
+						sfx = sfx_s3k68
+					else
+						sfx = sfx_lose
+						lose = true
+					end
+				end
+				S_StartSoundAtVolume(nil, B.ShortSound(player, sfx, lose), (B.ShortSound(player, nil, nil, nil, true)).volume or 255, p)
+			end
+			local playertextmap = (pcall(do return skincolors[player.skincolor].chatcolor end) and skincolors[player.skincolor].chatcolor) or 0
+			local playerEsc = (rawget(textmapToEsc, playertextmap) and textmapToEsc[playertextmap]) or "\x80"
+			local teamEsc = ((player.ctfteam == 1) and "\x85") or ((player.ctfteam == 2) and "\x84")
+			if (not(has_teams) and CV.DiamondCapsBeforeReset.value == 1)
+			or (has_teams and CV.DiamondTeamCapsBeforeReset.value == 1)
 			then
-				player.captures = D.ActivePointNum
-			elseif ((not G_GametypeHasTeams()) and CV.DiamondCapsBeforeReset.value ~= 0)
-			or (G_GametypeHasTeams() and CV.DiamondTeamCapsBeforeReset.value ~= 0) then
-				player.captures = $ + 1
-			end
-			--print(player.captures)
-
-			D.ActivePointNum = ($ + 1)
-			if D.ActivePointNum > #D.PointSpawns then
-				D.ActivePointNum = 1
-			end
-			--print("active_point: "..D.ActivePointNum)
-			if ((not G_GametypeHasTeams()) and player.captures == CV.DiamondCapsBeforeReset.value and CV.DiamondCaptureResetAmount.value ~= 0) 
-			or ((not G_GametypeHasTeams()) and D.ActivePointNum == player.captures and CV.DiamondCapsBeforeReset.value == 0) 
-			or (G_GametypeHasTeams() and D.ActivePointNum == player.captures and CV.DiamondTeamCapsBeforeReset.value == 0)
-			or (G_GametypeHasTeams() and player.captures == CV.DiamondTeamCapsBeforeReset.value and CV.DiamondTeamCapsBeforeReset.value ~= 0)
-			then
-				player.captures = 0
-				player.score = $ + CV.DiamondCaptureBonus.value
+				if D.CheckPoint and D.CheckPoint.valid then
+					P_RemoveMobj(D.CheckPoint)
+					D.CheckPoint = nil
+				end
 				P_RemoveMobj(diamond)
 				S_StartSound(nil, sfx_s3kb3)
-				scoreincrease = (CV.DiamondCaptureBonus.value*2)
-				teamscoreincrease = 2
-				print(player.name.." just went full circle and got triple points!")
-			else
 				scoreincrease = CV.DiamondCaptureBonus.value
 				teamscoreincrease = 1
-				print(player.name.." just scored!")
+				print(player.name.." captured the "..diamondtext.."!")--Not sure how to color this text...
+				B.DoFirework(player.mo)
+
+				--Reuse CTF's capture HUD
+				
+				B.CTF.GameState.CaptureHUDTimer = 2*TICRATE
+				B.CTF.GameState.CaptureHUDName = (teamEsc or playerEsc)..player.name.."\x80"
+				B.CTF.GameState.CaptureHUDTeam = 0 --For now...
+			else
+				if player.captures == nil then
+					player.captures = 0
+				end
+
+				if ((not has_teams) and CV.DiamondCapsBeforeReset.value == 0 and player.captures == 0)
+				or (has_teams and CV.DiamondTeamCapsBeforeReset.value == 0 and player.captures == 0)
+				then
+					player.captures = D.ActivePointNum
+				elseif ((not has_teams) and CV.DiamondCapsBeforeReset.value ~= 0)
+				or (has_teams and CV.DiamondTeamCapsBeforeReset.value ~= 0) then
+					player.captures = $ + 1
+				end
+				--print(player.captures)
+
+				D.ActivePointNum = ($ + 1)
+				if D.ActivePointNum > #D.PointSpawns then
+					D.ActivePointNum = 1
+				end
+				--print("active_point: "..D.ActivePointNum)
+				if ((not has_teams) and player.captures == CV.DiamondCapsBeforeReset.value and CV.DiamondCaptureResetAmount.value ~= 0) 
+				or ((not has_teams) and D.ActivePointNum == player.captures and CV.DiamondCapsBeforeReset.value == 0) 
+				or (has_teams and D.ActivePointNum == player.captures and CV.DiamondTeamCapsBeforeReset.value == 0)
+				or (has_teams and player.captures == CV.DiamondTeamCapsBeforeReset.value and CV.DiamondTeamCapsBeforeReset.value ~= 0)
+				then
+					player.captures = 0
+					player.score = $ + CV.DiamondCaptureBonus.value
+					P_RemoveMobj(diamond)
+					S_StartSound(nil, sfx_s3kb3)
+					scoreincrease = (CV.DiamondCaptureBonus.value*2)
+					teamscoreincrease = 2
+					print(player.name.." just went full circle and got triple points!")
+				else
+					scoreincrease = CV.DiamondCaptureBonus.value
+					teamscoreincrease = 1
+					print(player.name.." just scored!")
+				end
 			end
+
+			-- individual scoring
+			P_AddPlayerScore(player, scoreincrease)
+			-- team scoring
+			if has_teams then
+				if player.ctfteam == 1 then -- red team scoring
+					redscore = $+teamscoreincrease
+				elseif player.ctfteam == 2 then	-- blue team scoring
+					bluescore = $+teamscoreincrease
+				end
+			end
+			--COM_BufInsertText(server, "csay "..player.name.."\\captured the "..diamondtext.."!\\\\")--Not sure how to color this text...
+			D.ActivePoint = nil
 		end
 
-		-- individual scoring
-		P_AddPlayerScore(player, scoreincrease)
-		-- team scoring
+	else		-- if we're not currently inside the capture zone, apply a cooldown/decay to our capture amount ~ket
+		local cooldown = CV.DiamondCaptureCooldown.value
+		local should_apply_cooldown = (leveltime % CV.DiamondCaptureCooldown.value) == 0
 		if G_GametypeHasTeams() then
-			if player.ctfteam == 1 then -- red team scoring
-				redscore = $+teamscoreincrease
-			elseif player.ctfteam == 2 then	-- blue team scoring
-				bluescore = $+teamscoreincrease
+			if should_apply_cooldown then
+				if player.ctfteam == 1 then
+					D.RedTeamCaptureAmount = max(0, $-1)
+				elseif player.ctfteam == 2 then
+					D.BlueTeamCaptureAmount = max(0, $-1)
+				end
+			end
+		else
+			if should_apply_cooldown then
+				player.gotcrystal_time = max(0, $-1)
 			end
 		end
-		--COM_BufInsertText(server, "csay "..player.name.."\\captured the "..diamondtext.."!\\\\")--Not sure how to color this text...
-		D.ActivePoint = nil
 	end
 end
 
@@ -784,4 +888,11 @@ D.DiamondIndicatorThinker = function()
 	if indicator.valid and (noplayershadcrystal or CV.DiamondIndicator.value == 0) then
 		indicator.flags2 = MF2_DONTDRAW
 	end
+end
+
+
+D.ResetPlayerCaptime = function(player)
+	if player.gotcrystal_time <= 0 then return end
+	if player.gotcrystal then return end
+	player.gotcrystal_time = 0
 end

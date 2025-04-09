@@ -2,9 +2,9 @@ local CV = CBW_Battle.Console
 
 CV.DiamondCaptureTime = CV_RegisterVar{
 	name = "diamond_capture_time",
-	defaultvalue = 30,
+	defaultvalue = 45,
 	flags = CV_NETVAR,
-	PossibleValue = {MIN = 10, MAX = 60}
+	PossibleValue = {MIN = 0, MAX = 9999}
 }
 
 CV.DiamondCaptureBonus = CV_RegisterVar{
@@ -30,14 +30,14 @@ CV.DiamondPointRadius = CV_RegisterVar{
 
 CV.DiamondSpawnDelay = CV_RegisterVar{
 	name = "diamond_spawn_delay",
-	defaultvalue = 250,
+	defaultvalue = 400,
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 0, MAX = 100000}
 }
 
 CV.DiamondPointUnlockTime = CV_RegisterVar{
 	name = "diamond_point_unlock_time",
-	defaultvalue = 250,
+	defaultvalue = 700,
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 0, MAX = 100000}
 }
@@ -76,3 +76,11 @@ CV.DiamondTumbleAfterCap = CV_RegisterVar{
 	flags = CV_NETVAR,
 	PossibleValue = {Off = 0, On = 1}
 }
+
+CV.DiamondCaptureCooldown = CV_RegisterVar{
+	name = "diamond_capture_cooldown",
+	defaultvalue = 2,	-- number of tics delay before the capture amount is decreased by 1
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 0, MAX = 9999}
+}
+
