@@ -16,10 +16,10 @@ end
 
 local customclient_skinchange = CV_RegisterVar({
     name = "customclient_skinchangeblock",
-    defaultvalue = "On",
+    defaultvalue = "battleonly",
     value = 1,
-    flags = CV_NETVAR,
-    PossibleValue = CV_OnOff
+    flags = CV_NETVAR|CV_SHOWMODIF,
+    PossibleValue = {["off"]=0, ["battleonly"]=1, ["always"]=2}
 })
 
 local Prevention = function(p)
@@ -49,7 +49,7 @@ local Prevention = function(p)
 		--// if realskin is not equal to our skin and we're not spectators? then .. 
 		if p.mo.realskin ~= p.mo.skin and not(p.waspectator) and not(selectchar) and (p.playerstate == PST_LIVE) then
 			--// die ... but only if it's [actionstate -Mari0shi]
-			if actionstate_interrupted or (customclient_skinchange.value and restrictskinchanges.value) then
+			if actionstate_interrupted or ((((customclient_skinchange.value==1) and B.BattleGametype()) or customclient_skinchange.value==2) and restrictskinchanges.value) then
 				p.mo.flags = MF_SOLID|MF_SHOOTABLE
 				P_DamageMobj(p.mo,nil,nil,1,DMG_INSTAKILL)
 				doSpectate = true
@@ -61,7 +61,7 @@ local Prevention = function(p)
 	p.mo.realskin = p.mo.skin --// ..set skin
 	p.waspectator = false     --// ..reset this variable
 	p.wasactionstate = false
-	if doSpectate then
+	if doSpectate and G_GametypeHasSpectators() then
 		COM_BufInsertText(server, "serverchangeteam "..#p.." spectator")
 	end
 end
