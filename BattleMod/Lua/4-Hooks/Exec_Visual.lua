@@ -197,6 +197,12 @@ B.BattleTagPointers = function(mo)
 		arrowscale = ARROW_CONSTANTSCALE
 		if mo.tracer.player.gotcrystal then
 			target = ({R.BlueGoal, R.RedGoal})[mo.tracer.player.ctfteam]
+		else
+			if R.ID and R.ID.valid then
+				if R.ID.target and R.ID.target.valid and R.ID.target.player and R.ID.target.player.gotcrystal then
+					target = R.ID.target
+				end
+			end
 		end
 		if not(R.ID and R.ID.valid) then
 			delete = true
@@ -207,6 +213,12 @@ B.BattleTagPointers = function(mo)
 			target = D.ActivePoint
 			if not(target and target.valid) then
 				delete = true
+			end
+		else
+			if D.Diamond and D.Diamond.valid then
+				if D.Diamond.target and D.Diamond.target.valid and D.Diamond.target.player and D.Diamond.target.player.gotcrystal then
+					target = D.Diamond.target
+				end
 			end
 		end
 		if not(D.Diamond and D.Diamond.valid) then
