@@ -580,8 +580,8 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 	end
 
 	mo.color = SKINCOLOR_YELLOW
-	print(D.RedTeamCaptureAmount)
-	print(D.BlueTeamCaptureAmount)
+	--print(D.RedTeamCaptureAmount)
+	--print(D.BlueTeamCaptureAmount)
 
 	local diamond = D.Diamond
 	if not diamond or not diamond.valid 
