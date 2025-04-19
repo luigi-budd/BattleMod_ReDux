@@ -2,6 +2,13 @@ local CV = CBW_Battle.Console
 
 CV.DiamondCaptureTime = CV_RegisterVar{
 	name = "diamond_capture_time",
+	defaultvalue = 0,
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 0, MAX = 9999}
+}
+
+CV.DiamondTeamCaptureTime = CV_RegisterVar{
+	name = "diamond_team_capture_time",
 	defaultvalue = 45,
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 0, MAX = 9999}

@@ -632,7 +632,13 @@ D.CapturePointActiveThinker = function(mo,floor,flip,ceil,radius,height)
 	-- we must iterate through all of the players to have different sounds play depending on the team
 	local same_team = false
 	local cap_amount = 0
-	local cap_delay = CV.DiamondCaptureTime.value
+	local cap_delay
+	if has_teams then
+		cap_delay = CV.DiamondTeamCaptureTime.value
+	else
+		cap_delay = CV.DiamondCaptureTime.value
+	end
+
 	if (has_teams) then
 		if player.ctfteam == 1 then
 			cap_amount = D.RedTeamCaptureAmount
