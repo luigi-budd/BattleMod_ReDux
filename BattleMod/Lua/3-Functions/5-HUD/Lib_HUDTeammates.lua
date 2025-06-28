@@ -45,6 +45,7 @@ B.TeammateHUD = function(v, player)
 		local offset = (basesep + num * sep) * xmult
 		local yoffset = 0
 		local scale = FRACUNIT/2
+		local hires = skins[p.skin].highresscale
 		local black = v.getColormap(TC_BLINK, SKINCOLOR_PITCHBLACK)
 		local playercol = v.getColormap(TC_BLINK, teamcol)
 		local color = black
@@ -52,11 +53,11 @@ B.TeammateHUD = function(v, player)
 		if p.playerstate == PST_LIVE then
 			yoffset = -scale*2
 			trans = V_HUDTRANS
-			v.drawScaled(x + offset, y, scale, v.getSprite2Patch(p.mo.skin, SPR2_LIFE), flags | trans | doflip, color)
+			v.drawScaled(x + offset, y, FixedMul(scale, hires), v.getSprite2Patch(p.mo.skin, SPR2_LIFE), flags | trans | doflip, color)
 			color = playercol
 		end
 		
-		v.drawScaled(x + offset, y + yoffset, scale, v.getSprite2Patch(p.mo.skin, SPR2_LIFE), flags | trans | doflip, color)
+		v.drawScaled(x + offset, y + yoffset, FixedMul(scale, hires), v.getSprite2Patch(p.mo.skin, SPR2_LIFE), flags | trans | doflip, color)
 		if p.playerstate == PST_DEAD then
 			v.drawScaled(x + offset, y, scale, v.cachePatch("HUD_X"), flags | V_HUDTRANS, v.getColormap(TC_RAINBOW, teamcol))
 		end

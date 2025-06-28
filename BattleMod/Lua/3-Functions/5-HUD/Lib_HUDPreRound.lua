@@ -31,7 +31,6 @@ B.PreRoundHUD = function(v,player,cam)
 			
 			local cflags = V_SNAPTOTOP|V_PERPLAYER
 			local trans = V_10TRANS * max(0, abs(n*2) - 1)
-			local scale = (n==0) and FRACUNIT*3/2 or FRACUNIT
 			local xoffs = (x-8)*FRACUNIT + roulette_x + ((40*FRACUNIT)*n)
 			local yoffs = (y+36)*FRACUNIT
 			
@@ -51,10 +50,12 @@ B.PreRoundHUD = function(v,player,cam)
 				end
 			until tocharacter == n
 			
+			local scale = (n==0) and FRACUNIT*3/2 or FRACUNIT
 			if lockedin then
 				scale = $ + max(0, ((CV_FindVar("hidetime").value*TICRATE) - leveltime - 12)*FRACUNIT/8)
 			end
-			
+			scale = FixedMul($, skins[character].highresscale)
+
 			yoffs = $ + scale*3
 
 			local clr

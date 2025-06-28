@@ -82,7 +82,11 @@ B.RingsHUD = function(v, player, cam)
 	if player.rings == 0 and (leveltime/5 & 1) and not player.isjettysyn then
 		col = SKINCOLOR_PITCHBLACK
 	end
-	v.draw(x + 3 + facepos, 200, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
+	v.drawScaled(
+		(x + 3 + facepos)*FU, 200*FU,
+		skins[player.skin].highresscale,
+		facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col)
+	)
 	--v.draw(x + 2 + facepos, 201, facepatch, flags | V_HUDTRANSQUARTER, v.getColormap(TC_BLINK, col))
 
 	if B.PreRoundWait() then
