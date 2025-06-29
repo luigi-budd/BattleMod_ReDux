@@ -142,11 +142,21 @@ D.HUD = function(v, player, cam)
 	--Get item holder
 	if id.target and id.target.valid and id.target.player then
 		if not(G_GametypeHasTeams())
-			v.draw(xoffset+right+(center*2), yoffset+bottom, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-				flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
+			v.drawScaled(
+				(xoffset+right+(center*2))*FU,
+				(yoffset+bottom)*FU,
+				skins[id.target.player.skin].highresscale,
+				v.getSprite2Patch(id.target.skin, SPR2_LIFE),
+				flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor)
+			)
 		else
-			v.draw(xoffset+right*4+(center*2), yoffset+bottom/2, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-				flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
+			v.drawScaled(
+				(xoffset+right*4+(center*2))*FU,
+				(yoffset+bottom/2)*FU,
+				skins[id.target.player.skin].highresscale,
+				v.getSprite2Patch(id.target.skin, SPR2_LIFE),
+				flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor)
+			)
 		end
 		if id.target.player.gotcrystal and id.target.player.gotcrystal_time
 			local percent_amt = id.target.player.gotcrystal_time * 100 / captime

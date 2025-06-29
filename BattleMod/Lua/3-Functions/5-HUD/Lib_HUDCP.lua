@@ -93,7 +93,12 @@ CP.HUD = function(v, player, cam)
 			then
 				local leadlifepatch = v.getSprite2Patch(CP.LeadCapPlr.mo.skin, SPR2_LIFE)
 				local leadcolormap = v.getColormap(CP.LeadCapPlr.mo.skin, CP.LeadCapPlr.mo.color)
-				v.draw(xoffset+right+(center*2)+dist, yoffset+bottom, leadlifepatch, flags|V_FLIP, leadcolormap)
+				v.drawScaled(
+					(xoffset+right+(center*2)+dist)*FU,
+					(yoffset+bottom)*FU,
+					skins[CP.LeadCapPlr.skin].highresscale,
+					leadlifepatch, flags|V_FLIP, leadcolormap
+				)
 			end
 			text = "\x82"..CP.LeadCapAmt*100/CP.Meter.."%" --Suppose it doesn't hurt to draw this either way...
 			v.drawString(xoffset+right+dist,yoffset+4,text,flags,rightalign)
@@ -101,7 +106,12 @@ CP.HUD = function(v, player, cam)
 			if player.mo and CP.Active and not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 				local lifepatch = v.getSprite2Patch(player.mo.skin, SPR2_LIFE)
 				local colormap = v.getColormap(player.mo.skin, player.mo.color)
-				v.draw(xoffset+left-(center*2)-dist, yoffset+bottom, lifepatch, flags, colormap)
+				v.drawScaled(
+					(xoffset+left-(center*2)-dist)*FU,
+					(yoffset+bottom)*FU,
+					skins[CP.LeadCapPlr.skin].highresscale,
+					lifepatch, flags, colormap
+				)
 				text = player.captureamount*100/CP.Meter.."%"
 				v.drawString(xoffset+left-dist,yoffset+4,text,flags,leftalign)
 			end

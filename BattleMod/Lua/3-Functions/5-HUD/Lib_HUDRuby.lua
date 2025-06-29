@@ -51,7 +51,10 @@ R.HUD = function(v, player, cam)
 		if ruby.target and ruby.target.valid and ruby.target.player then
 			local playercolor = v.getColormap(ruby.target.skin, ruby.target.player.skincolor)
 			local facepatch = v.getSprite2Patch(ruby.target.skin, SPR2_LIFE)
-			v.draw(xoffset, yoffset + face_yoffset, facepatch, flags|V_FLIP, playercolor)
+			v.drawScaled(xoffset*FU, (yoffset + face_yoffset)*FU,
+				skins[ruby.target.player.skin].highresscale,
+				facepatch, flags|V_FLIP, playercolor
+			)
 			if frontrotate then
 				v.drawScaled(rotatex + xoffset*FRACUNIT, rotatey + yoffset*FRACUNIT, FRACUNIT*2/3, v.cachePatch("RAD_RUBY1"), flags, rubycolor)
 			end
@@ -161,11 +164,17 @@ R.HUD = function(v, player, cam)
 		//Get item holder
 		if id.target and id.target.valid and id.target.player then
 			if not(G_GametypeHasTeams()) then
-				v.draw(xoffset+right+(center*2), yoffset+bottom, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-					flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
+				v.drawScaled((xoffset+right+(center*2))*FU, (yoffset+bottom)*FU, 
+					skins[id.target.skin].highresscale,
+					v.getSprite2Patch(id.target.skin, SPR2_LIFE),
+					flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor)
+				)
 			else
-				v.draw(xoffset+right*4+(center*2), yoffset+bottom/2, v.getSprite2Patch(id.target.skin, SPR2_LIFE),
-					flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor))
+				v.drawScaled((xoffset+right*4+(center*2))*FU, (yoffset+bottom/2)*FU,
+					skins[id.target.skin].highresscale,
+					v.getSprite2Patch(id.target.skin, SPR2_LIFE),
+					flags|V_FLIP, v.getColormap(id.target.skin, id.target.player.skincolor)
+				)
 			end
 			if id.target.player.gotcrystal and id.target.player.gotcrystal_time then
 				local percent_amt = id.target.player.gotcrystal_time * 100 / captime

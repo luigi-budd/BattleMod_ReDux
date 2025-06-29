@@ -169,7 +169,7 @@ B.DrawPlayerInfo = function(v, player, x, y, flags, textalign, isNameCapped)
 	
 	if P_PlayerInPain(player) then --Add shake if the player is taking damage
 		local choose = {-1,1}
-		ouchy = choose[(leveltime&1+1)]*FRACUNIT
+		ouchy = ((leveltime&1) and 1 or -1) * FRACUNIT
 		headflags = V_HUDTRANSHALF
 	elseif not(P_PlayerInPain(player)) and player.powers[pw_flashing] and not(B.PreRoundWait()) then
 		blink = leveltime&1 -- Blink if flashing
@@ -184,6 +184,10 @@ B.DrawPlayerInfo = function(v, player, x, y, flags, textalign, isNameCapped)
 		if mo then
 			local colormap = v.getColormap(mo.skin, mo.color)
 			local sprite = v.getSprite2Patch(mo.skin, SPR2_LIFE)
+			local scale = scale
+			if skins[mo.skin].highresscale ~= FRACUNIT
+				scale = FixedMul($, skins[mo.skin].highresscale)
+			end
 			v.drawScaled(x-(10*FRACUNIT*flip), y+ouchy, scale, sprite, flags|headflags, colormap)
 		end
 	end
@@ -233,6 +237,9 @@ A.MyStocksHUD = function(v, player)
 		local black = v.getColormap(TC_BLINK, SKINCOLOR_PITCHBLACK)
 		local patch = v.getSprite2Patch(player.mo.skin, SPR2_LIFE)
 		local scale = FRACUNIT*3/4
+		if skins[player.mo.skin].highresscale ~= FRACUNIT
+			scale = FixedMul($, skins[player.mo.skin].highresscale)
+		end
 		v.drawScaled(x + offset + scale, y + scale, scale, patch, flags | V_HUDTRANS | V_FLIP, black)
 		if stocks > i then
 			v.drawScaled(x + offset - scale, y - scale, scale, patch, flags | V_HUDTRANS | V_FLIP, v.getColormap(player.mo.skin, player.skincolor))
@@ -313,6 +320,88 @@ A.MyStocksHUD = function(v, player)
 	]]
 end
 
+local sep = 38
+local DrawPlacement = function(v, side, p, tie)
+	if not (p.rank and p.rank > 0) then return end
+
+	local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
+
+	local xoffset = 160
+	local yoffset = 32
+
+	local name_yoffset = 1
+	local rank_yoffset = name_yoffset + 4
+	local score_yoffset = rank_yoffset + 9
+
+	local doflip = 0
+	local xmult = 1
+	if side == 0 then
+		doflip = V_FLIP
+		xmult = -1
+	end
+
+	local facepatch = v.getSprite2Patch(p.skin, SPR2_SIGN)
+	local facepos = 0
+	if B.SkinVars[skins[p.skin].name] then
+		facepos = B.SkinVars[skins[p.skin].name].hud_facepos or 0
+	end
+
+	local col = p.skincolor
+	if p.rings == 0 then
+		col = SKINCOLOR_PITCHBLACK
+	end
+
+	local name
+	local namecol = 0
+
+	if tie > 1 then
+		name = tie.."-WAY TIE!"
+		if (leveltime/4)%2 then
+			namecol = V_YELLOWMAP
+		else
+			namecol = V_BLUEMAP
+		end
+	else
+		name = p.name
+		local maxnamelen = 15
+		if (string.len(p.name) > maxnamelen) then
+			name = string.sub(p.name, 0, maxnamelen-2).."..."
+		end
+	end
+
+	local rank = p.rank
+	local color = V_GRAYMAP
+	if rank == 1 then
+		text = "\x82"..rank
+		color = V_YELLOWMAP
+	elseif rank == 2 then
+		text = "\x8c"..rank
+		color = 0
+	elseif rank == 3 then
+		text = "\x87"..rank
+		color = V_BROWNMAP
+	else
+		text = "\x86"..rank
+	end
+	while rank > 10 do
+		rank = $-10
+	end
+	
+	v.draw(xoffset + sep * xmult, yoffset, v.cachePatch("HUD_FADBA2"), V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER|V_REVERSESUBTRACT)
+	
+	local scale = FRACUNIT/2
+	local hires = skins[p.skin].highresscale
+	if hires ~= FRACUNIT
+		scale = FixedMul($, hires)
+	end
+	v.drawScaled((xoffset * FRACUNIT) + (facepos * scale * -xmult) + (sep * FRACUNIT * xmult), (yoffset * FRACUNIT) - hires/2, scale, facepatch, flags, v.getColormap(p.skin, p.skincolor))
+	v.drawString(xoffset + sep * xmult, yoffset + name_yoffset, name, flags|V_ALLOWLOWERCASE|namecol, "small-center")
+	
+	text = $..post[rank]
+	v.drawString(xoffset + sep * xmult, yoffset + rank_yoffset, text, flags|V_ALLOWLOWERCASE|color, "center")
+	v.drawString(xoffset + sep * xmult, yoffset + score_yoffset, p.score.."p", flags|V_ALLOWLOWERCASE, "thin-center")
+end
+
 A.PlacementHUD = function(v, player)
 	if 	player.spectator
 		or G_GametypeUsesLives()
@@ -321,72 +410,6 @@ A.PlacementHUD = function(v, player)
 		or (gametype ~= GT_ARENA and gametype ~= GT_RUBYCONTROL)
 	then
 		return
-	end
-	local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
-	local sep = 38
-	local drawplacement = function(side, p, tie)
-		if not (p.rank and p.rank > 0) then return end
-		local xoffset = 160
-		local yoffset = 32
-		local name_yoffset = 1
-		local rank_yoffset = name_yoffset + 4
-		local score_yoffset = rank_yoffset + 9
-		local doflip = 0
-		local xmult = 1
-		if side == 0 then
-			doflip = V_FLIP
-			xmult = -1
-		end
-		local facepatch = v.getSprite2Patch(p.skin, SPR2_SIGN)
-		local facepos = 0
-		if B.SkinVars[skins[p.skin].name] then
-			facepos = B.SkinVars[skins[p.skin].name].hud_facepos or 0
-		end
-		local col = p.skincolor
-		if p.rings == 0 then
-			col = SKINCOLOR_PITCHBLACK
-		end
-		local name
-		local namecol = 0
-		if tie > 1 then
-			name = tie.."-WAY TIE!"
-			if (leveltime/4)%2 then
-				namecol = V_YELLOWMAP
-			else
-				namecol = V_BLUEMAP
-			end
-		else
-			name = p.name
-			local maxnamelen = 15
-			if (string.len(p.name) > maxnamelen) then
-				name = string.sub(p.name, 0, maxnamelen-2).."..."
-			end
-		end
-		local rank = p.rank
-		local color = V_GRAYMAP
-		if rank == 1 then
-			text = "\x82"..rank
-			color = V_YELLOWMAP
-		elseif rank == 2 then
-			text = "\x8c"..rank
-			color = 0
-		elseif rank == 3 then
-			text = "\x87"..rank
-			color = V_BROWNMAP
-		else
-			text = "\x86"..rank
-		end
-		while rank > 10 do
-			rank = $-10
-		end
-		
-		v.draw(xoffset + sep * xmult, yoffset, v.cachePatch("HUD_FADBA2"), V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER|V_REVERSESUBTRACT)
-		local scale = FRACUNIT/2
-		v.drawScaled((xoffset * FRACUNIT) + (facepos * scale * -xmult) + (sep * FRACUNIT * xmult), yoffset * FRACUNIT - FRACUNIT/2, scale, facepatch, flags, v.getColormap(p.skin, p.skincolor))
-		v.drawString(xoffset + sep * xmult, yoffset + name_yoffset, name, flags|V_ALLOWLOWERCASE|namecol, "small-center")
-		text = $..post[rank]
-		v.drawString(xoffset + sep * xmult, yoffset + rank_yoffset, text, flags|V_ALLOWLOWERCASE|color, "center")
-		v.drawString(xoffset + sep * xmult, yoffset + score_yoffset, p.score.."p", flags|V_ALLOWLOWERCASE, "thin-center")
 	end
 	
 	local bestrank = 64
@@ -412,9 +435,9 @@ A.PlacementHUD = function(v, player)
 			end
 		end
 	end
-	drawplacement(0, player, 1)
+	DrawPlacement(v, 0, player, 1)
 	if leader then
-		drawplacement(1, leader, tie)
+		DrawPlacement(v, 1, leader, tie)
 	end
 end
 
@@ -515,10 +538,10 @@ A.AllFightersHUD = function(v,player,cam)
 		local headflags = flags
 		local ouchy = 0
 		local blink = 0
+		local hires = skins[p.skin].highresscale
 		--Add shake if the player is taking damage
 		if P_PlayerInPain(p) then
-			local choose = {-1,1}
-			ouchy = choose[(leveltime&1+1)]
+			ouchy = ((leveltime&1) and 1 or -1)
 			headflags = V_HUDTRANSHALF|V_SNAPTOTOP--|V_PERPLAYER
 		end
 		--Blink frames for invuln players
@@ -534,7 +557,7 @@ A.AllFightersHUD = function(v,player,cam)
 -- 		v.drawString(xoffset,yoffset,"P"..n,flags,"small")
 		--Draw head
 		if not(blink) then
-			v.drawScaled((xoffset+headx)*f, (yoffset+heady+ouchy)*f, heads, v.getSprite2Patch(p.mo.skin, SPR2_LIFE),
+			v.drawScaled((xoffset+headx)*f, (yoffset+heady+ouchy)*f, FixedMul(heads, hires), v.getSprite2Patch(p.mo.skin, SPR2_LIFE),
 				headflags, v.getColormap(p.mo.skin, p.mo.color)
 			)
 		end
@@ -588,12 +611,12 @@ A.AllFightersHUD = function(v,player,cam)
 			if condensed == 0 then
 				if p.lives < 6 then
 					for n = 1,p.lives do
-						v.drawScaled((xoffset+livesx+livesn*(n-1))*f,(yoffset+livesy)*f,livess,
+						v.drawScaled((xoffset+livesx+livesn*(n-1))*f,(yoffset+livesy)*f, FixedMul(livess, hires),
 							v.getSprite2Patch(p.mo.skin, SPR2_LIFE),
 							livesf, v.getColormap(p.mo.skin, p.skincolor))
 					end
 				else
-					v.drawScaled((xoffset+livesx)*f,(yoffset+livesy)*f,livess,
+					v.drawScaled((xoffset+livesx)*f,(yoffset+livesy)*f, FixedMul(livess, hires),
 						v.getSprite2Patch(p.mo.skin, SPR2_LIFE),
 						livesf, v.getColormap(p.mo.skin, p.skincolor))
 					text = p.lives

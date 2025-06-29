@@ -75,7 +75,6 @@ CR.ChaosRingCapHUD = function(v)
 
         local action = "\x82".."win".."\x80"
 
-
         if team then
             local trans = B.Timeout and V_HUDTRANSHALF or V_HUDTRANS
             v.drawString(320/2, 60, "The "..team.." will "..action.." in".."\n"..(server.WinCountdown/TICRATE), V_PERPLAYER|V_SNAPTOTOP|trans, "thin-center")

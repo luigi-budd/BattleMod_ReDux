@@ -8,59 +8,68 @@ local F = B.CTF
 local C = B.Bank
 local CR = C.ChaosRing
 
---Radar
-hud.add(B.RadarHUD)
-hud.add(B.MinimapHUD)
+--Make a wrapper function so these can be modified
+--externally by any modder
+hud.add(function(v,p,c)
 
---Player info
-hud.add(B.ChangeHUD)
-hud.add(B.RingsHUD)
-hud.add(B.ActionHUD)
-hud.add(B.ShieldHUD)
-hud.add(B.TeammateHUD)
-hud.add(B.TimerHUD)
-hud.add(B.ScoresTimerHUD, "scores")
-hud.add(B.StartRingsHUD)
+	--Radar
+	B.RadarHUD(v,p,c)
+	B.MinimapHUD(v,p,c)
 
---Gamemode info
-hud.add(CP.HUD)
-hud.add(D.HUD)
-hud.add(R.HUD)
-hud.add(R.FadeFunc, "game")
-hud.add(R.FadeFunc, "scores")
-hud.add(A.AllFightersHUD,player)
-hud.add(A.MyStocksHUD,player)
-hud.add(A.BountyHUD,player)
-hud.add(A.PlacementHUD)
-hud.add(F.CompassHUD)
-hud.add(F.TeamScoreHUD)
-hud.add(F.DelayCapNotice)
-hud.add(CR.ChaosRingHUD)
-hud.add(CR.ChaosRingCapHUD)
+	--Player info
+	B.ChangeHUD(v,p,c)
+	B.RingsHUD(v,p,c)
+	B.ActionHUD(v,p,c)
+	B.ShieldHUD(v,p,c)
+	B.TeammateHUD(v,p,c)
+	B.TimerHUD(v,p,c)
+	B.StartRingsHUD(v,p,c)
 
---Game state info
-hud.add(B.PreRoundHUD)
-hud.add(B.PinchHUD,player)
-hud.add(A.RevengeHUD,player)
-hud.add(A.WaitJoinHUD,player)
-hud.add(B.SpectatorControlHUD,player)
-hud.add(F.CapHUD)
-hud.add(F.DelayCapBar)
-hud.add(A.GameSetHUD,player)
+	--Gamemode info
+	CP.HUD(v,p,c)
+	D.HUD(v,p,c)
+	R.HUD(v,p,c)
+	R.FadeFunc(v,p,c)
+	A.AllFightersHUD(v,p,c)
+	A.MyStocksHUD(v,p,c)
+	A.BountyHUD(v,p,c)
+	A.PlacementHUD(v,p,c)
+	F.CompassHUD(v,p,c)
+	F.TeamScoreHUD(v,p,c)
+	F.DelayCapNotice(v,p,c)
+	CR.ChaosRingHUD(v,p,c)
+	CR.ChaosRingCapHUD(v,p,c)
 
---Misc.
-hud.add(B.HitCounterHUD,player)
-hud.add(B.DebugHUD)
-hud.add(B.TagGenHUD)
-hud.add(B.DrawMatchPoint)
+	--Game state info
+	B.PreRoundHUD(v,p,c)
+	B.PinchHUD(v,p,c)
+	A.RevengeHUD(v,p,c)
+	A.WaitJoinHUD(v,p,c)
+	B.SpectatorControlHUD(v,p,c)
+	F.CapHUD(v,p,c)
+	F.DelayCapBar(v,p,c)
+	A.GameSetHUD(v,p,c)
 
---Score screen
-hud.add(B.StatsHUD, "scores")
-hud.add(F.RankingHUD, "scores")
-hud.add(B.TagRankHUD, "scores")
-hud.add(CR.BankRankHUD, "scores")
-hud.add(R.RubyRankHUD, "scores")
-hud.add(D.DiamondRankHUD, "scores")
+	--Misc.
+	B.HitCounterHUD(v,p,c)
+	B.DebugHUD(v,p,c)
+	B.TagGenHUD(v,p,c)
+	B.DrawMatchPoint(v,p,c)
+end, "game")
+
+hud.add(function(v,p,c) --Ditto
+	B.ScoresTimerHUD(v,p,c)
+	
+	R.FadeFunc(v,p,c)
+	
+	--Score screen
+	B.StatsHUD(v,p,c)
+	F.RankingHUD(v,p,c)
+	B.TagRankHUD(v,p,c)
+	CR.BankRankHUD(v,p,c)
+	R.RubyRankHUD(v,p,c)
+	D.DiamondRankHUD(v,p,c)
+end,"scores")
 
 --Title HUD
 hud.add(B.TitleHUD, "title")
