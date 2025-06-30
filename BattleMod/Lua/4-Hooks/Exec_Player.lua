@@ -383,6 +383,7 @@ end, MT_EXTRALARGEBUBBLE)
 --addHook("PlayerQuit", F.PlayerFlagBurst)
 
 addHook("ViewpointSwitch", function(...)
+    if gamestate ~= GS_LEVEL then return end
     if B.TagGametype() then
 		return B.TagViewpoints(...)
 	else
