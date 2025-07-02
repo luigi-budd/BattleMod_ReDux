@@ -233,7 +233,7 @@ B.TwoDSeeName = function(player)
 
 	if netgame and player.spectator and player.realmo and player.realmo.valid -- paranoia
 		and p == displayplayer and not (leveltime % (TICRATE/5))
-		and CV_FindVar("seenames").value and CV_FindVar("allowseenames").value
+		and CV.FindVar("seenames").value and CV.FindVar("allowseenames").value
 	then
 		player.twodchecknames = true
 		local namecheck = P_SpawnMobjFromMobj(player.realmo, 0, 0, 0, MT_NAMECHECK)

@@ -39,10 +39,10 @@ end
 
 B.ApplyGametypeCVars = function()
 	if B.GametypeIDtoIdentifier[gametype] then
-		local cvar_pointlimit = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_pointlimit")
-		local cvar_timelimit = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_timelimit")
-		local cvar_hidetime = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_hidetime")
-		local cvar_startrings = CV_FindVar(B.GametypeIDtoIdentifier[gametype].."_startrings")
+		local cvar_pointlimit = CV.FindVar(B.GametypeIDtoIdentifier[gametype].."_pointlimit")
+		local cvar_timelimit = CV.FindVar(B.GametypeIDtoIdentifier[gametype].."_timelimit")
+		local cvar_hidetime = CV.FindVar(B.GametypeIDtoIdentifier[gametype].."_hidetime")
+		local cvar_startrings = CV.FindVar(B.GametypeIDtoIdentifier[gametype].."_startrings")
 
 		if (cvar_ == 0) then
 			COM_BufInsertText(server, "pointlimit None")

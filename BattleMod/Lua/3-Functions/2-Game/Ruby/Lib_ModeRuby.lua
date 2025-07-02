@@ -422,9 +422,9 @@ R.Thinker = function(mo)
 	macguffinclaimed(mo)
 	R.CheckPoint = updatecheckpoint(mo, $)
 	
-	local cvar_pointlimit = CV_FindVar("pointlimit").value
-	local cvar_overtime = CV_FindVar("overtime").value
-	local cvar_timelimit = CV_FindVar("timelimit").value
+	local cvar_pointlimit = CV.FindVar("pointlimit").value
+	local cvar_overtime = CV.FindVar("overtime").value
+	local cvar_timelimit = CV.FindVar("timelimit").value
 	local overtime = ((cvar_overtime) and cvar_timelimit*60-leveltime/TICRATE <= 0)
 
 	if not(B.Exiting) then

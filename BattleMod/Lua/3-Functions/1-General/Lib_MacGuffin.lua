@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local CV = CBW_Battle.Console
 
 local applyFlip = function(mo1, mo2)
 	if mo1.eflags & MFE_VERTICALFLIP then
@@ -51,7 +52,7 @@ B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
     if not(splitscreen) then
         local screenplayer = displayplayer
         if screenplayer and screenplayer.mo and screenplayer.mo.valid then
-            flipfunc(screenplayer, CV_FindVar("flipcam").value)
+            flipfunc(screenplayer, CV.FindVar("flipcam").value)
         end
     end
     

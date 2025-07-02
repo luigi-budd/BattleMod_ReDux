@@ -11,7 +11,7 @@ local doublematchpointmusic = "BSHDWN"
 
 B.PreRoundWait = function()
 	if gametype and CV.PreRound.value-- and not(B.TagGametype())
-		and gametyperules&GTR_STARTCOUNTDOWN and leveltime < CV_FindVar("hidetime").value*TICRATE
+		and gametyperules&GTR_STARTCOUNTDOWN and leveltime < CV.FindVar("hidetime").value*TICRATE
 		then return true
 	else return false end
 end
@@ -21,7 +21,7 @@ B.GetMatchPointWindow = function()
 end
 
 B.IsTeamNearLimit = function(teamscore)
-	return CV_FindVar("pointlimit").value and teamscore+B.GetMatchPointWindow() >= CV_FindVar("pointlimit").value
+	return CV.FindVar("pointlimit").value and teamscore+B.GetMatchPointWindow() >= CV.FindVar("pointlimit").value
 end
 
 B.GetPinch = function()
@@ -33,8 +33,8 @@ B.GetPinch = function()
 		B.MatchPoint	= false
 	return end
 	--Get vars
-	local t 			= CV_FindVar("timelimit")
-	local ot 			= CV_FindVar("overtime")
+	local t 			= CV.FindVar("timelimit")
+	local ot 			= CV.FindVar("overtime")
 	local pre_pinch 	= (t.value*60-pinchtime)
 	local timeleft 		= pre_pinch-leveltime/TICRATE
 	if t.value and gametyperules&GTR_FIXGAMESET then

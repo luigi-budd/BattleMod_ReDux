@@ -48,7 +48,7 @@ B.GetInteractionType = function(smo,tmo)
 		end
 	end
 	//Collision FriendlyFire
-	if CV.Collision.value and CV_FindVar("friendlyfire").value return 3 end
+	if CV.Collision.value and CV.FindVar("friendlyfire").value return 3 end
 	//Egg Robo Tag
 	if gametype == GT_EGGROBOTAG return 1 end
 	//Battle Tag

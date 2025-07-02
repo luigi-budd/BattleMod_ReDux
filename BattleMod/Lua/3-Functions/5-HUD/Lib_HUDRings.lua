@@ -132,8 +132,8 @@ B.RingsHUD = function(v, player, cam)
 
 	--Chaos Ring Radar
 	if B.BankGametype() and not(player.gotcrystal) then
-		local p = player
-		local beeps = {}
+		-- local p = player
+		-- local beeps = {}
 		-- local proxBeep = { 50, 50, 40, 20, 10, 5 }
 		local outline = v.cachePatch("HUD_RINGC")
 		
