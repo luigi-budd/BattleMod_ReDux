@@ -24,9 +24,9 @@ local function getshield(n)
 		or ((n&SH_FORCE) and "TVFOICON" or "TVPIICON")
 end
 
+local shieldflags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT|V_PERPLAYER
 local function drawshield(v, player, x, y, shield, scale)
 	local patch = "MPTYICON"
-	local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT|V_PERPLAYER
 	
 	local blink = not (not(P_PlayerInPain(player) or player.charmed) or leveltime&1)
 	if shield and not blink then
@@ -35,9 +35,9 @@ local function drawshield(v, player, x, y, shield, scale)
 	
 	patch = v.cachePatch(patch)
 	if (shield == SH_FORCE|1) and not blink then
-		v.drawScaled(x*FRACUNIT-4*scale,y*FRACUNIT-4*scale,scale,patch,flags)
+		v.drawScaled(x*FRACUNIT-4*scale,y*FRACUNIT-4*scale,scale,patch,shieldflags)
 	end
-	v.drawScaled(x*FRACUNIT,y*FRACUNIT,scale,patch,flags)
+	v.drawScaled(x*FRACUNIT,y*FRACUNIT,scale,patch,shieldflags)
 end
 
 B.ShieldHUD = function(v, player, cam)

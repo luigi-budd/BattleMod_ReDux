@@ -34,6 +34,8 @@ local function roundToMultipleOf5(num)
 	return num
 end
 
+local radarColor = {SKINCOLOR_GREY, SKINCOLOR_BLUE, SKINCOLOR_SHAMROCK, SKINCOLOR_YELLOW, SKINCOLOR_ORANGE, SKINCOLOR_RED}
+
 B.RingsHUD = function(v, player, cam)
 	if not (B.HUDMain)
 	or not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
@@ -116,7 +118,7 @@ B.RingsHUD = function(v, player, cam)
 		ringpatchname = "HUD_RINGG"
 	elseif B.BankGametype() then
 		patch2 = v.cachePatch("HUD_RINGG")
-		patch2percent = (C.BANK_RINGLIMIT - player.rings) * (FRACUNIT / C.BANK_RINGLIMIT)
+		patch2percent = FU - FixedDiv(player.rings, C.BANK_RINGLIMIT)
 	end
 	local ringpatch = v.cachePatch(ringpatchname)
 	v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
@@ -132,31 +134,8 @@ B.RingsHUD = function(v, player, cam)
 
 	--Chaos Ring Radar
 	if B.BankGametype() and not(player.gotcrystal) then
-		-- local p = player
-		-- local beeps = {}
-		-- local proxBeep = { 50, 50, 40, 20, 10, 5 }
 		local outline = v.cachePatch("HUD_RINGC")
-		
-		local radarColor = {SKINCOLOR_GREY, SKINCOLOR_BLUE, SKINCOLOR_SHAMROCK, SKINCOLOR_YELLOW, SKINCOLOR_ORANGE, SKINCOLOR_RED}
-		/*
-		//Emblem radar. Also hidden when the menu is present.
-		for i=1,#server.AvailableChaosRings do
-			local chaosring = server.AvailableChaosRings[i]
-			local invalid = (not(chaosring and chaosring.valid) or chaosring.target or not(chaosring.valid))
-			if invalid then
-				continue 
-			end
-			local proximity = B.GetProximity(p.mo, chaosring)
-			if proximity > 1 then
-				table.insert(beeps, {proximity=proximity, color=chaosring.color})
-			end
-		end*/
-
 		if player.chaosring_radarbeeps and #player.chaosring_radarbeeps then
-			--table.sort(beeps, function(a, b) return a.proximity > b.proximity end)
-			--if not(leveltime % proxBeep[beeps[1].proximity]) then
-				--S_StartSoundAtVolume(p.mo, sfx_crng2, 100, p)
-			--end
 			v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, outline, flags_hudtrans, v.getColormap(TC_BLINK, radarColor[player.chaosring_radarbeeps[1].proximity]))
 		end
 	end
@@ -293,16 +272,10 @@ B.RingsHUD = function(v, player, cam)
 				patch = v.cachePatch("TOPZBT")
 				color = nil
 			elseif B.BankGametype() and (player.mo and player.mo.valid and player.mo.chaosring and player.mo.chaosring.valid) then
-				local intpatch = {v.getSpritePatch(SPR_TRNG, player.mo.chaosring.frame)}
-				local ring = intpatch[1]
-				local flip = intpatch[2]
+				local ring, flip = v.getSpritePatch(SPR_TRNG, player.mo.chaosring.frame)
 				scale = FRACUNIT/3
 				if flip then
-					if iconflags & V_FLIP then
-						iconflags = $ & ~V_FLIP
-					else
-						iconflags = $|V_FLIP
-					end
+					iconflags = $^^V_FLIP
 				end
 				patch = ring
 				color = ((player.mo and player.mo.valid) and 
@@ -324,12 +297,7 @@ B.RingsHUD = function(v, player, cam)
 	
 	--Number
 	if player.ringhudflash ~= 0 then
-		local flashpatch
-		if player.ringhudflash > 0 then
-			flashpatch = v.cachePatch("HUD_RINGW")
-		else
-			flashpatch = v.cachePatch("HUD_RINGB")
-		end
+		local flashpatch = (player.ringhudflash > 0) and v.cachePatch("HUD_RINGW") or v.cachePatch("HUD_RINGB")
 		local flash_trans = TR_TRANS70
 		if abs(player.ringhudflash) == 1 then
 			flash_trans = TR_TRANS90
