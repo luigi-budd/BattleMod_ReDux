@@ -24,6 +24,16 @@ local function spawnSparkle(v, f, x, y, m1, m2, s)
 	})
 end
 
+local function roundToMultipleOf5(num)
+	local remainder = num % 5
+	if remainder >= 3 then
+		return num + (5 - remainder)
+	else
+		return num - remainder
+	end
+	return num
+end
+
 B.RingsHUD = function(v, player, cam)
 	if not (B.HUDMain)
 	or not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
@@ -124,7 +134,7 @@ B.RingsHUD = function(v, player, cam)
 	if B.BankGametype() and not(player.gotcrystal) then
 		local p = player
 		local beeps = {}
-		local proxBeep = { 50, 50, 40, 20, 10, 5 }
+		-- local proxBeep = { 50, 50, 40, 20, 10, 5 }
 		local outline = v.cachePatch("HUD_RINGC")
 		
 		local radarColor = {SKINCOLOR_GREY, SKINCOLOR_BLUE, SKINCOLOR_SHAMROCK, SKINCOLOR_YELLOW, SKINCOLOR_ORANGE, SKINCOLOR_RED}
@@ -152,15 +162,6 @@ B.RingsHUD = function(v, player, cam)
 	end
 
 	--Actions
-	local function roundToMultipleOf5(num)
-		local remainder = num % 5
-		if remainder >= 3 then
-			return num + (5 - remainder)
-		else
-			return num - remainder
-		end
-	end
-
 	if B.StunBreakAllowed(player) then
 		local text = minimal_hud and "" or "Stun Break"
 		local cost = player.stunbreakcosttext
