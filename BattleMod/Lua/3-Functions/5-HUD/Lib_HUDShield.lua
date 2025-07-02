@@ -40,7 +40,8 @@ local function drawshield(v, player, x, y, shield, scale)
 end
 
 B.ShieldHUD = function(v, player, cam)
-	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
+	local CV_Val = CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
+	if CV_Val then
 		hudinfo[HUD_POWERUPS].x = POWERUPS_X
 		hudinfo[HUD_POWERUPS].y = POWERUPS_Y
 	else
@@ -57,7 +58,7 @@ B.ShieldHUD = function(v, player, cam)
 	local xoffset = hudinfo[HUD_POWERUPS].x
 	local yoffset = hudinfo[HUD_POWERUPS].y
 	
-	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) and not(player.powers[pw_shield] or player.powers[pw_sneakers]
+	if CV_Val and not(player.powers[pw_shield] or player.powers[pw_sneakers]
 	or player.gotflag or player.powers[pw_flashing] or player.powers[pw_invulnerability])
 	then
 		drawshield(v, player, xoffset, yoffset, player.powers[pw_shield], FRACUNIT>>1)

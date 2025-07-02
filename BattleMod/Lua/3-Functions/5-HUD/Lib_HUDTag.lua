@@ -1,5 +1,6 @@
 //separate hud in case someone wants to polish it up
 local B = CBW_Battle
+local CV = CBW_Battle.Console
 
 local BASEVIDWIDTH = 320
 B.TagGenHUD = function(v, player, cam)
@@ -124,7 +125,7 @@ B.TagRankHUD = function(v)
 		local p = players_sorted[i]
 		if p.spectator then continue end
 
-		local cond = (not CV_FindVar("compactscoreboard").value) and (plrs <= 9)
+		local cond = (not CV.FindVar("compactscoreboard").value) and (plrs <= 9)
 		plrs = $+1
 		if cond then
 			x = 32

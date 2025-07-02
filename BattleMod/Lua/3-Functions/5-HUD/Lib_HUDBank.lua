@@ -3,6 +3,7 @@ local CV = B.Console
 local F = B.CTF
 local C = B.Bank
 local CR = C.ChaosRing
+local CV = CBW_Battle.Console
 
 local lerpamt = FRACUNIT
 
@@ -38,7 +39,7 @@ CR.ChaosRingCapHUD = function(v)
 	end
 
     if not(#server.AvailableChaosRings or B.PreRoundWait()) then
-        local tics = server.InitSpawnWait-(leveltime-(CV_FindVar("hidetime").value*TICRATE))
+        local tics = server.InitSpawnWait-(leveltime-(CV.FindVar("hidetime").value*TICRATE))
         local x = 320/2 * FRACUNIT
         local y = 45 * FRACUNIT
         local f = V_PERPLAYER|V_SNAPTOTOP|(tics > TICRATE*10 and V_HUDTRANSHALF or V_HUDTRANS)
@@ -144,7 +145,7 @@ CR.BankRankHUD = function(v)
 		if p.spectator then continue end
 		--if p.ctfteam == 0 then continue end
 
-		local cond = (not CV_FindVar("compactscoreboard").value) and (redplayers <= 9 or blueplayers <= 9)
+		local cond = (not CV.FindVar("compactscoreboard").value) and (redplayers <= 9 or blueplayers <= 9)
 		if p.ctfteam == 1 then
 			redplayers = $+1
 			--if (redplayers > 8) then continue end

@@ -350,23 +350,37 @@ CV.SaveCVar = function(var)
 	CV.SaveConfig(consoleplayer, var.name, var.string, false)
 end
 
+--[string] = consvar_t
+local CV_Lookup = {}
+setmetatable(CV_Lookup, {
+	__mode = "kv"
+})
+
+CV.FindVar = function(cv_name)
+	if CV_Lookup[cv_name]
+		return CV_Lookup[cv_name]
+	end
+	CV_Lookup[cv_name] = CV_FindVar(cv_name)
+	return CV_Lookup[cv_name]
+end
+
 CV.FindVarString = function(var, strings) -- utility function
-	local var = CV_FindVar(var)
+	local var = CV.FindVar(var)
 	if not var then
 		return nil
-	elseif var.string then
+	end
+
+	if var.string then
 		if strings then
 			if type(strings) == "table" then
 				return CBW_Battle.Find(strings, var.string)
 			else
 				return (var.string == strings)
 			end
-		else
-			return var.string
 		end
-	else
-		return 0
+		return var.string
 	end
+	return 0
 end
 
 for _, cvar in ipairs(base_cvars) do

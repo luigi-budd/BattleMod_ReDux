@@ -10,51 +10,84 @@ local CR = C.ChaosRing
 
 --Make a wrapper function so these can be modified
 --externally by any modder
+local history = {}
+local samplecount = 150
 hud.add(function(v,p,c)
+	local function Wrap(func, name)
+		if name:len() < 21
+			for i = 1, 21 - name:len()
+				name = $ .. " "
+			end
+		end
 
+		if history[name] == nil
+			history[name] = {samples = {}}
+		end
+
+		local micros = getTimeMicros()
+		func(v,p,c)
+		local len = getTimeMicros() - micros
+
+		table.insert(history[name].samples, len)
+		if #history[name].samples > samplecount
+			table.remove(history[name].samples, 1)
+		end
+
+		len = 0
+		local counted = 0
+		for k,val in ipairs(history[name].samples)
+			len = $ + val
+			counted = $ + 1
+		end
+		len = $ / counted
+
+		print(string.format("\x82%s\x80:\t %dus\t \x86(%d samples)", name, len, counted))
+	end
+
+	print("leveltime "..leveltime.." start")
 	--Radar
-	B.RadarHUD(v,p,c)
-	B.MinimapHUD(v,p,c)
+	Wrap(B.RadarHUD, "B.RadarHUD")
+	Wrap(B.MinimapHUD, "B.MinimapHUD")
 
 	--Player info
-	B.ChangeHUD(v,p,c)
-	B.RingsHUD(v,p,c)
-	B.ActionHUD(v,p,c)
-	B.ShieldHUD(v,p,c)
-	B.TeammateHUD(v,p,c)
-	B.TimerHUD(v,p,c)
-	B.StartRingsHUD(v,p,c)
+	Wrap(B.ChangeHUD, "B.ChangeHUD")
+	Wrap(B.RingsHUD, "B.RingsHUD")
+	Wrap(B.ActionHUD, "B.ActionHUD")
+	Wrap(B.ShieldHUD, "B.ShieldHUD")
+	Wrap(B.TeammateHUD, "B.TeammateHUD")
+	Wrap(B.TimerHUD,"B.TimerHUD")
+	Wrap(B.StartRingsHUD,"B.StartRingsHUD")
 
 	--Gamemode info
-	CP.HUD(v,p,c)
-	D.HUD(v,p,c)
-	R.HUD(v,p,c)
-	R.FadeFunc(v,p,c)
-	A.AllFightersHUD(v,p,c)
-	A.MyStocksHUD(v,p,c)
-	A.BountyHUD(v,p,c)
-	A.PlacementHUD(v,p,c)
-	F.CompassHUD(v,p,c)
-	F.TeamScoreHUD(v,p,c)
-	F.DelayCapNotice(v,p,c)
-	CR.ChaosRingHUD(v,p,c)
-	CR.ChaosRingCapHUD(v,p,c)
+	Wrap(CP.HUD,"CP.HUD")
+	Wrap(D.HUD,"D.HUD")
+	Wrap(R.HUD,"R.HUD")
+	Wrap(R.FadeFunc,"R.FadeFunc")
+	Wrap(A.AllFightersHUD,"A.AllFightersHUD")
+	Wrap(A.MyStocksHUD,"A.MyStocksHUD")
+	Wrap(A.BountyHUD,"A.BountyHUD")
+	Wrap(A.PlacementHUD,"A.PlacementHUD")
+	Wrap(F.CompassHUD,"F.CompassHUD")
+	Wrap(F.TeamScoreHUD,"F.TeamScoreHUD")
+	Wrap(F.DelayCapNotice,"F.DelayCapNotice")
+	Wrap(CR.ChaosRingHUD,"CR.ChaosRingHUD")
+	Wrap(CR.ChaosRingCapHUD,"R.ChaosRingCapHUD")
 
 	--Game state info
-	B.PreRoundHUD(v,p,c)
-	B.PinchHUD(v,p,c)
-	A.RevengeHUD(v,p,c)
-	A.WaitJoinHUD(v,p,c)
-	B.SpectatorControlHUD(v,p,c)
-	F.CapHUD(v,p,c)
-	F.DelayCapBar(v,p,c)
-	A.GameSetHUD(v,p,c)
+	Wrap(B.PreRoundHUD,"B.PreRoundHUD")
+	Wrap(B.PinchHUD,"B.PinchHUD")
+	Wrap(A.RevengeHUD,"A.RevengeHUD")
+	Wrap(A.WaitJoinHUD,"A.WaitJoinHUD")
+	Wrap(B.SpectatorControlHUD,"B.SpectatorControlHUD")
+	Wrap(F.CapHUD,"F.CapHUD")
+	Wrap(F.DelayCapBar,"F.DelayCapBar")
+	Wrap(A.GameSetHUD,"A.GameSetHUD")
 
 	--Misc.
-	B.HitCounterHUD(v,p,c)
-	B.DebugHUD(v,p,c)
-	B.TagGenHUD(v,p,c)
-	B.DrawMatchPoint(v,p,c)
+	Wrap(B.HitCounterHUD,"B.HitCounterHUD")
+	Wrap(B.DebugHUD,"B.DebugHUD")
+	Wrap(B.TagGenHUD,"B.TagGenHUD")
+	Wrap(B.DrawMatchPoint,"B.DrawMatchPoint")
 end, "game")
 
 hud.add(function(v,p,c) --Ditto

@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local F = B.CTF
+local CV = CBW_Battle.Console
 local BASEVIDWIDTH = 320 --NEVER CHANGE THIS! This is the original
 local SEP = 33
 local YPOS = 8
@@ -353,7 +354,7 @@ F.RankingHUD = function(v)
 		if p.spectator then continue end
 		--if p.ctfteam == 0 then continue end
 
-		local cond = (not CV_FindVar("compactscoreboard").value) and (redplayers <= 9 or blueplayers <= 9)
+		local cond = (not CV.FindVar("compactscoreboard").value) and (redplayers <= 9 or blueplayers <= 9)
 		if p.ctfteam == 1 then
 			redplayers = $+1
 			--if (redplayers > 8) then continue end

@@ -2,10 +2,13 @@ local B = CBW_Battle
 local CV = B.Console
 
 --Repurposed and edited this function from Lianvee's MinHUD
+local cv_timelimit = CV.FindVar("timelimit")
+local cv_hidetime = CV.FindVar("hidetime")
+
 local function GetTimer(player)
 	local tics
-	local timelimit = CV_FindVar("timelimit").value
-	local hidetime = CV_FindVar("hidetime").value
+	local timelimit = cv_timelimit.value
+	local hidetime = cv_hidetime.value
 	if timelimit then
 		timelimit = $ * 60 * TICRATE
 		if gametyperules&GTR_FIXGAMESET then

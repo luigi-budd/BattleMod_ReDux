@@ -6,6 +6,7 @@ local F = B.CTF
 local A = B.Arena
 local CP = B.ControlPoint
 local C = B.Bank
+local CV = CBW_Battle.Console
 --local CR = C.ChaosRing
 
 B.clamp = function(num, minimum, maximum)
@@ -20,7 +21,7 @@ B.screentransform = function(x, y, z, camz, ang, aim, realwidth, realheight)
 	local height = 100
 	
 	--FOV calcs
-	local FOV = CV_FindVar("fov").value * FRACUNIT
+	local FOV = CV.FindVar("fov").value * FRACUNIT
     local fovang2 = (FOV + (consoleplayer and consoleplayer.fovadd or 90*FRACUNIT))/2
     local fovtan = tan(FixedAngle(fovang2))
     local fg = width*fovtan
