@@ -27,13 +27,14 @@ end
 local function drawshield(v, player, x, y, shield, scale)
 	local patch = "MPTYICON"
 	local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT|V_PERPLAYER
-	local twoforce = (shield == SH_FORCE|1)
+	
 	local blink = not (not(P_PlayerInPain(player) or player.charmed) or leveltime&1)
 	if shield and not blink then
 		patch = getshield(shield)
 	end
-	local patch = v.cachePatch(patch)
-	if twoforce and not blink then
+	
+	patch = v.cachePatch(patch)
+	if (shield == SH_FORCE|1) and not blink then
 		v.drawScaled(x*FRACUNIT-4*scale,y*FRACUNIT-4*scale,scale,patch,flags)
 	end
 	v.drawScaled(x*FRACUNIT,y*FRACUNIT,scale,patch,flags)
