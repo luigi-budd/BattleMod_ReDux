@@ -416,6 +416,7 @@ A.PlacementHUD = function(v, player)
 	local leader = nil
 	--print("---RANKING CHECK---")
 	for p in players.iterate() do
+		if (p.spectator) then continue end
 		if p.rank then
 			--print(p.name.." (rank "..p.rank..")")
 			if p.rank <= bestrank then
