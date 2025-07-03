@@ -1,5 +1,8 @@
 //LUA_RSPN
 
+local B = CBW_Battle
+local CV = CBW_Battle.Console
+
 -- kays#5325
 
 if AddObjectTypeRespawn
@@ -86,20 +89,20 @@ local ObjectRespawnQueue = {}
 local function RegularRoverCheck()
 	if (not (netgame or multiplayer)) -- never respawn in single player
 		or (maptol & TOL_NIGHTS) -- never respawn in NiGHTS
-		or (not CV_FindVar("respawnitem").value) -- never respawn if cvar is off
+		or (not CV.FindVar("respawnitem").value) -- never respawn if cvar is off
 		or (G_IsSpecialStage()) -- never respawn in special stage
 	then
 		return 0
 	end
 
-	return CV_FindVar("respawnitemtime").value*TICRATE -- okay do it
+	return CV.FindVar("respawnitemtime").value*TICRATE -- okay do it
 end
 
 -- Regular functions for object respawning, see AddObjectTypeRespawn for usage
 local function RegularShouldRespawn(mo)
 	if (not (netgame or multiplayer)) -- never respawn in single player
 		or (maptol & TOL_NIGHTS) -- never respawn in NiGHTS
-		or (not CV_FindVar("respawnitem").value) -- never respawn if cvar is off
+		or (not CV.FindVar("respawnitem").value) -- never respawn if cvar is off
 		or (G_IsSpecialStage()) -- never respawn in special stage
 		or (mo.flags2 & MF2_DONTRESPAWN) -- never respawn if don't respawn
 	then
@@ -110,7 +113,7 @@ local function RegularShouldRespawn(mo)
 end
 
 local function RegularTimer()
-	return CV_FindVar("respawnitemtime").value*TICRATE
+	return CV.FindVar("respawnitemtime").value*TICRATE
 end
 
 -- spawnpoint.scale is upcoming in 2.2.7

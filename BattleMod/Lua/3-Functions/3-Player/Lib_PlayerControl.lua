@@ -277,7 +277,7 @@ B.MyTeam = function(player,myplayer) --Also accepts player.mo
 	--Check if these are actually players
 	if not (player.jointime and myplayer.jointime) then return end
 	--FriendlyFire
-	if CV_FindVar("friendlyfire").value then
+	if CV.FindVar("friendlyfire").value then
 		return false
 	end
 	--Tag checks
@@ -563,7 +563,7 @@ B.PlayerSetupPhase = function(player)
 	if (player.spectator or player.playerstate != PST_LIVE) then return end
 
 	local forceskinned = false
-	if (CV_FindVar("forceskin").value == -1) then forceskinned = false else forceskinned = true end
+	if (CV.FindVar("forceskin").value == -1) then forceskinned = false else forceskinned = true end
 	local mo = player.mo
 	if not forceskinned then
 		
@@ -584,7 +584,7 @@ B.PlayerSetupPhase = function(player)
 		local change = 0
 		local f = #skins[skinnum] + 2
 		local b = #skins[skinnum]
-		if (leveltime > 60) and (leveltime + 17 < CV_FindVar("hidetime").value*TICRATE) and player.roulette
+		if (leveltime > 60) and (leveltime + 17 < CV.FindVar("hidetime").value*TICRATE) and player.roulette
 			local deadzone = 20
 			local right = player.cmd.sidemove >= deadzone
 			local left = player.cmd.sidemove <= -deadzone
@@ -629,7 +629,7 @@ B.PlayerSetupPhase = function(player)
 			player.roulette_prev_left = (left and $+1) or 0
 		end
 		
-		if (leveltime + 17 == CV_FindVar("hidetime").value*TICRATE) and player != secondarydisplayplayer
+		if (leveltime + 17 == CV.FindVar("hidetime").value*TICRATE) and player != secondarydisplayplayer
 			S_StartSound(nil, sfx_s251, player)
 		end
 		

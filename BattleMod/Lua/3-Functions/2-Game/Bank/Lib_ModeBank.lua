@@ -665,7 +665,7 @@ CR.ThinkFrame = function() --Main Thinker
 
 	server.GlobalAngle = (($+rotatespd == ANG1*360) and 0) or $+rotatespd --Constantly rotating
 
-	local roundTime = leveltime-(CV_FindVar("hidetime").value*TICRATE)
+	local roundTime = leveltime-(CV.FindVar("hidetime").value*TICRATE)
 	local startupChaosRings = roundTime >= CV.ChaosRing_StartSpawnBuffer.value*TICRATE
 
 	local allChaosRings = (#server.AvailableChaosRings >= 6)

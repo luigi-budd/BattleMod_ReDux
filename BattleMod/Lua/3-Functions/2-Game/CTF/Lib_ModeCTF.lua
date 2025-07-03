@@ -228,7 +228,7 @@ F.FlagIntangible = function(mo)
 		end
 	end
 
-	if mo.flagdropped and not(mo.flagtossed) and P_IsObjectOnGround(mo) and mo.fuse and (mo.fuse < (CV_FindVar("flagtime").value*TICRATE-2)) then
+	if mo.flagdropped and not(mo.flagtossed) and P_IsObjectOnGround(mo) and mo.fuse and (mo.fuse < (CV.FindVar("flagtime").value*TICRATE-2)) then
 		mo.flagtossed = false
 		mo.flagdropped = false
 		/*local vfx = P_SpawnGhostMobj(mo)
@@ -487,7 +487,7 @@ F.PlayerFlagBurst = function(p, toss, suicideflagdrop)
 			end
 		end
 
-		local ftime = CV_FindVar("flagtime").value * TICRATE
+		local ftime = CV.FindVar("flagtime").value * TICRATE
 		flag.fuse = ftime
 		flag.target = mo
 
@@ -807,7 +807,7 @@ F.FlagSpawn = function(mo)
 		mo.shadowscale = mo.scale --set flag shadow
 
 		-- The flag was tossed by someone, so give it fuse time
-		if mo.target then mo.fuse = CV_FindVar("cv_flagtime") end
+		if mo.target then mo.fuse = CV.FindVar("cv_flagtime") end
 	end
 end
 

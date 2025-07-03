@@ -1,6 +1,7 @@
 local REDFLAG = MT_CREDFLAG 
 local BLUFLAG = MT_CBLUEFLAG 
 local B = CBW_Battle
+local CV = CBW_Battle.Console
 local F = B.CTF
 
 local CTFlagReturnNerf = function(mo, toucher)
@@ -22,7 +23,7 @@ end
 
 local CTFlagNoGrabCooldown = function(mo)
 	local spawnpoint = mo.spawnpoint --mapthings[mo.type == REDFLAG and F.RedFlagPos.mtnum or F.BlueFlagPos.mtnum]
-	local flagreturn = CV_FindVar("flagtime").value
+	local flagreturn = CV.FindVar("flagtime").value
 	local flagcolor = 0
 	// we use the roll of the mapthing to keep track of how much time the flag should stay before returning
 	

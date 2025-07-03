@@ -5,7 +5,7 @@ local CV = B.Console
 local notice = "\x83".."NOTICE: \x80"
 B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
 	local antispam = B.ButtonCheck(player, BT_ATTACK) < 2
-	local active_autobalance = CV_FindVar("autobalance").value or CV.Autobalance.value
+	local active_autobalance = CV.FindVar("autobalance").value or CV.Autobalance.value
 
 	if B.Exiting then
 		if antispam then
@@ -160,7 +160,7 @@ end
 
 B.Autobalance = function()
 	if not G_GametypeHasTeams() then return end
-	if CV.Autobalance.value and CV_FindVar("autobalance").value then
+	if CV.Autobalance.value and CV.FindVar("autobalance").value then
 		CV_Set(CV.Autobalance, "0")
 		-- TODO: this is printed twice, idk why
 		print("`autobalance` must be off in order for `battle_autobalance` to work!")

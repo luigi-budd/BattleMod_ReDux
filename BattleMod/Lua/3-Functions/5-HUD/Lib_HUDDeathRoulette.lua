@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local CV = CBW_Battle.Console
 local white = "\x80"
 local gray = "\x86"
 local yellow = "\x82"
@@ -8,7 +9,7 @@ local DeathCharSwitch = function(v,player,cam)
 
 	if player.spectator then return end
 	if (roulette_x == nil) return end
-	//local lockedin = (leveltime + 17 >= CV_FindVar("hidetime").value*TICRATE)
+	//local lockedin = (leveltime + 17 >= CV.FindVar("hidetime").value*TICRATE)
 	//if lockedin then roulette_x = 0 end
 	
 	if player.selectchar then
@@ -22,7 +23,7 @@ local DeathCharSwitch = function(v,player,cam)
 		
 		-- Display pre-round character roulette. Show previous and next characters we're gonna change into.
 		for n = -5, 5 do
-			//local blink = (leveltime % 2 and leveltime + 35 >= CV_FindVar("hidetime").value*TICRATE)
+			//local blink = (leveltime % 2 and leveltime + 35 >= CV.FindVar("hidetime").value*TICRATE)
 
 			local cflags = V_SNAPTOTOP|V_PERPLAYER
 			local trans = V_10TRANS * max(0, abs(n*2) - 1)

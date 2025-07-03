@@ -503,9 +503,9 @@ A.UpdateGame = function()
 	end
 	
 	//End of round conditions
-	local timelimit = 60*TICRATE*CV_FindVar("timelimit").value
+	local timelimit = 60*TICRATE*CV.FindVar("timelimit").value
 	local timeleft = timelimit-leveltime
-	local pointlimit = CV_FindVar("pointlimit").value
+	local pointlimit = CV.FindVar("pointlimit").value
 	if timelimit and gametyperules&GTR_FIXGAMESET then
 		timeleft = $-(60*TICRATE)
 	end
@@ -530,8 +530,8 @@ A.UpdateGame = function()
 		end
 	end
 
-	local cvar_overtime = CV_FindVar("overtime").value
-	local cvar_timelimit = CV_FindVar("timelimit").value
+	local cvar_overtime = CV.FindVar("overtime").value
+	local cvar_timelimit = CV.FindVar("timelimit").value
 	local overtime = ((cvar_overtime) and cvar_timelimit*60-leveltime/TICRATE <= 0)
 
 	if B.Timeout and not(B.Exiting) then

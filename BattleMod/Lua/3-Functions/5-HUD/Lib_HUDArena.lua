@@ -168,7 +168,6 @@ B.DrawPlayerInfo = function(v, player, x, y, flags, textalign, isNameCapped)
 	local blink = 0
 	
 	if P_PlayerInPain(player) then --Add shake if the player is taking damage
-		local choose = {-1,1}
 		ouchy = ((leveltime&1) and 1 or -1) * FRACUNIT
 		headflags = V_HUDTRANSHALF
 	elseif not(P_PlayerInPain(player)) and player.powers[pw_flashing] and not(B.PreRoundWait()) then
@@ -240,9 +239,9 @@ A.MyStocksHUD = function(v, player)
 		if skins[player.mo.skin].highresscale ~= FRACUNIT
 			scale = FixedMul($, skins[player.mo.skin].highresscale)
 		end
-		v.drawScaled(x + offset + scale, y + scale, scale, patch, flags | V_HUDTRANS | V_FLIP, black)
+		v.drawScaled(x + offset + scale, y + FRACUNIT*3/4, scale, patch, flags | V_HUDTRANS | V_FLIP, black)
 		if stocks > i then
-			v.drawScaled(x + offset - scale, y - scale, scale, patch, flags | V_HUDTRANS | V_FLIP, v.getColormap(player.mo.skin, player.skincolor))
+			v.drawScaled(x + offset - scale, y - FRACUNIT*3/4, scale, patch, flags | V_HUDTRANS | V_FLIP, v.getColormap(player.mo.skin, player.skincolor))
 		end
 	end
 	local maxshards = 3

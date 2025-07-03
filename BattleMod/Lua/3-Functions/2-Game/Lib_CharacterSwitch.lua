@@ -41,8 +41,8 @@ local Prevention = function(p)
 	--// if realskin exists, then...
 	if p.mo.realskin then
 
-		local forceskin = CV_FindVar("forceskin")
-		local restrictskinchanges = CV_FindVar("restrictskinchange")
+		local forceskin = CV.FindVar("forceskin")
+		local restrictskinchanges = CV.FindVar("restrictskinchange")
 
 		local actionstate_interrupted = (p.wasactionstate and (forceskin.value == -1)) --If we changed skin while in actionstate, and it wasn't a global skin change
 
@@ -69,7 +69,7 @@ end
 -- I copied and edited some code from battle mod
 addHook("PlayerThink", function(player) -- death timer test
 	Prevention(player)
-	if (CV_FindVar("forceskin").value ~= -1) then return end
+	if (CV.FindVar("forceskin").value ~= -1) then return end
 
 	if player.deadtimer then
 		if (ButtonCheck2(player,BT_TOSSFLAG) == 1) and not player.selectchar then

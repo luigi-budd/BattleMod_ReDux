@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local S = B.SkinVars
+local CV = CBW_Battle.Console
 local speedlimit = 48
 
 B.GetLaunchFactor = function(value)
@@ -200,7 +201,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		end
 	end]]
 	//Collision info
-	if pvp and G_TagGametype() and leveltime > CV_FindVar("hidetime").value*TICRATE then //! Get hidetime
+	if pvp and G_TagGametype() and leveltime > CV.FindVar("hidetime").value*TICRATE then //! Get hidetime
 		local function tagginghand(n1,n2)
 			if plr[n2].pflags&PF_TAGIT and not(plr[n1].pflags&PF_TAGIT) and B.PlayerCanBeDamaged(plr[n1]) then
 				B.DebugPrint("Spawning tagging hand missile",DF_COLLISION)

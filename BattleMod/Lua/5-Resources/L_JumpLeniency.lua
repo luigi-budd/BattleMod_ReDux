@@ -1,3 +1,6 @@
+local B = CBW_Battle
+local CV = CBW_Battle.Console
+
 local function PreThinkJump(player)
 	P_DoJump(player, true);
 
@@ -54,7 +57,7 @@ local function JumpLeniencyThink(player)
 		mo.recoveryWait = $1 + 1; -- Increment recovery wait time.
 
 		-- The recovery jump from SA2, where you can jump out of your pain state.
-		if (pressedJump == true) and CV_FindVar("battle_recoveryjump").value then
+		if (pressedJump == true) and CV.FindVar("battle_recoveryjump").value then
 			local baseRecoveryWait = (2*TICRATE)/3; -- 0.667 seconds of waiting, - your latency.
 
 			if (mo.recoveryWait > baseRecoveryWait - latency) then
@@ -82,7 +85,7 @@ local function JumpLeniencyThink(player)
 	-- "Coyote time" is how much time you have after leaving the ground where you can jump off.
 	-- Many modern platformers do this, especially 3D.
 	-- Prevents lots of "the jump didn't jump".
-	local baseCoyoteTime = CV_FindVar("battle_coyotetime").value; -- 0.25 seconds, + your latency.
+	local baseCoyoteTime = CV.FindVar("battle_coyotetime").value; -- 0.25 seconds, + your latency.
 
 	-- Check if you're in a state where you would normally be allowed to jump.
 	local canJump = false;
@@ -125,8 +128,8 @@ local function JumpLeniencyThink(player)
 			PreThinkJump(player);
 			RestoreAbility(player);
 			mo.coyoteTime = 0;
-			if CV_FindVar("battle_coyotefactor").value<15 then
-				mo.momz = $-($/CV_FindVar("battle_coyotefactor").value);
+			if CV.FindVar("battle_coyotefactor").value<15 then
+				mo.momz = $-($/CV.FindVar("battle_coyotefactor").value);
 			end
 		end
 

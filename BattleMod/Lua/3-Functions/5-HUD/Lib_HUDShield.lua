@@ -24,23 +24,25 @@ local function getshield(n)
 		or ((n&SH_FORCE) and "TVFOICON" or "TVPIICON")
 end
 
+local shieldflags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT|V_PERPLAYER
 local function drawshield(v, player, x, y, shield, scale)
 	local patch = "MPTYICON"
-	local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTORIGHT|V_PERPLAYER
-	local twoforce = (shield == SH_FORCE|1)
+	
 	local blink = not (not(P_PlayerInPain(player) or player.charmed) or leveltime&1)
 	if shield and not blink then
 		patch = getshield(shield)
 	end
-	local patch = v.cachePatch(patch)
-	if twoforce and not blink then
-		v.drawScaled(x*FRACUNIT-4*scale,y*FRACUNIT-4*scale,scale,patch,flags)
+	
+	patch = v.cachePatch(patch)
+	if (shield == SH_FORCE|1) and not blink then
+		v.drawScaled(x*FRACUNIT-4*scale,y*FRACUNIT-4*scale,scale,patch,shieldflags)
 	end
-	v.drawScaled(x*FRACUNIT,y*FRACUNIT,scale,patch,flags)
+	v.drawScaled(x*FRACUNIT,y*FRACUNIT,scale,patch,shieldflags)
 end
 
 B.ShieldHUD = function(v, player, cam)
-	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
+	local CV_Val = CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
+	if CV_Val then
 		hudinfo[HUD_POWERUPS].x = POWERUPS_X
 		hudinfo[HUD_POWERUPS].y = POWERUPS_Y
 	else
@@ -57,7 +59,7 @@ B.ShieldHUD = function(v, player, cam)
 	local xoffset = hudinfo[HUD_POWERUPS].x
 	local yoffset = hudinfo[HUD_POWERUPS].y
 	
-	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) and not(player.powers[pw_shield] or player.powers[pw_sneakers]
+	if CV_Val and not(player.powers[pw_shield] or player.powers[pw_sneakers]
 	or player.gotflag or player.powers[pw_flashing] or player.powers[pw_invulnerability])
 	then
 		drawshield(v, player, xoffset, yoffset, player.powers[pw_shield], FRACUNIT>>1)
